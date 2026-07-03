@@ -1,10 +1,10 @@
 [versions]
 retrofit = "3.0.0"
-okhttp = "5.3.2"
-jackson = "2.21.4"
+okhttp = "5.4.0"
+jackson = "2.22.0"
 junit = "5.11.4"
 assertj = "3.27.7"
-mockito = "5.14.2"
+mockito = "5.23.0"
 
 [libraries]
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
