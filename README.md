@@ -4,7 +4,7 @@
 
 A clean, type-safe **Java 21** reimplementation of the Python
 [`yfinance`](https://github.com/ranaroussi/yfinance) library, built on
-**Retrofit 3** / OkHttp 5 / Jackson and **Gradle 9.5.1**.
+**Retrofit 3** / OkHttp 5 / Jackson and **Gradle 9**.
 
 It talks to Yahoo Finance's (undocumented) JSON endpoints and exposes the data
 as immutable **records** with specific types — `BigDecimal` for money,
