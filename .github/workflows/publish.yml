@@ -23,6 +23,6 @@ jobs:
         uses: gradle/actions/setup-gradle@v6
 
       - name: Publish to GitHub Packages
-        run: ./gradlew publish -PreleaseVersion="${GITHUB_REF_NAME#v}"
+        run: ./gradlew verifySourcesPublication publish -PreleaseVersion="${GITHUB_REF_NAME#v}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

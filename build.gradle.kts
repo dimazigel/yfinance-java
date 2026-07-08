@@ -1,3 +1,22 @@
+abstract class VerifySourcesPublicationTask : org.gradle.api.DefaultTask() {
+    @get:org.gradle.api.tasks.InputFile
+    abstract val sourcesJarFile: org.gradle.api.file.RegularFileProperty
+
+    @get:org.gradle.api.tasks.Input
+    abstract val publicationIncludesSources: org.gradle.api.provider.Property<Boolean>
+
+    @org.gradle.api.tasks.TaskAction
+    fun verify() {
+        val sourcesJar = sourcesJarFile.get().asFile
+        require(sourcesJar.isFile) {
+            "Expected sources jar to be built at ${sourcesJar.absolutePath}"
+        }
+        require(publicationIncludesSources.get()) {
+            "Maven publication 'mavenJava' must include the sources jar."
+        }
+    }
+}
+
 plugins {
     `java-library`
     `maven-publish`
@@ -45,6 +64,21 @@ publishing {
             }
         }
     }
+}
+
+val builtSourcesJarFile = tasks.named<Jar>("sourcesJar").flatMap { it.archiveFile }
+val mavenJavaPublishesSources = publishing.publications
+    .named<MavenPublication>("mavenJava")
+    .get()
+    .artifacts
+    .any { it.classifier == "sources" }
+
+tasks.register<VerifySourcesPublicationTask>("verifySourcesPublication") {
+    description = "Verifies the Maven publication includes the sources jar."
+    group = "verification"
+    dependsOn(tasks.named("sourcesJar"))
+    sourcesJarFile.set(builtSourcesJarFile)
+    publicationIncludesSources.set(mavenJavaPublishesSources)
 }
 
 // Dedicated source set for live integration tests that hit real Yahoo Finance.
