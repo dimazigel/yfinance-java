@@ -46,6 +46,6 @@ jobs:
 
       - name: Publish to GitHub Packages
         if: steps.registry.outputs.published == 'false'
-        run: ./gradlew verifySourcesPublication publish -PreleaseVersion="${GITHUB_REF_NAME#v}"
+        run: ./gradlew verifySourcesPublication publishAllPublicationsToGitHubPackagesRepository -PreleaseVersion="${GITHUB_REF_NAME#v}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

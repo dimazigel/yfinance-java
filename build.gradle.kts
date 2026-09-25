@@ -1,3 +1,5 @@
+import com.vanniktech.maven.publish.JavaLibrary
+import com.vanniktech.maven.publish.JavadocJar
 import net.ltgt.gradle.errorprone.errorprone
 import net.ltgt.gradle.nullaway.nullaway
 
@@ -15,20 +17,20 @@ abstract class VerifySourcesPublicationTask : org.gradle.api.DefaultTask() {
             "Expected sources jar to be built at ${sourcesJar.absolutePath}"
         }
         require(publicationIncludesSources.get()) {
-            "Maven publication 'mavenJava' must include the sources jar."
+            "Maven publication 'maven' must include the sources jar."
         }
     }
 }
 
 plugins {
     `java-library`
-    `maven-publish`
     jacoco
     alias(libs.plugins.errorprone)
     alias(libs.plugins.nullaway)
+    alias(libs.plugins.maven.publish) // maven-publish + signing + Maven Central Portal upload
 }
 
-group = "io.ziggy"
+group = "io.github.dimazigel"
 version = providers.gradleProperty("releaseVersion").getOrElse("0.1.0-SNAPSHOT")
 
 java {
@@ -36,11 +38,48 @@ java {
         languageVersion = JavaLanguageVersion.of(21)
     }
     withSourcesJar()
-    withJavadocJar()
+    // No withJavadocJar(): the maven.publish plugin builds the javadoc jar (plainJavadocJar) itself.
 }
 
 tasks.javadoc {
     (options as StandardJavadocDocletOptions).addBooleanOption("Xdoclint:none", true)
+}
+
+// Two destinations, published by explicit task so neither can fail the other:
+//   publishAllPublicationsToGitHubPackagesRepository  (GITHUB_TOKEN; always available in Actions)
+//   publishToMavenCentral                              (Central Portal token + GPG key; see RELEASING.md)
+// Plain `publish` would try both. Signing is only wired when a key is configured, so local and
+// GitHub Packages publishing work without one; Maven Central rejects unsigned artifacts anyway.
+mavenPublishing {
+    configure(JavaLibrary(javadocJar = JavadocJar.Javadoc(), sourcesJar = true))
+    publishToMavenCentral(automaticRelease = true)
+    if (providers.gradleProperty("signingInMemoryKey").isPresent) {
+        signAllPublications()
+    }
+    pom {
+        name = "yfinance-java"
+        description = "Java 21 client for Yahoo Finance market data (port of Python yfinance)"
+        url = "https://github.com/dimazigel/yfinance-java"
+        inceptionYear = "2026"
+        licenses {
+            license {
+                name = "The Apache License, Version 2.0"
+                url = "https://www.apache.org/licenses/LICENSE-2.0.txt"
+            }
+        }
+        developers {
+            developer {
+                id = "dimazigel"
+                name = "Dmitry Tsigelnik"
+                url = "https://github.com/dimazigel"
+            }
+        }
+        scm {
+            url = "https://github.com/dimazigel/yfinance-java"
+            connection = "scm:git:https://github.com/dimazigel/yfinance-java.git"
+            developerConnection = "scm:git:ssh://git@github.com/dimazigel/yfinance-java.git"
+        }
+    }
 }
 
 publishing {
@@ -54,26 +93,11 @@ publishing {
             }
         }
     }
-    publications {
-        create<MavenPublication>("mavenJava") {
-            from(components["java"])
-            pom {
-                name = "yfinance-java"
-                description = "Java 21 client for Yahoo Finance market data (port of Python yfinance)"
-                licenses {
-                    license {
-                        name = "The Apache License, Version 2.0"
-                        url = "https://www.apache.org/licenses/LICENSE-2.0.txt"
-                    }
-                }
-            }
-        }
-    }
 }
 
 val builtSourcesJarFile = tasks.named<Jar>("sourcesJar").flatMap { it.archiveFile }
 val mavenJavaPublishesSources = publishing.publications
-    .named<MavenPublication>("mavenJava")
+    .named<MavenPublication>("maven")
     .get()
     .artifacts
     .any { it.classifier == "sources" }
