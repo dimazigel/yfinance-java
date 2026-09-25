@@ -135,7 +135,7 @@ class YFinanceTest {
         server.enqueue(Fixtures.jsonResponse("quotesummary_aapl.json"));
         var infos = tickers.infos();
         assertThat(infos).hasSize(2);
-        assertThat(infos.get(tickers.symbols().getFirst()).value().profile().sector())
+        assertThat(infos.get(tickers.symbols().getFirst()).orElseThrow().profile().sector())
                 .isEqualTo("Technology");
     }
 

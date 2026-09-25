@@ -6,12 +6,12 @@ import io.ziggy.yfinance.exception.YFDataException;
 import io.ziggy.yfinance.exception.YFinanceException;
 import io.ziggy.yfinance.model.Info;
 import io.ziggy.yfinance.model.PriceHistory;
-import io.ziggy.yfinance.service.HistoryRequest;
 import io.ziggy.yfinance.valueobject.Symbol;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -24,6 +24,9 @@ import org.jspecify.annotations.Nullable;
  * A group of tickers. Queries are fanned out across symbols with bounded concurrency, and each
  * symbol yields an independent {@link Result} — one symbol failing never discards the others, which
  * is what an ingestion pipeline needs.
+ *
+ * <p>{@link #fetch(Function)} fans out any {@link Ticker} call; {@link #infos()} and
+ * {@link #histories(Range, Interval)} are shorthands for the two most common ones.
  */
 public final class Tickers {
 
@@ -59,16 +62,28 @@ public final class Tickers {
         return new Ticker(yf, symbol);
     }
 
+    /**
+     * Applies {@code fetcher} to every symbol's {@link Ticker} concurrently, e.g.
+     * {@code tickers.fetch(Ticker::optionChain)} or {@code tickers.fetch(t -> t.financials(INCOME, ANNUAL))}.
+     *
+     * <p>A fetcher that throws yields a {@link Result.Failure} for that symbol only; a fetcher that
+     * returns {@code null} (some calls are {@code @Nullable}, e.g. {@link Ticker#analystPriceTargets()}
+     * for an index) yields a failure whose message says no data was returned.
+     */
+    public <T> Map<Symbol, Result<T>> fetch(Function<? super Ticker, ? extends @Nullable T> fetcher) {
+        Objects.requireNonNull(fetcher, "fetcher");
+        return fanOut(symbol -> fetcher.apply(new Ticker(yf, symbol)));
+    }
+
     public Map<Symbol, Result<Info>> infos() {
-        return fanOut(yf.quote::getInfo);
+        return fetch(Ticker::info);
     }
 
     public Map<Symbol, Result<PriceHistory>> histories(Range range, Interval interval) {
-        return fanOut(symbol -> yf.history.getHistory(
-                HistoryRequest.builder(symbol).range(range).interval(interval).build()));
+        return fetch(ticker -> ticker.history(range, interval));
     }
 
-    private <T> Map<Symbol, Result<T>> fanOut(Function<Symbol, T> fetch) {
+    private <T> Map<Symbol, Result<T>> fanOut(Function<Symbol, ? extends @Nullable T> fetch) {
         var permits = new Semaphore(concurrency);
         try (ExecutorService pool = Executors.newVirtualThreadPerTaskExecutor()) {
             Map<Symbol, Future<Result<T>>> futures = new LinkedHashMap<>();
@@ -88,9 +103,13 @@ public final class Tickers {
         }
     }
 
-    private static <T> Result<T> runOne(Symbol symbol, Function<Symbol, T> fetch) {
+    private static <T> Result<T> runOne(Symbol symbol, Function<Symbol, ? extends @Nullable T> fetch) {
         try {
-            return Result.success(symbol, fetch.apply(symbol));
+            T value = fetch.apply(symbol);
+            if (value == null) {
+                return Result.failure(symbol, new YFDataException(symbol + ": no data returned"));
+            }
+            return Result.success(symbol, value);
         } catch (YFinanceException e) {
             return Result.failure(symbol, e);
         } catch (RuntimeException e) {
@@ -110,30 +129,68 @@ public final class Tickers {
     }
 
     /**
-     * The outcome of fetching one symbol: either a {@code value} (success) or an {@code error}.
+     * The outcome of fetching one symbol: a {@link Success} carrying the value or a {@link Failure}
+     * carrying the exception. Sealed, so a {@code switch} over it is exhaustive without a default:
+     *
+     * <pre>{@code
+     * switch (result) {
+     *     case Tickers.Result.Success<Info> ok -> store(ok.symbol(), ok.value());
+     *     case Tickers.Result.Failure<Info> failed -> log.warn("{}: {}", failed.symbol(), failed.error().getMessage());
+     * }
+     * }</pre>
      *
      * @param <T> the payload type
      */
-    public record Result<T>(Symbol symbol, @Nullable T value, @Nullable YFinanceException error) {
+    public sealed interface Result<T> permits Result.Success, Result.Failure {
 
-        public static <T> Result<T> success(Symbol symbol, T value) {
-            return new Result<>(symbol, Objects.requireNonNull(value, "value"), null);
-        }
-
-        public static <T> Result<T> failure(Symbol symbol, YFinanceException error) {
-            return new Result<>(symbol, null, Objects.requireNonNull(error, "error"));
-        }
-
-        public boolean isSuccess() {
-            return error == null;
-        }
+        Symbol symbol();
 
         /** Returns the value on success, or rethrows the captured error. */
-        public T orElseThrow() {
-            if (error != null) {
+        T orElseThrow();
+
+        default boolean isSuccess() {
+            return this instanceof Success<T>;
+        }
+
+        /** The value on success, empty on failure. */
+        default Optional<T> toOptional() {
+            return this instanceof Success<T> ok ? Optional.of(ok.value()) : Optional.empty();
+        }
+
+        static <T> Result<T> success(Symbol symbol, T value) {
+            return new Success<>(symbol, value);
+        }
+
+        static <T> Result<T> failure(Symbol symbol, YFinanceException error) {
+            return new Failure<>(symbol, error);
+        }
+
+        /** A symbol whose fetch succeeded. */
+        record Success<T>(Symbol symbol, T value) implements Result<T> {
+
+            public Success {
+                Objects.requireNonNull(symbol, "symbol");
+                Objects.requireNonNull(value, "value");
+            }
+
+            @Override
+            public T orElseThrow() {
+                return value;
+            }
+        }
+
+        /** A symbol whose fetch failed; the batch carried on without it. */
+        record Failure<T>(Symbol symbol, YFinanceException error) implements Result<T> {
+
+            public Failure {
+                Objects.requireNonNull(symbol, "symbol");
+                Objects.requireNonNull(error, "error");
+            }
+
+            @Override
+            public T orElseThrow() {
                 throw error;
             }
-            return Objects.requireNonNull(value, "value"); // success results always carry a value
         }
     }
 }

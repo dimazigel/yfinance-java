@@ -50,13 +50,17 @@ for (Dividend d : history.dividends()) {
 // Type-safe fundamental line items instead of magic strings:
 BigDecimal revenue = income.value(LineItem.TOTAL_REVENUE, period);
 
-// Fan out across symbols with bounded concurrency; one bad symbol never drops the rest:
+// Fan out any Ticker call across symbols with bounded concurrency; one bad symbol never
+// drops the rest. Result is sealed, so the switch is exhaustive without a default:
 Map<Symbol, Tickers.Result<Info>> infos =
         yf.tickers("AAPL", "MSFT", "GOOG").withConcurrency(4).infos();
 infos.forEach((symbol, result) -> {
-    if (result.isSuccess()) store(symbol, result.value());
-    else log.warn("skip {}: {}", symbol, result.error().getMessage());
+    switch (result) {
+        case Tickers.Result.Success<Info> ok -> store(symbol, ok.value());
+        case Tickers.Result.Failure<Info> failed -> log.warn("skip {}: {}", symbol, failed.error().getMessage());
+    }
 });
+Map<Symbol, Tickers.Result<OptionChain>> chains = yf.tickers("AAPL", "MSFT").fetch(Ticker::optionChain);
 ```
 
 `YFinance` is thread-safe — hold one instance (e.g. a singleton) and `close()` it on shutdown.
@@ -196,8 +200,9 @@ All failures surface as `YFinanceException` subtypes:
 | `YFRateLimitException` | HTTP 429 after all adaptive retries; carries `retryAfter()` when Yahoo sent it |
 | `YFAuthException` | The cookie/crumb handshake failed |
 
-Batch calls via `Tickers` never throw per-symbol — each symbol yields a
-`Tickers.Result` holding either the value or the exception.
+Batch calls via `Tickers` never throw per-symbol — each symbol yields a sealed
+`Tickers.Result`: a `Success` holding the value or a `Failure` holding the exception
+(`orElseThrow()` and `toOptional()` are available on both).
 
 > Note: Yahoo Finance has no public/supported API. This library mirrors what the
 > Python `yfinance` project does and is for personal/research use; endpoints and
