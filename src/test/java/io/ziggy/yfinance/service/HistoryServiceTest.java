@@ -11,8 +11,10 @@ import io.ziggy.yfinance.model.PriceHistory;
 import io.ziggy.yfinance.testsupport.Fixtures;
 import io.ziggy.yfinance.valueobject.Symbol;
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.Currency;
 import java.util.Set;
 import okhttp3.mockwebserver.MockResponse;
@@ -101,6 +103,24 @@ class HistoryServiceTest {
         assertThat(url.queryParameter("period1")).isEqualTo("1000");
         assertThat(url.queryParameter("period2")).isEqualTo("2000");
         assertThat(url.queryParameter("range")).isNull();
+    }
+
+    @Test
+    void openEndedPeriodDefaultsEndToNow() throws Exception {
+        // Yahoo rejects period1 without period2 ("start date cannot be after end date ... endDate = -1"),
+        // so an open-ended window must send the current time, like Python yfinance does.
+        var fixedNow = Instant.ofEpochSecond(1_800_000_000L);
+        var clocked = new HistoryService(Fixtures.api(server, ChartApi.class), Clock.fixed(fixedNow, ZoneOffset.UTC));
+        server.enqueue(Fixtures.jsonResponse("chart_aapl_1d.json"));
+
+        clocked.getHistory(HistoryRequest.builder(Symbol.of("AAPL"))
+                .interval(Interval.ONE_DAY)
+                .period(Instant.ofEpochSecond(1000), null)
+                .build());
+
+        var url = server.takeRequest().getRequestUrl();
+        assertThat(url.queryParameter("period1")).isEqualTo("1000");
+        assertThat(url.queryParameter("period2")).isEqualTo("1800000000");
     }
 
     @Test

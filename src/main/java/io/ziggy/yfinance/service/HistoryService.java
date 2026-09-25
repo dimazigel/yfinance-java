@@ -8,6 +8,7 @@ import io.ziggy.yfinance.exception.YFDataException;
 import io.ziggy.yfinance.mapper.ChartMapper;
 import io.ziggy.yfinance.mapper.PriceBarResampler;
 import io.ziggy.yfinance.model.PriceHistory;
+import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Objects;
@@ -22,9 +23,15 @@ import java.util.stream.Collectors;
 public final class HistoryService {
 
     private final ChartApi api;
+    private final Clock clock;
 
     public HistoryService(ChartApi api) {
+        this(api, Clock.systemUTC());
+    }
+
+    public HistoryService(ChartApi api, Clock clock) {
         this.api = Objects.requireNonNull(api, "api");
+        this.clock = Objects.requireNonNull(clock, "clock");
     }
 
     public PriceHistory getHistory(HistoryRequest request) {
@@ -50,16 +57,17 @@ public final class HistoryService {
         String events = request.events().stream()
                 .map(EventType::wireValue)
                 .collect(Collectors.joining(","));
-        // A request carries either an explicit period (start[, end]) or a range, never both.
+        // A request carries either an explicit period (start[, end]) or a range, never both. Yahoo
+        // rejects period1 without period2, so an open-ended window ends now.
         Instant start = request.start();
-        Instant end = request.end();
+        Instant end = request.end() != null ? request.end() : clock.instant();
         Range range = request.range();
         var response = api.chart(
                 request.symbol().value(),
                 interval.wireValue(),
                 start == null && range != null ? range.wireValue() : null,
                 start != null ? start.getEpochSecond() : null,
-                start != null && end != null ? end.getEpochSecond() : null,
+                start != null ? end.getEpochSecond() : null,
                 request.includePrePost(),
                 events.isEmpty() ? null : events);
         return ChartMapper.toPriceHistory(response, request.symbol());

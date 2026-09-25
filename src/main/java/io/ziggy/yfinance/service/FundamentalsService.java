@@ -30,7 +30,16 @@ public final class FundamentalsService {
         this.clock = Objects.requireNonNull(clock, "clock");
     }
 
+    /**
+     * @throws IllegalArgumentException for {@link Frequency#TRAILING} with
+     *     {@link StatementType#BALANCE_SHEET}: Yahoo only publishes trailing-twelve-month figures
+     *     for flow statements (income and cash flow), never for a point-in-time balance sheet
+     */
     public FinancialStatement getStatement(Symbol symbol, StatementType type, Frequency frequency) {
+        if (frequency == Frequency.TRAILING && type == StatementType.BALANCE_SHEET) {
+            throw new IllegalArgumentException(
+                    "Yahoo has no trailing balance sheet; use ANNUAL or QUARTERLY for " + symbol);
+        }
         String typeParam = FundamentalKeys.forStatement(type).stream()
                 .map(key -> frequency.wireValue() + key)
                 .collect(Collectors.joining(","));

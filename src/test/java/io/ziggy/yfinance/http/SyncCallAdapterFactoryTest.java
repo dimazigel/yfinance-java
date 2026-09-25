@@ -38,6 +38,7 @@ class SyncCallAdapterFactoryTest {
         assertThatThrownBy(() -> api.chart("AAPL", "1d", "1mo", null, null, false, null))
                 .isInstanceOf(YFDataException.class)
                 .hasMessageContaining("500")
+                .hasMessageContaining("/v8/finance/chart/AAPL") // which request failed
                 .hasMessageContaining("upstream boom details");
     }
 
@@ -49,7 +50,7 @@ class SyncCallAdapterFactoryTest {
 
         assertThatThrownBy(() -> api.chart("NOPE", "1d", "1mo", null, null, false, null))
                 .isInstanceOf(YFDataException.class)
-                .hasMessage("Yahoo Finance returned HTTP 404: No data found, symbol may be delisted");
+                .hasMessage("Yahoo Finance returned HTTP 404 for /v8/finance/chart/NOPE: No data found, symbol may be delisted");
     }
 
     @Test
