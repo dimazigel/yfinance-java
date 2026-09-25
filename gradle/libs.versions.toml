@@ -10,6 +10,7 @@ errorprone = "2.50.0"
 nullaway = "0.14.2"
 errorprone-plugin = "5.1.1"
 nullaway-plugin = "3.2.0"
+spotless = "8.10.2"
 
 [libraries]
 jspecify = { module = "org.jspecify:jspecify", version.ref = "jspecify" }
@@ -36,3 +37,4 @@ mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito" }
 [plugins]
 errorprone = { id = "net.ltgt.errorprone", version.ref = "errorprone-plugin" }
 nullaway = { id = "net.ltgt.nullaway", version.ref = "nullaway-plugin" }
+spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }

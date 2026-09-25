@@ -11,10 +11,10 @@ import org.jspecify.annotations.Nullable;
 public record QuoteResponse(@Nullable Envelope quoteResponse) {
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record Envelope(@Nullable List<Result> result, @Nullable Error error) {}
+    public record Envelope(@Nullable List<Result> result, @Nullable ErrorBody error) {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record Error(@Nullable String code, @Nullable String description) implements YahooError {}
+    public record ErrorBody(@Nullable String code, @Nullable String description) implements YahooError {}
 
     /**
      * One quoted instrument. Note {@code trailingAnnualDividendYield} is a fraction (0.0031) whereas

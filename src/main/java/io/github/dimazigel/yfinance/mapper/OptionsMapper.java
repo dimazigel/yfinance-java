@@ -1,9 +1,9 @@
 package io.github.dimazigel.yfinance.mapper;
 
+import io.github.dimazigel.yfinance.dto.options.OptionChainResponse;
 import io.github.dimazigel.yfinance.dto.options.OptionChainResponse.Contract;
 import io.github.dimazigel.yfinance.dto.options.OptionChainResponse.OptionsByExpiration;
 import io.github.dimazigel.yfinance.dto.options.OptionChainResponse.Result;
-import io.github.dimazigel.yfinance.dto.options.OptionChainResponse;
 import io.github.dimazigel.yfinance.enums.OptionType;
 import io.github.dimazigel.yfinance.exception.YFDataException;
 import io.github.dimazigel.yfinance.model.OptionChain;

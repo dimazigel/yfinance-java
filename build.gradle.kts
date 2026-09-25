@@ -26,6 +26,7 @@ plugins {
     jacoco
     alias(libs.plugins.errorprone)
     alias(libs.plugins.nullaway)
+    alias(libs.plugins.spotless)
 }
 
 group = "io.github.dimazigel"
@@ -41,6 +42,29 @@ java {
 
 tasks.javadoc {
     (options as StandardJavadocDocletOptions).addBooleanOption("Xdoclint:none", true)
+}
+
+tasks.jar {
+    // Stable JPMS name for module-path consumers; without it the name derives from the jar filename.
+    manifest.attributes("Automatic-Module-Name" to "io.github.dimazigel.yfinance")
+}
+
+// Formatting is deliberately light: the codebase's existing style (4-space indent, ~110 columns) is
+// kept as-is; Spotless only pins import order (static first, then one lexicographic block), unused
+// imports, trailing whitespace and final newlines. `./gradlew spotlessApply` fixes, `check` verifies.
+spotless {
+    java {
+        target("src/*/java/**/*.java")
+        importOrder("\\#", "")
+        removeUnusedImports()
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+    kotlinGradle {
+        target("*.gradle.kts")
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
 }
 
 // GitHub Packages is the only publishing destination (Maven Central was considered and declined).
@@ -112,15 +136,18 @@ configurations[integrationTest.runtimeOnlyConfigurationName]
     .extendsFrom(configurations.testRuntimeOnly.get())
 
 dependencies {
+    // `api`: types that appear in the public API (HttpUrl/OkHttpClient.Builder in EndpointConfig,
+    // Retrofit in YahooApis, JSpecify annotations everywhere). Jackson is an implementation detail:
+    // consumers see it at runtime only.
     api(platform(libs.okhttp.bom))
-    api(platform(libs.jackson.bom))
-
-    api(libs.retrofit)
-    api(libs.retrofit.converter.jackson)
     api(libs.okhttp)
-    api(libs.jackson.databind)
-    api(libs.jackson.datatype.jsr310)
-    api(libs.jspecify) // nullness annotations are part of the public API
+    api(libs.retrofit)
+    api(libs.jspecify)
+
+    implementation(platform(libs.jackson.bom))
+    implementation(libs.retrofit.converter.jackson)
+    implementation(libs.jackson.databind)
+    implementation(libs.jackson.datatype.jsr310)
 
     errorprone(libs.errorprone.core)
     errorprone(libs.nullaway)
@@ -137,12 +164,13 @@ nullaway {
     onlyNullMarked = true // packages opt in via @NullMarked in package-info.java
 }
 
-// Error Prone is used only as the vehicle for NullAway, which verifies the JSpecify annotations on
-// main code. All other Error Prone checks are disabled to keep the build focused and quiet.
+// Main code compiles with Error Prone's default checks plus NullAway (JSpecify mode) and -Werror, so
+// any finding fails the build instead of scrolling past. Test code is compiled without Error Prone.
 tasks.withType<JavaCompile>().configureEach {
+    val isMain = name == "compileJava"
     options.errorprone {
-        disableAllChecks = true
-        if (name == "compileJava") {
+        disableAllChecks = !isMain
+        if (isMain) {
             nullaway {
                 error()
                 jspecifyMode = true
@@ -150,6 +178,9 @@ tasks.withType<JavaCompile>().configureEach {
         } else {
             nullaway { disable() }
         }
+    }
+    if (isMain) {
+        options.compilerArgs.add("-Werror")
     }
 }
 
@@ -166,6 +197,29 @@ tasks.jacocoTestReport {
         xml.required = true
         html.required = true
     }
+}
+
+// Coverage floor (measured 88% line / 64% branch when introduced); `check` fails below it.
+tasks.jacocoTestCoverageVerification {
+    dependsOn(tasks.test)
+    violationRules {
+        rule {
+            limit {
+                counter = "LINE"
+                value = "COVEREDRATIO"
+                minimum = "0.85".toBigDecimal()
+            }
+            limit {
+                counter = "BRANCH"
+                value = "COVEREDRATIO"
+                minimum = "0.60".toBigDecimal()
+            }
+        }
+    }
+}
+
+tasks.check {
+    dependsOn(tasks.jacocoTestCoverageVerification)
 }
 
 val integrationTestTask = tasks.register<Test>("integrationTest") {

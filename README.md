@@ -182,7 +182,8 @@ YFinance / Ticker / Tickers — the facade
 ./gradlew test                # fast, deterministic unit tests (MockWebServer + JSON fixtures) + JaCoCo
 ./gradlew integrationTest     # opt-in: hits the real Yahoo Finance API (@Tag("live"))
                               # also runs weekly in CI (.github/workflows/live.yml) to catch API drift
-./gradlew build               # compile + unit tests + assemble jar
+./gradlew build               # compile + unit tests + Spotless check + coverage floor + assemble jar
+./gradlew spotlessApply       # fix import order / whitespace
 ./gradlew publishToMavenLocal # install io.github.dimazigel:yfinance-java:0.1.0-SNAPSHOT locally
 ```
 
@@ -220,8 +221,9 @@ Unit tests never touch the network; they replay hand-written JSON fixtures from
 and runs weekly in CI so that Yahoo API drift shows up as a failed run.
 
 CI (GitHub Actions, `.github/workflows/build.yml`) runs `./gradlew build` on every
-push/PR and uploads the JaCoCo coverage report as an artifact. The build compiles main
-code with NullAway, so a nullness mistake is a compile error. The Gradle
+push/PR and uploads the JaCoCo coverage report as an artifact; CodeQL scans on every push, PR and
+weekly. The build compiles main code with Error Prone, NullAway and `-Werror`, so a nullness mistake
+or an Error Prone finding is a compile error. The Gradle
 configuration cache is enabled via `gradle.properties`.
 
 ## License

@@ -42,6 +42,8 @@ public final class Ticker {
     }
 
     /**
+     * Price history for an arbitrary {@link HistoryRequest} built for this ticker's symbol.
+     *
      * @throws IllegalArgumentException if {@code request} was built for a different symbol; a
      *     request for MSFT sent through the AAPL ticker would otherwise silently fetch MSFT
      */

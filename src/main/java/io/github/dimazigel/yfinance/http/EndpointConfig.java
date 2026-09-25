@@ -37,7 +37,7 @@ public record EndpointConfig(
 
     private static final Duration DEFAULT_CALL_TIMEOUT = Duration.ofSeconds(30);
 
-    private static final Consumer<OkHttpClient.Builder> NO_CUSTOMIZATION = builder -> {};
+    private static final Consumer<OkHttpClient.Builder> NO_CUSTOMIZATION = EndpointConfig::noCustomization;
 
     public EndpointConfig {
         Objects.requireNonNull(query1Base, "query1Base");
@@ -101,6 +101,8 @@ public record EndpointConfig(
         return new EndpointConfig(
                 query1Base, query2Base, cookieUrl, userAgent, callTimeout, adaptiveRateLimit, customizer);
     }
+
+    private static void noCustomization(OkHttpClient.Builder builder) {}
 
     /** URL of the crumb-issuing endpoint on the primary host. */
     public HttpUrl crumbUrl() {

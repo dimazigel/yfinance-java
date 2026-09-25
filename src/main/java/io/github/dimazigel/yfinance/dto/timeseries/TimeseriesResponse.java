@@ -14,10 +14,10 @@ import org.jspecify.annotations.Nullable;
 public record TimeseriesResponse(@Nullable Timeseries timeseries) {
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record Timeseries(@Nullable List<Result> result, @Nullable Error error) {}
+    public record Timeseries(@Nullable List<Result> result, @Nullable ErrorBody error) {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record Error(@Nullable String code, @Nullable String description) implements YahooError {}
+    public record ErrorBody(@Nullable String code, @Nullable String description) implements YahooError {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record Meta(@Nullable List<String> symbol, @Nullable List<String> type) {}

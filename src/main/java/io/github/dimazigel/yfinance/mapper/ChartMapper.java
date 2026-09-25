@@ -1,13 +1,13 @@
 package io.github.dimazigel.yfinance.mapper;
 
+import io.github.dimazigel.yfinance.dto.chart.ChartResponse;
 import io.github.dimazigel.yfinance.dto.chart.ChartResponse.AdjClose;
 import io.github.dimazigel.yfinance.dto.chart.ChartResponse.ChartEvents;
 import io.github.dimazigel.yfinance.dto.chart.ChartResponse.ChartMeta;
 import io.github.dimazigel.yfinance.dto.chart.ChartResponse.ChartResult;
 import io.github.dimazigel.yfinance.dto.chart.ChartResponse.CurrentTradingPeriod;
-import io.github.dimazigel.yfinance.dto.chart.ChartResponse.TradingPeriod;
 import io.github.dimazigel.yfinance.dto.chart.ChartResponse.Quote;
-import io.github.dimazigel.yfinance.dto.chart.ChartResponse;
+import io.github.dimazigel.yfinance.dto.chart.ChartResponse.TradingPeriod;
 import io.github.dimazigel.yfinance.exception.YFDataException;
 import io.github.dimazigel.yfinance.model.CapitalGain;
 import io.github.dimazigel.yfinance.model.Dividend;
@@ -21,7 +21,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import org.jspecify.annotations.Nullable;
 import org.jspecify.annotations.Nullable;
 
 /** Maps the raw {@link ChartResponse} into the clean {@link PriceHistory} model. */

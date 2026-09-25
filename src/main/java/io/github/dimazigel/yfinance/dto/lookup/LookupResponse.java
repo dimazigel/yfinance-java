@@ -11,10 +11,10 @@ import org.jspecify.annotations.Nullable;
 public record LookupResponse(@Nullable Finance finance) {
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record Finance(@Nullable List<Result> result, @Nullable Error error) {}
+    public record Finance(@Nullable List<Result> result, @Nullable ErrorBody error) {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record Error(@Nullable String code, @Nullable String description) implements YahooError {}
+    public record ErrorBody(@Nullable String code, @Nullable String description) implements YahooError {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record Result(@Nullable List<Document> documents) {}
