@@ -35,7 +35,7 @@ Request flow: `YFinance` / `Ticker` / `Tickers` (facade) → `service/` → `api
 - **`auth/CrumbStore`**: gets a cookie from `fc.yahoo.com`, then a crumb from `/v1/test/getcrumb`, and caches it until invalidated.
 - **`http/YahooObjectMapper` + `RawAwareNumberModule`**: quoteSummary returns some numbers as `{raw, fmt}` objects even with `formatted=false`. This module unwraps them globally for Long, Integer and BigDecimal. Don't add per-field workarounds.
 - **`enums/`**: closed sets implement `WireEnum` (`wireValue()`). Resolve incoming values with `WireEnum.fromWire(values(), wire, label)`. `LineItem` gives type-safe keys for fundamentals.
-- **`Tickers`**: fans out across symbols with virtual threads and a `Semaphore` (`withConcurrency(n)`). It returns `Map<Symbol, Tickers.Result<T>>` and never throws for an individual symbol.
+- **`Tickers`**: `fetch(Function<Ticker, T>)` fans out any `Ticker` call across symbols with virtual threads and a `Semaphore` (`withConcurrency(n)`); `infos()`/`histories()` are shorthands. It returns `Map<Symbol, Tickers.Result<T>>` and never throws for an individual symbol. `Result` is a sealed interface (`Success`/`Failure` records) — prefer an exhaustive `switch` over `isSuccess()` checks; a fetcher returning `null` becomes a `Failure`, never a `Success` with a null value.
 - **`YFinance.fromApis(YahooApis)`** skips the handshake. Use it for tests and advanced wiring.
 
 ## Conventions

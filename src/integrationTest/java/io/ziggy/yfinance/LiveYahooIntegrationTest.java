@@ -473,8 +473,17 @@ class LiveYahooIntegrationTest {
 
             var failure = results.get(Symbol.of("NO_SUCH_SYMBOL_XYZ"));
             assertThat(failure.isSuccess()).isFalse();
-            assertThat(failure.error()).isInstanceOf(YFDataException.class);
-            assertThatThrownBy(failure::orElseThrow).isSameAs(failure.error());
+            assertThat(failure).isInstanceOfSatisfying(Tickers.Result.Failure.class, f -> {
+                assertThat(f.error()).isInstanceOf(YFDataException.class).hasMessageContaining("NO_SUCH_SYMBOL_XYZ");
+                assertThatThrownBy(failure::orElseThrow).isSameAs(f.error());
+            });
+        }
+
+        @Test
+        void fetchFansOutAnyTickerMethod() {
+            var dividends = yf.tickers("AAPL", "MSFT", "KO").withConcurrency(3).fetch(Ticker::dividends);
+            assertThat(dividends).hasSize(3).allSatisfy((symbol, r) ->
+                    assertThat(r.orElseThrow()).as(symbol.value()).isNotEmpty());
         }
 
         @Test
@@ -498,7 +507,7 @@ class LiveYahooIntegrationTest {
 
             var results = tickers.histories(Range.ONE_MONTH, Interval.ONE_DAY);
             assertThat(results).hasSize(4).allSatisfy((symbol, r) -> {
-                assertThat(r.isSuccess()).as("%s: %s", symbol, r.error()).isTrue();
+                assertThat(r.isSuccess()).as("%s: %s", symbol, r).isTrue();
                 assertThat(r.orElseThrow().bars()).as(symbol.value()).isNotEmpty();
             });
             assertThat(results.get(Symbol.of("BTC-USD")).orElseThrow().metadata().instrumentType())

@@ -4,8 +4,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import io.ziggy.yfinance.api.YahooApis;
 import io.ziggy.yfinance.exception.YFDataException;
+import io.ziggy.yfinance.model.Info;
+import io.ziggy.yfinance.model.OptionChain;
 import io.ziggy.yfinance.testsupport.Fixtures;
 import io.ziggy.yfinance.valueobject.Symbol;
+import java.util.List;
+import java.util.Map;
 import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -81,13 +85,62 @@ class TickersTest {
 
         var aapl = results.get(Symbol.of("AAPL"));
         assertThat(aapl.isSuccess()).isTrue();
-        assertThat(aapl.value().profile().sector()).isEqualTo("Technology");
-        assertThat(aapl.error()).isNull();
+        assertThat(aapl).isInstanceOfSatisfying(Tickers.Result.Success.class,
+                ok -> assertThat(((Info) ok.value()).profile().sector()).isEqualTo("Technology"));
+        assertThat(aapl.toOptional()).isPresent();
 
         var msft = results.get(Symbol.of("MSFT"));
         assertThat(msft.isSuccess()).isFalse();
-        assertThat(msft.value()).isNull();
-        assertThat(msft.error()).isInstanceOf(YFDataException.class);
+        assertThat(msft.toOptional()).isEmpty();
+        assertThat(msft).isInstanceOfSatisfying(Tickers.Result.Failure.class,
+                failed -> assertThat(failed.error()).isInstanceOf(YFDataException.class).hasMessageContaining("boom"));
+    }
+
+    @Test
+    void fetchFansOutAnyTickerMethod() {
+        server.setDispatcher(new Dispatcher() {
+            @Override
+            public MockResponse dispatch(RecordedRequest request) {
+                return Fixtures.jsonResponse("options_aapl.json");
+            }
+        });
+
+        Map<Symbol, Tickers.Result<OptionChain>> chains = yf.tickers("AAPL", "MSFT").fetch(Ticker::optionChain);
+
+        assertThat(chains.keySet()).extracting(Symbol::value).containsExactly("AAPL", "MSFT");
+        assertThat(chains.values()).allSatisfy(r -> assertThat(r.orElseThrow().calls()).hasSize(1));
+        assertThat(server.getRequestCount()).isEqualTo(2);
+    }
+
+    @Test
+    void fetchTurnsNullAndRuntimeFailuresIntoFailures() {
+        var results = yf.tickers("AAPL", "MSFT").fetch(t -> {
+            if (t.symbol().value().equals("AAPL")) {
+                return null; // e.g. analystPriceTargets() for an index
+            }
+            throw new IllegalStateException("mapper bug");
+        });
+
+        assertThat(results.get(Symbol.of("AAPL"))).isInstanceOfSatisfying(Tickers.Result.Failure.class,
+                f -> assertThat(f.error()).isInstanceOf(YFDataException.class).hasMessageContaining("no data"));
+        assertThat(results.get(Symbol.of("MSFT"))).isInstanceOfSatisfying(Tickers.Result.Failure.class,
+                f -> assertThat(f.error()).isInstanceOf(YFDataException.class).hasCauseInstanceOf(IllegalStateException.class));
+        assertThat(server.getRequestCount()).isZero();
+    }
+
+    @Test
+    void resultIsSealedAndPatternMatchable() {
+        List<Tickers.Result<String>> results = List.of(
+                Tickers.Result.success(Symbol.of("AAPL"), "v"),
+                Tickers.Result.failure(Symbol.of("X"), new YFDataException("nope")));
+
+        // Exhaustive switch: no default branch needed because Result is sealed.
+        var described = results.stream().map(r -> switch (r) {
+            case Tickers.Result.Success<String> ok -> ok.symbol() + "=" + ok.value();
+            case Tickers.Result.Failure<String> failed -> failed.symbol() + "!" + failed.error().getMessage();
+        }).toList();
+
+        assertThat(described).containsExactly("AAPL=v", "X!nope");
     }
 
     @Test
