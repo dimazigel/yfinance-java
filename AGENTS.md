@@ -29,7 +29,7 @@ Request flow: `YFinance` / `Ticker` / `Tickers` (facade) → `service/` → `api
 - **`service/`**: one service per concern. `HoldersService` and `AnalysisService` have no API of their own. They are built on top of `QuoteService`, since both read quoteSummary modules. `QuoteService` also owns `/v7/finance/quote` (`QuoteApi`): `getQuote`/`getQuotes` use it directly, and `getInfo` falls back to it when quoteSummary has no data for a symbol (common and inconsistent for non-equities), returning quote-only `Info`. The fallback never masks rate-limit or auth errors, and rethrows the quoteSummary error when the quote endpoint doesn't know the symbol either.
 - **`http/`**: `YahooClientFactory` builds two OkHttp clients that share one cookie jar:
   - `baseClient` handles the auth handshake. It has no crumb interceptor, which avoids recursion.
-  - `apiClient` runs the interceptor chain UserAgent → AdaptiveRateLimit → AuthRetry → Crumb.
+  - `apiClient` runs the interceptor chain UserAgent → AuthRetry → TransientErrorRetry (5xx, `RetryConfig`) → AdaptiveRateLimit → Crumb. Anything that re-issues a request sits upstream of the rate limiter so retries are paced.
   - `AdaptiveRateLimiter` retries 429s up to `maxAttempts` and paces **every** request while degraded. It takes an injected clock and sleeper for tests.
   - `AuthRetryInterceptor` invalidates the crumb on 401/403 and retries once.
   - All tuning lives in the immutable `EndpointConfig` / `AdaptiveRateLimitConfig` records. Build configs as `EndpointConfig.production().with...()` (`withHosts(base)` for tests); there are no convenience constructors.

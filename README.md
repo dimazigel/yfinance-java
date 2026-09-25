@@ -83,7 +83,10 @@ The shared client adaptively throttles on HTTP 429: a throttled request is retri
 `maxAttempts` times (waiting the adapted, jittered delay, honoring `Retry-After`), and while
 degraded **every** request is paced by the current delay until traffic recovers — no burst-429
 oscillation. Only after retries are exhausted is `YFRateLimitException` (with `retryAfter()`)
-thrown. A stale crumb (401/403) is automatically invalidated and the request retried once.
+thrown. A stale crumb (401/403) is automatically invalidated and the request retried once. Transient
+server errors (HTTP 500/502/503/504 — Yahoo's lookup endpoint is known to hiccup) are retried with
+exponential backoff, honouring `Retry-After`: 3 attempts by default, tunable or disabled via
+`EndpointConfig.withTransientRetry(RetryConfig)`.
 
 `info()` on an instrument quoteSummary cannot describe (indices, ETFs, crypto, FX, futures) does
 not fail: it falls back to `/v7/finance/quote` and returns quote-only info (`profile()` is `null`,
@@ -116,7 +119,7 @@ try (var yf = YFinance.create(config)) {
 ```
 
 Derive variants from `production()` with `withHosts(...)`, `withUserAgent(...)`, `withCallTimeout(...)`,
-`withAdaptiveRateLimit(...)` and `withClientCustomizer(...)`.
+`withAdaptiveRateLimit(...)`, `withTransientRetry(...)` and `withClientCustomizer(...)`.
 `AdaptiveRateLimitConfig.defaults()` is what `EndpointConfig.production()` uses;
 `AdaptiveRateLimitConfig.disabled()` turns throttling and 429-retries off entirely.
 

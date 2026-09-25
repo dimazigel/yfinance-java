@@ -71,4 +71,14 @@ class SyncCallAdapterFactoryTest {
                 .isInstanceOf(YFRateLimitException.class)
                 .satisfies(e -> assertThat(((YFRateLimitException) e).retryAfter()).isEmpty());
     }
+
+    @Test
+    void htmlErrorPagesAreSummarisedNotQuoted() {
+        var html = "<!doctype html public \"-//W3C//DTD HTML 4.01//EN\"><html><head><title>Yahoo! - Error report</title></head></html>";
+        server.enqueue(new MockResponse().setResponseCode(500).setBody(html));
+
+        assertThatThrownBy(() -> api.chart("AAPL", "1d", "1mo", null, null, false, null))
+                .isInstanceOf(YFDataException.class)
+                .hasMessage("Yahoo Finance returned HTTP 500 for /v8/finance/chart/AAPL: HTML error page (" + html.length() + " bytes)");
+    }
 }

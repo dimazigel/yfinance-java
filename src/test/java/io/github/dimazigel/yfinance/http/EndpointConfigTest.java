@@ -60,4 +60,14 @@ class EndpointConfigTest {
         assertThat(custom.withUserAgent("x").clientCustomizer()).isSameAs(marked);
         assertThat(custom.withHosts(URL).adaptiveRateLimit().enabled()).isFalse();
     }
+
+    @Test
+    void transientRetryDefaultsAndCopies() {
+        var config = EndpointConfig.production();
+        assertThat(config.transientRetry()).isEqualTo(RetryConfig.defaults());
+
+        var none = config.withTransientRetry(RetryConfig.disabled());
+        assertThat(none.transientRetry().maxAttempts()).isEqualTo(1);
+        assertThat(none.withCallTimeout(Duration.ofSeconds(1)).transientRetry()).isEqualTo(RetryConfig.disabled());
+    }
 }
