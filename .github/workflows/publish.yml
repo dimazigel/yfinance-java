@@ -1,11 +1,24 @@
 name: Publish
 
+# Publishes the Maven package for a release created by hand in the GitHub UI.
+#
+# Releases created by the Release workflow (release.yml) are already published by that workflow.
+# GitHub does not start this workflow for events raised with GITHUB_TOKEN, which is what release.yml
+# uses, but the `if` below makes that intent explicit and keeps it true even if release.yml ever
+# switches to a PAT or app token. The pre-publish check makes the job idempotent regardless.
+
 on:
   release:
     types: [published]
 
+# Never publish concurrently with the Release workflow (same group name).
+concurrency:
+  group: release
+  cancel-in-progress: false
+
 jobs:
   publish:
+    if: github.event.release.author.login != 'github-actions[bot]'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -13,16 +26,26 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      - name: Check whether this version is already published
+        id: registry
+        env:
+          VERSION: ${{ github.event.release.tag_name }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: .github/scripts/check-published.sh "${VERSION#v}"
+
       - name: Set up JDK 21
+        if: steps.registry.outputs.published == 'false'
         uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: 21
 
       - name: Set up Gradle
+        if: steps.registry.outputs.published == 'false'
         uses: gradle/actions/setup-gradle@v6
 
       - name: Publish to GitHub Packages
+        if: steps.registry.outputs.published == 'false'
         run: ./gradlew verifySourcesPublication publish -PreleaseVersion="${GITHUB_REF_NAME#v}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
