@@ -7,6 +7,7 @@ import io.ziggy.yfinance.exception.YFAuthException;
 import io.ziggy.yfinance.http.EndpointConfig;
 import io.ziggy.yfinance.http.YahooClientFactory;
 import io.ziggy.yfinance.valueobject.Crumb;
+import java.io.IOException;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.mockwebserver.MockResponse;
@@ -92,5 +93,60 @@ class CrumbStoreTest {
         server.enqueue(new MockResponse().setResponseCode(429).setBody("Too Many Requests"));
 
         assertThatThrownBy(() -> crumbStore.getCrumb()).isInstanceOf(YFAuthException.class);
+    }
+
+    @Test
+    void toleratesCookieSeedFailure() throws Exception {
+        HttpUrl base = server.url("/");
+        EndpointConfig config = new EndpointConfig(base, base, deadUrl(), "test-agent/1.0");
+        var store = new CrumbStore(YahooClientFactory.baseClient(config), config);
+        server.enqueue(new MockResponse().setResponseCode(200).setBody("crumb-without-cookie"));
+
+        assertThat(store.getCrumb()).isEqualTo(Crumb.of("crumb-without-cookie"));
+    }
+
+    @Test
+    void tryGetCrumbIsEmptyWhenCrumbEndpointRateLimited() {
+        server.enqueue(new MockResponse().setResponseCode(404));
+        server.enqueue(new MockResponse().setResponseCode(429).setBody("Too Many Requests"));
+
+        assertThat(crumbStore.tryGetCrumb()).isEmpty();
+    }
+
+    @Test
+    void tryGetCrumbIsEmptyOnIoFailure() throws Exception {
+        HttpUrl base = server.url("/");
+        EndpointConfig config = new EndpointConfig(deadUrl(), base, base, "test-agent/1.0");
+        var store = new CrumbStore(YahooClientFactory.baseClient(config), config);
+        server.enqueue(new MockResponse().setResponseCode(404));
+
+        assertThat(store.tryGetCrumb()).isEmpty();
+    }
+
+    @Test
+    void tryGetCrumbStillThrowsOnInvalidCrumb() {
+        server.enqueue(new MockResponse().setResponseCode(404));
+        server.enqueue(new MockResponse().setResponseCode(200).setBody("  "));
+
+        assertThatThrownBy(() -> crumbStore.tryGetCrumb()).isInstanceOf(YFAuthException.class);
+    }
+
+    @Test
+    void tryGetCrumbReturnsAndCachesCrumb() {
+        server.enqueue(new MockResponse().setResponseCode(404));
+        server.enqueue(new MockResponse().setResponseCode(200).setBody("ok-crumb"));
+
+        assertThat(crumbStore.tryGetCrumb()).contains(Crumb.of("ok-crumb"));
+        assertThat(crumbStore.getCrumb()).isEqualTo(Crumb.of("ok-crumb"));
+        assertThat(server.getRequestCount()).isEqualTo(2);
+    }
+
+    /** URL of a port with nothing listening, so connecting fails fast with an I/O error. */
+    private static HttpUrl deadUrl() throws IOException {
+        var dead = new MockWebServer();
+        dead.start();
+        HttpUrl url = dead.url("/");
+        dead.shutdown();
+        return url;
     }
 }

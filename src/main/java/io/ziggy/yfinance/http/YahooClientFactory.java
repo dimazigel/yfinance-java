@@ -29,7 +29,8 @@ public final class YahooClientFactory {
 
     /**
      * Client used for authenticated data requests: shares the cookie jar with the auth client and
-     * appends the crumb to every request.
+     * appends the crumb to every request. {@code crumb} may return {@code null} to send a request
+     * without a crumb (e.g. while the crumb endpoint is rate-limited).
      */
     public static OkHttpClient apiClient(
             EndpointConfig config, CookieJar cookieJar, Supplier<Crumb> crumb, Runnable onAuthFailure) {
@@ -47,6 +48,6 @@ public final class YahooClientFactory {
     public static OkHttpClient apiClient(EndpointConfig config) {
         var cookieJar = new InMemoryCookieJar();
         var crumbStore = new CrumbStore(baseClient(config, cookieJar), config);
-        return apiClient(config, cookieJar, crumbStore::getCrumb, crumbStore::invalidate);
+        return apiClient(config, cookieJar, () -> crumbStore.tryGetCrumb().orElse(null), crumbStore::invalidate);
     }
 }

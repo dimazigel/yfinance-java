@@ -21,4 +21,12 @@ class LineItemTest {
                 .allMatch(li -> li.statement() == StatementType.INCOME);
         assertThat(LineItem.forStatement(StatementType.CASH_FLOW)).contains(LineItem.FREE_CASH_FLOW);
     }
+
+    @Test
+    void balanceSheetIncludesFinancialSectorKeysAddedUpstream() {
+        // yfinance 1.6.0 (const.py): keys reported by insurers/banks.
+        assertThat(LineItem.forStatement(StatementType.BALANCE_SHEET))
+                .extracting(LineItem::key)
+                .contains("FixedMaturityInvestments", "EquityInvestments", "NetLoan", "DeferredAssets");
+    }
 }

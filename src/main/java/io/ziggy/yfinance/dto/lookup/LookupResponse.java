@@ -1,6 +1,7 @@
 package io.ziggy.yfinance.dto.lookup;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import io.ziggy.yfinance.dto.YahooError;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -12,7 +13,7 @@ public record LookupResponse(Finance finance) {
     public record Finance(List<Result> result, Error error) {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record Error(String code, String description) {}
+    public record Error(String code, String description) implements YahooError {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record Result(List<Document> documents) {}

@@ -42,6 +42,17 @@ class SyncCallAdapterFactoryTest {
     }
 
     @Test
+    void httpErrorWithYahooErrorEnvelopeSurfacesItsDescription() {
+        server.enqueue(new MockResponse().setResponseCode(404).setHeader("Content-Type", "application/json")
+                .setBody("{\"chart\":{\"result\":null,\"error\":{\"code\":\"Not Found\","
+                        + "\"description\":\"No data found, symbol may be delisted\"}}}"));
+
+        assertThatThrownBy(() -> api.chart("NOPE", "1d", "1mo", null, null, false, null))
+                .isInstanceOf(YFDataException.class)
+                .hasMessage("Yahoo Finance returned HTTP 404: No data found, symbol may be delisted");
+    }
+
+    @Test
     void rateLimitCarriesRetryAfter() {
         server.enqueue(new MockResponse().setResponseCode(429).setHeader("Retry-After", "12").setBody("slow down"));
 

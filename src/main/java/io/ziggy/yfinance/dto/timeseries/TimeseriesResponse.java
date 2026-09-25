@@ -2,6 +2,7 @@ package io.ziggy.yfinance.dto.timeseries;
 
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import io.ziggy.yfinance.dto.YahooError;
 import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -15,7 +16,7 @@ public record TimeseriesResponse(Timeseries timeseries) {
     public record Timeseries(List<Result> result, Error error) {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record Error(String code, String description) {}
+    public record Error(String code, String description) implements YahooError {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record Meta(List<String> symbol, List<String> type) {}

@@ -1,11 +1,15 @@
 package io.ziggy.yfinance.http;
 
+import com.fasterxml.jackson.core.JacksonException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.ziggy.yfinance.exception.YFDataException;
 import io.ziggy.yfinance.exception.YFRateLimitException;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.time.Duration;
+import java.util.Optional;
 import retrofit2.Call;
 import retrofit2.CallAdapter;
 import retrofit2.Response;
@@ -18,6 +22,8 @@ import retrofit2.Retrofit;
  * so services receive a ready-to-map DTO.
  */
 public final class SyncCallAdapterFactory extends CallAdapter.Factory {
+
+    private static final ObjectMapper JSON = new ObjectMapper();
 
     public static SyncCallAdapterFactory create() {
         return new SyncCallAdapterFactory();
@@ -64,17 +70,35 @@ public final class SyncCallAdapterFactory extends CallAdapter.Factory {
         return body;
     }
 
-    /** Reads the (already-buffered) error body for a clearer message; tolerant of read failures. */
+    /**
+     * Reads the (already-buffered) error body for a clearer message; tolerant of read failures. When
+     * the body is Yahoo's error envelope, only its explanation is kept.
+     */
     private static String errorDetail(Response<?> response) {
         try (var errorBody = response.errorBody()) {
             if (errorBody == null) {
                 return "";
             }
             String text = errorBody.string().strip();
-            return text.isEmpty() ? "" : ": " + text;
+            return text.isEmpty() ? "" : ": " + yahooErrorDescription(text).orElse(text);
         } catch (IOException e) {
             return "";
         }
+    }
+
+    /** Extracts {@code description} from an envelope like {@code {"chart":{"error":{...}}}}. */
+    private static Optional<String> yahooErrorDescription(String body) {
+        try {
+            for (JsonNode envelope : JSON.readTree(body)) {
+                String description = envelope.path("error").path("description").asText("");
+                if (!description.isBlank()) {
+                    return Optional.of(description);
+                }
+            }
+        } catch (JacksonException e) {
+            // Not JSON (e.g. an HTML error page): fall back to the raw body.
+        }
+        return Optional.empty();
     }
 
     /** Parses a {@code Retry-After} header expressed as a whole number of seconds. */

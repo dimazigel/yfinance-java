@@ -72,7 +72,7 @@ public final class YFinance implements AutoCloseable {
         var authClient = YahooClientFactory.baseClient(config, cookieJar);
         var crumbStore = new CrumbStore(authClient, config);
         var client = YahooClientFactory.apiClient(
-                config, cookieJar, crumbStore::getCrumb, crumbStore::invalidate);
+                config, cookieJar, () -> crumbStore.tryGetCrumb().orElse(null), crumbStore::invalidate);
         return new YFinance(YahooApis.create(config, client), () -> {
             closeClient(client);
             closeClient(authClient);

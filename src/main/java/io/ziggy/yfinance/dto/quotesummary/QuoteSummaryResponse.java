@@ -2,6 +2,7 @@ package io.ziggy.yfinance.dto.quotesummary;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.ziggy.yfinance.dto.YahooError;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -13,7 +14,7 @@ public record QuoteSummaryResponse(QuoteSummary quoteSummary) {
     public record QuoteSummary(List<Result> result, Error error) {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record Error(String code, String description) {}
+    public record Error(String code, String description) implements YahooError {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record Result(

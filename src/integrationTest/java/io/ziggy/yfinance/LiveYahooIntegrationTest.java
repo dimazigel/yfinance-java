@@ -48,6 +48,20 @@ class LiveYahooIntegrationTest {
     }
 
     @Test
+    void thirtyMinuteHistoryIsReallyThirtyMinutes() {
+        var bars = aapl.history(Range.FIVE_DAYS, Interval.THIRTY_MINUTES).bars();
+
+        assertThat(bars).hasSizeGreaterThan(10);
+        // Every bar starts on a :00/:30 boundary, and consecutive bars within a session are 30m apart.
+        assertThat(bars).allSatisfy(b -> assertThat(b.timestamp().getEpochSecond() % 1800).isZero());
+        long thirtyMinuteSteps = java.util.stream.IntStream.range(1, bars.size())
+                .filter(i -> bars.get(i).timestamp().getEpochSecond()
+                        - bars.get(i - 1).timestamp().getEpochSecond() == 1800)
+                .count();
+        assertThat(thirtyMinuteSteps).isGreaterThan(bars.size() / 2);
+    }
+
+    @Test
     void info() {
         var info = aapl.info();
         assertThat(info.quote().price().regularMarketPrice()).isPositive();

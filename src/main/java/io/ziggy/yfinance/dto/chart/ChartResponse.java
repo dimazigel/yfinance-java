@@ -1,6 +1,7 @@
 package io.ziggy.yfinance.dto.chart;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import io.ziggy.yfinance.dto.YahooError;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
@@ -13,7 +14,7 @@ public record ChartResponse(Chart chart) {
     public record Chart(List<ChartResult> result, ChartError error) {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record ChartError(String code, String description) {}
+    public record ChartError(String code, String description) implements YahooError {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record ChartResult(ChartMeta meta, List<Long> timestamp, Indicators indicators, ChartEvents events) {}
