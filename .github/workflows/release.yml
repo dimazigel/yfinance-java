@@ -105,27 +105,6 @@ jobs:
           VERSION: ${{ steps.version.outputs.version }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # Maven Central needs a Central Portal token and a GPG key (see RELEASING.md). Until those
-      # secrets exist this step is skipped, so the release still succeeds via GitHub Packages.
-      - name: Check Maven Central credentials
-        id: central
-        env:
-          HAS_CREDENTIALS: ${{ secrets.MAVEN_CENTRAL_USERNAME != '' && secrets.MAVEN_CENTRAL_PASSWORD != '' && secrets.SIGNING_KEY != '' }}
-        run: |
-          echo "enabled=$HAS_CREDENTIALS" >> "$GITHUB_OUTPUT"
-          if [ "$HAS_CREDENTIALS" != "true" ]; then
-            echo "::notice::Maven Central secrets not configured; publishing to GitHub Packages only."
-          fi
-
-      - name: Publish to Maven Central
-        if: steps.central.outputs.enabled == 'true'
-        run: ./gradlew publishToMavenCentral -PreleaseVersion="$VERSION"
-        env:
-          VERSION: ${{ steps.version.outputs.version }}
-          ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
-          ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
-          ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.SIGNING_KEY }}
-          ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.SIGNING_PASSWORD }}
 
       - name: Tag and create GitHub release
         env:

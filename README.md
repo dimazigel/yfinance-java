@@ -211,9 +211,8 @@ repositories {
 dependencies { implementation("io.github.dimazigel:yfinance-java:<version>") }
 ```
 
-Publishing to **Maven Central** (no credentials needed to consume) is wired into the release
-workflow and switches on once the Sonatype and signing secrets are configured; see
-[RELEASING.md](RELEASING.md). After that, `mavenCentral()` alone is enough.
+The library is deliberately not published to Maven Central; GitHub Packages is the only
+distribution channel. See [RELEASING.md](RELEASING.md) for how releases are cut.
 
 Unit tests never touch the network; they replay hand-written JSON fixtures from
 `src/test/resources/fixtures/` that mirror Yahoo's response shapes. The live suite
