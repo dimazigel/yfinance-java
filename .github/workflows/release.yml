@@ -5,7 +5,9 @@ name: Release
 # no tag behind and the run can simply be retried.
 #
 # The release is created with GITHUB_TOKEN, and events raised by GITHUB_TOKEN don't trigger other
-# workflows, so publish.yml (which handles releases made through the UI) won't publish a second time.
+# workflows, so publish.yml (which handles releases made through the UI) won't publish a second time;
+# publish.yml also skips releases authored by github-actions[bot] explicitly. Both workflows check
+# the registry before publishing, so a version can never be uploaded twice.
 
 on:
   workflow_dispatch:
@@ -87,7 +89,17 @@ jobs:
         env:
           VERSION: ${{ steps.version.outputs.version }}
 
+      # If a previous run published this version but failed before tagging, re-running must not
+      # try to publish again (the registry rejects duplicates); it just picks up at the tag step.
+      - name: Check whether this version is already published
+        id: registry
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: .github/scripts/check-published.sh "$VERSION"
+
       - name: Publish to GitHub Packages
+        if: steps.registry.outputs.published == 'false'
         run: ./gradlew verifySourcesPublication publish -PreleaseVersion="$VERSION"
         env:
           VERSION: ${{ steps.version.outputs.version }}
