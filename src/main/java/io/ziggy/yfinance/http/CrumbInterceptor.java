@@ -6,7 +6,10 @@ import java.util.function.Supplier;
 import okhttp3.Interceptor;
 import okhttp3.Response;
 
-/** Appends the {@code crumb} query parameter to every outgoing request. */
+/**
+ * Appends the {@code crumb} query parameter to every outgoing request. When the supplier yields
+ * {@code null} (no crumb available right now), the request proceeds without one.
+ */
 public final class CrumbInterceptor implements Interceptor {
 
     private final Supplier<Crumb> crumbSupplier;
@@ -18,8 +21,9 @@ public final class CrumbInterceptor implements Interceptor {
     @Override
     public Response intercept(Chain chain) throws IOException {
         var original = chain.request();
+        Crumb crumb = crumbSupplier.get();
         var url = original.url().newBuilder()
-                .setQueryParameter("crumb", crumbSupplier.get().value())
+                .setQueryParameter("crumb", crumb == null ? null : crumb.value())
                 .build();
         return chain.proceed(original.newBuilder().url(url).build());
     }

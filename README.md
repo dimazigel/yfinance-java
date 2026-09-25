@@ -66,6 +66,8 @@ thrown. A stale crumb (401/403) is automatically invalidated and the request ret
 
 Data-quality guarantees for storage pipelines: missing volume stays `null` (never coerced to 0),
 Yahoo's all-null padding bars are dropped, and `FinancialStatement` collections are immutable.
+30m history is fetched as 15m and resampled (Yahoo has been known to return 60m bars for 30m
+requests; Python yfinance applies the same workaround).
 
 ## Configuration
 

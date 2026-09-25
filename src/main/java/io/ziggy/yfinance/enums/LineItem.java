@@ -54,6 +54,10 @@ public enum LineItem {
     TREASURY_SHARES_NUMBER("TreasurySharesNumber", StatementType.BALANCE_SHEET),
     SHARE_ISSUED("ShareIssued", StatementType.BALANCE_SHEET),
     WORKING_CAPITAL("WorkingCapital", StatementType.BALANCE_SHEET),
+    FIXED_MATURITY_INVESTMENTS("FixedMaturityInvestments", StatementType.BALANCE_SHEET),
+    EQUITY_INVESTMENTS("EquityInvestments", StatementType.BALANCE_SHEET),
+    NET_LOAN("NetLoan", StatementType.BALANCE_SHEET),
+    DEFERRED_ASSETS("DeferredAssets", StatementType.BALANCE_SHEET),
 
     // --- Cash flow ---
     OPERATING_CASH_FLOW("OperatingCashFlow", StatementType.CASH_FLOW),

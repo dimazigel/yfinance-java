@@ -1,5 +1,6 @@
 package io.ziggy.yfinance.mapper;
 
+import io.ziggy.yfinance.dto.YahooError;
 import io.ziggy.yfinance.exception.YFDataException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -71,7 +72,16 @@ final class MapperSupport {
         return results.getFirst();
     }
 
+    /** Yahoo's own explanation (its {@code description}) verbatim, falling back to the code. */
     private static String describe(Object error) {
+        if (error instanceof YahooError e) {
+            if (e.description() != null && !e.description().isBlank()) {
+                return e.description();
+            }
+            if (e.code() != null) {
+                return e.code();
+            }
+        }
         return error.toString();
     }
 }

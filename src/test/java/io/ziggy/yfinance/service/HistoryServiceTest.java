@@ -166,4 +166,51 @@ class HistoryServiceTest {
                 .isInstanceOf(YFDataException.class)
                 .hasMessageContaining("delisted");
     }
+
+    @Test
+    void errorEnvelopeSurfacesYahooReasonVerbatim() {
+        server.enqueue(new MockResponse().setResponseCode(200).setBody(
+                "{\"chart\":{\"result\":null,\"error\":{\"code\":\"Unprocessable Entity\","
+                        + "\"description\":\"1m data not available for startTime=1 and endTime=2.\"}}}"));
+
+        assertThatThrownBy(() -> service.getHistory(
+                        HistoryRequest.builder(Symbol.of("AAPL")).range(Range.ONE_MONTH).build()))
+                .isInstanceOf(YFDataException.class)
+                .hasMessage("Yahoo error for AAPL: 1m data not available for startTime=1 and endTime=2.");
+    }
+
+    @Test
+    void thirtyMinuteBarsAreFetchedAs15mAndResampled() throws Exception {
+        // Yahoo returns 60m bars when asked for 30m, so (like yfinance) fetch 15m and resample.
+        long t0 = 1_699_999_200L; // 30m bucket boundary
+        server.enqueue(new MockResponse().setResponseCode(200).setBody(
+                "{\"chart\":{\"result\":[{\"meta\":{\"currency\":\"USD\",\"symbol\":\"AAPL\"},"
+                        + "\"timestamp\":[" + t0 + "," + (t0 + 900) + "," + (t0 + 1800) + "],"
+                        + "\"indicators\":{\"quote\":[{"
+                        + "\"open\":[10,11,12],\"high\":[12,13,12.5],\"low\":[9,10,11.5],"
+                        + "\"close\":[11,12,12.2],\"volume\":[100,50,70]}]}}],\"error\":null}}"));
+
+        var history = service.getHistory(HistoryRequest.builder(Symbol.of("AAPL"))
+                .range(Range.ONE_DAY).interval(Interval.THIRTY_MINUTES).build());
+
+        assertThat(server.takeRequest().getRequestUrl().queryParameter("interval")).isEqualTo("15m");
+        assertThat(history.bars()).hasSize(2);
+        assertThat(history.bars().getFirst().timestamp()).isEqualTo(Instant.ofEpochSecond(t0));
+        assertThat(history.bars().getFirst().high()).isEqualByComparingTo("13");
+        assertThat(history.bars().getFirst().close()).isEqualByComparingTo("12");
+        assertThat(history.bars().getFirst().volume()).isEqualTo(150L);
+    }
+
+    @Test
+    void thirtyMinuteErrorExplainsFetchedInterval() {
+        server.enqueue(new MockResponse().setResponseCode(200).setBody(
+                "{\"chart\":{\"result\":null,\"error\":{\"code\":\"Unprocessable Entity\","
+                        + "\"description\":\"15m data not available for startTime=1 and endTime=2.\"}}}"));
+
+        assertThatThrownBy(() -> service.getHistory(HistoryRequest.builder(Symbol.of("AAPL"))
+                        .range(Range.ONE_DAY).interval(Interval.THIRTY_MINUTES).build()))
+                .isInstanceOf(YFDataException.class)
+                .hasMessage("Yahoo error for AAPL: 15m data not available for startTime=1 and endTime=2."
+                        + " (30m resampled from 15m)");
+    }
 }

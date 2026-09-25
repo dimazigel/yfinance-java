@@ -43,4 +43,19 @@ class CrumbInterceptorTest {
         assertThat(req.getRequestUrl().queryParameter("crumb")).isEqualTo("XYZ");
         assertThat(req.getHeader("User-Agent")).isEqualTo("ua/9");
     }
+
+    @Test
+    void proceedsWithoutCrumbWhenNoneAvailable() throws Exception {
+        server.enqueue(new MockResponse().setResponseCode(200).setBody("{}"));
+        OkHttpClient client = new OkHttpClient.Builder()
+                .addInterceptor(new CrumbInterceptor(() -> null))
+                .build();
+
+        client.newCall(new Request.Builder().url(server.url("/v8/finance/chart/AAPL?crumb=stale")).build())
+                .execute()
+                .close();
+
+        RecordedRequest req = server.takeRequest();
+        assertThat(req.getRequestUrl().queryParameter("crumb")).isNull();
+    }
 }
