@@ -19,6 +19,11 @@ public record PriceHistory(
         capitalGains = capitalGains == null ? List.of() : List.copyOf(capitalGains);
     }
 
+    /** This history with every bar {@link PriceBar#adjusted() adjusted}; metadata and events unchanged. */
+    public PriceHistory adjusted() {
+        return new PriceHistory(metadata, bars.stream().map(PriceBar::adjusted).toList(), dividends, splits, capitalGains);
+    }
+
     /**
      * The exchange timezone for this instrument, or {@link ZoneOffset#UTC} when Yahoo did not report
      * one. Pass this to {@link Dividend#localDate(ZoneId)} and friends to get correct trading dates.

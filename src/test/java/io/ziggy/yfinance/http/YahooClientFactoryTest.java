@@ -23,7 +23,7 @@ class YahooClientFactoryTest {
         server = new MockWebServer();
         server.start();
         HttpUrl base = server.url("/");
-        config = new EndpointConfig(base, base, base, "ua/1")
+        config = EndpointConfig.production().withHosts(base).withUserAgent("ua/1")
                 .withClientCustomizer(b -> b
                         .addInterceptor(chain -> chain.proceed(
                                 chain.request().newBuilder().header("X-Custom", "yes").build()))

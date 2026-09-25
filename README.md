@@ -39,6 +39,17 @@ try (var yf = YFinance.create()) { // cookie+crumb handshake; close() releases t
 }
 ```
 
+### Adjusted prices
+
+Bars carry Yahoo's **raw** OHLC plus the split/dividend-adjusted close as `adjClose`. Python
+yfinance defaults to adjusted OHLC (`auto_adjust=True`); to get the same numbers:
+
+```java
+PriceHistory adjusted = aapl.history(Range.MAX, Interval.ONE_DAY).adjusted(); // or bar.adjusted()
+```
+
+`adjusted()` scales open/high/low/close by `adjClose / close` and leaves volume as reported.
+
 ### Storing data: trading dates, typed line items, resilient batches
 
 ```java
@@ -62,6 +73,10 @@ infos.forEach((symbol, result) -> {
 });
 Map<Symbol, Tickers.Result<OptionChain>> chains = yf.tickers("AAPL", "MSFT").fetch(Ticker::optionChain);
 ```
+
+`PriceHistory.metadata()` also carries what Yahoo says about the instrument: the interval it
+actually served (`dataGranularity()`), the `validRanges()` it accepts, today's pre/regular/post
+sessions (`currentTradingPeriod()`), `regularMarketTime()` and `priceHint()`.
 
 `YFinance` is thread-safe — hold one instance (e.g. a singleton) and `close()` it on shutdown.
 The shared client adaptively throttles on HTTP 429: a throttled request is retried up to
@@ -100,6 +115,8 @@ try (var yf = YFinance.create(config)) {
 }
 ```
 
+Derive variants from `production()` with `withHosts(...)`, `withUserAgent(...)`, `withCallTimeout(...)`,
+`withAdaptiveRateLimit(...)` and `withClientCustomizer(...)`.
 `AdaptiveRateLimitConfig.defaults()` is what `EndpointConfig.production()` uses;
 `AdaptiveRateLimitConfig.disabled()` turns throttling and 429-retries off entirely.
 

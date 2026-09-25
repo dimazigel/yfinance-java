@@ -35,12 +35,12 @@ class TradingDateTest {
     @Test
     void priceHistoryZoneIdComesFromMetadataAndFallsBackToUtc() {
         var withZone = new HistoryMetadata(
-                Symbol.of("AAPL"), null, null, null, null, NEW_YORK, null, null, null);
+                Symbol.of("AAPL"), null, null, null, null, NEW_YORK, null, null, null, null, null, null, List.of(), null, null);
         var historyNy = new PriceHistory(withZone, List.of(), List.of(), List.of(), List.of());
         assertThat(historyNy.zoneId()).isEqualTo(NEW_YORK);
 
         var noZone = new HistoryMetadata(
-                Symbol.of("AAPL"), null, null, null, null, null, null, null, null);
+                Symbol.of("AAPL"), null, null, null, null, null, null, null, null, null, null, null, List.of(), null, null);
         var historyUtc = new PriceHistory(noZone, List.of(), List.of(), List.of(), List.of());
         assertThat(historyUtc.zoneId()).isEqualTo(ZoneOffset.UTC);
     }

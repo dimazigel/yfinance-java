@@ -1,6 +1,8 @@
 package io.ziggy.yfinance.mapper;
 
 import io.ziggy.yfinance.dto.YahooError;
+import io.ziggy.yfinance.enums.Interval;
+import io.ziggy.yfinance.enums.Range;
 import io.ziggy.yfinance.exception.YFDataException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -10,6 +12,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.Currency;
 import java.util.List;
 import java.util.function.Function;
@@ -72,6 +75,34 @@ final class MapperSupport {
     /** The symbol Yahoo reported, or {@code fallback} when it is absent or blank. */
     static Symbol symbolOr(@Nullable String reported, Symbol fallback) {
         return reported == null || reported.isBlank() ? fallback : Symbol.of(reported);
+    }
+
+    /** The {@link Interval} for a wire value such as {@code 1d}, or {@code null} if absent or unknown. */
+    static @Nullable Interval interval(@Nullable String wire) {
+        if (wire == null || wire.isBlank()) {
+            return null;
+        }
+        try {
+            return Interval.fromWire(wire);
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
+    }
+
+    /** The known {@link Range}s among {@code wires}, in order; unknown values are dropped. */
+    static List<Range> ranges(@Nullable List<String> wires) {
+        if (wires == null) {
+            return List.of();
+        }
+        var ranges = new ArrayList<Range>();
+        for (String wire : wires) {
+            try {
+                ranges.add(Range.fromWire(wire));
+            } catch (IllegalArgumentException e) {
+                // Yahoo added a range this version does not know; ignore it.
+            }
+        }
+        return List.copyOf(ranges);
     }
 
     /** Applies {@code accessor} to {@code source}, returning {@code null} when the source is null. */

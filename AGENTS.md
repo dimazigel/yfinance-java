@@ -31,7 +31,7 @@ Request flow: `YFinance` / `Ticker` / `Tickers` (facade) → `service/` → `api
   - `apiClient` runs the interceptor chain UserAgent → AdaptiveRateLimit → AuthRetry → Crumb.
   - `AdaptiveRateLimiter` retries 429s up to `maxAttempts` and paces **every** request while degraded. It takes an injected clock and sleeper for tests.
   - `AuthRetryInterceptor` invalidates the crumb on 401/403 and retries once.
-  - All tuning lives in the immutable `EndpointConfig` / `AdaptiveRateLimitConfig` records, which have `with...` copy methods.
+  - All tuning lives in the immutable `EndpointConfig` / `AdaptiveRateLimitConfig` records. Build configs as `EndpointConfig.production().with...()` (`withHosts(base)` for tests); there are no convenience constructors.
 - **`auth/CrumbStore`**: gets a cookie from `fc.yahoo.com`, then a crumb from `/v1/test/getcrumb`, and caches it until invalidated.
 - **`http/YahooObjectMapper` + `RawAwareNumberModule`**: quoteSummary returns some numbers as `{raw, fmt}` objects even with `formatted=false`. This module unwraps them globally for Long, Integer and BigDecimal. Don't add per-field workarounds.
 - **`enums/`**: closed sets implement `WireEnum` (`wireValue()`). Resolve incoming values with `WireEnum.fromWire(values(), wire, label)`. `LineItem` gives type-safe keys for fundamentals.
@@ -46,6 +46,7 @@ Request flow: `YFinance` / `Ticker` / `Tickers` (facade) → `service/` → `api
   - Yahoo's all-null padding bars are dropped.
   - Collections in models are immutable.
   - Corporate-action dates use exchange-local dates via `localDate(zoneId)`.
+  - Bars are raw OHLC + `adjClose`; `PriceBar.adjusted()`/`PriceHistory.adjusted()` give Python's `auto_adjust` view. Don't adjust silently.
 - `MapperSupport` holds shared mapper helpers (`from`, `firstResult`, `epochSecond`). Reuse them.
 - Development is test-first. Unit tests never touch the network: they enqueue captured JSON from `src/test/resources/fixtures/` on a `MockWebServer`, using `testsupport/Fixtures` (`Fixtures.api(server, XApi.class)`, `Fixtures.jsonResponse("name.json")`). A new endpoint or field normally needs a fixture, a service test, then the implementation.
 - All errors are `YFinanceException` subtypes (`YFDataException`, `YFRateLimitException`, `YFAuthException`).

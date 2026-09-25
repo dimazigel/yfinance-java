@@ -245,4 +245,25 @@ class HistoryServiceTest {
 
         assertThat(history.metadata().symbol()).isEqualTo(Symbol.of("AAPL"));
     }
+
+    @Test
+    void metadataCarriesGranularityRangesAndTradingPeriods() {
+        server.enqueue(Fixtures.jsonResponse("chart_aapl_1d.json"));
+
+        var meta = service.getHistory(
+                HistoryRequest.builder(Symbol.of("AAPL")).range(Range.ONE_MONTH).build()).metadata();
+
+        assertThat(meta.regularMarketTime()).isEqualTo(Instant.ofEpochSecond(1700172800));
+        assertThat(meta.priceHint()).isEqualTo(2);
+        assertThat(meta.hasPrePostMarketData()).isTrue();
+        assertThat(meta.dataGranularity()).isEqualTo(Interval.ONE_DAY);
+        assertThat(meta.validRanges()).startsWith(Range.ONE_DAY, Range.FIVE_DAYS).endsWith(Range.MAX)
+                .hasSize(11); // the unknown "bogus-range" is dropped, not fatal
+        var periods = meta.currentTradingPeriod();
+        assertThat(periods).isNotNull();
+        assertThat(periods.regular().start()).isEqualTo(Instant.ofEpochSecond(1700146200));
+        assertThat(periods.regular().end()).isEqualTo(Instant.ofEpochSecond(1700169600));
+        assertThat(periods.pre().end()).isEqualTo(periods.regular().start());
+        assertThat(periods.post().start()).isEqualTo(periods.regular().end());
+    }
 }

@@ -7,7 +7,9 @@ import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 
 /**
- * Host roots and HTTP identity used to reach Yahoo Finance.
+ * Host roots and HTTP identity used to reach Yahoo Finance. Start from {@link #production()} and
+ * derive variants with the {@code with...} methods; the canonical constructor exists for callers
+ * who want to spell out everything.
  *
  * @param query1Base  primary API host ({@code https://query1.finance.yahoo.com/})
  * @param query2Base  secondary API host ({@code https://query2.finance.yahoo.com/}), used for
@@ -47,28 +49,6 @@ public record EndpointConfig(
         Objects.requireNonNull(clientCustomizer, "clientCustomizer");
     }
 
-    /** Convenience constructor with no client customization. */
-    public EndpointConfig(
-            HttpUrl query1Base,
-            HttpUrl query2Base,
-            HttpUrl cookieUrl,
-            String userAgent,
-            Duration callTimeout,
-            AdaptiveRateLimitConfig adaptiveRateLimit) {
-        this(query1Base, query2Base, cookieUrl, userAgent, callTimeout, adaptiveRateLimit, NO_CUSTOMIZATION);
-    }
-
-    /** Convenience constructor using the default adaptive rate-limit config. */
-    public EndpointConfig(
-            HttpUrl query1Base, HttpUrl query2Base, HttpUrl cookieUrl, String userAgent, Duration callTimeout) {
-        this(query1Base, query2Base, cookieUrl, userAgent, callTimeout, AdaptiveRateLimitConfig.defaults());
-    }
-
-    /** Convenience constructor using the default 30s call timeout. */
-    public EndpointConfig(HttpUrl query1Base, HttpUrl query2Base, HttpUrl cookieUrl, String userAgent) {
-        this(query1Base, query2Base, cookieUrl, userAgent, DEFAULT_CALL_TIMEOUT);
-    }
-
     /** The production Yahoo Finance configuration. */
     public static EndpointConfig production() {
         return new EndpointConfig(
@@ -79,6 +59,26 @@ public record EndpointConfig(
                 DEFAULT_CALL_TIMEOUT,
                 AdaptiveRateLimitConfig.defaults(),
                 NO_CUSTOMIZATION);
+    }
+
+    /**
+     * Returns a copy with all three hosts pointed at {@code base}: handy for tests against a mock
+     * server or for routing everything through one proxy front.
+     */
+    public EndpointConfig withHosts(HttpUrl base) {
+        return withHosts(base, base, base);
+    }
+
+    /** Returns a copy with different hosts. */
+    public EndpointConfig withHosts(HttpUrl query1Base, HttpUrl query2Base, HttpUrl cookieUrl) {
+        return new EndpointConfig(
+                query1Base, query2Base, cookieUrl, userAgent, callTimeout, adaptiveRateLimit, clientCustomizer);
+    }
+
+    /** Returns a copy with a different {@code User-Agent}. */
+    public EndpointConfig withUserAgent(String userAgent) {
+        return new EndpointConfig(
+                query1Base, query2Base, cookieUrl, userAgent, callTimeout, adaptiveRateLimit, clientCustomizer);
     }
 
     /** Returns a copy with a different call timeout. */

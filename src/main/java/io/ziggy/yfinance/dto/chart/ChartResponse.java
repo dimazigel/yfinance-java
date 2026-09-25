@@ -34,7 +34,18 @@ public record ChartResponse(@Nullable Chart chart) {
             @Nullable String exchangeTimezoneName,
             @Nullable BigDecimal regularMarketPrice,
             @Nullable BigDecimal chartPreviousClose,
-            @Nullable Integer priceHint) {}
+            @Nullable Integer priceHint,
+            @Nullable String dataGranularity,
+            @Nullable List<String> validRanges,
+            @Nullable CurrentTradingPeriod currentTradingPeriod,
+            @Nullable Boolean hasPrePostMarketData) {}
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public record CurrentTradingPeriod(
+            @Nullable TradingPeriod pre, @Nullable TradingPeriod regular, @Nullable TradingPeriod post) {}
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public record TradingPeriod(@Nullable String timezone, @Nullable Long start, @Nullable Long end, @Nullable Integer gmtoffset) {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record Indicators(@Nullable List<Quote> quote, @Nullable List<AdjClose> adjclose) {}
