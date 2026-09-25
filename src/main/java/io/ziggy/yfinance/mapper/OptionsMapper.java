@@ -34,7 +34,7 @@ public final class OptionsMapper {
         Instant expiration = options != null ? MapperSupport.epochSecond(options.expirationDate()) : null;
 
         return new OptionChain(
-                result.underlyingSymbol() != null ? Symbol.of(result.underlyingSymbol()) : requested,
+                MapperSupport.symbolOr(result.underlyingSymbol(), requested),
                 expirations,
                 expiration,
                 mapContracts(options != null ? options.calls() : null, OptionType.CALL),

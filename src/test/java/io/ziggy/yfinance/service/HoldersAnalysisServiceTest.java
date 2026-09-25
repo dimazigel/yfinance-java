@@ -146,4 +146,20 @@ class HoldersAnalysisServiceTest {
         assertThat(first.average()).isEqualByComparingTo("1.5");
         assertThat(first.numberOfAnalysts()).isEqualTo(27);
     }
+
+    @Test
+    void malformedTrendEndDateBecomesNullNotException() {
+        server.enqueue(new okhttp3.mockwebserver.MockResponse().setResponseCode(200).setBody(
+                "{\"quoteSummary\":{\"result\":[{\"earningsTrend\":{\"trend\":["
+                        + "{\"period\":\"0q\",\"endDate\":\"bogus\",\"earningsEstimate\":{\"avg\":1.5},\"growth\":0.1}"
+                        + "]}}],\"error\":null}}"));
+
+        var estimates = analysisService.getEarningsEstimate(Symbol.of("AAPL"));
+
+        assertThat(estimates).singleElement().satisfies(e -> {
+            assertThat(e.period()).isEqualTo("0q");
+            assertThat(e.endDate()).isNull();
+            assertThat(e.average()).isEqualByComparingTo("1.5");
+        });
+    }
 }

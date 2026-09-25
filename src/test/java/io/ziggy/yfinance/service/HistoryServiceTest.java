@@ -233,4 +233,16 @@ class HistoryServiceTest {
                 .hasMessage("Yahoo error for AAPL: 15m data not available for startTime=1 and endTime=2."
                         + " (30m resampled from 15m)");
     }
+
+    @Test
+    void blankMetaSymbolFallsBackToRequestedSymbol() {
+        server.enqueue(new MockResponse().setResponseCode(200).setBody(
+                "{\"chart\":{\"result\":[{\"meta\":{\"currency\":\"USD\",\"symbol\":\"  \"},"
+                        + "\"timestamp\":[1700000000],"
+                        + "\"indicators\":{\"quote\":[{\"close\":[1.5]}]}}],\"error\":null}}"));
+
+        var history = service.getHistory(HistoryRequest.builder(Symbol.of("AAPL")).range(Range.ONE_DAY).build());
+
+        assertThat(history.metadata().symbol()).isEqualTo(Symbol.of("AAPL"));
+    }
 }

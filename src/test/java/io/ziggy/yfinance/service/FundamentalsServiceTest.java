@@ -111,4 +111,18 @@ class FundamentalsServiceTest {
                 .hasMessageContaining("balance sheet");
         assertThat(server.getRequestCount()).isZero();
     }
+
+    @Test
+    void malformedAsOfDateIsSkippedNotThrown() {
+        server.enqueue(new okhttp3.mockwebserver.MockResponse().setResponseCode(200).setBody(
+                "{\"timeseries\":{\"result\":[{\"meta\":{\"symbol\":[\"AAPL\"],\"type\":[\"annualTotalRevenue\"]},"
+                        + "\"annualTotalRevenue\":["
+                        + "{\"asOfDate\":\"not-a-date\",\"reportedValue\":{\"raw\":1}},"
+                        + "{\"asOfDate\":\"2023-09-30\",\"reportedValue\":{\"raw\":2}}]}],\"error\":null}}"));
+
+        FinancialStatement stmt = service.getStatement(Symbol.of("AAPL"), StatementType.INCOME, Frequency.ANNUAL);
+
+        assertThat(stmt.periods()).containsExactly(LocalDate.parse("2023-09-30"));
+        assertThat(stmt.value("TotalRevenue", LocalDate.parse("2023-09-30"))).isEqualByComparingTo("2");
+    }
 }

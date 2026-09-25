@@ -98,8 +98,7 @@ public final class AnalysisMapper {
     }
 
     private static @Nullable LocalDate endDate(TrendRow row) {
-        String endDate = row.endDate();
-        return endDate != null ? LocalDate.parse(endDate) : null;
+        return MapperSupport.localDate(row.endDate());
     }
 
     private static List<PeriodEstimate> estimates(Result r, Function<TrendRow, @Nullable Estimate> pick) {

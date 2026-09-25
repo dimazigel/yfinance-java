@@ -39,10 +39,13 @@ public final class FundamentalsMapper {
                     String lineItem = stripPrefix(entry.getKey(), prefix);
                     var row = lineItems.computeIfAbsent(lineItem, k -> new LinkedHashMap<>());
                     for (DataPoint point : entry.getValue()) {
-                        if (point == null || point.asOfDate() == null || point.reportedValue() == null) {
+                        if (point == null || point.reportedValue() == null) {
                             continue;
                         }
-                        LocalDate date = LocalDate.parse(point.asOfDate());
+                        LocalDate date = MapperSupport.localDate(point.asOfDate());
+                        if (date == null) {
+                            continue; // absent or malformed period: skip the point, keep the statement
+                        }
                         periods.add(date);
                         if (point.reportedValue().raw() != null) {
                             row.put(date, point.reportedValue().raw());

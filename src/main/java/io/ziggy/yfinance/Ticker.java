@@ -41,7 +41,15 @@ public final class Ticker {
         return symbol;
     }
 
+    /**
+     * @throws IllegalArgumentException if {@code request} was built for a different symbol; a
+     *     request for MSFT sent through the AAPL ticker would otherwise silently fetch MSFT
+     */
     public PriceHistory history(HistoryRequest request) {
+        if (!request.symbol().equals(symbol)) {
+            throw new IllegalArgumentException(
+                    "HistoryRequest is for " + request.symbol() + " but this ticker is " + symbol);
+        }
         return yf.history.getHistory(request);
     }
 
