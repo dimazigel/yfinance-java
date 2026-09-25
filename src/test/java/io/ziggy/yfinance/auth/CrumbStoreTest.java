@@ -27,7 +27,7 @@ class CrumbStoreTest {
         server = new MockWebServer();
         server.start();
         HttpUrl base = server.url("/");
-        EndpointConfig config = new EndpointConfig(base, base, base, "test-agent/1.0");
+        EndpointConfig config = EndpointConfig.production().withHosts(base).withUserAgent("test-agent/1.0");
         OkHttpClient client = YahooClientFactory.baseClient(config);
         crumbStore = new CrumbStore(client, config);
     }
@@ -98,7 +98,7 @@ class CrumbStoreTest {
     @Test
     void toleratesCookieSeedFailure() throws Exception {
         HttpUrl base = server.url("/");
-        EndpointConfig config = new EndpointConfig(base, base, deadUrl(), "test-agent/1.0");
+        EndpointConfig config = EndpointConfig.production().withHosts(base, base, deadUrl()).withUserAgent("test-agent/1.0");
         var store = new CrumbStore(YahooClientFactory.baseClient(config), config);
         server.enqueue(new MockResponse().setResponseCode(200).setBody("crumb-without-cookie"));
 
@@ -116,7 +116,7 @@ class CrumbStoreTest {
     @Test
     void tryGetCrumbIsEmptyOnIoFailure() throws Exception {
         HttpUrl base = server.url("/");
-        EndpointConfig config = new EndpointConfig(deadUrl(), base, base, "test-agent/1.0");
+        EndpointConfig config = EndpointConfig.production().withHosts(deadUrl(), base, base).withUserAgent("test-agent/1.0");
         var store = new CrumbStore(YahooClientFactory.baseClient(config), config);
         server.enqueue(new MockResponse().setResponseCode(404));
 

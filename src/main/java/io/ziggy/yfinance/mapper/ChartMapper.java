@@ -4,6 +4,8 @@ import io.ziggy.yfinance.dto.chart.ChartResponse.AdjClose;
 import io.ziggy.yfinance.dto.chart.ChartResponse.ChartEvents;
 import io.ziggy.yfinance.dto.chart.ChartResponse.ChartMeta;
 import io.ziggy.yfinance.dto.chart.ChartResponse.ChartResult;
+import io.ziggy.yfinance.dto.chart.ChartResponse.CurrentTradingPeriod;
+import io.ziggy.yfinance.dto.chart.ChartResponse.TradingPeriod;
 import io.ziggy.yfinance.dto.chart.ChartResponse.Quote;
 import io.ziggy.yfinance.dto.chart.ChartResponse;
 import io.ziggy.yfinance.exception.YFDataException;
@@ -19,6 +21,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import org.jspecify.annotations.Nullable;
 import org.jspecify.annotations.Nullable;
 
 /** Maps the raw {@link ChartResponse} into the clean {@link PriceHistory} model. */
@@ -42,7 +45,8 @@ public final class ChartMapper {
 
     private static HistoryMetadata mapMetadata(@Nullable ChartMeta meta, Symbol requested) {
         if (meta == null) {
-            return new HistoryMetadata(requested, null, null, null, null, null, null, null, null);
+            return new HistoryMetadata(requested, null, null, null, null, null, null, null, null,
+                    null, null, null, List.of(), null, null);
         }
         return new HistoryMetadata(
                 MapperSupport.symbolOr(meta.symbol(), requested),
@@ -53,7 +57,34 @@ public final class ChartMapper {
                 MapperSupport.zoneId(meta.exchangeTimezoneName()),
                 MapperSupport.epochSecond(meta.firstTradeDate()),
                 meta.regularMarketPrice(),
-                meta.chartPreviousClose());
+                meta.chartPreviousClose(),
+                MapperSupport.epochSecond(meta.regularMarketTime()),
+                meta.priceHint(),
+                MapperSupport.interval(meta.dataGranularity()),
+                MapperSupport.ranges(meta.validRanges()),
+                mapTradingPeriods(meta.currentTradingPeriod()),
+                meta.hasPrePostMarketData());
+    }
+
+    /** All three sessions or nothing: a partial day is not a usable trading calendar. */
+    private static HistoryMetadata.@Nullable TradingPeriods mapTradingPeriods(@Nullable CurrentTradingPeriod ctp) {
+        if (ctp == null) {
+            return null;
+        }
+        var pre = mapTradingPeriod(ctp.pre());
+        var regular = mapTradingPeriod(ctp.regular());
+        var post = mapTradingPeriod(ctp.post());
+        if (pre == null || regular == null || post == null) {
+            return null;
+        }
+        return new HistoryMetadata.TradingPeriods(pre, regular, post);
+    }
+
+    private static HistoryMetadata.@Nullable TradingPeriod mapTradingPeriod(@Nullable TradingPeriod p) {
+        if (p == null || p.start() == null || p.end() == null) {
+            return null;
+        }
+        return new HistoryMetadata.TradingPeriod(Instant.ofEpochSecond(p.start()), Instant.ofEpochSecond(p.end()));
     }
 
     private static List<PriceBar> mapBars(ChartResult result) {

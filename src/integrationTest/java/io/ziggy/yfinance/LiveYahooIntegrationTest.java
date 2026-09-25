@@ -73,6 +73,35 @@ class LiveYahooIntegrationTest {
             assertThat(history.metadata().timezone()).isEqualTo(ZoneId.of("America/New_York"));
             assertThat(history.metadata().symbol()).isEqualTo(Symbol.of("AAPL"));
             assertThat(history.zoneId()).isEqualTo(ZoneId.of("America/New_York"));
+
+            var meta = history.metadata();
+            assertThat(meta.dataGranularity()).isEqualTo(Interval.ONE_DAY);
+            assertThat(meta.validRanges()).contains(Range.ONE_DAY, Range.ONE_MONTH, Range.MAX);
+            assertThat(meta.regularMarketTime()).isNotNull();
+            assertThat(meta.priceHint()).isNotNull();
+            assertThat(meta.hasPrePostMarketData()).isTrue();
+            var sessions = meta.currentTradingPeriod();
+            assertThat(sessions).isNotNull();
+            assertThat(sessions.regular().start()).isBefore(sessions.regular().end());
+            assertThat(sessions.pre().end()).isBeforeOrEqualTo(sessions.regular().start());
+            assertThat(sessions.regular().end()).isBeforeOrEqualTo(sessions.post().start());
+        }
+
+        @Test
+        void adjustedHistoryMatchesAutoAdjustSemantics() {
+            var raw = aapl.history(Range.MAX, Interval.ONE_DAY);
+            var adjusted = raw.adjusted();
+
+            // Decades of splits: the earliest adjusted close is a fraction of the raw close.
+            var first = raw.bars().getFirst();
+            var firstAdjusted = adjusted.bars().getFirst();
+            assertThat(firstAdjusted.close()).isEqualByComparingTo(first.adjClose());
+            assertThat(firstAdjusted.close()).isLessThan(first.close());
+            assertThat(firstAdjusted.volume()).isEqualTo(first.volume());
+            // The latest bar needs (almost) no adjustment.
+            var last = raw.bars().getLast();
+            assertThat(adjusted.bars().getLast().close()).isCloseTo(last.close(), org.assertj.core.data.Percentage.withPercentage(1));
+            assertThat(adjusted.dividends()).isEqualTo(raw.dividends());
         }
 
         @Test
