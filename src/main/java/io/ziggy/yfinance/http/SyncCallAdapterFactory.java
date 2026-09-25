@@ -56,13 +56,15 @@ public final class SyncCallAdapterFactory extends CallAdapter.Factory {
         } catch (IOException e) {
             throw new YFDataException("I/O error calling Yahoo Finance", e);
         }
+        String path = call.request().url().encodedPath(); // names the endpoint and symbol in errors
         if (response.code() == 429) {
             throw new YFRateLimitException(
-                    "Yahoo Finance rate limit hit (HTTP 429)" + errorDetail(response),
+                    "Yahoo Finance rate limit hit (HTTP 429) for " + path + errorDetail(response),
                     parseRetryAfter(response.headers().get("Retry-After")));
         }
         if (!response.isSuccessful()) {
-            throw new YFDataException("Yahoo Finance returned HTTP " + response.code() + errorDetail(response));
+            throw new YFDataException(
+                    "Yahoo Finance returned HTTP " + response.code() + " for " + path + errorDetail(response));
         }
         Object body = response.body();
         if (body == null) {

@@ -99,4 +99,16 @@ class FundamentalsServiceTest {
         assertThat(req.getRequestUrl().queryParameter("period1")).isNotNull();
         assertThat(req.getRequestUrl().queryParameter("period2")).isNotNull();
     }
+
+    @Test
+    void trailingBalanceSheetIsRejectedWithoutARequest() {
+        // Yahoo has no trailing (TTM) balance sheet: the request would 404 with a confusing
+        // "No timeseries type(s) specified". Fail fast and explain instead.
+        assertThatThrownBy(() -> service.getStatement(
+                        Symbol.of("AAPL"), StatementType.BALANCE_SHEET, Frequency.TRAILING))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("trailing")
+                .hasMessageContaining("balance sheet");
+        assertThat(server.getRequestCount()).isZero();
+    }
 }
