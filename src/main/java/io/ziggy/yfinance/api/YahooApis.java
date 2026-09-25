@@ -14,6 +14,7 @@ import retrofit2.converter.jackson.JacksonConverterFactory;
 public record YahooApis(
         ChartApi chart,
         QuoteSummaryApi quoteSummary,
+        QuoteApi quote,
         FundamentalsApi fundamentals,
         OptionsApi options,
         SearchApi search,
@@ -24,6 +25,7 @@ public record YahooApis(
         return new YahooApis(
                 primary.create(ChartApi.class),
                 primary.create(QuoteSummaryApi.class),
+                primary.create(QuoteApi.class),
                 fundamentalsRetrofit.create(FundamentalsApi.class),
                 primary.create(OptionsApi.class),
                 primary.create(SearchApi.class),

@@ -25,7 +25,7 @@ Request flow: `YFinance` / `Ticker` / `Tickers` (facade) → `service/` → `api
 
 - **`api/`**: one Retrofit interface per Yahoo endpoint. Methods return the **DTO type directly**, not `Call<T>`. That works because `http/SyncCallAdapterFactory` executes calls synchronously and turns HTTP and I/O failures into `YFDataException` / `YFRateLimitException`, including the error body and `Retry-After`. `YahooApis` bundles the interfaces. Fundamentals timeseries uses the **query2** host; everything else uses query1.
 - **`dto/`**: raw records that mirror Yahoo's JSON. **`model/`**: clean, immutable public records. Keep the two separate, because callers should never see DTOs.
-- **`service/`**: one service per concern. `HoldersService` and `AnalysisService` have no API of their own. They are built on top of `QuoteService`, since both read quoteSummary modules.
+- **`service/`**: one service per concern. `HoldersService` and `AnalysisService` have no API of their own. They are built on top of `QuoteService`, since both read quoteSummary modules. `QuoteService` also owns `/v7/finance/quote` (`QuoteApi`): `getQuote`/`getQuotes` use it directly, and `getInfo` falls back to it when quoteSummary has no data for a symbol (common and inconsistent for non-equities), returning quote-only `Info`. The fallback never masks rate-limit or auth errors, and rethrows the quoteSummary error when the quote endpoint doesn't know the symbol either.
 - **`http/`**: `YahooClientFactory` builds two OkHttp clients that share one cookie jar:
   - `baseClient` handles the auth handshake. It has no crumb interceptor, which avoids recursion.
   - `apiClient` runs the interceptor chain UserAgent → AdaptiveRateLimit → AuthRetry → Crumb.

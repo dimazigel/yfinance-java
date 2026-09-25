@@ -7,6 +7,7 @@ import io.ziggy.yfinance.http.EndpointConfig;
 import io.ziggy.yfinance.http.InMemoryCookieJar;
 import io.ziggy.yfinance.http.YahooClientFactory;
 import io.ziggy.yfinance.model.LookupQuote;
+import io.ziggy.yfinance.model.Quote;
 import io.ziggy.yfinance.model.SearchResult;
 import io.ziggy.yfinance.service.AnalysisService;
 import io.ziggy.yfinance.service.FundamentalsService;
@@ -19,6 +20,7 @@ import io.ziggy.yfinance.service.SearchService;
 import io.ziggy.yfinance.valueobject.Symbol;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import okhttp3.OkHttpClient;
 
@@ -50,7 +52,7 @@ public final class YFinance implements AutoCloseable {
     private final Runnable closer;
 
     private YFinance(YahooApis apis, Runnable closer) {
-        this.quote = new QuoteService(apis.quoteSummary());
+        this.quote = new QuoteService(apis.quoteSummary(), apis.quote());
         this.history = new HistoryService(apis.chart());
         this.fundamentals = new FundamentalsService(apis.fundamentals());
         this.options = new OptionsService(apis.options());
@@ -104,6 +106,18 @@ public final class YFinance implements AutoCloseable {
 
     public Tickers tickers(List<Symbol> symbols) {
         return new Tickers(this, symbols);
+    }
+
+    /**
+     * Lightweight quotes for many symbols in one request (any asset class). Symbols Yahoo does
+     * not know are absent from the map; the order given is preserved.
+     */
+    public Map<Symbol, Quote> quotes(String... symbols) {
+        return quotes(Arrays.stream(symbols).map(Symbol::of).toList());
+    }
+
+    public Map<Symbol, Quote> quotes(List<Symbol> symbols) {
+        return quote.getQuotes(symbols);
     }
 
     public SearchResult search(String query) {

@@ -16,6 +16,7 @@ import io.ziggy.yfinance.model.Info;
 import io.ziggy.yfinance.model.OptionChain;
 import io.ziggy.yfinance.model.PeriodEstimate;
 import io.ziggy.yfinance.model.PriceHistory;
+import io.ziggy.yfinance.model.Quote;
 import io.ziggy.yfinance.model.SearchResult.NewsArticle;
 import io.ziggy.yfinance.model.Split;
 import io.ziggy.yfinance.service.HistoryRequest;
@@ -72,8 +73,18 @@ public final class Ticker {
         return history(HistoryRequest.builder(symbol).range(Range.MAX).interval(Interval.ONE_DAY).build());
     }
 
+    /**
+     * Full company info (profile, quote, recommendations, filings, ...). For instruments
+     * quoteSummary cannot describe (indices, ETFs, crypto, FX, futures) this degrades to quote-only
+     * info: {@code profile()} is {@code null} and the trend lists are empty.
+     */
     public Info info() {
         return yf.quote.getInfo(symbol);
+    }
+
+    /** A lightweight market quote in one request; works for every asset class. */
+    public Quote quote() {
+        return yf.quote.getQuote(symbol);
     }
 
     public FinancialStatement financials(StatementType type, Frequency frequency) {

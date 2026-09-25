@@ -138,4 +138,17 @@ class YFinanceTest {
         assertThat(infos.get(tickers.symbols().getFirst()).value().profile().sector())
                 .isEqualTo("Technology");
     }
+
+    @Test
+    void tickerQuoteAndFacadeBatchQuotesUseTheQuoteEndpoint() throws Exception {
+        server.enqueue(Fixtures.jsonResponse("quote_aapl.json"));
+        var quote = yf.ticker("AAPL").quote();
+        assertThat(quote.price().regularMarketPrice()).isEqualByComparingTo("336.62");
+        assertThat(server.takeRequest().getPath()).startsWith("/v7/finance/quote");
+
+        server.enqueue(Fixtures.jsonResponse("quote_gspc_btc.json"));
+        var quotes = yf.quotes("^GSPC", "BTC-USD");
+        assertThat(quotes.keySet()).extracting(s -> s.value()).containsExactly("^GSPC", "BTC-USD");
+        assertThat(server.getRequestCount()).isEqualTo(2);
+    }
 }

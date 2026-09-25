@@ -74,7 +74,7 @@ final class MapperSupport {
     }
 
     /** Yahoo's own explanation (its {@code description}) verbatim, falling back to the code. */
-    private static String describe(Object error) {
+    static String describe(Object error) {
         if (error instanceof YahooError e) {
             if (e.description() != null && !e.description().isBlank()) {
                 return e.description();
