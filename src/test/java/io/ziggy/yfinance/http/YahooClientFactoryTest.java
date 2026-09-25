@@ -60,4 +60,35 @@ class YahooClientFactoryTest {
         assertThat(req.getHeader("X-Custom")).isEqualTo("yes");
         assertThat(req.getRequestUrl().queryParameter("crumb")).isEqualTo("c1");
     }
+
+    @Test
+    void authRetrySitsUpstreamOfRateLimiterAndCrumb() {
+        // The rate limiter paces requests *before* sending while degraded; a retry issued below it
+        // would skip that pacing. Pacing is timing-based, so the order is asserted structurally.
+        var client = YahooClientFactory.apiClient(config, new InMemoryCookieJar(), () -> Crumb.of("c"), () -> {});
+
+        var order = client.interceptors().stream().map(i -> i.getClass().getSimpleName()).toList();
+        assertThat(order.indexOf("AuthRetryInterceptor"))
+                .isLessThan(order.indexOf("AdaptiveRateLimitInterceptor"))
+                .isLessThan(order.indexOf("CrumbInterceptor"));
+    }
+
+    @Test
+    void authRetryFollowedBy429IsStillAbsorbedByTheRateLimiter() throws Exception {
+        // 401 -> crumb refresh + retry; that retry meets a 429, which the rate limiter must absorb
+        // (wait, retry) instead of returning it raw. Regression guard for the interceptor order.
+        server.enqueue(new MockResponse().setResponseCode(401));
+        server.enqueue(new MockResponse().setResponseCode(429));
+        server.enqueue(new MockResponse().setResponseCode(200));
+        var fast = new AdaptiveRateLimitConfig(true, Duration.ofMillis(1), Duration.ofMillis(5), 2.0, 0.5, 0.0, 3);
+        var refreshes = new java.util.concurrent.atomic.AtomicInteger();
+        var client = YahooClientFactory.apiClient(
+                config.withAdaptiveRateLimit(fast), new InMemoryCookieJar(), () -> Crumb.of("c"), refreshes::incrementAndGet);
+
+        try (var response = client.newCall(new Request.Builder().url(server.url("/x")).build()).execute()) {
+            assertThat(response.code()).isEqualTo(200);
+        }
+        assertThat(server.getRequestCount()).isEqualTo(3);
+        assertThat(refreshes.get()).isEqualTo(1);
+    }
 }

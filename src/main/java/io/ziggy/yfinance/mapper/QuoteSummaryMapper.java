@@ -70,7 +70,7 @@ public final class QuoteSummaryMapper {
         FinancialData fd = r.financialData();
         DefaultKeyStatistics ks = r.defaultKeyStatistics();
         String currencyCode = price != null ? price.currency() : from(sd, SummaryDetail::currency);
-        Symbol symbol = qt != null && qt.symbol() != null ? Symbol.of(qt.symbol()) : requested;
+        Symbol symbol = MapperSupport.symbolOr(from(qt, QuoteType::symbol), requested);
         return new Quote(
                 symbol,
                 from(qt, QuoteType::longName),

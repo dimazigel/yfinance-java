@@ -151,4 +151,16 @@ class YFinanceTest {
         assertThat(quotes.keySet()).extracting(s -> s.value()).containsExactly("^GSPC", "BTC-USD");
         assertThat(server.getRequestCount()).isEqualTo(2);
     }
+
+    @Test
+    void tickerRejectsHistoryRequestBuiltForAnotherSymbol() {
+        var request = io.ziggy.yfinance.service.HistoryRequest.builder(io.ziggy.yfinance.valueobject.Symbol.of("MSFT"))
+                .range(Range.ONE_MONTH).build();
+
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> yf.ticker("AAPL").history(request))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("MSFT")
+                .hasMessageContaining("AAPL");
+        assertThat(server.getRequestCount()).isZero();
+    }
 }

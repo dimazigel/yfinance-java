@@ -5,8 +5,11 @@ import io.ziggy.yfinance.exception.YFDataException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.DateTimeException;
+import io.ziggy.yfinance.valueobject.Symbol;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.format.DateTimeParseException;
 import java.util.Currency;
 import java.util.List;
 import java.util.function.Function;
@@ -52,6 +55,23 @@ final class MapperSupport {
         } catch (DateTimeException e) {
             return null;
         }
+    }
+
+    /** Parses an ISO date such as {@code 2023-09-30}, or {@code null} if absent or malformed. */
+    static @Nullable LocalDate localDate(@Nullable String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+        try {
+            return LocalDate.parse(value.strip());
+        } catch (DateTimeParseException e) {
+            return null;
+        }
+    }
+
+    /** The symbol Yahoo reported, or {@code fallback} when it is absent or blank. */
+    static Symbol symbolOr(@Nullable String reported, Symbol fallback) {
+        return reported == null || reported.isBlank() ? fallback : Symbol.of(reported);
     }
 
     /** Applies {@code accessor} to {@code source}, returning {@code null} when the source is null. */

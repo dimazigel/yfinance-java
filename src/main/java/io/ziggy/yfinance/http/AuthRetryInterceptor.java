@@ -11,7 +11,8 @@ import okhttp3.Response;
  * or 403, this runs {@code onAuthFailure} (which should invalidate the cached crumb) and retries the
  * request exactly once, letting the downstream {@link CrumbInterceptor} attach a fresh crumb.
  *
- * <p>Must be installed <em>before</em> {@link CrumbInterceptor} so the retry re-runs crumb injection.
+ * <p>Must be installed <em>before</em> {@link CrumbInterceptor} so the retry re-runs crumb injection,
+ * and before {@link AdaptiveRateLimitInterceptor} so the retry is paced and 429-handled as well.
  */
 public final class AuthRetryInterceptor implements Interceptor {
 

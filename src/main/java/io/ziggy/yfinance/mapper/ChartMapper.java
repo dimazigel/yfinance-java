@@ -45,7 +45,7 @@ public final class ChartMapper {
             return new HistoryMetadata(requested, null, null, null, null, null, null, null, null);
         }
         return new HistoryMetadata(
-                meta.symbol() != null ? Symbol.of(meta.symbol()) : requested,
+                MapperSupport.symbolOr(meta.symbol(), requested),
                 MapperSupport.currency(meta.currency()),
                 meta.exchangeName(),
                 meta.fullExchangeName(),

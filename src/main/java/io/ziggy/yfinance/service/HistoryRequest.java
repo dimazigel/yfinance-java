@@ -34,6 +34,9 @@ public record HistoryRequest(
         if (range == null && start == null) {
             throw new IllegalArgumentException("Either range or a (start, end) period must be set");
         }
+        if (start != null && end != null && !end.isAfter(start)) {
+            throw new IllegalArgumentException("end (" + end + ") must be after start (" + start + ")");
+        }
     }
 
     public boolean hasPeriod() {
