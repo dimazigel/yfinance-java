@@ -17,7 +17,7 @@ Guidance for AI coding agents working in this repository.
 ./gradlew publishToMavenLocal     # install 0.1.0-SNAPSHOT for consuming projects
 ```
 
-There is no linter or formatter configured. Configuration cache, parallel builds and build caching are enabled in `gradle.properties`, so custom Gradle tasks must stay configuration-cache compatible (see `VerifySourcesPublicationTask` in `build.gradle.kts`). The publish workflow runs on GitHub release and uses `-PreleaseVersion=<tag without v>`.
+There is no linter or formatter configured. Configuration cache, parallel builds and build caching are enabled in `gradle.properties`, so custom Gradle tasks must stay configuration-cache compatible (see `VerifySourcesPublicationTask` in `build.gradle.kts`). Releases are cut by manually running the **Release** workflow (`.github/workflows/release.yml`) on `main`. It bumps the latest tag (patch/minor/major) or takes an explicit version, builds and tests, publishes to GitHub Packages, then creates the tag and GitHub release. Tags have no `v` prefix (`0.0.2`). `publish.yml` still publishes releases created by hand in the GitHub UI. Both workflows pass the version to Gradle as `-PreleaseVersion`.
 
 ## Architecture
 
