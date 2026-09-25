@@ -100,10 +100,11 @@ jobs:
 
       - name: Publish to GitHub Packages
         if: steps.registry.outputs.published == 'false'
-        run: ./gradlew verifySourcesPublication publish -PreleaseVersion="$VERSION"
+        run: ./gradlew verifySourcesPublication publishAllPublicationsToGitHubPackagesRepository -PreleaseVersion="$VERSION"
         env:
           VERSION: ${{ steps.version.outputs.version }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 
       - name: Tag and create GitHub release
         env:

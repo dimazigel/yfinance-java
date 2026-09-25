@@ -28,7 +28,7 @@ plugins {
     alias(libs.plugins.nullaway)
 }
 
-group = "io.ziggy"
+group = "io.github.dimazigel"
 version = providers.gradleProperty("releaseVersion").getOrElse("0.1.0-SNAPSHOT")
 
 java {
@@ -43,6 +43,8 @@ tasks.javadoc {
     (options as StandardJavadocDocletOptions).addBooleanOption("Xdoclint:none", true)
 }
 
+// GitHub Packages is the only publishing destination (Maven Central was considered and declined).
+// Workflows publish with the explicit publishAllPublicationsToGitHubPackagesRepository task.
 publishing {
     repositories {
         maven {
@@ -60,11 +62,23 @@ publishing {
             pom {
                 name = "yfinance-java"
                 description = "Java 21 client for Yahoo Finance market data (port of Python yfinance)"
+                url = "https://github.com/dimazigel/yfinance-java"
                 licenses {
                     license {
                         name = "The Apache License, Version 2.0"
                         url = "https://www.apache.org/licenses/LICENSE-2.0.txt"
                     }
+                }
+                developers {
+                    developer {
+                        id = "dimazigel"
+                        name = "Dmitry Tsigelnik"
+                        url = "https://github.com/dimazigel"
+                    }
+                }
+                scm {
+                    url = "https://github.com/dimazigel/yfinance-java"
+                    connection = "scm:git:https://github.com/dimazigel/yfinance-java.git"
                 }
             }
         }

@@ -4,20 +4,20 @@ Guidance for AI coding agents working in this repository.
 
 ## Project
 
-`yfinance-java`: a Java 21 port of the Python [`yfinance`](https://github.com/ranaroussi/yfinance) library, built on Retrofit 3 / OkHttp 5 / Jackson 2 with Gradle 9 (Kotlin DSL, version catalog in `gradle/libs.versions.toml`). It is a plain library with no framework dependencies. The package root is `io.ziggy.yfinance`, and it publishes as `io.ziggy:yfinance-java`. The public API is described in `README.md`.
+`yfinance-java`: a Java 21 port of the Python [`yfinance`](https://github.com/ranaroussi/yfinance) library, built on Retrofit 3 / OkHttp 5 / Jackson 2 with Gradle 9 (Kotlin DSL, version catalog in `gradle/libs.versions.toml`). It is a plain library with no framework dependencies. The package root is `io.github.dimazigel.yfinance`, and it publishes as `io.github.dimazigel:yfinance-java` (GitHub Packages only — Maven Central was considered and declined; see `RELEASING.md`). The public API is described in `README.md`.
 
 ## Commands
 
 ```bash
 ./gradlew test                    # unit tests (excludes @Tag("live")) + JaCoCo report
-./gradlew test --tests 'io.ziggy.yfinance.service.QuoteServiceTest'             # one class
-./gradlew test --tests 'io.ziggy.yfinance.service.QuoteServiceTest.parsesProfileAndQuote'  # one method
+./gradlew test --tests 'io.github.dimazigel.yfinance.service.QuoteServiceTest'             # one class
+./gradlew test --tests 'io.github.dimazigel.yfinance.service.QuoteServiceTest.parsesProfileAndQuote'  # one method
 ./gradlew integrationTest         # opt-in live suite against real Yahoo (src/integrationTest, @Tag("live"))
 ./gradlew build                   # compile + unit tests + jars (what CI runs); excludes integrationTest
 ./gradlew publishToMavenLocal     # install 0.1.0-SNAPSHOT for consuming projects
 ```
 
-There is no formatter configured. Main code compiles with **NullAway** (via Error Prone; all other Error Prone checks are disabled), so a nullness mistake fails `compileJava`. Test code is not checked. Configuration cache, parallel builds and build caching are enabled in `gradle.properties`, so custom Gradle tasks must stay configuration-cache compatible (see `VerifySourcesPublicationTask` in `build.gradle.kts`). Releases are cut by manually running the **Release** workflow (`.github/workflows/release.yml`) on `main`. It bumps the latest tag (patch/minor/major) or takes an explicit version, builds and tests, publishes to GitHub Packages, then creates the tag and GitHub release. Tags have no `v` prefix (`0.0.2`). `publish.yml` still publishes releases created by hand in the GitHub UI, skipping releases authored by `github-actions[bot]`. Both workflows run `.github/scripts/check-published.sh` first and skip publishing if the version already exists in GitHub Packages, so re-running a half-failed release is safe and nothing is ever uploaded twice. `live.yml` runs the live integration suite weekly (and on demand) to detect Yahoo API drift. Both workflows pass the version to Gradle as `-PreleaseVersion`.
+There is no formatter configured. Main code compiles with **NullAway** (via Error Prone; all other Error Prone checks are disabled), so a nullness mistake fails `compileJava`. Test code is not checked. Configuration cache, parallel builds and build caching are enabled in `gradle.properties`, so custom Gradle tasks must stay configuration-cache compatible (see `VerifySourcesPublicationTask` in `build.gradle.kts`). Releases are cut by manually running the **Release** workflow (`.github/workflows/release.yml`) on `main`. It bumps the latest tag (patch/minor/major) or takes an explicit version, builds and tests, publishes to GitHub Packages, then creates the tag and GitHub release. Tags have no `v` prefix (`0.0.2`). `publish.yml` still publishes releases created by hand in the GitHub UI, skipping releases authored by `github-actions[bot]`. Both workflows run `.github/scripts/check-published.sh` first and skip publishing if the version already exists in GitHub Packages, so re-running a half-failed release is safe and nothing is ever uploaded twice. `live.yml` runs the live integration suite weekly (and on demand) to detect Yahoo API drift. Both workflows pass the version to Gradle as `-PreleaseVersion` and publish with the explicit `publishAllPublicationsToGitHubPackagesRepository` task. Plain `maven-publish`; the publication is named `mavenJava`.
 
 ## Architecture
 

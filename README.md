@@ -9,7 +9,7 @@ A clean, type-safe **Java 21** reimplementation of the Python
 It talks to Yahoo Finance's (undocumented) JSON endpoints and exposes the data
 as immutable **records** with specific types — `BigDecimal` for money,
 `Instant`/`LocalDate`/`ZoneId` for time, `java.util.Currency`, `java.net.URI`
-for URLs, and value records like `Symbol`. Package root: `io.ziggy.yfinance`.
+for URLs, and value records like `Symbol`. Package root: `io.github.dimazigel.yfinance`.
 
 **Requires Java 21+.** No framework dependencies — plain library, safe to use
 from Spring, Quarkus, or a bare `main`.
@@ -140,7 +140,7 @@ NullAway pick this up automatically. The annotations are verified by NullAway on
 
 The library logs through `java.lang.System.Logger`, so it needs no logging dependency and routes to
 SLF4J, Log4j or `java.util.logging` automatically when one is present. Loggers are named after the
-classes under `io.ziggy.yfinance`. At `INFO` you see the rate limiter entering and leaving degraded
+classes under `io.github.dimazigel.yfinance`. At `INFO` you see the rate limiter entering and leaving degraded
 mode; at `WARNING`, degraded authentication (cookie or crumb unavailable); at `DEBUG`, individual
 waits, crumb refreshes and auth retries.
 
@@ -183,15 +183,36 @@ YFinance / Ticker / Tickers — the facade
 ./gradlew integrationTest     # opt-in: hits the real Yahoo Finance API (@Tag("live"))
                               # also runs weekly in CI (.github/workflows/live.yml) to catch API drift
 ./gradlew build               # compile + unit tests + assemble jar
-./gradlew publishToMavenLocal # install io.ziggy:yfinance-java for consuming projects
+./gradlew publishToMavenLocal # install io.github.dimazigel:yfinance-java:0.1.0-SNAPSHOT locally
 ```
 
-Consume from another Gradle project (after `publishToMavenLocal`):
+### Consuming
+
+Coordinates: **`io.github.dimazigel:yfinance-java:<version>`** — pick the version from the
+[releases page](https://github.com/dimazigel/yfinance-java/releases). (Releases up to 0.0.2 were
+published under the old `io.ziggy` group and package root; from the next release on, both are
+`io.github.dimazigel`.)
+
+Releases are published to **GitHub Packages**, which requires authentication even for public
+packages: a GitHub username plus a [personal access token](https://github.com/settings/tokens)
+with the `read:packages` scope.
 
 ```kotlin
-repositories { mavenLocal(); mavenCentral() }
-dependencies { implementation("io.ziggy:yfinance-java:0.1.0-SNAPSHOT") }
+repositories {
+    mavenCentral()
+    maven {
+        url = uri("https://maven.pkg.github.com/dimazigel/yfinance-java")
+        credentials {
+            username = providers.gradleProperty("gpr.user").orElse(providers.environmentVariable("GITHUB_ACTOR")).get()
+            password = providers.gradleProperty("gpr.key").orElse(providers.environmentVariable("GITHUB_TOKEN")).get()
+        }
+    }
+}
+dependencies { implementation("io.github.dimazigel:yfinance-java:<version>") }
 ```
+
+The library is deliberately not published to Maven Central; GitHub Packages is the only
+distribution channel. See [RELEASING.md](RELEASING.md) for how releases are cut.
 
 Unit tests never touch the network; they replay hand-written JSON fixtures from
 `src/test/resources/fixtures/` that mirror Yahoo's response shapes. The live suite
