@@ -2,6 +2,7 @@ package io.ziggy.yfinance.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import io.ziggy.yfinance.api.QuoteApi;
 import io.ziggy.yfinance.api.QuoteSummaryApi;
 import io.ziggy.yfinance.testsupport.Fixtures;
 import io.ziggy.yfinance.valueobject.Symbol;
@@ -23,7 +24,7 @@ class HoldersAnalysisServiceTest {
     void setUp() throws Exception {
         server = new MockWebServer();
         server.start();
-        quoteService = new QuoteService(Fixtures.api(server, QuoteSummaryApi.class));
+        quoteService = new QuoteService(Fixtures.api(server, QuoteSummaryApi.class), Fixtures.api(server, QuoteApi.class));
         holdersService = new HoldersService(quoteService);
         analysisService = new AnalysisService(quoteService);
     }

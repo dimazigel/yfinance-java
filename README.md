@@ -24,6 +24,7 @@ try (var yf = YFinance.create()) { // cookie+crumb handshake; close() releases t
     PriceHistory backfill = aapl.history(start, end, Interval.ONE_DAY); // explicit window
     List<Dividend> dividends = aapl.dividends();     // full-history corporate actions
     Info info           = aapl.info();               // info.quote().price() / .keyStats() / .analyst()
+    Quote quote         = aapl.quote();              // lightweight, one request, any asset class
     FinancialStatement income = aapl.financials(StatementType.INCOME, Frequency.ANNUAL);
     OptionChain chain   = aapl.optionChain();
     Holders holders     = aapl.holders();            // incl. insiderRoster(), netSharePurchaseActivity()
@@ -32,6 +33,7 @@ try (var yf = YFinance.create()) { // cookie+crumb handshake; close() releases t
     List<EpsTrendPeriod> drift = aapl.epsTrend();    // also epsRevisions(), growthEstimates()
     List<NewsArticle> news = aapl.news();
 
+    Map<Symbol, Quote> quotes = yf.quotes("AAPL", "^GSPC", "BTC-USD"); // one request for many symbols
     SearchResult results = yf.search("apple");
     List<LookupQuote> quotes = yf.lookup("apple", LookupType.EQUITY);
 }
@@ -63,6 +65,10 @@ The shared client adaptively throttles on HTTP 429: a throttled request is retri
 degraded **every** request is paced by the current delay until traffic recovers — no burst-429
 oscillation. Only after retries are exhausted is `YFRateLimitException` (with `retryAfter()`)
 thrown. A stale crumb (401/403) is automatically invalidated and the request retried once.
+
+`info()` on an instrument quoteSummary cannot describe (indices, ETFs, crypto, FX, futures) does
+not fail: it falls back to `/v7/finance/quote` and returns quote-only info (`profile()` is `null`,
+trend lists empty), mirroring Python yfinance. `quote()` / `quotes(...)` hit that endpoint directly.
 
 Data-quality guarantees for storage pipelines: missing volume stays `null` (never coerced to 0),
 Yahoo's all-null padding bars are dropped, and `FinancialStatement` collections are immutable.
@@ -123,6 +129,7 @@ waits, crumb refreshes and auth retries.
 |---|---|---|
 | Price history, dividends, splits, capital gains, metadata | `/v8/finance/chart` | `Ticker.history(...)`, `dividends()`, `splits()` |
 | Company info, quote, recommendations, upgrades/downgrades, calendar, SEC filings | `/v10/finance/quoteSummary` | `Ticker.info()` |
+| Lightweight quotes, single or batched, every asset class; also the `info()` fallback for indices/ETFs/crypto/FX/futures | `/v7/finance/quote` | `Ticker.quote()`, `YFinance.quotes(...)` |
 | Income / balance sheet / cash flow (annual + quarterly) | `/ws/fundamentals-timeseries` | `Ticker.financials(...)` |
 | Holders, insider transactions, insider roster, net purchase activity | `/v10/finance/quoteSummary` | `Ticker.holders()` |
 | Analyst price targets, earnings/revenue estimates, earnings history, EPS trend/revisions, growth | `/v10/finance/quoteSummary` | `Ticker.analystPriceTargets()`, `earningsEstimate()`, `earningsHistory()`, `epsTrend()`, ... |

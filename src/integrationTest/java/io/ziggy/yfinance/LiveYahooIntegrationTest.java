@@ -253,35 +253,50 @@ class LiveYahooIntegrationTest {
         }
 
         @Test
-        void indexInfoEitherWorksOrFailsWithYahooReason() {
+        void indexInfoDegradesToQuoteOnly() {
             nonEquityInfo("^GSPC", "INDEX");
         }
 
         @Test
-        void etfInfoEitherWorksOrFailsWithYahooReason() {
+        void etfInfoDegradesToQuoteOnly() {
             nonEquityInfo("SPY", "ETF");
         }
 
         /**
-         * Yahoo's quoteSummary is inconsistent for non-equities: the same request for {@code ^GSPC}
-         * returned HTTP 404 "No fundamentals data found" on one run and a full result on the next.
-         * Python yfinance papers over this with a {@code /v7/finance/quote} fallback that this port
-         * does not have yet. Until it does, verify the library is correct in both cases: a populated
-         * quote (with the {@code @Nullable} profile/analyst paths exercised) or an exception that
-         * carries Yahoo's own reason and the symbol.
+         * quoteSummary is inconsistent for non-equities (the same request may 404 "No fundamentals
+         * data found" or succeed), so info() falls back to /v7/finance/quote. Either way the caller
+         * must get a populated quote; the profile and analyst coverage are the @Nullable paths.
          */
         private void nonEquityInfo(String symbol, String expectedQuoteType) {
             var ticker = yf.ticker(symbol);
-            try {
-                var info = ticker.info();
-                assertThat(info.quote().quoteType()).isEqualTo(expectedQuoteType);
-                assertThat(info.quote().price().regularMarketPrice()).isPositive();
-                assertThat(info.upgradesDowngrades()).isEmpty();
-                var target = ticker.analystPriceTargets();
-                assertThat(target == null || target.mean() == null).as("no analyst coverage").isTrue();
-            } catch (YFDataException e) {
-                assertThat(e.getMessage()).contains(symbol).contains("No fundamentals data");
+            var info = ticker.info();
+            assertThat(info.quote().symbol()).isEqualTo(Symbol.of(symbol));
+            assertThat(info.quote().quoteType()).isEqualTo(expectedQuoteType);
+            assertThat(info.quote().price().regularMarketPrice()).isPositive();
+            assertThat(info.quote().price().previousClose()).isPositive();
+            assertThat(info.quote().currency()).isEqualTo(Currency.getInstance("USD"));
+            assertThat(info.upgradesDowngrades()).isEmpty();
+            if (info.profile() != null) {
+                assertThat(info.profile().sector()).as("non-equities have no sector").isNull();
             }
+        }
+
+        @Test
+        void lightweightQuoteWorksForEveryAssetClass() {
+            var quote = aapl.quote();
+            assertThat(quote.longName()).isEqualTo("Apple Inc.");
+            assertThat(quote.price().regularMarketPrice()).isPositive();
+            assertThat(quote.keyStats().trailingPe()).isPositive();
+            assertThat(quote.keyStats().dividendYield()).isBetween(
+                    java.math.BigDecimal.ZERO, java.math.BigDecimal.ONE); // a fraction, not a percentage
+            assertThat(quote.analyst().recommendationKey()).isNotBlank();
+            assertThat(quote.analyst().recommendationMean()).isBetween(
+                    java.math.BigDecimal.ONE, java.math.BigDecimal.valueOf(5));
+
+            assertThat(yf.ticker("BTC-USD").quote().quoteType()).isEqualTo("CRYPTOCURRENCY");
+            assertThatThrownBy(() -> yf.ticker("NO_SUCH_SYMBOL_XYZ").quote())
+                    .isInstanceOf(YFDataException.class)
+                    .hasMessageContaining("NO_SUCH_SYMBOL_XYZ");
         }
     }
 
@@ -460,6 +475,16 @@ class LiveYahooIntegrationTest {
             assertThat(failure.isSuccess()).isFalse();
             assertThat(failure.error()).isInstanceOf(YFDataException.class);
             assertThatThrownBy(failure::orElseThrow).isSameAs(failure.error());
+        }
+
+        @Test
+        void batchQuotesInOneRequestAcrossAssetClasses() {
+            var quotes = yf.quotes("AAPL", "^GSPC", "EURUSD=X", "ES=F", "SAP.DE", "NO_SUCH_SYMBOL_XYZ");
+            assertThat(quotes.keySet()).extracting(Symbol::value)
+                    .containsExactly("AAPL", "^GSPC", "EURUSD=X", "ES=F", "SAP.DE"); // order kept, unknown omitted
+            assertThat(quotes.values()).allSatisfy(q -> assertThat(q.price().regularMarketPrice()).isPositive());
+            assertThat(quotes.get(Symbol.of("SAP.DE")).currency()).isEqualTo(Currency.getInstance("EUR"));
+            assertThat(quotes.get(Symbol.of("ES=F")).quoteType()).isEqualTo("FUTURE");
         }
 
         @Test
