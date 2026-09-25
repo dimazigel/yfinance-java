@@ -1,7 +1,7 @@
 package io.github.dimazigel.yfinance.http;
 
-import java.lang.System.Logger.Level;
 import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;

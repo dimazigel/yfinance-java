@@ -31,6 +31,8 @@ public final class FundamentalsService {
     }
 
     /**
+     * One financial statement for {@code symbol} at the given frequency.
+     *
      * @throws IllegalArgumentException for {@link Frequency#TRAILING} with
      *     {@link StatementType#BALANCE_SHEET}: Yahoo only publishes trailing-twelve-month figures
      *     for flow statements (income and cash flow), never for a point-in-time balance sheet

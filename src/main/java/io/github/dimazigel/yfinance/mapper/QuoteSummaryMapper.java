@@ -1,7 +1,6 @@
 package io.github.dimazigel.yfinance.mapper;
 
-import static io.github.dimazigel.yfinance.mapper.MapperSupport.from;
-
+import io.github.dimazigel.yfinance.dto.quotesummary.QuoteSummaryResponse;
 import io.github.dimazigel.yfinance.dto.quotesummary.QuoteSummaryResponse.AssetProfile;
 import io.github.dimazigel.yfinance.dto.quotesummary.QuoteSummaryResponse.DefaultKeyStatistics;
 import io.github.dimazigel.yfinance.dto.quotesummary.QuoteSummaryResponse.FinancialData;
@@ -9,10 +8,9 @@ import io.github.dimazigel.yfinance.dto.quotesummary.QuoteSummaryResponse.Price;
 import io.github.dimazigel.yfinance.dto.quotesummary.QuoteSummaryResponse.QuoteType;
 import io.github.dimazigel.yfinance.dto.quotesummary.QuoteSummaryResponse.Result;
 import io.github.dimazigel.yfinance.dto.quotesummary.QuoteSummaryResponse.SummaryDetail;
-import io.github.dimazigel.yfinance.dto.quotesummary.QuoteSummaryResponse;
 import io.github.dimazigel.yfinance.exception.YFDataException;
-import io.github.dimazigel.yfinance.model.CompanyProfile.CompanyOfficer;
 import io.github.dimazigel.yfinance.model.CompanyProfile;
+import io.github.dimazigel.yfinance.model.CompanyProfile.CompanyOfficer;
 import io.github.dimazigel.yfinance.model.Info;
 import io.github.dimazigel.yfinance.model.Quote;
 import io.github.dimazigel.yfinance.model.RecommendationPeriod;
@@ -69,44 +67,44 @@ public final class QuoteSummaryMapper {
         SummaryDetail sd = r.summaryDetail();
         FinancialData fd = r.financialData();
         DefaultKeyStatistics ks = r.defaultKeyStatistics();
-        String currencyCode = price != null ? price.currency() : from(sd, SummaryDetail::currency);
-        Symbol symbol = MapperSupport.symbolOr(from(qt, QuoteType::symbol), requested);
+        String currencyCode = price != null ? price.currency() : MapperSupport.from(sd, SummaryDetail::currency);
+        Symbol symbol = MapperSupport.symbolOr(MapperSupport.from(qt, QuoteType::symbol), requested);
         return new Quote(
                 symbol,
-                from(qt, QuoteType::longName),
-                from(qt, QuoteType::shortName),
-                from(qt, QuoteType::quoteType),
-                from(qt, QuoteType::exchange),
+                MapperSupport.from(qt, QuoteType::longName),
+                MapperSupport.from(qt, QuoteType::shortName),
+                MapperSupport.from(qt, QuoteType::quoteType),
+                MapperSupport.from(qt, QuoteType::exchange),
                 MapperSupport.currency(currencyCode),
-                from(price, Price::marketState),
+                MapperSupport.from(price, Price::marketState),
                 new Quote.PriceSnapshot(
-                        from(price, Price::regularMarketPrice),
-                        from(price, Price::regularMarketChange),
-                        from(price, Price::regularMarketChangePercent),
-                        from(sd, SummaryDetail::previousClose),
-                        from(sd, SummaryDetail::open),
-                        from(sd, SummaryDetail::dayLow),
-                        from(sd, SummaryDetail::dayHigh),
-                        from(sd, SummaryDetail::volume),
-                        from(sd, SummaryDetail::fiftyTwoWeekLow),
-                        from(sd, SummaryDetail::fiftyTwoWeekHigh),
-                        from(price, Price::marketCap)),
+                        MapperSupport.from(price, Price::regularMarketPrice),
+                        MapperSupport.from(price, Price::regularMarketChange),
+                        MapperSupport.from(price, Price::regularMarketChangePercent),
+                        MapperSupport.from(sd, SummaryDetail::previousClose),
+                        MapperSupport.from(sd, SummaryDetail::open),
+                        MapperSupport.from(sd, SummaryDetail::dayLow),
+                        MapperSupport.from(sd, SummaryDetail::dayHigh),
+                        MapperSupport.from(sd, SummaryDetail::volume),
+                        MapperSupport.from(sd, SummaryDetail::fiftyTwoWeekLow),
+                        MapperSupport.from(sd, SummaryDetail::fiftyTwoWeekHigh),
+                        MapperSupport.from(price, Price::marketCap)),
                 new Quote.KeyStats(
-                        from(sd, SummaryDetail::trailingPE),
-                        from(ks, DefaultKeyStatistics::trailingEps),
-                        from(ks, DefaultKeyStatistics::forwardEps),
-                        from(ks, DefaultKeyStatistics::bookValue),
-                        from(ks, DefaultKeyStatistics::priceToBook),
-                        from(ks, DefaultKeyStatistics::beta),
-                        from(ks, DefaultKeyStatistics::sharesOutstanding),
-                        from(sd, SummaryDetail::dividendYield)),
+                        MapperSupport.from(sd, SummaryDetail::trailingPE),
+                        MapperSupport.from(ks, DefaultKeyStatistics::trailingEps),
+                        MapperSupport.from(ks, DefaultKeyStatistics::forwardEps),
+                        MapperSupport.from(ks, DefaultKeyStatistics::bookValue),
+                        MapperSupport.from(ks, DefaultKeyStatistics::priceToBook),
+                        MapperSupport.from(ks, DefaultKeyStatistics::beta),
+                        MapperSupport.from(ks, DefaultKeyStatistics::sharesOutstanding),
+                        MapperSupport.from(sd, SummaryDetail::dividendYield)),
                 new Quote.AnalystSummary(
-                        from(fd, FinancialData::targetMeanPrice),
-                        from(fd, FinancialData::recommendationMean),
-                        from(fd, FinancialData::recommendationKey),
-                        from(fd, FinancialData::numberOfAnalystOpinions),
-                        from(fd, FinancialData::totalRevenue),
-                        from(fd, FinancialData::profitMargins)));
+                        MapperSupport.from(fd, FinancialData::targetMeanPrice),
+                        MapperSupport.from(fd, FinancialData::recommendationMean),
+                        MapperSupport.from(fd, FinancialData::recommendationKey),
+                        MapperSupport.from(fd, FinancialData::numberOfAnalystOpinions),
+                        MapperSupport.from(fd, FinancialData::totalRevenue),
+                        MapperSupport.from(fd, FinancialData::profitMargins)));
     }
 
     private static List<RecommendationPeriod> mapRecommendations(Result r) {

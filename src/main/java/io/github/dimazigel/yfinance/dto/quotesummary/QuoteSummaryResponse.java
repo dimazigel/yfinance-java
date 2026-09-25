@@ -12,10 +12,10 @@ import org.jspecify.annotations.Nullable;
 public record QuoteSummaryResponse(@Nullable QuoteSummary quoteSummary) {
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record QuoteSummary(@Nullable List<Result> result, @Nullable Error error) {}
+    public record QuoteSummary(@Nullable List<Result> result, @Nullable ErrorBody error) {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record Error(@Nullable String code, @Nullable String description) implements YahooError {}
+    public record ErrorBody(@Nullable String code, @Nullable String description) implements YahooError {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record Result(

@@ -1,16 +1,16 @@
 package io.github.dimazigel.yfinance.mapper;
 
+import io.github.dimazigel.yfinance.dto.quotesummary.QuoteSummaryResponse;
 import io.github.dimazigel.yfinance.dto.quotesummary.QuoteSummaryResponse.InsiderHolders;
 import io.github.dimazigel.yfinance.dto.quotesummary.QuoteSummaryResponse.InsiderTransactions;
 import io.github.dimazigel.yfinance.dto.quotesummary.QuoteSummaryResponse.Ownership;
 import io.github.dimazigel.yfinance.dto.quotesummary.QuoteSummaryResponse.Result;
-import io.github.dimazigel.yfinance.dto.quotesummary.QuoteSummaryResponse;
+import io.github.dimazigel.yfinance.model.Holders;
 import io.github.dimazigel.yfinance.model.Holders.InsiderRosterEntry;
 import io.github.dimazigel.yfinance.model.Holders.InsiderTransaction;
 import io.github.dimazigel.yfinance.model.Holders.InstitutionalHolder;
 import io.github.dimazigel.yfinance.model.Holders.MajorHoldersBreakdown;
 import io.github.dimazigel.yfinance.model.Holders.NetSharePurchaseActivity;
-import io.github.dimazigel.yfinance.model.Holders;
 import java.util.List;
 import org.jspecify.annotations.Nullable;
 
