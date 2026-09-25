@@ -1,5 +1,7 @@
 package io.ziggy.yfinance.model;
 
+import org.jspecify.annotations.Nullable;
+
 /** Analyst recommendation counts for a single trailing period (e.g. {@code 0m}, {@code -1m}). */
 public record RecommendationPeriod(
-        String period, int strongBuy, int buy, int hold, int sell, int strongSell) {}
+        @Nullable String period, int strongBuy, int buy, int hold, int sell, int strongSell) {}

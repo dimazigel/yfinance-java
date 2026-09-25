@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.function.Function;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Yahoo's quoteSummary endpoint returns some numeric fields as plain scalars and others as
@@ -35,12 +36,12 @@ public final class RawAwareNumberModule extends SimpleModule {
         }
 
         @Override
-        public T deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+        public @Nullable T deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
             JsonNode node = p.readValueAsTree();
             return fromNode(node);
         }
 
-        private T fromNode(JsonNode node) {
+        private @Nullable T fromNode(@Nullable JsonNode node) {
             if (node == null || node.isNull()) {
                 return null;
             }

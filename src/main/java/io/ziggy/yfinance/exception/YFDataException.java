@@ -1,5 +1,7 @@
 package io.ziggy.yfinance.exception;
 
+import org.jspecify.annotations.Nullable;
+
 /** Raised when Yahoo returns an error envelope or unparseable/empty data. */
 public class YFDataException extends YFinanceException {
 
@@ -7,7 +9,7 @@ public class YFDataException extends YFinanceException {
         super(message);
     }
 
-    public YFDataException(String message, Throwable cause) {
+    public YFDataException(String message, @Nullable Throwable cause) {
         super(message, cause);
     }
 }

@@ -10,17 +10,18 @@ import java.time.ZoneId;
 import java.util.Currency;
 import java.util.List;
 import java.util.function.Function;
+import org.jspecify.annotations.Nullable;
 
 /** Small conversion helpers shared across DTO -> model mappers. */
 final class MapperSupport {
 
     private MapperSupport() {}
 
-    static Instant epochSecond(Long seconds) {
+    static @Nullable Instant epochSecond(@Nullable Long seconds) {
         return seconds != null ? Instant.ofEpochSecond(seconds) : null;
     }
 
-    static URI uri(String value) {
+    static @Nullable URI uri(@Nullable String value) {
         if (value == null || value.isBlank()) {
             return null;
         }
@@ -31,7 +32,7 @@ final class MapperSupport {
         }
     }
 
-    static Currency currency(String code) {
+    static @Nullable Currency currency(@Nullable String code) {
         if (code == null || code.isBlank()) {
             return null;
         }
@@ -42,7 +43,7 @@ final class MapperSupport {
         }
     }
 
-    static ZoneId zoneId(String value) {
+    static @Nullable ZoneId zoneId(@Nullable String value) {
         if (value == null || value.isBlank()) {
             return null;
         }
@@ -54,7 +55,7 @@ final class MapperSupport {
     }
 
     /** Applies {@code accessor} to {@code source}, returning {@code null} when the source is null. */
-    static <S, T> T from(S source, Function<S, T> accessor) {
+    static <S, T extends @Nullable Object> @Nullable T from(@Nullable S source, Function<S, T> accessor) {
         return source == null ? null : accessor.apply(source);
     }
 
@@ -62,7 +63,7 @@ final class MapperSupport {
      * Validates a standard Yahoo {@code {result:[...], error:{...}}} envelope and returns the first
      * result, raising {@link YFDataException} on a missing envelope, an error object, or no results.
      */
-    static <T> T firstResult(List<T> results, Object error, String what, Object requested) {
+    static <T> T firstResult(@Nullable List<T> results, @Nullable Object error, String what, Object requested) {
         if (error != null) {
             throw new YFDataException("Yahoo error for " + requested + ": " + describe(error));
         }

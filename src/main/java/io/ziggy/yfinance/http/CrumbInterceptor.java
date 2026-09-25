@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.function.Supplier;
 import okhttp3.Interceptor;
 import okhttp3.Response;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Appends the {@code crumb} query parameter to every outgoing request. When the supplier yields
@@ -12,9 +13,9 @@ import okhttp3.Response;
  */
 public final class CrumbInterceptor implements Interceptor {
 
-    private final Supplier<Crumb> crumbSupplier;
+    private final Supplier<@Nullable Crumb> crumbSupplier;
 
-    public CrumbInterceptor(Supplier<Crumb> crumbSupplier) {
+    public CrumbInterceptor(Supplier<@Nullable Crumb> crumbSupplier) {
         this.crumbSupplier = crumbSupplier;
     }
 

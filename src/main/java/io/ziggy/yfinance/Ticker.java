@@ -23,6 +23,7 @@ import io.ziggy.yfinance.valueobject.Symbol;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
+import org.jspecify.annotations.Nullable;
 
 /** A handle to a single instrument, exposing all per-symbol data. */
 public final class Ticker {
@@ -95,7 +96,8 @@ public final class Ticker {
         return yf.holders.getHolders(symbol);
     }
 
-    public AnalystPriceTarget analystPriceTargets() {
+    /** Analyst price targets, or {@code null} when Yahoo has no {@code financialData} for the symbol. */
+    public @Nullable AnalystPriceTarget analystPriceTargets() {
         return yf.analysis.getAnalystPriceTargets(symbol);
     }
 

@@ -1,9 +1,9 @@
 package io.ziggy.yfinance.mapper;
 
-import io.ziggy.yfinance.dto.options.OptionChainResponse;
 import io.ziggy.yfinance.dto.options.OptionChainResponse.Contract;
 import io.ziggy.yfinance.dto.options.OptionChainResponse.OptionsByExpiration;
 import io.ziggy.yfinance.dto.options.OptionChainResponse.Result;
+import io.ziggy.yfinance.dto.options.OptionChainResponse;
 import io.ziggy.yfinance.enums.OptionType;
 import io.ziggy.yfinance.exception.YFDataException;
 import io.ziggy.yfinance.model.OptionChain;
@@ -11,6 +11,7 @@ import io.ziggy.yfinance.model.OptionContract;
 import io.ziggy.yfinance.valueobject.Symbol;
 import java.time.Instant;
 import java.util.List;
+import org.jspecify.annotations.Nullable;
 
 /** Maps the raw options response into the {@link OptionChain} model. */
 public final class OptionsMapper {
@@ -40,7 +41,7 @@ public final class OptionsMapper {
                 mapContracts(options != null ? options.puts() : null, OptionType.PUT));
     }
 
-    private static List<OptionContract> mapContracts(List<Contract> contracts, OptionType type) {
+    private static List<OptionContract> mapContracts(@Nullable List<Contract> contracts, OptionType type) {
         if (contracts == null) {
             return List.of();
         }

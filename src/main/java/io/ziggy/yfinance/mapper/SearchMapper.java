@@ -6,6 +6,7 @@ import io.ziggy.yfinance.model.SearchResult.NewsArticle;
 import io.ziggy.yfinance.model.SearchResult.SearchQuote;
 import io.ziggy.yfinance.valueobject.Symbol;
 import java.util.List;
+import java.util.Objects;
 
 /** Maps the raw search response into {@link SearchResult}. */
 public final class SearchMapper {
@@ -23,7 +24,8 @@ public final class SearchMapper {
         return response.quotes().stream()
                 .filter(q -> q.symbol() != null && !q.symbol().isBlank())
                 .map(q -> new SearchQuote(
-                        Symbol.of(q.symbol()), q.shortname(), q.longname(),
+                        Symbol.of(Objects.requireNonNull(q.symbol())), // filtered above
+                        q.shortname(), q.longname(),
                         q.exchDisp() != null ? q.exchDisp() : q.exchange(), q.quoteType()))
                 .toList();
     }

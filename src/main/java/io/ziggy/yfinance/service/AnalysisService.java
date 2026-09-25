@@ -13,6 +13,7 @@ import io.ziggy.yfinance.model.PeriodEstimate;
 import io.ziggy.yfinance.valueobject.Symbol;
 import java.util.List;
 import java.util.Objects;
+import org.jspecify.annotations.Nullable;
 
 /** Retrieves analyst estimates and price targets. */
 public final class AnalysisService {
@@ -29,7 +30,8 @@ public final class AnalysisService {
         this.quoteService = Objects.requireNonNull(quoteService, "quoteService");
     }
 
-    public AnalystPriceTarget getAnalystPriceTargets(Symbol symbol) {
+    /** Analyst price targets, or {@code null} when Yahoo has no {@code financialData} for the symbol. */
+    public @Nullable AnalystPriceTarget getAnalystPriceTargets(Symbol symbol) {
         return AnalysisMapper.toPriceTarget(result(symbol));
     }
 

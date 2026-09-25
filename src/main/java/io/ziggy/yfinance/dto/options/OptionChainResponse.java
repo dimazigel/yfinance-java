@@ -4,42 +4,43 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.ziggy.yfinance.dto.YahooError;
 import java.math.BigDecimal;
 import java.util.List;
+import org.jspecify.annotations.Nullable;
 
 /** Raw deserialization of the {@code /v7/finance/options} response. */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record OptionChainResponse(OptionChain optionChain) {
+public record OptionChainResponse(@Nullable OptionChain optionChain) {
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record OptionChain(List<Result> result, Error error) {}
+    public record OptionChain(@Nullable List<Result> result, @Nullable Error error) {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record Error(String code, String description) implements YahooError {}
+    public record Error(@Nullable String code, @Nullable String description) implements YahooError {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record Result(
-            String underlyingSymbol,
-            List<Long> expirationDates,
-            List<BigDecimal> strikes,
-            List<OptionsByExpiration> options) {}
+            @Nullable String underlyingSymbol,
+            @Nullable List<Long> expirationDates,
+            @Nullable List<@Nullable BigDecimal> strikes,
+            @Nullable List<OptionsByExpiration> options) {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record OptionsByExpiration(Long expirationDate, List<Contract> calls, List<Contract> puts) {}
+    public record OptionsByExpiration(@Nullable Long expirationDate, @Nullable List<Contract> calls, @Nullable List<Contract> puts) {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record Contract(
-            String contractSymbol,
-            BigDecimal strike,
-            String currency,
-            BigDecimal lastPrice,
-            BigDecimal change,
-            BigDecimal percentChange,
-            Long volume,
-            Long openInterest,
-            BigDecimal bid,
-            BigDecimal ask,
-            String contractSize,
-            Long expiration,
-            Long lastTradeDate,
-            BigDecimal impliedVolatility,
-            Boolean inTheMoney) {}
+            @Nullable String contractSymbol,
+            @Nullable BigDecimal strike,
+            @Nullable String currency,
+            @Nullable BigDecimal lastPrice,
+            @Nullable BigDecimal change,
+            @Nullable BigDecimal percentChange,
+            @Nullable Long volume,
+            @Nullable Long openInterest,
+            @Nullable BigDecimal bid,
+            @Nullable BigDecimal ask,
+            @Nullable String contractSize,
+            @Nullable Long expiration,
+            @Nullable Long lastTradeDate,
+            @Nullable BigDecimal impliedVolatility,
+            @Nullable Boolean inTheMoney) {}
 }

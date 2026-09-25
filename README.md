@@ -93,6 +93,30 @@ try (var yf = YFinance.create(config)) {
 `AdaptiveRateLimitConfig.defaults()` is what `EndpointConfig.production()` uses;
 `AdaptiveRateLimitConfig.disabled()` turns throttling and 429-retries off entirely.
 
+To customise the underlying OkHttp clients (proxy, extra interceptors, metrics, connection pool),
+supply a customizer; it runs last, after the library's own interceptors and timeouts:
+
+```java
+var config = EndpointConfig.production()
+        .withClientCustomizer(b -> b
+                .proxy(new Proxy(Proxy.Type.HTTP, new InetSocketAddress("proxy.corp", 8080)))
+                .addInterceptor(myMetricsInterceptor));
+```
+
+### Nullability
+
+The public API is annotated with [JSpecify](https://jspecify.dev): every package is `@NullMarked`,
+so an unannotated type is never null and anything Yahoo may omit is `@Nullable`. IDEs, Kotlin and
+NullAway pick this up automatically. The annotations are verified by NullAway on every build.
+
+### Logging
+
+The library logs through `java.lang.System.Logger`, so it needs no logging dependency and routes to
+SLF4J, Log4j or `java.util.logging` automatically when one is present. Loggers are named after the
+classes under `io.ziggy.yfinance`. At `INFO` you see the rate limiter entering and leaving degraded
+mode; at `WARNING`, degraded authentication (cookie or crumb unavailable); at `DEBUG`, individual
+waits, crumb refreshes and auth retries.
+
 ## What's covered
 
 | Area | Endpoint | API |
@@ -129,6 +153,7 @@ YFinance / Ticker / Tickers — the facade
 ```bash
 ./gradlew test                # fast, deterministic unit tests (MockWebServer + JSON fixtures) + JaCoCo
 ./gradlew integrationTest     # opt-in: hits the real Yahoo Finance API (@Tag("live"))
+                              # also runs weekly in CI (.github/workflows/live.yml) to catch API drift
 ./gradlew build               # compile + unit tests + assemble jar
 ./gradlew publishToMavenLocal # install io.ziggy:yfinance-java for consuming projects
 ```
@@ -140,13 +165,19 @@ repositories { mavenLocal(); mavenCentral() }
 dependencies { implementation("io.ziggy:yfinance-java:0.1.0-SNAPSHOT") }
 ```
 
-Unit tests never touch the network; they replay captured fixtures from
-`src/test/resources/fixtures/`. The live suite (`src/integrationTest`) verifies
-shape against real responses and is excluded from `build`.
+Unit tests never touch the network; they replay hand-written JSON fixtures from
+`src/test/resources/fixtures/` that mirror Yahoo's response shapes. The live suite
+(`src/integrationTest`) verifies shape against real responses; it is excluded from `build`
+and runs weekly in CI so that Yahoo API drift shows up as a failed run.
 
 CI (GitHub Actions, `.github/workflows/build.yml`) runs `./gradlew build` on every
-push/PR and uploads the JaCoCo coverage report as an artifact. The Gradle
+push/PR and uploads the JaCoCo coverage report as an artifact. The build compiles main
+code with NullAway, so a nullness mistake is a compile error. The Gradle
 configuration cache is enabled via `gradle.properties`.
+
+## License
+
+Apache License 2.0 — see [LICENSE](LICENSE).
 
 ## Error handling
 

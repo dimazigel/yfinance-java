@@ -4,10 +4,13 @@ import io.ziggy.yfinance.exception.YFAuthException;
 import io.ziggy.yfinance.http.EndpointConfig;
 import io.ziggy.yfinance.valueobject.Crumb;
 import java.io.IOException;
+import java.lang.System.Logger.Level;
+import java.lang.System.Logger;
 import java.util.Optional;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Performs and caches Yahoo's cookie + crumb handshake.
@@ -25,9 +28,11 @@ import okhttp3.Response;
  */
 public final class CrumbStore {
 
+    private static final Logger LOG = System.getLogger(CrumbStore.class.getName());
+
     private final OkHttpClient client;
     private final EndpointConfig config;
-    private volatile Crumb cached;
+    private volatile @Nullable Crumb cached;
 
     public CrumbStore(OkHttpClient client, EndpointConfig config) {
         this.client = client;
@@ -57,6 +62,7 @@ public final class CrumbStore {
         try {
             return Optional.of(getCrumb());
         } catch (TransientCrumbFailure e) {
+            LOG.log(Level.WARNING, "{0}; continuing without a crumb", e.getMessage());
             return Optional.empty();
         }
     }
@@ -67,6 +73,9 @@ public final class CrumbStore {
      */
     public void invalidate() {
         synchronized (this) {
+            if (cached != null) {
+                LOG.log(Level.DEBUG, "Crumb invalidated; next request will repeat the handshake");
+            }
             cached = null;
         }
     }
@@ -87,6 +96,7 @@ public final class CrumbStore {
             if (crumb == null || crumb.isBlank() || crumb.contains("<html")) {
                 throw new YFAuthException("Yahoo returned an empty or invalid crumb");
             }
+            LOG.log(Level.DEBUG, "Obtained Yahoo crumb");
             return Crumb.of(crumb.strip());
         } catch (IOException e) {
             throw new TransientCrumbFailure("I/O error while obtaining crumb", e);
@@ -100,12 +110,14 @@ public final class CrumbStore {
             response.body(); // drain; status (often 404) is irrelevant, the Set-Cookie matters
         } catch (IOException e) {
             // Non-critical: the crumb (and chart API) can still work without this cookie.
+            LOG.log(Level.WARNING, "Cookie fetch from {0} failed ({1}); continuing without it",
+                    config.cookieUrl(), e.toString());
         }
     }
 
     /** A crumb failure worth degrading on (rate limit or I/O) rather than an invalid crumb. */
     private static final class TransientCrumbFailure extends YFAuthException {
-        TransientCrumbFailure(String message, Throwable cause) {
+        TransientCrumbFailure(String message, @Nullable Throwable cause) {
             super(message, cause);
         }
     }

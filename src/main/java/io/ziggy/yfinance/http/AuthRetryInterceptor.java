@@ -1,6 +1,8 @@
 package io.ziggy.yfinance.http;
 
 import java.io.IOException;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import okhttp3.Interceptor;
 import okhttp3.Response;
 
@@ -13,6 +15,8 @@ import okhttp3.Response;
  */
 public final class AuthRetryInterceptor implements Interceptor {
 
+    private static final Logger LOG = System.getLogger(AuthRetryInterceptor.class.getName());
+
     private final Runnable onAuthFailure;
 
     public AuthRetryInterceptor(Runnable onAuthFailure) {
@@ -24,6 +28,8 @@ public final class AuthRetryInterceptor implements Interceptor {
         var request = chain.request();
         Response response = chain.proceed(request);
         if (response.code() == 401 || response.code() == 403) {
+            LOG.log(Level.DEBUG, "HTTP {0} from {1}; refreshing crumb and retrying once",
+                    response.code(), request.url().encodedPath());
             response.close();
             onAuthFailure.run();
             return chain.proceed(request);

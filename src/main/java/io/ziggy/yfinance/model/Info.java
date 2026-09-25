@@ -2,10 +2,11 @@ package io.ziggy.yfinance.model;
 
 import java.time.Instant;
 import java.util.List;
+import org.jspecify.annotations.Nullable;
 
 /** Aggregated company information assembled from a single quoteSummary call. */
 public record Info(
-        CompanyProfile profile,
+        @Nullable CompanyProfile profile,
         Quote quote,
         List<RecommendationPeriod> recommendationTrend,
         List<UpgradeDowngrade> upgradesDowngrades,

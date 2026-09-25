@@ -8,6 +8,7 @@ import java.time.Instant;
 import java.util.EnumSet;
 import java.util.Objects;
 import java.util.Set;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Parameters for a price-history query.
@@ -18,9 +19,9 @@ import java.util.Set;
 public record HistoryRequest(
         Symbol symbol,
         Interval interval,
-        Range range,
-        Instant start,
-        Instant end,
+        @Nullable Range range,
+        @Nullable Instant start,
+        @Nullable Instant end,
         boolean includePrePost,
         Set<EventType> events) {
 
@@ -47,9 +48,9 @@ public record HistoryRequest(
     public static final class Builder {
         private final Symbol symbol;
         private Interval interval = Interval.ONE_DAY;
-        private Range range;
-        private Instant start;
-        private Instant end;
+        private @Nullable Range range;
+        private @Nullable Instant start;
+        private @Nullable Instant end;
         private boolean includePrePost = false;
         private Set<EventType> events = EnumSet.allOf(EventType.class);
 
@@ -69,7 +70,7 @@ public record HistoryRequest(
             return this;
         }
 
-        public Builder period(Instant start, Instant end) {
+        public Builder period(Instant start, @Nullable Instant end) {
             this.start = start;
             this.end = end;
             this.range = null;
