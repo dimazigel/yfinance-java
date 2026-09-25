@@ -83,7 +83,13 @@ public final class SyncCallAdapterFactory extends CallAdapter.Factory {
                 return "";
             }
             String text = errorBody.string().strip();
-            return text.isEmpty() ? "" : ": " + yahooErrorDescription(text).orElse(text);
+            if (text.isEmpty()) {
+                return "";
+            }
+            if (text.startsWith("<")) {
+                return ": HTML error page (" + text.length() + " bytes)"; // Yahoo's 5xx pages; markup is noise
+            }
+            return ": " + yahooErrorDescription(text).orElse(text);
         } catch (IOException e) {
             return "";
         }

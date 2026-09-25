@@ -69,7 +69,10 @@ class YahooClientFactoryTest {
 
         var order = client.interceptors().stream().map(i -> i.getClass().getSimpleName()).toList();
         assertThat(order.indexOf("AuthRetryInterceptor"))
-                .isLessThan(order.indexOf("AdaptiveRateLimitInterceptor"))
+                .isLessThan(order.indexOf("TransientErrorRetryInterceptor"));
+        assertThat(order.indexOf("TransientErrorRetryInterceptor"))
+                .isLessThan(order.indexOf("AdaptiveRateLimitInterceptor")); // 5xx retries are paced too
+        assertThat(order.indexOf("AdaptiveRateLimitInterceptor"))
                 .isLessThan(order.indexOf("CrumbInterceptor"));
     }
 
@@ -90,5 +93,18 @@ class YahooClientFactoryTest {
         }
         assertThat(server.getRequestCount()).isEqualTo(3);
         assertThat(refreshes.get()).isEqualTo(1);
+    }
+
+    @Test
+    void transientServerErrorIsRetriedInsideTheApiClient() throws Exception {
+        server.enqueue(new MockResponse().setResponseCode(500).setBody("<html>Yahoo! - Error report</html>"));
+        server.enqueue(new MockResponse().setResponseCode(200));
+        var fast = config.withTransientRetry(new RetryConfig(2, Duration.ofMillis(1), Duration.ofMillis(1)));
+        var client = YahooClientFactory.apiClient(fast, new InMemoryCookieJar(), () -> Crumb.of("c"), () -> {});
+
+        try (var response = client.newCall(new Request.Builder().url(server.url("/x")).build()).execute()) {
+            assertThat(response.code()).isEqualTo(200);
+        }
+        assertThat(server.getRequestCount()).isEqualTo(2);
     }
 }

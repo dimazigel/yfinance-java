@@ -18,6 +18,7 @@ import okhttp3.OkHttpClient;
  * @param userAgent   the {@code User-Agent} header sent on every request
  * @param callTimeout overall per-call timeout applied to the OkHttp clients
  * @param adaptiveRateLimit adaptive client-side throttling after HTTP 429 responses
+ * @param transientRetry retry policy for transient server errors (HTTP 500/502/503/504)
  * @param clientCustomizer hook applied to every OkHttp client builder <em>after</em> the library's
  *     own interceptors and timeouts, so it can add a proxy, extra interceptors (logging, metrics), a
  *     custom dispatcher or connection pool, or override a timeout
@@ -29,6 +30,7 @@ public record EndpointConfig(
         String userAgent,
         Duration callTimeout,
         AdaptiveRateLimitConfig adaptiveRateLimit,
+        RetryConfig transientRetry,
         Consumer<OkHttpClient.Builder> clientCustomizer) {
 
     private static final String DEFAULT_USER_AGENT =
@@ -46,6 +48,7 @@ public record EndpointConfig(
         Objects.requireNonNull(userAgent, "userAgent");
         Objects.requireNonNull(callTimeout, "callTimeout");
         Objects.requireNonNull(adaptiveRateLimit, "adaptiveRateLimit");
+        Objects.requireNonNull(transientRetry, "transientRetry");
         Objects.requireNonNull(clientCustomizer, "clientCustomizer");
     }
 
@@ -58,6 +61,7 @@ public record EndpointConfig(
                 DEFAULT_USER_AGENT,
                 DEFAULT_CALL_TIMEOUT,
                 AdaptiveRateLimitConfig.defaults(),
+                RetryConfig.defaults(),
                 NO_CUSTOMIZATION);
     }
 
@@ -72,25 +76,34 @@ public record EndpointConfig(
     /** Returns a copy with different hosts. */
     public EndpointConfig withHosts(HttpUrl query1Base, HttpUrl query2Base, HttpUrl cookieUrl) {
         return new EndpointConfig(
-                query1Base, query2Base, cookieUrl, userAgent, callTimeout, adaptiveRateLimit, clientCustomizer);
+                query1Base, query2Base, cookieUrl, userAgent, callTimeout, adaptiveRateLimit, transientRetry,
+                clientCustomizer);
     }
 
     /** Returns a copy with a different {@code User-Agent}. */
     public EndpointConfig withUserAgent(String userAgent) {
         return new EndpointConfig(
-                query1Base, query2Base, cookieUrl, userAgent, callTimeout, adaptiveRateLimit, clientCustomizer);
+                query1Base, query2Base, cookieUrl, userAgent, callTimeout, adaptiveRateLimit, transientRetry,
+                clientCustomizer);
     }
 
     /** Returns a copy with a different call timeout. */
     public EndpointConfig withCallTimeout(Duration timeout) {
         return new EndpointConfig(
-                query1Base, query2Base, cookieUrl, userAgent, timeout, adaptiveRateLimit, clientCustomizer);
+                query1Base, query2Base, cookieUrl, userAgent, timeout, adaptiveRateLimit, transientRetry,
+                clientCustomizer);
     }
 
     /** Returns a copy with a different adaptive rate-limit config. */
     public EndpointConfig withAdaptiveRateLimit(AdaptiveRateLimitConfig config) {
         return new EndpointConfig(
-                query1Base, query2Base, cookieUrl, userAgent, callTimeout, config, clientCustomizer);
+                query1Base, query2Base, cookieUrl, userAgent, callTimeout, config, transientRetry, clientCustomizer);
+    }
+
+    /** Returns a copy with a different transient-server-error retry policy. */
+    public EndpointConfig withTransientRetry(RetryConfig config) {
+        return new EndpointConfig(
+                query1Base, query2Base, cookieUrl, userAgent, callTimeout, adaptiveRateLimit, config, clientCustomizer);
     }
 
     /**
@@ -99,7 +112,8 @@ public record EndpointConfig(
      */
     public EndpointConfig withClientCustomizer(Consumer<OkHttpClient.Builder> customizer) {
         return new EndpointConfig(
-                query1Base, query2Base, cookieUrl, userAgent, callTimeout, adaptiveRateLimit, customizer);
+                query1Base, query2Base, cookieUrl, userAgent, callTimeout, adaptiveRateLimit, transientRetry,
+                customizer);
     }
 
     private static void noCustomization(OkHttpClient.Builder builder) {}
