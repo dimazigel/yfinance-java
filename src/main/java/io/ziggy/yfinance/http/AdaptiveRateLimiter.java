@@ -1,5 +1,7 @@
 package io.ziggy.yfinance.http;
 
+import java.lang.System.Logger.Level;
+import java.lang.System.Logger;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
@@ -9,12 +11,15 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.DoubleSupplier;
 import java.util.function.LongSupplier;
 import java.util.function.Supplier;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Shared adaptive throttle for a Yahoo client. It reacts quickly to HTTP 429 and recovers
  * conservatively after successful responses.
  */
 final class AdaptiveRateLimiter {
+
+    private static final Logger LOG = System.getLogger(AdaptiveRateLimiter.class.getName());
 
     @FunctionalInterface
     interface Sleeper {
@@ -74,6 +79,7 @@ final class AdaptiveRateLimiter {
                 }
                 wait = Duration.ofNanos(remainingNanos);
             }
+            LOG.log(Level.DEBUG, "Rate limited; waiting {0} ms before next request", wait.toMillis());
             sleeper.sleep(wait);
         }
     }
@@ -83,7 +89,7 @@ final class AdaptiveRateLimiter {
         return config.enabled() ? config.maxAttempts() : 1;
     }
 
-    synchronized void onResponse(int code, String retryAfter) {
+    synchronized void onResponse(int code, @Nullable String retryAfter) {
         if (!config.enabled()) {
             return;
         }
@@ -98,12 +104,17 @@ final class AdaptiveRateLimiter {
         return Duration.ofNanos(currentDelayNanos);
     }
 
-    private void increaseDelay(String retryAfter) {
+    private void increaseDelay(@Nullable String retryAfter) {
+        boolean wasHealthy = currentDelayNanos == 0L;
         long calculated = currentDelayNanos == 0L
                 ? initialDelayNanos
                 : multiplyCapped(currentDelayNanos, config.backoffMultiplier());
         long retryAfterNanos = retryAfterDelayNanos(retryAfter);
         currentDelayNanos = Math.min(maxDelayNanos, Math.max(calculated, retryAfterNanos));
+        // INFO on entering degraded mode (rare, actionable); subsequent adjustments at DEBUG.
+        LOG.log(wasHealthy ? Level.INFO : Level.DEBUG,
+                "Yahoo Finance returned HTTP 429; pacing requests by {0} ms",
+                Duration.ofNanos(currentDelayNanos).toMillis());
         long scheduledDelayNanos = jittered(currentDelayNanos);
         long candidateNextAllowed = nanoTime.getAsLong() + scheduledDelayNanos;
         nextAllowedAtNanos = Math.max(nextAllowedAtNanos, candidateNextAllowed);
@@ -117,15 +128,16 @@ final class AdaptiveRateLimiter {
         currentDelayNanos = reduced <= initialDelayNanos ? 0L : reduced;
         if (currentDelayNanos == 0L) {
             nextAllowedAtNanos = 0L;
+            LOG.log(Level.INFO, "Yahoo Finance rate limit recovered; pacing disabled");
         }
     }
 
-    private long retryAfterDelayNanos(String retryAfter) {
+    private long retryAfterDelayNanos(@Nullable String retryAfter) {
         Duration retryAfterDelay = parseRetryAfter(retryAfter);
         return retryAfterDelay == null ? 0L : retryAfterDelay.toNanos();
     }
 
-    private Duration parseRetryAfter(String retryAfter) {
+    private @Nullable Duration parseRetryAfter(@Nullable String retryAfter) {
         if (retryAfter == null || retryAfter.isBlank()) {
             return null;
         }

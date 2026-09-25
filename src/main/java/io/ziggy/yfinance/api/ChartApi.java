@@ -1,6 +1,7 @@
 package io.ziggy.yfinance.api;
 
 import io.ziggy.yfinance.dto.chart.ChartResponse;
+import org.jspecify.annotations.Nullable;
 import retrofit2.http.GET;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
@@ -12,9 +13,9 @@ public interface ChartApi {
     ChartResponse chart(
             @Path("symbol") String symbol,
             @Query("interval") String interval,
-            @Query("range") String range,
-            @Query("period1") Long period1,
-            @Query("period2") Long period2,
+            @Query("range") @Nullable String range,
+            @Query("period1") @Nullable Long period1,
+            @Query("period2") @Nullable Long period2,
             @Query("includePrePost") boolean includePrePost,
-            @Query("events") String events);
+            @Query("events") @Nullable String events);
 }

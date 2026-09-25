@@ -1,10 +1,11 @@
 package io.ziggy.yfinance.mapper;
 
-import io.ziggy.yfinance.dto.chart.ChartResponse;
+import io.ziggy.yfinance.dto.chart.ChartResponse.AdjClose;
 import io.ziggy.yfinance.dto.chart.ChartResponse.ChartEvents;
 import io.ziggy.yfinance.dto.chart.ChartResponse.ChartMeta;
 import io.ziggy.yfinance.dto.chart.ChartResponse.ChartResult;
 import io.ziggy.yfinance.dto.chart.ChartResponse.Quote;
+import io.ziggy.yfinance.dto.chart.ChartResponse;
 import io.ziggy.yfinance.exception.YFDataException;
 import io.ziggy.yfinance.model.CapitalGain;
 import io.ziggy.yfinance.model.Dividend;
@@ -18,6 +19,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import org.jspecify.annotations.Nullable;
 
 /** Maps the raw {@link ChartResponse} into the clean {@link PriceHistory} model. */
 public final class ChartMapper {
@@ -38,7 +40,7 @@ public final class ChartMapper {
                 mapCapitalGains(result.events()));
     }
 
-    private static HistoryMetadata mapMetadata(ChartMeta meta, Symbol requested) {
+    private static HistoryMetadata mapMetadata(@Nullable ChartMeta meta, Symbol requested) {
         if (meta == null) {
             return new HistoryMetadata(requested, null, null, null, null, null, null, null, null);
         }
@@ -62,9 +64,9 @@ public final class ChartMapper {
             return List.of();
         }
         Quote quote = result.indicators().quote().getFirst();
-        List<BigDecimal> adjClose = result.indicators().adjclose() != null
-                && !result.indicators().adjclose().isEmpty()
-                ? result.indicators().adjclose().getFirst().adjclose()
+        List<AdjClose> adjCloses = result.indicators().adjclose();
+        List<@Nullable BigDecimal> adjClose = adjCloses != null && !adjCloses.isEmpty()
+                ? adjCloses.getFirst().adjclose()
                 : null;
 
         var bars = new ArrayList<PriceBar>(timestamps.size());
@@ -86,37 +88,37 @@ public final class ChartMapper {
         return bars;
     }
 
-    private static List<Dividend> mapDividends(ChartEvents events) {
+    private static List<Dividend> mapDividends(@Nullable ChartEvents events) {
         if (events == null || events.dividends() == null) {
             return List.of();
         }
         return events.dividends().values().stream()
                 .map(d -> new Dividend(MapperSupport.epochSecond(d.date()), d.amount()))
-                .sorted(Comparator.comparing(Dividend::date))
+                .sorted(Comparator.comparing(Dividend::date, Comparator.nullsFirst(Comparator.naturalOrder())))
                 .toList();
     }
 
-    private static List<Split> mapSplits(ChartEvents events) {
+    private static List<Split> mapSplits(@Nullable ChartEvents events) {
         if (events == null || events.splits() == null) {
             return List.of();
         }
         return events.splits().values().stream()
                 .map(s -> new Split(MapperSupport.epochSecond(s.date()), s.numerator(), s.denominator(), s.splitRatio()))
-                .sorted(Comparator.comparing(Split::date))
+                .sorted(Comparator.comparing(Split::date, Comparator.nullsFirst(Comparator.naturalOrder())))
                 .toList();
     }
 
-    private static List<CapitalGain> mapCapitalGains(ChartEvents events) {
+    private static List<CapitalGain> mapCapitalGains(@Nullable ChartEvents events) {
         if (events == null || events.capitalGains() == null) {
             return List.of();
         }
         return events.capitalGains().values().stream()
                 .map(c -> new CapitalGain(MapperSupport.epochSecond(c.date()), c.amount()))
-                .sorted(Comparator.comparing(CapitalGain::date))
+                .sorted(Comparator.comparing(CapitalGain::date, Comparator.nullsFirst(Comparator.naturalOrder())))
                 .toList();
     }
 
-    private static <T> T at(List<T> list, int index) {
+    private static <T extends @Nullable Object> @Nullable T at(@Nullable List<T> list, int index) {
         return list != null && index < list.size() ? list.get(index) : null;
     }
 }

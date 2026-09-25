@@ -10,6 +10,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.time.Duration;
 import java.util.Optional;
+import org.jspecify.annotations.Nullable;
 import retrofit2.Call;
 import retrofit2.CallAdapter;
 import retrofit2.Response;
@@ -30,7 +31,7 @@ public final class SyncCallAdapterFactory extends CallAdapter.Factory {
     }
 
     @Override
-    public CallAdapter<?, ?> get(Type returnType, Annotation[] annotations, Retrofit retrofit) {
+    public @Nullable CallAdapter<?, ?> get(Type returnType, Annotation[] annotations, Retrofit retrofit) {
         // Leave raw Call<T> return types to Retrofit's default adapter.
         if (getRawType(returnType) == Call.class) {
             return null;
@@ -102,7 +103,7 @@ public final class SyncCallAdapterFactory extends CallAdapter.Factory {
     }
 
     /** Parses a {@code Retry-After} header expressed as a whole number of seconds. */
-    private static Duration parseRetryAfter(String headerValue) {
+    private static @Nullable Duration parseRetryAfter(@Nullable String headerValue) {
         if (headerValue == null) {
             return null;
         }

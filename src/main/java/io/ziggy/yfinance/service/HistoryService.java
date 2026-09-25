@@ -3,11 +3,13 @@ package io.ziggy.yfinance.service;
 import io.ziggy.yfinance.api.ChartApi;
 import io.ziggy.yfinance.enums.EventType;
 import io.ziggy.yfinance.enums.Interval;
+import io.ziggy.yfinance.enums.Range;
 import io.ziggy.yfinance.exception.YFDataException;
 import io.ziggy.yfinance.mapper.ChartMapper;
 import io.ziggy.yfinance.mapper.PriceBarResampler;
 import io.ziggy.yfinance.model.PriceHistory;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -48,12 +50,16 @@ public final class HistoryService {
         String events = request.events().stream()
                 .map(EventType::wireValue)
                 .collect(Collectors.joining(","));
+        // A request carries either an explicit period (start[, end]) or a range, never both.
+        Instant start = request.start();
+        Instant end = request.end();
+        Range range = request.range();
         var response = api.chart(
                 request.symbol().value(),
                 interval.wireValue(),
-                request.hasPeriod() ? null : request.range().wireValue(),
-                request.hasPeriod() ? request.start().getEpochSecond() : null,
-                request.hasPeriod() && request.end() != null ? request.end().getEpochSecond() : null,
+                start == null && range != null ? range.wireValue() : null,
+                start != null ? start.getEpochSecond() : null,
+                start != null && end != null ? end.getEpochSecond() : null,
                 request.includePrePost(),
                 events.isEmpty() ? null : events);
         return ChartMapper.toPriceHistory(response, request.symbol());

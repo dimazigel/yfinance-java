@@ -1,7 +1,12 @@
 package io.ziggy.yfinance.model;
 
 import java.time.Instant;
+import org.jspecify.annotations.Nullable;
 
 /** A single analyst rating change. */
 public record UpgradeDowngrade(
-        Instant gradeDate, String firm, String toGrade, String fromGrade, String action) {}
+        @Nullable Instant gradeDate,
+        @Nullable String firm,
+        @Nullable String toGrade,
+        @Nullable String fromGrade,
+        @Nullable String action) {}

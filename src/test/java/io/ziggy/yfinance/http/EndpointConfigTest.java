@@ -38,4 +38,17 @@ class EndpointConfigTest {
 
         assertThat(config.adaptiveRateLimit().enabled()).isFalse();
     }
+
+    @Test
+    void clientCustomizerDefaultsToNoOpAndIsCopiedByWithMethods() {
+        var config = new EndpointConfig(URL, URL, URL, "ua");
+        assertThat(config.clientCustomizer()).isNotNull();
+
+        var marked = config.withClientCustomizer(b -> b.followRedirects(false));
+        assertThat(marked.withCallTimeout(Duration.ofSeconds(1)).clientCustomizer())
+                .isSameAs(marked.clientCustomizer());
+        assertThat(marked.withAdaptiveRateLimit(AdaptiveRateLimitConfig.disabled()).clientCustomizer())
+                .isSameAs(marked.clientCustomizer());
+        assertThat(marked.userAgent()).isEqualTo("ua");
+    }
 }

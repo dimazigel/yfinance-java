@@ -18,6 +18,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.Semaphore;
 import java.util.function.Function;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A group of tickers. Queries are fanned out across symbols with bounded concurrency, and each
@@ -113,10 +114,10 @@ public final class Tickers {
      *
      * @param <T> the payload type
      */
-    public record Result<T>(Symbol symbol, T value, YFinanceException error) {
+    public record Result<T>(Symbol symbol, @Nullable T value, @Nullable YFinanceException error) {
 
         public static <T> Result<T> success(Symbol symbol, T value) {
-            return new Result<>(symbol, value, null);
+            return new Result<>(symbol, Objects.requireNonNull(value, "value"), null);
         }
 
         public static <T> Result<T> failure(Symbol symbol, YFinanceException error) {
@@ -132,7 +133,7 @@ public final class Tickers {
             if (error != null) {
                 throw error;
             }
-            return value;
+            return Objects.requireNonNull(value, "value"); // success results always carry a value
         }
     }
 }

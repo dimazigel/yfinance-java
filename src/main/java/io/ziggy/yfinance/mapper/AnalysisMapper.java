@@ -12,15 +12,17 @@ import io.ziggy.yfinance.model.EpsTrendPeriod;
 import io.ziggy.yfinance.model.GrowthEstimate;
 import io.ziggy.yfinance.model.PeriodEstimate;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
+import org.jspecify.annotations.Nullable;
 
 /** Maps analysis-related quoteSummary modules into analyst models. */
 public final class AnalysisMapper {
 
     private AnalysisMapper() {}
 
-    public static AnalystPriceTarget toPriceTarget(Result r) {
+    public static @Nullable AnalystPriceTarget toPriceTarget(Result r) {
         FinancialData fd = r.financialData();
         if (fd == null) {
             return null;
@@ -52,35 +54,40 @@ public final class AnalysisMapper {
     }
 
     public static List<EpsTrendPeriod> toEpsTrend(Result r) {
-        return trendRows(r).stream()
-                .filter(row -> row.epsTrend() != null)
-                .map(row -> new EpsTrendPeriod(
-                        row.period(), endDate(row),
-                        row.epsTrend().current(),
-                        row.epsTrend().sevenDaysAgo(),
-                        row.epsTrend().thirtyDaysAgo(),
-                        row.epsTrend().sixtyDaysAgo(),
-                        row.epsTrend().ninetyDaysAgo()))
-                .toList();
+        return mapRows(r, row -> {
+            var t = row.epsTrend();
+            return t == null ? null : new EpsTrendPeriod(
+                    row.period(), endDate(row),
+                    t.current(), t.sevenDaysAgo(), t.thirtyDaysAgo(), t.sixtyDaysAgo(), t.ninetyDaysAgo());
+        });
     }
 
     public static List<EpsRevisionsPeriod> toEpsRevisions(Result r) {
-        return trendRows(r).stream()
-                .filter(row -> row.epsRevisions() != null)
-                .map(row -> new EpsRevisionsPeriod(
-                        row.period(), endDate(row),
-                        row.epsRevisions().upLast7Days(),
-                        row.epsRevisions().upLast30Days(),
-                        row.epsRevisions().downLast30Days(),
-                        row.epsRevisions().downLast90Days()))
-                .toList();
+        return mapRows(r, row -> {
+            var rev = row.epsRevisions();
+            return rev == null ? null : new EpsRevisionsPeriod(
+                    row.period(), endDate(row),
+                    rev.upLast7Days(), rev.upLast30Days(), rev.downLast30Days(), rev.downLast90Days());
+        });
     }
 
     public static List<GrowthEstimate> toGrowthEstimates(Result r) {
-        return trendRows(r).stream()
-                .filter(row -> row.growth() != null)
-                .map(row -> new GrowthEstimate(row.period(), endDate(row), row.growth()))
-                .toList();
+        return mapRows(r, row -> {
+            var growth = row.growth();
+            return growth == null ? null : new GrowthEstimate(row.period(), endDate(row), growth);
+        });
+    }
+
+    /** Maps each trend row, skipping rows for which {@code fn} yields {@code null}. */
+    private static <R> List<R> mapRows(Result r, Function<TrendRow, @Nullable R> fn) {
+        var out = new ArrayList<R>();
+        for (TrendRow row : trendRows(r)) {
+            R mapped = fn.apply(row);
+            if (mapped != null) {
+                out.add(mapped);
+            }
+        }
+        return List.copyOf(out);
     }
 
     private static List<TrendRow> trendRows(Result r) {
@@ -90,11 +97,12 @@ public final class AnalysisMapper {
         return r.earningsTrend().trend();
     }
 
-    private static LocalDate endDate(TrendRow row) {
-        return row.endDate() != null ? LocalDate.parse(row.endDate()) : null;
+    private static @Nullable LocalDate endDate(TrendRow row) {
+        String endDate = row.endDate();
+        return endDate != null ? LocalDate.parse(endDate) : null;
     }
 
-    private static List<PeriodEstimate> estimates(Result r, Function<TrendRow, Estimate> pick) {
+    private static List<PeriodEstimate> estimates(Result r, Function<TrendRow, @Nullable Estimate> pick) {
         return trendRows(r).stream()
                 .map(row -> {
                     Estimate e = pick.apply(row);

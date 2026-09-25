@@ -4,20 +4,21 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.ziggy.yfinance.dto.YahooError;
 import java.math.BigDecimal;
 import java.util.List;
+import org.jspecify.annotations.Nullable;
 
 /** Raw deserialization of the {@code /v1/finance/lookup} response. */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record LookupResponse(Finance finance) {
+public record LookupResponse(@Nullable Finance finance) {
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record Finance(List<Result> result, Error error) {}
+    public record Finance(@Nullable List<Result> result, @Nullable Error error) {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record Error(String code, String description) implements YahooError {}
+    public record Error(@Nullable String code, @Nullable String description) implements YahooError {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record Result(List<Document> documents) {}
+    public record Result(@Nullable List<Document> documents) {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record Document(String symbol, String shortName, String quoteType, String exchange, BigDecimal regularMarketPrice) {}
+    public record Document(@Nullable String symbol, @Nullable String shortName, @Nullable String quoteType, @Nullable String exchange, @Nullable BigDecimal regularMarketPrice) {}
 }

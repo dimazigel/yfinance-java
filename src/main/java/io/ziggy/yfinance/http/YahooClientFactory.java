@@ -5,6 +5,7 @@ import io.ziggy.yfinance.valueobject.Crumb;
 import java.util.function.Supplier;
 import okhttp3.CookieJar;
 import okhttp3.OkHttpClient;
+import org.jspecify.annotations.Nullable;
 
 /** Builds the OkHttp clients used to talk to Yahoo Finance. */
 public final class YahooClientFactory {
@@ -20,11 +21,12 @@ public final class YahooClientFactory {
     }
 
     public static OkHttpClient baseClient(EndpointConfig config, CookieJar cookieJar) {
-        return new OkHttpClient.Builder()
+        var builder = new OkHttpClient.Builder()
                 .cookieJar(cookieJar)
                 .addInterceptor(new UserAgentInterceptor(config.userAgent()))
-                .callTimeout(config.callTimeout())
-                .build();
+                .callTimeout(config.callTimeout());
+        config.clientCustomizer().accept(builder);
+        return builder.build();
     }
 
     /**
@@ -33,15 +35,16 @@ public final class YahooClientFactory {
      * without a crumb (e.g. while the crumb endpoint is rate-limited).
      */
     public static OkHttpClient apiClient(
-            EndpointConfig config, CookieJar cookieJar, Supplier<Crumb> crumb, Runnable onAuthFailure) {
-        return new OkHttpClient.Builder()
+            EndpointConfig config, CookieJar cookieJar, Supplier<@Nullable Crumb> crumb, Runnable onAuthFailure) {
+        var builder = new OkHttpClient.Builder()
                 .cookieJar(cookieJar)
                 .addInterceptor(new UserAgentInterceptor(config.userAgent()))
                 .addInterceptor(new AdaptiveRateLimitInterceptor(config.adaptiveRateLimit()))
                 .addInterceptor(new AuthRetryInterceptor(onAuthFailure))
                 .addInterceptor(new CrumbInterceptor(crumb))
-                .callTimeout(config.callTimeout())
-                .build();
+                .callTimeout(config.callTimeout());
+        config.clientCustomizer().accept(builder);
+        return builder.build();
     }
 
     /** Convenience builder wiring a fresh cookie jar, crumb store and api client together. */

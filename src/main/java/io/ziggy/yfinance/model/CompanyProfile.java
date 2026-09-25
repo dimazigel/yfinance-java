@@ -2,20 +2,21 @@ package io.ziggy.yfinance.model;
 
 import java.net.URI;
 import java.util.List;
+import org.jspecify.annotations.Nullable;
 
 /** Company profile data from the {@code assetProfile} module. */
 public record CompanyProfile(
-        String address,
-        String city,
-        String state,
-        String zip,
-        String country,
-        String phone,
-        URI website,
-        String industry,
-        String sector,
-        String longBusinessSummary,
-        Integer fullTimeEmployees,
+        @Nullable String address,
+        @Nullable String city,
+        @Nullable String state,
+        @Nullable String zip,
+        @Nullable String country,
+        @Nullable String phone,
+        @Nullable URI website,
+        @Nullable String industry,
+        @Nullable String sector,
+        @Nullable String longBusinessSummary,
+        @Nullable Integer fullTimeEmployees,
         List<CompanyOfficer> officers) {
 
     public CompanyProfile {
@@ -23,5 +24,6 @@ public record CompanyProfile(
     }
 
     /** A named company officer. */
-    public record CompanyOfficer(String name, String title, Integer age, Long totalPay) {}
+    public record CompanyOfficer(
+            @Nullable String name, @Nullable String title, @Nullable Integer age, @Nullable Long totalPay) {}
 }

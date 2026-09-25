@@ -1,12 +1,13 @@
 package io.ziggy.yfinance.model;
 
 import java.math.BigDecimal;
+import org.jspecify.annotations.Nullable;
 
 /** Consolidated analyst price-target figures. */
 public record AnalystPriceTarget(
-        BigDecimal current,
-        BigDecimal low,
-        BigDecimal high,
-        BigDecimal mean,
-        BigDecimal median,
-        Integer numberOfAnalysts) {}
+        @Nullable BigDecimal current,
+        @Nullable BigDecimal low,
+        @Nullable BigDecimal high,
+        @Nullable BigDecimal mean,
+        @Nullable BigDecimal median,
+        @Nullable Integer numberOfAnalysts) {}

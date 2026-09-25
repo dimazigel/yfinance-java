@@ -1,3 +1,6 @@
+import net.ltgt.gradle.errorprone.errorprone
+import net.ltgt.gradle.nullaway.nullaway
+
 abstract class VerifySourcesPublicationTask : org.gradle.api.DefaultTask() {
     @get:org.gradle.api.tasks.InputFile
     abstract val sourcesJarFile: org.gradle.api.file.RegularFileProperty
@@ -21,6 +24,8 @@ plugins {
     `java-library`
     `maven-publish`
     jacoco
+    alias(libs.plugins.errorprone)
+    alias(libs.plugins.nullaway)
 }
 
 group = "io.ziggy"
@@ -101,6 +106,10 @@ dependencies {
     api(libs.okhttp)
     api(libs.jackson.databind)
     api(libs.jackson.datatype.jsr310)
+    api(libs.jspecify) // nullness annotations are part of the public API
+
+    errorprone(libs.errorprone.core)
+    errorprone(libs.nullaway)
 
     testImplementation(platform(libs.junit.bom))
     testImplementation(libs.junit.jupiter)
@@ -108,6 +117,26 @@ dependencies {
     testImplementation(libs.assertj.core)
     testImplementation(libs.mockito.core)
     testImplementation(libs.okhttp.mockwebserver)
+}
+
+nullaway {
+    onlyNullMarked = true // packages opt in via @NullMarked in package-info.java
+}
+
+// Error Prone is used only as the vehicle for NullAway, which verifies the JSpecify annotations on
+// main code. All other Error Prone checks are disabled to keep the build focused and quiet.
+tasks.withType<JavaCompile>().configureEach {
+    options.errorprone {
+        disableAllChecks = true
+        if (name == "compileJava") {
+            nullaway {
+                error()
+                jspecifyMode = true
+            }
+        } else {
+            nullaway { disable() }
+        }
+    }
 }
 
 tasks.test {

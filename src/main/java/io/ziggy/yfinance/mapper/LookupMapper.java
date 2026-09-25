@@ -5,6 +5,7 @@ import io.ziggy.yfinance.exception.YFDataException;
 import io.ziggy.yfinance.model.LookupQuote;
 import io.ziggy.yfinance.valueobject.Symbol;
 import java.util.List;
+import java.util.Objects;
 
 /** Maps the raw lookup response into a list of {@link LookupQuote}. */
 public final class LookupMapper {
@@ -27,7 +28,8 @@ public final class LookupMapper {
                 .flatMap(r -> r.documents().stream())
                 .filter(d -> d.symbol() != null && !d.symbol().isBlank())
                 .map(d -> new LookupQuote(
-                        Symbol.of(d.symbol()), d.shortName(), d.quoteType(), d.exchange(), d.regularMarketPrice()))
+                        Symbol.of(Objects.requireNonNull(d.symbol())), // filtered above
+                        d.shortName(), d.quoteType(), d.exchange(), d.regularMarketPrice()))
                 .toList();
     }
 }

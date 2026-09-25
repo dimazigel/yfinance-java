@@ -7,6 +7,7 @@ import io.ziggy.yfinance.valueobject.Symbol;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
+import org.jspecify.annotations.Nullable;
 
 /** Retrieves option chains. */
 public final class OptionsService {
@@ -23,7 +24,7 @@ public final class OptionsService {
     }
 
     /** The chain for a specific expiration, or the nearest one when {@code expiration} is null. */
-    public OptionChain getOptionChain(Symbol symbol, Instant expiration) {
+    public OptionChain getOptionChain(Symbol symbol, @Nullable Instant expiration) {
         Long date = expiration != null ? expiration.getEpochSecond() : null;
         var response = api.options(symbol.value(), date);
         return OptionsMapper.toOptionChain(response, symbol);

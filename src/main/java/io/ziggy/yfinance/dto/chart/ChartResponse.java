@@ -5,62 +5,63 @@ import io.ziggy.yfinance.dto.YahooError;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
+import org.jspecify.annotations.Nullable;
 
 /** Raw deserialization of the {@code /v8/finance/chart} response. */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record ChartResponse(Chart chart) {
+public record ChartResponse(@Nullable Chart chart) {
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record Chart(List<ChartResult> result, ChartError error) {}
+    public record Chart(@Nullable List<ChartResult> result, @Nullable ChartError error) {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record ChartError(String code, String description) implements YahooError {}
+    public record ChartError(@Nullable String code, @Nullable String description) implements YahooError {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record ChartResult(ChartMeta meta, List<Long> timestamp, Indicators indicators, ChartEvents events) {}
+    public record ChartResult(@Nullable ChartMeta meta, @Nullable List<Long> timestamp, @Nullable Indicators indicators, @Nullable ChartEvents events) {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record ChartMeta(
-            String currency,
-            String symbol,
-            String exchangeName,
-            String fullExchangeName,
-            String instrumentType,
-            Long firstTradeDate,
-            Long regularMarketTime,
-            Integer gmtoffset,
-            String timezone,
-            String exchangeTimezoneName,
-            BigDecimal regularMarketPrice,
-            BigDecimal chartPreviousClose,
-            Integer priceHint) {}
+            @Nullable String currency,
+            @Nullable String symbol,
+            @Nullable String exchangeName,
+            @Nullable String fullExchangeName,
+            @Nullable String instrumentType,
+            @Nullable Long firstTradeDate,
+            @Nullable Long regularMarketTime,
+            @Nullable Integer gmtoffset,
+            @Nullable String timezone,
+            @Nullable String exchangeTimezoneName,
+            @Nullable BigDecimal regularMarketPrice,
+            @Nullable BigDecimal chartPreviousClose,
+            @Nullable Integer priceHint) {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record Indicators(List<Quote> quote, List<AdjClose> adjclose) {}
+    public record Indicators(@Nullable List<Quote> quote, @Nullable List<AdjClose> adjclose) {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record Quote(
-            List<BigDecimal> open,
-            List<BigDecimal> high,
-            List<BigDecimal> low,
-            List<BigDecimal> close,
-            List<Long> volume) {}
+            @Nullable List<@Nullable BigDecimal> open,
+            @Nullable List<@Nullable BigDecimal> high,
+            @Nullable List<@Nullable BigDecimal> low,
+            @Nullable List<@Nullable BigDecimal> close,
+            @Nullable List<@Nullable Long> volume) {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record AdjClose(List<BigDecimal> adjclose) {}
+    public record AdjClose(@Nullable List<@Nullable BigDecimal> adjclose) {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record ChartEvents(
-            Map<String, DividendEvent> dividends,
-            Map<String, SplitEvent> splits,
-            Map<String, CapitalGainEvent> capitalGains) {}
+            @Nullable Map<String, DividendEvent> dividends,
+            @Nullable Map<String, SplitEvent> splits,
+            @Nullable Map<String, CapitalGainEvent> capitalGains) {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record DividendEvent(BigDecimal amount, Long date) {}
+    public record DividendEvent(@Nullable BigDecimal amount, @Nullable Long date) {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record SplitEvent(Long date, BigDecimal numerator, BigDecimal denominator, String splitRatio) {}
+    public record SplitEvent(@Nullable Long date, @Nullable BigDecimal numerator, @Nullable BigDecimal denominator, @Nullable String splitRatio) {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record CapitalGainEvent(BigDecimal amount, Long date) {}
+    public record CapitalGainEvent(@Nullable BigDecimal amount, @Nullable Long date) {}
 }

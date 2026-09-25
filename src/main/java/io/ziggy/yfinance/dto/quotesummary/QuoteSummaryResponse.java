@@ -5,247 +5,248 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.ziggy.yfinance.dto.YahooError;
 import java.math.BigDecimal;
 import java.util.List;
+import org.jspecify.annotations.Nullable;
 
 /** Raw deserialization of the {@code /v10/finance/quoteSummary} response. */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record QuoteSummaryResponse(QuoteSummary quoteSummary) {
+public record QuoteSummaryResponse(@Nullable QuoteSummary quoteSummary) {
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record QuoteSummary(List<Result> result, Error error) {}
+    public record QuoteSummary(@Nullable List<Result> result, @Nullable Error error) {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record Error(String code, String description) implements YahooError {}
+    public record Error(@Nullable String code, @Nullable String description) implements YahooError {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record Result(
-            AssetProfile assetProfile,
-            QuoteType quoteType,
-            Price price,
-            SummaryDetail summaryDetail,
-            FinancialData financialData,
-            DefaultKeyStatistics defaultKeyStatistics,
-            CalendarEvents calendarEvents,
-            SecFilings secFilings,
-            RecommendationTrend recommendationTrend,
-            UpgradeDowngradeHistory upgradeDowngradeHistory,
-            MajorHoldersBreakdown majorHoldersBreakdown,
-            Ownership institutionOwnership,
-            Ownership fundOwnership,
-            InsiderTransactions insiderTransactions,
-            InsiderHolders insiderHolders,
-            NetSharePurchaseActivity netSharePurchaseActivity,
-            EarningsHistory earningsHistory,
-            EarningsTrend earningsTrend) {}
+            @Nullable AssetProfile assetProfile,
+            @Nullable QuoteType quoteType,
+            @Nullable Price price,
+            @Nullable SummaryDetail summaryDetail,
+            @Nullable FinancialData financialData,
+            @Nullable DefaultKeyStatistics defaultKeyStatistics,
+            @Nullable CalendarEvents calendarEvents,
+            @Nullable SecFilings secFilings,
+            @Nullable RecommendationTrend recommendationTrend,
+            @Nullable UpgradeDowngradeHistory upgradeDowngradeHistory,
+            @Nullable MajorHoldersBreakdown majorHoldersBreakdown,
+            @Nullable Ownership institutionOwnership,
+            @Nullable Ownership fundOwnership,
+            @Nullable InsiderTransactions insiderTransactions,
+            @Nullable InsiderHolders insiderHolders,
+            @Nullable NetSharePurchaseActivity netSharePurchaseActivity,
+            @Nullable EarningsHistory earningsHistory,
+            @Nullable EarningsTrend earningsTrend) {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record AssetProfile(
-            String address1,
-            String city,
-            String state,
-            String zip,
-            String country,
-            String phone,
-            String website,
-            String industry,
-            String sector,
-            String longBusinessSummary,
-            Integer fullTimeEmployees,
-            List<Officer> companyOfficers) {}
+            @Nullable String address1,
+            @Nullable String city,
+            @Nullable String state,
+            @Nullable String zip,
+            @Nullable String country,
+            @Nullable String phone,
+            @Nullable String website,
+            @Nullable String industry,
+            @Nullable String sector,
+            @Nullable String longBusinessSummary,
+            @Nullable Integer fullTimeEmployees,
+            @Nullable List<Officer> companyOfficers) {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record Officer(String name, String title, Integer age, Long totalPay) {}
+    public record Officer(@Nullable String name, @Nullable String title, @Nullable Integer age, @Nullable Long totalPay) {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record QuoteType(
-            String exchange,
-            String quoteType,
-            String symbol,
-            String longName,
-            String shortName,
-            String timeZoneFullName,
-            String timeZoneShortName) {}
+            @Nullable String exchange,
+            @Nullable String quoteType,
+            @Nullable String symbol,
+            @Nullable String longName,
+            @Nullable String shortName,
+            @Nullable String timeZoneFullName,
+            @Nullable String timeZoneShortName) {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record Price(
-            String currency,
-            String marketState,
-            BigDecimal regularMarketPrice,
-            BigDecimal regularMarketChange,
-            BigDecimal regularMarketChangePercent,
-            BigDecimal regularMarketPreviousClose,
-            BigDecimal marketCap,
-            String exchangeName) {}
+            @Nullable String currency,
+            @Nullable String marketState,
+            @Nullable BigDecimal regularMarketPrice,
+            @Nullable BigDecimal regularMarketChange,
+            @Nullable BigDecimal regularMarketChangePercent,
+            @Nullable BigDecimal regularMarketPreviousClose,
+            @Nullable BigDecimal marketCap,
+            @Nullable String exchangeName) {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record SummaryDetail(
-            BigDecimal previousClose,
-            BigDecimal open,
-            BigDecimal dayLow,
-            BigDecimal dayHigh,
-            Long volume,
-            BigDecimal fiftyTwoWeekLow,
-            BigDecimal fiftyTwoWeekHigh,
-            BigDecimal trailingPE,
-            BigDecimal dividendYield,
-            String currency) {}
+            @Nullable BigDecimal previousClose,
+            @Nullable BigDecimal open,
+            @Nullable BigDecimal dayLow,
+            @Nullable BigDecimal dayHigh,
+            @Nullable Long volume,
+            @Nullable BigDecimal fiftyTwoWeekLow,
+            @Nullable BigDecimal fiftyTwoWeekHigh,
+            @Nullable BigDecimal trailingPE,
+            @Nullable BigDecimal dividendYield,
+            @Nullable String currency) {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record FinancialData(
-            BigDecimal currentPrice,
-            BigDecimal targetMeanPrice,
-            BigDecimal targetLowPrice,
-            BigDecimal targetHighPrice,
-            BigDecimal targetMedianPrice,
-            BigDecimal recommendationMean,
-            String recommendationKey,
-            Integer numberOfAnalystOpinions,
-            BigDecimal totalRevenue,
-            BigDecimal profitMargins) {}
+            @Nullable BigDecimal currentPrice,
+            @Nullable BigDecimal targetMeanPrice,
+            @Nullable BigDecimal targetLowPrice,
+            @Nullable BigDecimal targetHighPrice,
+            @Nullable BigDecimal targetMedianPrice,
+            @Nullable BigDecimal recommendationMean,
+            @Nullable String recommendationKey,
+            @Nullable Integer numberOfAnalystOpinions,
+            @Nullable BigDecimal totalRevenue,
+            @Nullable BigDecimal profitMargins) {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record DefaultKeyStatistics(
-            BigDecimal trailingEps,
-            BigDecimal forwardEps,
-            BigDecimal bookValue,
-            BigDecimal priceToBook,
-            Long sharesOutstanding,
-            BigDecimal beta) {}
+            @Nullable BigDecimal trailingEps,
+            @Nullable BigDecimal forwardEps,
+            @Nullable BigDecimal bookValue,
+            @Nullable BigDecimal priceToBook,
+            @Nullable Long sharesOutstanding,
+            @Nullable BigDecimal beta) {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record CalendarEvents(Earnings earnings) {
+    public record CalendarEvents(@Nullable Earnings earnings) {
 
         @JsonIgnoreProperties(ignoreUnknown = true)
         public record Earnings(
-                List<Long> earningsDate,
-                BigDecimal earningsAverage,
-                BigDecimal earningsLow,
-                BigDecimal earningsHigh,
-                BigDecimal revenueAverage) {}
+                @Nullable List<Long> earningsDate,
+                @Nullable BigDecimal earningsAverage,
+                @Nullable BigDecimal earningsLow,
+                @Nullable BigDecimal earningsHigh,
+                @Nullable BigDecimal revenueAverage) {}
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record SecFilings(List<Filing> filings) {
+    public record SecFilings(@Nullable List<Filing> filings) {
 
         @JsonIgnoreProperties(ignoreUnknown = true)
-        public record Filing(String date, String type, String title, String edgarUrl, Long epochDate) {}
+        public record Filing(@Nullable String date, @Nullable String type, @Nullable String title, @Nullable String edgarUrl, @Nullable Long epochDate) {}
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record RecommendationTrend(List<Trend> trend) {
+    public record RecommendationTrend(@Nullable List<Trend> trend) {
 
         @JsonIgnoreProperties(ignoreUnknown = true)
-        public record Trend(String period, Integer strongBuy, Integer buy, Integer hold, Integer sell, Integer strongSell) {}
+        public record Trend(@Nullable String period, @Nullable Integer strongBuy, @Nullable Integer buy, @Nullable Integer hold, @Nullable Integer sell, @Nullable Integer strongSell) {}
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record UpgradeDowngradeHistory(List<History> history) {
+    public record UpgradeDowngradeHistory(@Nullable List<History> history) {
 
         @JsonIgnoreProperties(ignoreUnknown = true)
-        public record History(Long epochGradeDate, String firm, String toGrade, String fromGrade, String action) {}
+        public record History(@Nullable Long epochGradeDate, @Nullable String firm, @Nullable String toGrade, @Nullable String fromGrade, @Nullable String action) {}
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record MajorHoldersBreakdown(
-            BigDecimal insidersPercentHeld,
-            BigDecimal institutionsPercentHeld,
-            BigDecimal institutionsFloatPercentHeld,
-            Integer institutionsCount) {}
+            @Nullable BigDecimal insidersPercentHeld,
+            @Nullable BigDecimal institutionsPercentHeld,
+            @Nullable BigDecimal institutionsFloatPercentHeld,
+            @Nullable Integer institutionsCount) {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record Ownership(List<OwnershipRow> ownershipList) {
+    public record Ownership(@Nullable List<OwnershipRow> ownershipList) {
 
         @JsonIgnoreProperties(ignoreUnknown = true)
         public record OwnershipRow(
-                Long reportDate,
-                String organization,
-                BigDecimal pctHeld,
-                Long position,
-                Long value,
-                BigDecimal pctChange) {}
+                @Nullable Long reportDate,
+                @Nullable String organization,
+                @Nullable BigDecimal pctHeld,
+                @Nullable Long position,
+                @Nullable Long value,
+                @Nullable BigDecimal pctChange) {}
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record InsiderTransactions(List<TransactionRow> transactions) {
+    public record InsiderTransactions(@Nullable List<TransactionRow> transactions) {
 
         @JsonIgnoreProperties(ignoreUnknown = true)
         public record TransactionRow(
-                Long startDate,
-                String filerName,
-                String filerRelation,
-                String transactionText,
-                Long shares,
-                Long value) {}
+                @Nullable Long startDate,
+                @Nullable String filerName,
+                @Nullable String filerRelation,
+                @Nullable String transactionText,
+                @Nullable Long shares,
+                @Nullable Long value) {}
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record InsiderHolders(List<InsiderHolderRow> holders) {
+    public record InsiderHolders(@Nullable List<InsiderHolderRow> holders) {
 
         @JsonIgnoreProperties(ignoreUnknown = true)
         public record InsiderHolderRow(
-                String name,
-                String relation,
-                String transactionDescription,
-                Long latestTransDate,
-                Long positionDirect,
-                Long positionDirectDate) {}
+                @Nullable String name,
+                @Nullable String relation,
+                @Nullable String transactionDescription,
+                @Nullable Long latestTransDate,
+                @Nullable Long positionDirect,
+                @Nullable Long positionDirectDate) {}
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record NetSharePurchaseActivity(
-            String period,
-            Integer buyInfoCount,
-            Long buyInfoShares,
-            BigDecimal buyPercentInsiderShares,
-            Integer sellInfoCount,
-            Long sellInfoShares,
-            BigDecimal sellPercentInsiderShares,
-            Integer netInfoCount,
-            Long netInfoShares,
-            BigDecimal netPercentInsiderShares,
-            Long totalInsiderShares) {}
+            @Nullable String period,
+            @Nullable Integer buyInfoCount,
+            @Nullable Long buyInfoShares,
+            @Nullable BigDecimal buyPercentInsiderShares,
+            @Nullable Integer sellInfoCount,
+            @Nullable Long sellInfoShares,
+            @Nullable BigDecimal sellPercentInsiderShares,
+            @Nullable Integer netInfoCount,
+            @Nullable Long netInfoShares,
+            @Nullable BigDecimal netPercentInsiderShares,
+            @Nullable Long totalInsiderShares) {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record EarningsHistory(List<HistoryRow> history) {
+    public record EarningsHistory(@Nullable List<HistoryRow> history) {
 
         @JsonIgnoreProperties(ignoreUnknown = true)
         public record HistoryRow(
-                BigDecimal epsActual,
-                BigDecimal epsEstimate,
-                BigDecimal epsDifference,
-                BigDecimal surprisePercent,
-                Long quarter,
-                String period) {}
+                @Nullable BigDecimal epsActual,
+                @Nullable BigDecimal epsEstimate,
+                @Nullable BigDecimal epsDifference,
+                @Nullable BigDecimal surprisePercent,
+                @Nullable Long quarter,
+                @Nullable String period) {}
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record EarningsTrend(List<TrendRow> trend) {
+    public record EarningsTrend(@Nullable List<TrendRow> trend) {
 
         @JsonIgnoreProperties(ignoreUnknown = true)
         public record TrendRow(
-                String period,
-                String endDate,
-                BigDecimal growth,
-                Estimate earningsEstimate,
-                Estimate revenueEstimate,
-                EpsTrendRow epsTrend,
-                EpsRevisionsRow epsRevisions) {}
+                @Nullable String period,
+                @Nullable String endDate,
+                @Nullable BigDecimal growth,
+                @Nullable Estimate earningsEstimate,
+                @Nullable Estimate revenueEstimate,
+                @Nullable EpsTrendRow epsTrend,
+                @Nullable EpsRevisionsRow epsRevisions) {}
 
         @JsonIgnoreProperties(ignoreUnknown = true)
-        public record Estimate(BigDecimal avg, BigDecimal low, BigDecimal high, Integer numberOfAnalysts, BigDecimal yearAgoEps) {}
+        public record Estimate(@Nullable BigDecimal avg, @Nullable BigDecimal low, @Nullable BigDecimal high, @Nullable Integer numberOfAnalysts, @Nullable BigDecimal yearAgoEps) {}
 
         @JsonIgnoreProperties(ignoreUnknown = true)
         public record EpsTrendRow(
-                BigDecimal current,
-                @JsonProperty("7daysAgo") BigDecimal sevenDaysAgo,
-                @JsonProperty("30daysAgo") BigDecimal thirtyDaysAgo,
-                @JsonProperty("60daysAgo") BigDecimal sixtyDaysAgo,
-                @JsonProperty("90daysAgo") BigDecimal ninetyDaysAgo) {}
+                @Nullable BigDecimal current,
+                @JsonProperty("7daysAgo") @Nullable BigDecimal sevenDaysAgo,
+                @JsonProperty("30daysAgo") @Nullable BigDecimal thirtyDaysAgo,
+                @JsonProperty("60daysAgo") @Nullable BigDecimal sixtyDaysAgo,
+                @JsonProperty("90daysAgo") @Nullable BigDecimal ninetyDaysAgo) {}
 
         @JsonIgnoreProperties(ignoreUnknown = true)
         public record EpsRevisionsRow(
-                @JsonProperty("upLast7days") Integer upLast7Days,
-                @JsonProperty("upLast30days") Integer upLast30Days,
-                @JsonProperty("downLast30days") Integer downLast30Days,
-                @JsonProperty("downLast90days") Integer downLast90Days) {}
+                @JsonProperty("upLast7days") @Nullable Integer upLast7Days,
+                @JsonProperty("upLast30days") @Nullable Integer upLast30Days,
+                @JsonProperty("downLast30days") @Nullable Integer downLast30Days,
+                @JsonProperty("downLast90days") @Nullable Integer downLast90Days) {}
     }
 }

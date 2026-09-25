@@ -3,6 +3,7 @@ package io.ziggy.yfinance.model;
 import io.ziggy.yfinance.valueobject.Symbol;
 import java.time.Instant;
 import java.util.List;
+import org.jspecify.annotations.Nullable;
 
 /**
  * An option chain for one expiration.
@@ -13,7 +14,7 @@ import java.util.List;
 public record OptionChain(
         Symbol underlyingSymbol,
         List<Instant> expirationDates,
-        Instant expiration,
+        @Nullable Instant expiration,
         List<OptionContract> calls,
         List<OptionContract> puts) {
 

@@ -1,6 +1,7 @@
 package io.ziggy.yfinance.mapper;
 
-import io.ziggy.yfinance.dto.quotesummary.QuoteSummaryResponse;
+import static io.ziggy.yfinance.mapper.MapperSupport.from;
+
 import io.ziggy.yfinance.dto.quotesummary.QuoteSummaryResponse.AssetProfile;
 import io.ziggy.yfinance.dto.quotesummary.QuoteSummaryResponse.DefaultKeyStatistics;
 import io.ziggy.yfinance.dto.quotesummary.QuoteSummaryResponse.FinancialData;
@@ -8,19 +9,19 @@ import io.ziggy.yfinance.dto.quotesummary.QuoteSummaryResponse.Price;
 import io.ziggy.yfinance.dto.quotesummary.QuoteSummaryResponse.QuoteType;
 import io.ziggy.yfinance.dto.quotesummary.QuoteSummaryResponse.Result;
 import io.ziggy.yfinance.dto.quotesummary.QuoteSummaryResponse.SummaryDetail;
+import io.ziggy.yfinance.dto.quotesummary.QuoteSummaryResponse;
 import io.ziggy.yfinance.exception.YFDataException;
-import io.ziggy.yfinance.model.CompanyProfile;
 import io.ziggy.yfinance.model.CompanyProfile.CompanyOfficer;
+import io.ziggy.yfinance.model.CompanyProfile;
 import io.ziggy.yfinance.model.Info;
 import io.ziggy.yfinance.model.Quote;
 import io.ziggy.yfinance.model.RecommendationPeriod;
 import io.ziggy.yfinance.model.SecFiling;
 import io.ziggy.yfinance.model.UpgradeDowngrade;
-import static io.ziggy.yfinance.mapper.MapperSupport.from;
-
 import io.ziggy.yfinance.valueobject.Symbol;
 import java.time.Instant;
 import java.util.List;
+import org.jspecify.annotations.Nullable;
 
 /** Maps the raw quoteSummary response into the consolidated {@link Info} model. */
 public final class QuoteSummaryMapper {
@@ -47,7 +48,7 @@ public final class QuoteSummaryMapper {
         return MapperSupport.firstResult(summary.result(), summary.error(), "quoteSummary data", requested);
     }
 
-    private static CompanyProfile mapProfile(AssetProfile p) {
+    private static @Nullable CompanyProfile mapProfile(@Nullable AssetProfile p) {
         if (p == null) {
             return null;
         }
@@ -137,7 +138,7 @@ public final class QuoteSummaryMapper {
             return List.of();
         }
         return r.calendarEvents().earnings().earningsDate().stream()
-                .map(MapperSupport::epochSecond)
+                .map(Instant::ofEpochSecond)
                 .toList();
     }
 
@@ -152,7 +153,7 @@ public final class QuoteSummaryMapper {
                 .toList();
     }
 
-    private static int orZero(Integer value) {
+    private static int orZero(@Nullable Integer value) {
         return value != null ? value : 0;
     }
 }

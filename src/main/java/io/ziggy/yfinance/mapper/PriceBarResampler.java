@@ -6,6 +6,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Aggregates finer candles into coarser, epoch-aligned buckets (like pandas {@code resample}):
@@ -28,9 +29,10 @@ public final class PriceBarResampler {
                 if (current != null) {
                     out.add(current.toBar());
                 }
-                current = new Bucket(start);
+                current = new Bucket(start, bar);
+            } else {
+                current.add(bar);
             }
-            current.add(bar);
         }
         if (current != null) {
             out.add(current.toBar());
@@ -40,15 +42,17 @@ public final class PriceBarResampler {
 
     private static final class Bucket {
         private final long start;
-        private BigDecimal open;
-        private BigDecimal high;
-        private BigDecimal low;
-        private BigDecimal close;
-        private BigDecimal adjClose;
-        private Long volume;
+        private @Nullable BigDecimal open;
+        private @Nullable BigDecimal high;
+        private @Nullable BigDecimal low;
+        private BigDecimal close; // every bucket holds at least one bar, and bars always have a close
+        private @Nullable BigDecimal adjClose;
+        private @Nullable Long volume;
 
-        Bucket(long start) {
+        Bucket(long start, PriceBar first) {
             this.start = start;
+            this.close = first.close();
+            add(first);
         }
 
         void add(PriceBar bar) {
@@ -61,9 +65,7 @@ public final class PriceBarResampler {
             if (bar.low() != null && (low == null || bar.low().compareTo(low) < 0)) {
                 low = bar.low();
             }
-            if (bar.close() != null) {
-                close = bar.close();
-            }
+            close = bar.close();
             if (bar.adjClose() != null) {
                 adjClose = bar.adjClose();
             }
