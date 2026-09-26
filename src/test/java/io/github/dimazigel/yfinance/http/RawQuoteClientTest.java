@@ -82,6 +82,10 @@ class RawQuoteClientTest {
                 .setBody("{\"quoteSummary\":{\"result\":null,\"error\":{\"code\":\"Not Found\",\"description\":\"Quote not found for symbol: NOPE\"}}}"));
         assertThat(client.modules(Symbol.of("NOPE"), List.of("price"))).isEmpty();
 
+        server.enqueue(new MockResponse().setHeader("Content-Type", "application/json")
+                .setBody("{\"quoteSummary\":{\"result\":null,\"error\":null}}"));
+        assertThat(client.modules(Symbol.of("NOPE"), List.of("price"))).as("200 with null result").isEmpty();
+
         server.enqueue(new MockResponse().setResponseCode(500).setBody("boom"));
         org.assertj.core.api.Assertions.assertThatThrownBy(() -> client.modules(Symbol.of("AAPL"), List.of("price")))
                 .isInstanceOf(io.github.dimazigel.yfinance.exception.YFHttpException.class);
