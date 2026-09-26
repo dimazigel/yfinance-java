@@ -13,7 +13,7 @@ public final class FutureSpecs {
     private FutureSpecs() {}
 
     private static final List<FieldSpec> OWN = List.of(
-            required("contract.isSpecificContract", RAW, "v7:contractSymbol"),
+            required("contract.contractSymbol", RAW, "v7:contractSymbol"),
             required("contract.expireDate", EPOCH_DATE, "v7:expireDate"),
             required("contract.openInterest", RAW, "v7:openInterest"),
             required("contract.underlyingSymbol", RAW, "v7:underlyingSymbol"),

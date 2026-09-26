@@ -16,7 +16,7 @@ public final class FutureBuilder {
                 TierBuilders.session(r),
                 TierBuilders.book(r),
                 new Future.Contract(
-                        r.bool("contract.isSpecificContract"),
+                        r.bool("contract.contractSymbol"),
                         r.date("contract.expireDate"),
                         r.longValue("contract.openInterest"),
                         Symbol.of(r.string("contract.underlyingSymbol")),
