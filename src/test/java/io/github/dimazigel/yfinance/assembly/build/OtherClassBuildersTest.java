@@ -71,7 +71,7 @@ class OtherClassBuildersTest {
         // modules; a fallback that stopped at the base would always downgrade a symbol that needed
         // them, even after "trying" the fallback (this was a real bug: see the 282-symbol live
         // survey, where every UCITS ETF downgraded on exactly these two fields).
-        assertThat(SnapshotSpecs.fallbackModules(AssetClass.ETF)).contains("fundPerformance", "defaultKeyStatistics")
+        assertThat(SnapshotSpecs.fallbackModules(AssetClass.ETF)).contains("fundPerformance", "defaultKeyStatistics", "fundProfile")
                 .startsWith("price", "summaryDetail", "quoteType");
         assertThat(SnapshotSpecs.fallbackModules(AssetClass.MUTUAL_FUND)).contains("fundPerformance", "defaultKeyStatistics", "fundProfile");
         assertThat(SnapshotSpecs.fallbackModules(AssetClass.EQUITY)).contains("financialData", "calendarEvents", "defaultKeyStatistics");
