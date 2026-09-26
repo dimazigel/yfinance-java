@@ -102,7 +102,7 @@ and `summary()`; each `Outcome` has `optional()` and `orElseThrow()` (`Skipped` 
 `YFSkippedException`, a `YFMissingDataException` carrying the `SkipReason`; `Failed` rethrows its
 error). The mapping is symmetric: `Tickers.fetch` turns a `YFSkippedException` or a
 `YFClassMismatchException` thrown inside the fetcher back into `Skipped`, so `fetch(t -> t.as(Equity.class))`
-classifies exactly like `instruments(symbols, Equity.class)`.
+skips for the same reasons as `instruments(symbols, Equity.class)`.
 
 ## The model
 
