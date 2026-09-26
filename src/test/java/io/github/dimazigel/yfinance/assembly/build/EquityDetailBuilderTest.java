@@ -58,7 +58,12 @@ class EquityDetailBuilderTest {
     @Test
     void lossMakingSmallCapHasEmptyOptionalsNotFailures() {
         EquityDetail plug = build("PLUG");
-        assertThat(plug.statistics().pegRatio()).isEmpty();            // 84 % in survey; PLUG lacks it
+        assertThat(plug.statistics().pegRatio().get()).isEqualByComparingTo("0.84"); // present; drifted from the 84% survey figure
+        assertThat(plug.statistics().fiveYearAvgDividendYield()).isEmpty();
+        assertThat(plug.statistics().exDividendDate()).isEmpty();
+        assertThat(plug.statistics().lastDividend()).isEmpty();
+        assertThat(plug.financials().earningsGrowth()).isEmpty();
+        assertThat(plug.financials().debtToEquity().get()).isEqualByComparingTo("1.76565"); // wire 176.565, PERCENT -> fraction
         assertThat(plug.analysts().upgradesDowngrades()).isNotNull();    // possibly empty list, never absent
         assertThat(plug.analysts().secFilings()).isNotNull();
     }
