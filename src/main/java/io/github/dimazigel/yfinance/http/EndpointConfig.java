@@ -118,6 +118,12 @@ public record EndpointConfig(
 
     private static void noCustomization(OkHttpClient.Builder builder) {}
 
+    /** Whether a {@link #clientCustomizer()} other than the default no-op has been configured. */
+    public boolean hasClientCustomizer() {
+        // The default is a single shared method reference, so equals (identity for lambdas) is exact.
+        return !NO_CUSTOMIZATION.equals(clientCustomizer);
+    }
+
     /** URL of the crumb-issuing endpoint on the primary host. */
     public HttpUrl crumbUrl() {
         return query1Base.newBuilder().addPathSegments("v1/test/getcrumb").build();

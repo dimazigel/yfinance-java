@@ -1,7 +1,5 @@
 package io.github.dimazigel.yfinance.http;
 
-import java.lang.System.Logger;
-import java.lang.System.Logger.Level;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
@@ -12,6 +10,9 @@ import java.util.function.DoubleSupplier;
 import java.util.function.LongSupplier;
 import java.util.function.Supplier;
 import org.jspecify.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 
 /**
  * Shared adaptive throttle for a Yahoo client. It reacts quickly to HTTP 429 and recovers
@@ -19,7 +20,7 @@ import org.jspecify.annotations.Nullable;
  */
 final class AdaptiveRateLimiter {
 
-    private static final Logger LOG = System.getLogger(AdaptiveRateLimiter.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(AdaptiveRateLimiter.class);
 
     @FunctionalInterface
     interface Sleeper {
@@ -79,7 +80,7 @@ final class AdaptiveRateLimiter {
                 }
                 wait = Duration.ofNanos(remainingNanos);
             }
-            LOG.log(Level.DEBUG, "Rate limited; waiting {0} ms before next request", wait.toMillis());
+            LOG.atDebug().addKeyValue("delayMs", wait.toMillis()).log("Rate limited; waiting {} ms before next request", wait.toMillis());
             sleeper.sleep(wait);
         }
     }
@@ -112,9 +113,10 @@ final class AdaptiveRateLimiter {
         long retryAfterNanos = retryAfterDelayNanos(retryAfter);
         currentDelayNanos = Math.min(maxDelayNanos, Math.max(calculated, retryAfterNanos));
         // INFO on entering degraded mode (rare, actionable); subsequent adjustments at DEBUG.
-        LOG.log(wasHealthy ? Level.INFO : Level.DEBUG,
-                "Yahoo Finance returned HTTP 429; pacing requests by {0} ms",
-                Duration.ofNanos(currentDelayNanos).toMillis());
+        long paceMs = Duration.ofNanos(currentDelayNanos).toMillis();
+        LOG.atLevel(wasHealthy ? Level.INFO : Level.DEBUG)
+                .addKeyValue("delayMs", paceMs)
+                .log("Yahoo Finance returned HTTP 429; pacing requests by {} ms", paceMs);
         long scheduledDelayNanos = jittered(currentDelayNanos);
         long candidateNextAllowed = nanoTime.getAsLong() + scheduledDelayNanos;
         nextAllowedAtNanos = Math.max(nextAllowedAtNanos, candidateNextAllowed);
@@ -128,7 +130,7 @@ final class AdaptiveRateLimiter {
         currentDelayNanos = reduced <= initialDelayNanos ? 0L : reduced;
         if (currentDelayNanos == 0L) {
             nextAllowedAtNanos = 0L;
-            LOG.log(Level.INFO, "Yahoo Finance rate limit recovered; pacing disabled");
+            LOG.atInfo().log("Yahoo Finance rate limit recovered; pacing disabled");
         }
     }
 

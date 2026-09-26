@@ -22,7 +22,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 import okhttp3.OkHttpClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Entry point to the library. Holds the authenticated services and hands out {@link Ticker}s.
@@ -41,6 +44,8 @@ import okhttp3.OkHttpClient;
  */
 public final class YFinance implements AutoCloseable {
 
+    private static final Logger LOG = LoggerFactory.getLogger(YFinance.class);
+
     final HistoryService history;
     final QuoteService quote;
     final FundamentalsService fundamentals;
@@ -50,6 +55,7 @@ public final class YFinance implements AutoCloseable {
     private final SearchService search;
     private final LookupService lookup;
     private final Runnable closer;
+    private final AtomicBoolean closed = new AtomicBoolean();
 
     private YFinance(YahooApis apis, Runnable closer) {
         this.quote = new QuoteService(apis.quoteSummary(), apis.quote());
@@ -75,9 +81,15 @@ public final class YFinance implements AutoCloseable {
         var crumbStore = new CrumbStore(authClient, config);
         var client = YahooClientFactory.apiClient(
                 config, cookieJar, () -> crumbStore.tryGetCrumb().orElse(null), crumbStore::invalidate);
+        LOG.atInfo().log("yfinance-java client created: hosts={}/{}, callTimeout={}, rateLimit={}, retry5xx={} attempts, customizer={}",
+                config.query1Base().host(), config.query2Base().host(), config.callTimeout(),
+                config.adaptiveRateLimit().enabled() ? "on/" + config.adaptiveRateLimit().maxAttempts() + " attempts" : "off",
+                config.transientRetry().maxAttempts(),
+                config.hasClientCustomizer() ? "yes" : "no");
         return new YFinance(YahooApis.create(config, client), () -> {
             closeClient(client);
             closeClient(authClient);
+            LOG.atDebug().log("yfinance-java client closed");
         });
     }
 
@@ -89,7 +101,9 @@ public final class YFinance implements AutoCloseable {
     /** Releases the underlying OkHttp client's threads and connections. Idempotent. */
     @Override
     public void close() {
-        closer.run();
+        if (closed.compareAndSet(false, true)) {
+            closer.run();
+        }
     }
 
     public Ticker ticker(String symbol) {

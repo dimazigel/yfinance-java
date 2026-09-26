@@ -68,12 +68,15 @@ class YahooClientFactoryTest {
         var client = YahooClientFactory.apiClient(config, new InMemoryCookieJar(), () -> Crumb.of("c"), () -> {});
 
         var order = client.interceptors().stream().map(i -> i.getClass().getSimpleName()).toList();
+        assertThat(order.indexOf("LogContextInterceptor")).isEqualTo(1); // right after User-Agent: every line below sees yf.endpoint
         assertThat(order.indexOf("AuthRetryInterceptor"))
                 .isLessThan(order.indexOf("TransientErrorRetryInterceptor"));
         assertThat(order.indexOf("TransientErrorRetryInterceptor"))
                 .isLessThan(order.indexOf("AdaptiveRateLimitInterceptor")); // 5xx retries are paced too
         assertThat(order.indexOf("AdaptiveRateLimitInterceptor"))
-                .isLessThan(order.indexOf("CrumbInterceptor"));
+                .isLessThan(order.indexOf("RequestLogInterceptor")); // logs every physical attempt...
+        assertThat(order.indexOf("RequestLogInterceptor"))
+                .isLessThan(order.indexOf("CrumbInterceptor"));      // ...before the crumb is attached
     }
 
     @Test

@@ -2,6 +2,7 @@ package io.github.dimazigel.yfinance.service;
 
 import io.github.dimazigel.yfinance.dto.quotesummary.QuoteSummaryResponse;
 import io.github.dimazigel.yfinance.enums.QuoteSummaryModule;
+import io.github.dimazigel.yfinance.logging.LogContext;
 import io.github.dimazigel.yfinance.mapper.AnalysisMapper;
 import io.github.dimazigel.yfinance.mapper.QuoteSummaryMapper;
 import io.github.dimazigel.yfinance.model.AnalystPriceTarget;
@@ -60,7 +61,9 @@ public final class AnalysisService {
     }
 
     private QuoteSummaryResponse.Result result(Symbol symbol) {
-        var response = quoteService.fetch(symbol, MODULES);
-        return QuoteSummaryMapper.requireResult(response, symbol);
+        try (var ignored = LogContext.scope("analysis", symbol)) {
+            var response = quoteService.fetch(symbol, MODULES);
+            return QuoteSummaryMapper.requireResult(response, symbol);
+        }
     }
 }

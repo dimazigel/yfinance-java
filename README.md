@@ -141,11 +141,33 @@ NullAway pick this up automatically. The annotations are verified by NullAway on
 
 ### Logging
 
-The library logs through `java.lang.System.Logger`, so it needs no logging dependency and routes to
-SLF4J, Log4j or `java.util.logging` automatically when one is present. Loggers are named after the
-classes under `io.github.dimazigel.yfinance`. At `INFO` you see the rate limiter entering and leaving degraded
-mode; at `WARNING`, degraded authentication (cookie or crumb unavailable); at `DEBUG`, individual
-waits, crumb refreshes and auth retries.
+The library logs through **SLF4J** (`slf4j-api` is its only logging dependency); bind whichever
+backend your application uses (Logback, Log4j 2, `slf4j-simple`, …). Loggers are named after the
+classes under `io.github.dimazigel.yfinance`. At `INFO` you see the rate limiter entering and leaving
+degraded mode; at `WARN`, degraded authentication (cookie or crumb unavailable); at `DEBUG`,
+individual waits, crumb refreshes, 5xx retries and the quote-endpoint fallback.
+
+What you get at each level — a healthy production log from this library is **empty at `WARN`**:
+
+| level | when | examples |
+|---|---|---|
+| `WARN` | degraded, or gave up | cookie/crumb unavailable; still 429 or 5xx after all retries |
+| `INFO` | once per client, once per batch | effective config at `create()`; rate limiter entering/leaving degraded mode; `Fetched 500 symbols: 497 ok, 3 failed in 12 s` |
+| `DEBUG` | once per request or per dropped datum | `GET /v8/finance/chart/AAPL?range=1mo&interval=1d -> 200 (23 KB) in 412 ms`; `Dropped 4 of 390 bars without a close`; `Unknown currency "GBp"; left null`; each retry; each failed symbol in a batch |
+
+The library never logs an error it also throws: the exception message carries Yahoo's reason and
+the request path, and the caller decides what to do with it.
+
+Every call runs inside an MDC scope so log lines can be correlated without parsing messages:
+`yf.op` (`history`, `info`, `quote`, `quotes`, `financials`, `options`, `holders`, `analysis`,
+`search`, `lookup`), `yf.symbol` (comma-joined for batch quotes) and, while an HTTP request is in
+flight, `yf.endpoint` (e.g. `/v8/finance/chart/AAPL`). Event-specific facts such as `status`,
+`attempt` and `delayMs` are attached as SLF4J key-value pairs. (Note: `slf4j-simple` has a no-op MDC, so use Logback, Log4j 2 or another full backend to see
+them.) A Logback pattern that shows them:
+
+```
+%d %-5level [%X{yf.op}] %X{yf.symbol} %X{yf.endpoint} %logger{0} - %msg %kvp%n
+```
 
 ## What's covered
 

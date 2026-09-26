@@ -1,6 +1,7 @@
 package io.github.dimazigel.yfinance.service;
 
 import io.github.dimazigel.yfinance.enums.QuoteSummaryModule;
+import io.github.dimazigel.yfinance.logging.LogContext;
 import io.github.dimazigel.yfinance.mapper.HoldersMapper;
 import io.github.dimazigel.yfinance.mapper.QuoteSummaryMapper;
 import io.github.dimazigel.yfinance.model.Holders;
@@ -26,7 +27,9 @@ public final class HoldersService {
     }
 
     public Holders getHolders(Symbol symbol) {
-        var response = quoteService.fetch(symbol, MODULES);
-        return HoldersMapper.toHolders(QuoteSummaryMapper.requireResult(response, symbol));
+        try (var ignored = LogContext.scope("holders", symbol)) {
+            var response = quoteService.fetch(symbol, MODULES);
+            return HoldersMapper.toHolders(QuoteSummaryMapper.requireResult(response, symbol));
+        }
     }
 }

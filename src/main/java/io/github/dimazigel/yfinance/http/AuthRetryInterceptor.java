@@ -1,10 +1,10 @@
 package io.github.dimazigel.yfinance.http;
 
 import java.io.IOException;
-import java.lang.System.Logger;
-import java.lang.System.Logger.Level;
 import okhttp3.Interceptor;
 import okhttp3.Response;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Recovers from an expired/rotated crumb. When Yahoo answers an authenticated request with HTTP 401
@@ -16,7 +16,7 @@ import okhttp3.Response;
  */
 public final class AuthRetryInterceptor implements Interceptor {
 
-    private static final Logger LOG = System.getLogger(AuthRetryInterceptor.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(AuthRetryInterceptor.class);
 
     private final Runnable onAuthFailure;
 
@@ -29,8 +29,9 @@ public final class AuthRetryInterceptor implements Interceptor {
         var request = chain.request();
         Response response = chain.proceed(request);
         if (response.code() == 401 || response.code() == 403) {
-            LOG.log(Level.DEBUG, "HTTP {0} from {1}; refreshing crumb and retrying once",
-                    response.code(), request.url().encodedPath());
+            LOG.atDebug()
+                    .addKeyValue("status", response.code())
+                    .log("HTTP {} from Yahoo; refreshing crumb and retrying once", response.code());
             response.close();
             onAuthFailure.run();
             return chain.proceed(request);

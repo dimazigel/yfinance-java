@@ -120,4 +120,18 @@ class AdaptiveRateLimitInterceptorTest {
                 },
                 () -> 0.0);
     }
+
+    @Test
+    void warnsOnceWhenStillRateLimitedAfterAllAttempts() throws Exception {
+        server.enqueue(new MockResponse().setResponseCode(429));
+        server.enqueue(new MockResponse().setResponseCode(429));
+        var client = new OkHttpClient.Builder().addInterceptor(new AdaptiveRateLimitInterceptor(limiter(2))).build();
+
+        try (var log = io.github.dimazigel.yfinance.testsupport.LogCapture.of(AdaptiveRateLimitInterceptor.class)) {
+            client.newCall(new Request.Builder().url(server.url("/limited")).build()).execute().close();
+
+            assertThat(log.messages(ch.qos.logback.classic.Level.WARN)).singleElement().satisfies(m ->
+                    assertThat(m).startsWith("Giving up on /limited after 2 attempts: still rate limited (HTTP 429)"));
+        }
+    }
 }

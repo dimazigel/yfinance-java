@@ -266,4 +266,38 @@ class HistoryServiceTest {
         assertThat(periods.pre().end()).isEqualTo(periods.regular().start());
         assertThat(periods.post().start()).isEqualTo(periods.regular().end());
     }
+
+    @Test
+    void requestsRunInsideALogContextScope() throws Exception {
+        var seen = new java.util.HashMap<String, String>();
+        var api = Fixtures.retrofit(server.url("/"), chain -> {
+            seen.putAll(org.slf4j.MDC.getCopyOfContextMap());
+            return chain.proceed(chain.request());
+        }).create(ChartApi.class);
+        server.enqueue(Fixtures.jsonResponse("chart_aapl_1d.json"));
+
+        new HistoryService(api).getHistory(HistoryRequest.builder(Symbol.of("AAPL")).range(Range.ONE_MONTH).build());
+
+        assertThat(seen).containsEntry("yf.op", "history").containsEntry("yf.symbol", "AAPL");
+        assertThat(org.slf4j.MDC.get("yf.op")).isNull(); // cleared once the call returns
+    }
+
+    @Test
+    void droppedBarsAndUnknownMetadataAreLoggedAtDebug() {
+        server.enqueue(new MockResponse().setResponseCode(200).setBody(
+                "{\"chart\":{\"result\":[{\"meta\":{\"currency\":\"GBp\",\"symbol\":\"BP.L\","
+                        + "\"exchangeTimezoneName\":\"Not/A_Zone\",\"validRanges\":[\"1d\",\"bogus\"]},"
+                        + "\"timestamp\":[1700000000,1700000060,1700000120],"
+                        + "\"indicators\":{\"quote\":[{\"close\":[1.5,null,null]}]}}],\"error\":null}}"));
+
+        try (var log = io.github.dimazigel.yfinance.testsupport.LogCapture.ofLibrary()) {
+            service.getHistory(HistoryRequest.builder(Symbol.of("BP.L")).range(Range.ONE_DAY).build());
+
+            assertThat(log.messages(ch.qos.logback.classic.Level.DEBUG))
+                    .anySatisfy(m -> assertThat(m).isEqualTo("Dropped 2 of 3 bars without a close"))
+                    .anySatisfy(m -> assertThat(m).isEqualTo("Unknown currency \"GBp\"; left null"))
+                    .anySatisfy(m -> assertThat(m).isEqualTo("Unknown timezone \"Not/A_Zone\"; left null"))
+                    .anySatisfy(m -> assertThat(m).isEqualTo("Unknown range \"bogus\"; ignored"));
+        }
+    }
 }

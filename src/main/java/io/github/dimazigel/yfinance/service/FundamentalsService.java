@@ -3,6 +3,7 @@ package io.github.dimazigel.yfinance.service;
 import io.github.dimazigel.yfinance.api.FundamentalsApi;
 import io.github.dimazigel.yfinance.enums.Frequency;
 import io.github.dimazigel.yfinance.enums.StatementType;
+import io.github.dimazigel.yfinance.logging.LogContext;
 import io.github.dimazigel.yfinance.mapper.FundamentalsMapper;
 import io.github.dimazigel.yfinance.model.FinancialStatement;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
@@ -42,11 +43,13 @@ public final class FundamentalsService {
             throw new IllegalArgumentException(
                     "Yahoo has no trailing balance sheet; use ANNUAL or QUARTERLY for " + symbol);
         }
-        String typeParam = FundamentalKeys.forStatement(type).stream()
-                .map(key -> frequency.wireValue() + key)
-                .collect(Collectors.joining(","));
-        long now = clock.instant().getEpochSecond();
-        var response = api.timeseries(symbol.value(), typeParam, PERIOD_START, now);
-        return FundamentalsMapper.toStatement(response, type, frequency);
+        try (var ignored = LogContext.scope("financials", symbol)) {
+            String typeParam = FundamentalKeys.forStatement(type).stream()
+                    .map(key -> frequency.wireValue() + key)
+                    .collect(Collectors.joining(","));
+            long now = clock.instant().getEpochSecond();
+            var response = api.timeseries(symbol.value(), typeParam, PERIOD_START, now);
+            return FundamentalsMapper.toStatement(response, type, frequency);
+        }
     }
 }

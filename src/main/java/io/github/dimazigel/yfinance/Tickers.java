@@ -19,6 +19,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.Semaphore;
 import java.util.function.Function;
 import org.jspecify.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A group of tickers. Queries are fanned out across symbols with bounded concurrency, and each
@@ -30,6 +32,7 @@ import org.jspecify.annotations.Nullable;
  */
 public final class Tickers {
 
+    private static final Logger LOG = LoggerFactory.getLogger(Tickers.class);
     private static final int DEFAULT_CONCURRENCY = 4;
 
     private final YFinance yf;
@@ -84,6 +87,7 @@ public final class Tickers {
     }
 
     private <T> Map<Symbol, Result<T>> fanOut(Function<Symbol, ? extends @Nullable T> fetch) {
+        long startedAt = System.nanoTime();
         var permits = new Semaphore(concurrency);
         try (ExecutorService pool = Executors.newVirtualThreadPerTaskExecutor()) {
             Map<Symbol, Future<Result<T>>> futures = new LinkedHashMap<>();
@@ -99,8 +103,27 @@ public final class Tickers {
             }
             Map<Symbol, Result<T>> results = new LinkedHashMap<>();
             futures.forEach((symbol, future) -> results.put(symbol, join(symbol, future)));
+            summarize(results, (System.nanoTime() - startedAt) / 1_000_000);
             return results;
         }
+    }
+
+    /** One INFO line per fan-out; each failure at DEBUG (the caller holds the exception itself). */
+    private static <T> void summarize(Map<Symbol, Result<T>> results, long durationMs) {
+        int failed = 0;
+        for (Result<T> result : results.values()) {
+            if (result instanceof Result.Failure<T> failure) {
+                failed++;
+                LOG.atDebug().log("{} failed: {}: {}", failure.symbol(),
+                        failure.error().getClass().getSimpleName(), failure.error().getMessage());
+            }
+        }
+        LOG.atInfo()
+                .addKeyValue("symbols", results.size())
+                .addKeyValue("ok", results.size() - failed)
+                .addKeyValue("failed", failed)
+                .addKeyValue("durationMs", durationMs)
+                .log("Fetched {} symbols: {} ok, {} failed in {} ms", results.size(), results.size() - failed, failed, durationMs);
     }
 
     private static <T> Result<T> runOne(Symbol symbol, Function<Symbol, ? extends @Nullable T> fetch) {

@@ -2,12 +2,12 @@ package io.github.dimazigel.yfinance.http;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;
-import java.lang.System.Logger;
-import java.lang.System.Logger.Level;
 import java.time.Duration;
 import okhttp3.Interceptor;
 import okhttp3.Response;
 import org.jspecify.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Retries transient server errors (HTTP 500, 502, 503, 504) up to {@link RetryConfig#maxAttempts()}
@@ -26,7 +26,7 @@ public final class TransientErrorRetryInterceptor implements Interceptor {
         void sleep(Duration delay) throws InterruptedException;
     }
 
-    private static final Logger LOG = System.getLogger(TransientErrorRetryInterceptor.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(TransientErrorRetryInterceptor.class);
 
     private final RetryConfig config;
     private final Sleeper sleeper;
@@ -42,15 +42,32 @@ public final class TransientErrorRetryInterceptor implements Interceptor {
 
     @Override
     public Response intercept(Chain chain) throws IOException {
+        Duration waited = Duration.ZERO;
         for (int attempt = 1; ; attempt++) {
             Response response = chain.proceed(chain.request());
-            if (!isTransient(response.code()) || attempt >= config.maxAttempts()) {
+            if (!isTransient(response.code())) {
+                return response;
+            }
+            if (attempt >= config.maxAttempts()) {
+                if (config.maxAttempts() > 1) { // an opted-out caller gets the exception, not a lecture
+                    LOG.atWarn()
+                            .addKeyValue("status", response.code())
+                            .addKeyValue("attempts", attempt)
+                            .addKeyValue("waitedMs", waited.toMillis())
+                            .log("Giving up on {} after {} attempts (last HTTP {}, waited {} ms in total)",
+                                    response.request().url().encodedPath(), attempt, response.code(), waited.toMillis());
+                }
                 return response;
             }
             Duration delay = delayBefore(attempt + 1, response.header("Retry-After"));
-            LOG.log(Level.DEBUG, "HTTP {0} from {1}; retrying in {2} ms (attempt {3} of {4})",
-                    response.code(), response.request().url().encodedPath(), delay.toMillis(),
-                    attempt + 1, config.maxAttempts());
+            waited = waited.plus(delay);
+            LOG.atDebug()
+                    .addKeyValue("status", response.code())
+                    .addKeyValue("attempt", attempt + 1)
+                    .addKeyValue("maxAttempts", config.maxAttempts())
+                    .addKeyValue("delayMs", delay.toMillis())
+                    .log("HTTP {} from Yahoo; retrying in {} ms (attempt {} of {})",
+                            response.code(), delay.toMillis(), attempt + 1, config.maxAttempts());
             response.close();
             try {
                 sleeper.sleep(delay);
