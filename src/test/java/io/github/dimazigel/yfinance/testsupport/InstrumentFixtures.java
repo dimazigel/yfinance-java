@@ -2,6 +2,7 @@ package io.github.dimazigel.yfinance.testsupport;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.MissingNode;
 import io.github.dimazigel.yfinance.assembly.Payload;
 import io.github.dimazigel.yfinance.http.YahooObjectMapper;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
@@ -20,12 +21,19 @@ public final class InstrumentFixtures {
         return symbol.replaceAll("[^A-Za-z0-9]", "_");
     }
 
-    /** The single row of the captured v7 response for {@code symbol}. */
+    /**
+     * The single row of the captured v7 response for {@code symbol}; a {@link MissingNode} when no
+     * such symbol was captured at all (Yahoo's own batch response simply omits an unknown symbol).
+     */
     public static JsonNode v7Row(String symbol) {
+        String body;
         try {
-            JsonNode result = JSON.readTree(Fixtures.load("instruments/v7_" + safe(symbol) + ".json"))
-                    .path("quoteResponse").path("result");
-            return result.path(0);
+            body = Fixtures.load("instruments/v7_" + safe(symbol) + ".json");
+        } catch (IllegalArgumentException noFixture) {
+            return MissingNode.getInstance();
+        }
+        try {
+            return JSON.readTree(body).path("quoteResponse").path("result").path(0);
         } catch (java.io.IOException e) {
             throw new java.io.UncheckedIOException(e);
         }
