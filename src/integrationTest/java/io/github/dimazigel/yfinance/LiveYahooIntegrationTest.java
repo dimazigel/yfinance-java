@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import io.github.dimazigel.yfinance.batch.Outcome;
+import io.github.dimazigel.yfinance.batch.SkipReason;
 import io.github.dimazigel.yfinance.enums.EventType;
 import io.github.dimazigel.yfinance.enums.Frequency;
 import io.github.dimazigel.yfinance.enums.Interval;
@@ -18,9 +19,14 @@ import io.github.dimazigel.yfinance.fundamentals.FinancialStatement;
 import io.github.dimazigel.yfinance.http.AdaptiveRateLimitConfig;
 import io.github.dimazigel.yfinance.http.EndpointConfig;
 import io.github.dimazigel.yfinance.instrument.AssetClass;
+import io.github.dimazigel.yfinance.instrument.Crypto;
 import io.github.dimazigel.yfinance.instrument.Equity;
 import io.github.dimazigel.yfinance.instrument.Etf;
+import io.github.dimazigel.yfinance.instrument.Future;
+import io.github.dimazigel.yfinance.instrument.FxPair;
 import io.github.dimazigel.yfinance.instrument.Index;
+import io.github.dimazigel.yfinance.instrument.MutualFund;
+import io.github.dimazigel.yfinance.instrument.Unclassified;
 import io.github.dimazigel.yfinance.market.PriceBar;
 import io.github.dimazigel.yfinance.service.HistoryRequest;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
@@ -41,31 +47,206 @@ import org.junit.jupiter.api.TestInstance;
 
 /**
  * Smoke tests that hit the real Yahoo Finance API. Excluded from the default {@code test} task;
- * run with {@code ./gradlew integrationTest} (also weekly in CI, see {@code live.yml}).
+ * run with {@code ./gradlew integrationTest} (also weekly in CI, see {@code live.yml}; the drift
+ * detector over the wide 282-symbol survey lives separately in {@link GuaranteeDriftTest}).
  *
  * <p>Assertions are intentionally loose — they verify shape and types, not exact (changing)
- * values. Coverage goal: every public entry point on {@link YFinance}, {@link Ticker} and
- * {@link Tickers}, every enum value that changes a request, non-US and non-equity instruments,
- * the {@code Optional} paths, and the error paths that surface Yahoo's own message.
+ * values, and target each class's <em>guaranteed</em> (non-null) fields and the documented
+ * {@code Optional}s (present/empty), never exact prices. Coverage goal: every public entry point on
+ * {@link YFinance}, {@link Ticker} and {@link Tickers}, every one of the seven typed instrument
+ * classes, non-US and non-equity instruments, the {@code Optional} paths, and the error paths that
+ * surface Yahoo's own message.
  */
 @Tag("live")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class LiveYahooIntegrationTest {
 
+    /** One instrument per class, plus a UCITS ETF and a preferred share, classified in one request. */
+    private static final List<Symbol> CLASSIFICATION_SYMBOLS = List.of(
+            Symbol.of("AAPL"), Symbol.of("SPY"), Symbol.of("VFIAX"), Symbol.of("^GSPC"),
+            Symbol.of("BTC-USD"), Symbol.of("EURUSD=X"), Symbol.of("ES=F"),
+            Symbol.of("CSPX.L"), Symbol.of("BAC-PL"));
+
     private YFinance yf;
     private Ticker aapl;
     private Equity aaplEquity;
+    private io.github.dimazigel.yfinance.batch.Batch<io.github.dimazigel.yfinance.instrument.Instrument> classified;
 
     @BeforeAll
     void setUp() {
         yf = YFinance.create();
         aapl = yf.ticker("AAPL");
-        aaplEquity = aapl.as(Equity.class);
+        classified = yf.instruments(CLASSIFICATION_SYMBOLS);
+        aaplEquity = (Equity) classified.get(Symbol.of("AAPL")).orElseThrow().orElseThrow();
     }
 
     @AfterAll
     void tearDown() {
         yf.close();
+    }
+
+    @Nested
+    class Instruments {
+
+        @Test
+        void equityHasItsGuaranteedFields() {
+            assertThat(aaplEquity.symbol()).isEqualTo(Symbol.of("AAPL"));
+            assertThat(aaplEquity.core().currency().code()).isEqualTo("USD");
+            assertThat(aaplEquity.core().price()).isPositive();
+            assertThat(aaplEquity.session().open()).isPositive();
+            assertThat(aaplEquity.valuation().marketCap()).isPositive();
+            assertThat(aaplEquity.valuation().sharesOutstanding()).isPositive();
+            assertThat(aaplEquity.valuation().financialCurrency().code()).isEqualTo("USD");
+            assertThat(aaplEquity.nextEarnings().expected()).isAfter(Instant.EPOCH);
+        }
+
+        @Test
+        void etfHasItsGuaranteedFields() {
+            var spy = (Etf) classified.get(Symbol.of("SPY")).orElseThrow().orElseThrow();
+            assertThat(spy.core().currency().code()).isEqualTo("USD");
+            assertThat(spy.session().volume()).isPositive();
+            assertThat(spy.ytdReturn()).isNotNull();
+            assertThat(spy.threeMonthReturn()).isNotNull();
+        }
+
+        @Test
+        void mutualFundHasItsGuaranteedFields() {
+            var vfiax = (MutualFund) classified.get(Symbol.of("VFIAX")).orElseThrow().orElseThrow();
+            assertThat(vfiax.netAssets()).isPositive();
+            assertThat(vfiax.expenseRatio()).isNotNull();
+            assertThat(vfiax.yield()).isNotNull();
+            assertThat(vfiax.dividendRate()).isNotNull();
+            assertThat(vfiax.ytdReturn()).isNotNull();
+            assertThat(vfiax.threeMonthReturn()).isNotNull();
+        }
+
+        @Test
+        void indexHasItsGuaranteedFields() {
+            var gspc = (Index) classified.get(Symbol.of("^GSPC")).orElseThrow().orElseThrow();
+            assertThat(gspc.core().price()).isPositive();
+            assertThat(gspc.session().dayHigh()).isPositive();
+        }
+
+        @Test
+        void cryptoHasItsGuaranteedFields() {
+            var btc = (Crypto) classified.get(Symbol.of("BTC-USD")).orElseThrow().orElseThrow();
+            assertThat(btc.marketCap()).isPositive();
+            assertThat(btc.supply().circulating()).isPositive();
+            assertThat(btc.toCurrency().code()).isEqualTo("USD");
+            assertThat(btc.branding().image()).isNotNull();
+            assertThat(btc.startDate()).isBefore(LocalDate.now());
+        }
+
+        @Test
+        void fxPairHasItsGuaranteedFields() {
+            var eurusd = (FxPair) classified.get(Symbol.of("EURUSD=X")).orElseThrow().orElseThrow();
+            assertThat(eurusd.core().price()).isPositive();
+            assertThat(eurusd.session().dayLow()).isPositive();
+        }
+
+        @Test
+        void futureHasItsGuaranteedFieldsAndNoLongName() {
+            var es = (Future) classified.get(Symbol.of("ES=F")).orElseThrow().orElseThrow();
+            // Futures never have a long name (Core javadoc); every other class does.
+            assertThat(es.core().longName()).isEmpty();
+            assertThat(es.contract().underlyingSymbol()).isNotNull();
+            assertThat(es.contract().headSymbol()).isEqualTo(Symbol.of("ES=F"));
+            assertThat(es.contract().expireDate()).isNotNull();
+        }
+
+        @Test
+        void ucitsEtfDowngradesWhenYtdReturnIsMissingEvenAfterTheFallback() {
+            // CSPX.L (iShares Core S&P 500 UCITS ETF, LSE) has no ytdReturn/threeMonthReturn on v7,
+            // and — as of 2026-09 — Yahoo does not supply them for this or any other UCITS-domiciled
+            // ETF in the wide survey through the single-symbol fallback either (design §6.3), so the
+            // guarantee correctly downgrades rather than fabricating a value (design D2). This is
+            // confirmed live: every one of the 7 European-listed ETFs in the 282-symbol survey
+            // downgrades the same way (see GuaranteeDriftTest, which is what tracks whether that
+            // ever changes).
+            var outcome = classified.get(Symbol.of("CSPX.L")).orElseThrow().orElseThrow();
+            assertThat(outcome).isInstanceOf(Unclassified.class);
+            var unclassified = (Unclassified) outcome;
+            assertThat(unclassified.attempted()).contains(AssetClass.ETF);
+            assertThat(unclassified.missing()).contains("ytdReturn", "threeMonthReturn");
+        }
+
+        @Test
+        void preferredShareDowngradesNamingTheMissingField() {
+            // BAC-PL is a preferred share Yahoo reports as EQUITY but without a market cap.
+            var outcome = classified.get(Symbol.of("BAC-PL")).orElseThrow().orElseThrow();
+            assertThat(outcome).isInstanceOf(Unclassified.class);
+            var unclassified = (Unclassified) outcome;
+            assertThat(unclassified.attempted()).contains(AssetClass.EQUITY);
+            assertThat(unclassified.missing()).contains("marketCap");
+        }
+
+        @Test
+        void unknownSymbolThrowsYfDataException() {
+            assertThatThrownBy(() -> yf.ticker("NO_SUCH_SYMBOL_XYZ").instrument())
+                    .isInstanceOf(YFDataException.class)
+                    .hasMessageContaining("NO_SUCH_SYMBOL_XYZ");
+        }
+
+        @Test
+        void asWrongClassThrowsClassMismatchNamingTheActualClass() {
+            assertThatThrownBy(() -> yf.ticker("SPY").as(Equity.class))
+                    .isInstanceOf(YFClassMismatchException.class)
+                    .satisfies(e -> assertThat(((YFClassMismatchException) e).actual()).isEqualTo(AssetClass.ETF));
+        }
+    }
+
+    @Nested
+    class Details {
+
+        @Test
+        void equityDetailAssemblesAllModules() {
+            var detail = aapl.detail(aaplEquity);
+            assertThat(detail.profile().sector()).isNotBlank();
+            assertThat(detail.profile().industry()).isNotBlank();
+            assertThat(detail.profile().country()).isNotBlank();
+            assertThat(detail.statistics().floatShares()).isPositive();
+            assertThat(detail.financials().totalRevenue()).isPositive();
+            assertThat(detail.analysts().recommendationTrend()).isNotEmpty();
+            assertThat(detail.ownership().institutions()).isNotEmpty();
+        }
+
+        @Test
+        void nonUsEquityDetailAssembles() {
+            // SAP.DE (Xetra) — the assembly must not assume US-only field presence.
+            var sap = yf.ticker("SAP.DE");
+            var sapEquity = sap.as(Equity.class);
+            var detail = sap.detail(sapEquity);
+            assertThat(detail.profile().country()).isEqualTo("Germany");
+            assertThat(detail.profile().sector()).isNotBlank();
+            assertThat(detail.financials().totalRevenue()).isPositive();
+        }
+
+        @Test
+        void etfDetailAssembles() {
+            var spyEtf = (Etf) classified.get(Symbol.of("SPY")).orElseThrow().orElseThrow();
+            var detail = yf.ticker("SPY").detail(spyEtf);
+            assertThat(detail.family()).isNotBlank();
+            assertThat(detail.holdings()).isNotEmpty();
+            assertThat(detail.trailingReturns().ytd()).isNotNull();
+        }
+
+        @Test
+        void mutualFundDetailAssembles() {
+            var fund = (MutualFund) classified.get(Symbol.of("VFIAX")).orElseThrow().orElseThrow();
+            var detail = yf.ticker("VFIAX").detail(fund);
+            assertThat(detail.family()).isNotBlank();
+            assertThat(detail.holdings()).isNotEmpty();
+            assertThat(detail.morningstar()).isNotNull();
+        }
+
+        @Test
+        void cryptoDetailAssembles() {
+            var btc = (Crypto) classified.get(Symbol.of("BTC-USD")).orElseThrow().orElseThrow();
+            var detail = yf.ticker("BTC-USD").detail(btc);
+            assertThat(detail.name()).isNotBlank();
+            assertThat(detail.website()).isNotNull();
+            assertThat(detail.startDate()).isNotNull();
+        }
     }
 
     @Nested
@@ -259,37 +440,51 @@ class LiveYahooIntegrationTest {
     }
 
     @Nested
-    class InstrumentsAndDetail {
+    class Options {
 
         @Test
-        void equityIsClassifiedAndDetailAssembles() {
-            assertThat(aaplEquity.symbol()).isEqualTo(Symbol.of("AAPL"));
-            assertThat(aaplEquity.core().currency().code()).isEqualTo("USD");
-            assertThat(aaplEquity.core().price()).isPositive();
-            assertThat(aaplEquity.valuation().marketCap()).isPositive();
-
-            var detail = aapl.detail(aaplEquity);
-            assertThat(detail.profile().sector()).isNotBlank();
-            assertThat(detail.analysts().recommendationTrend()).isNotEmpty();
-            assertThat(detail.ownership().institutions()).isNotEmpty();
+        void nearestChainAndExpirations() {
+            var chain = aapl.options().orElseThrow();
+            assertThat(chain.underlyingSymbol()).isEqualTo(Symbol.of("AAPL"));
+            assertThat(chain.expirationDates()).hasSizeGreaterThan(2).isSorted();
+            assertThat(chain.expiration()).isEqualTo(chain.expirationDates().getFirst());
+            assertThat(chain.calls()).isNotEmpty();
+            assertThat(chain.puts()).isNotEmpty();
         }
 
         @Test
-        void nonEquitiesAreTheirOwnClasses() {
-            assertThat(yf.ticker("^GSPC").instrument()).isInstanceOf(Index.class);
-            var spy = yf.ticker("SPY");
-            assertThat(spy.as(Etf.class).assetClass()).isEqualTo(AssetClass.ETF);
-            assertThatThrownBy(() -> spy.as(Equity.class))
-                    .isInstanceOf(YFClassMismatchException.class)
-                    .satisfies(e -> assertThat(((YFClassMismatchException) e).actual()).isEqualTo(AssetClass.ETF));
-            assertThatThrownBy(() -> yf.ticker("NO_SUCH_SYMBOL_XYZ").instrument())
-                    .isInstanceOf(YFDataException.class)
-                    .hasMessageContaining("NO_SUCH_SYMBOL_XYZ");
+        void fxHasNoListedOptions() {
+            assertThat(yf.ticker("EURUSD=X").options()).as("FX has no listed options").isEmpty();
+        }
+
+        @Test
+        void indexOptionChainIsPresent() {
+            // ^SPX (S&P 500 index options, CBOE) — unlike most indices, this one lists options.
+            var chain = yf.ticker("^SPX").options().orElseThrow();
+            assertThat(chain.underlyingSymbol()).isEqualTo(Symbol.of("^SPX"));
+            assertThat(chain.calls()).isNotEmpty();
+            assertThat(chain.puts()).isNotEmpty();
+        }
+
+        @Test
+        void chainForASpecificExpiration() {
+            Instant second = aapl.options().orElseThrow().expirationDates().get(1);
+            var chain = aapl.options(second).orElseThrow();
+
+            assertThat(chain.expiration()).isEqualTo(second);
+            assertThat(chain.calls()).allSatisfy(c -> {
+                assertThat(c.type()).isEqualTo(OptionType.CALL);
+                assertThat(c.strike()).isPositive();
+                assertThat(c.contractSymbol()).startsWith("AAPL");
+                assertThat(c.expiration()).isEqualTo(second);
+            });
+            assertThat(chain.puts()).allSatisfy(p -> assertThat(p.type()).isEqualTo(OptionType.PUT));
+            assertThat(chain.calls()).anyMatch(c -> c.inTheMoney()).anyMatch(c -> !c.inTheMoney());
         }
     }
 
     @Nested
-    class Fundamentals {
+    class Statements {
 
         @Test
         void everyStatementTypeAtAnnualAndQuarterly() {
@@ -343,37 +538,6 @@ class LiveYahooIntegrationTest {
     }
 
     @Nested
-    class Options {
-
-        @Test
-        void nearestChainAndExpirations() {
-            var chain = aapl.options().orElseThrow();
-            assertThat(chain.underlyingSymbol()).isEqualTo(Symbol.of("AAPL"));
-            assertThat(chain.expirationDates()).hasSizeGreaterThan(2).isSorted();
-            assertThat(chain.expiration()).isEqualTo(chain.expirationDates().getFirst());
-            assertThat(chain.calls()).isNotEmpty();
-            assertThat(chain.puts()).isNotEmpty();
-            assertThat(yf.ticker("EURUSD=X").options()).as("FX has no listed options").isEmpty();
-        }
-
-        @Test
-        void chainForASpecificExpiration() {
-            Instant second = aapl.options().orElseThrow().expirationDates().get(1);
-            var chain = aapl.options(second).orElseThrow();
-
-            assertThat(chain.expiration()).isEqualTo(second);
-            assertThat(chain.calls()).allSatisfy(c -> {
-                assertThat(c.type()).isEqualTo(OptionType.CALL);
-                assertThat(c.strike()).isPositive();
-                assertThat(c.contractSymbol()).startsWith("AAPL");
-                assertThat(c.expiration()).isEqualTo(second);
-            });
-            assertThat(chain.puts()).allSatisfy(p -> assertThat(p.type()).isEqualTo(OptionType.PUT));
-            assertThat(chain.calls()).anyMatch(c -> c.inTheMoney()).anyMatch(c -> !c.inTheMoney());
-        }
-    }
-
-    @Nested
     class SearchAndLookup {
 
         @Test
@@ -406,18 +570,30 @@ class LiveYahooIntegrationTest {
     }
 
     @Nested
-    class Batches {
+    class Batch {
 
         @Test
-        void instrumentsSkipABogusSymbolAndKeepTheOthers() {
+        void instrumentsSkipsAnUnknownSymbolAndKeepsTheOthers() {
             var batch = yf.tickers("AAPL", "NO_SUCH_SYMBOL_XYZ").instruments();
             assertThat(batch.outcomes()).extracting(Outcome::symbol)
                     .containsExactly(Symbol.of("AAPL"), Symbol.of("NO_SUCH_SYMBOL_XYZ"));
             assertThat(batch.values()).singleElement().isInstanceOf(Equity.class);
             assertThat(batch.skipped()).singleElement().satisfies(s -> {
                 assertThat(s.symbol()).isEqualTo(Symbol.of("NO_SUCH_SYMBOL_XYZ"));
+                assertThat(s.reason()).isEqualTo(SkipReason.UNKNOWN_SYMBOL);
                 assertThatThrownBy(s::orElseThrow).isInstanceOf(YFDataException.class).hasMessageContaining("NO_SUCH_SYMBOL_XYZ");
             });
+        }
+
+        @Test
+        void typedInstrumentsNarrowToOneClass() {
+            var batch = yf.instruments(
+                    List.of(Symbol.of("AAPL"), Symbol.of("SPY"), Symbol.of("NO_SUCH_SYMBOL_XYZ")), Equity.class);
+            assertThat(batch.values()).extracting(Equity::symbol).containsExactly(Symbol.of("AAPL"));
+            assertThat(batch.skipped()).extracting(Outcome.Skipped::symbol, Outcome.Skipped::reason)
+                    .containsExactlyInAnyOrder(
+                            org.assertj.core.groups.Tuple.tuple(Symbol.of("SPY"), SkipReason.WRONG_ASSET_CLASS),
+                            org.assertj.core.groups.Tuple.tuple(Symbol.of("NO_SUCH_SYMBOL_XYZ"), SkipReason.UNKNOWN_SYMBOL));
         }
 
         @Test
