@@ -2,7 +2,6 @@ package io.github.dimazigel.yfinance.assembly.build;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.github.dimazigel.yfinance.assembly.Payload;
 import io.github.dimazigel.yfinance.assembly.Resolver;
 import io.github.dimazigel.yfinance.assembly.specs.EtfSpecs;
@@ -19,6 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.node.ObjectNode;
 
 class FundBuildersTest {
 
@@ -54,7 +54,7 @@ class FundBuildersTest {
         assertThat(cspx.ytdReturn()).isEqualByComparingTo(BigDecimal.ZERO);
         assertThat(cspx.threeMonthReturn()).isEqualByComparingTo(BigDecimal.ZERO);
 
-        ObjectNode row = InstrumentFixtures.v7Row("CSPX.L").deepCopy();
+        ObjectNode row = (ObjectNode) InstrumentFixtures.v7Row("CSPX.L").deepCopy();
         row.remove("netExpenseRatio");
         var modules = InstrumentFixtures.qsModules("CSPX.L");
         var fromQs = EtfBuilder.build(Resolver.resolve(new Payload(Symbol.of("CSPX.L"), Optional.of(row), modules), EtfSpecs.SNAPSHOT), NOW);
@@ -77,7 +77,7 @@ class FundBuildersTest {
         assertThat(gld.equityLikeStats().get().sharesOutstanding()).isEqualTo(260300000L);
         assertThat(gld.trailingPE()).isEmpty();
 
-        ObjectNode row = InstrumentFixtures.v7Row("GLD").deepCopy();
+        ObjectNode row = (ObjectNode) InstrumentFixtures.v7Row("GLD").deepCopy();
         row.remove("bookValue");   // 3 of 4 present
         var r = Resolver.resolve(new Payload(Symbol.of("GLD"), Optional.of(row), Map.of()), EtfSpecs.SNAPSHOT);
         assertThat(EtfBuilder.build(r, NOW).equityLikeStats()).isEmpty();

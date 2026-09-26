@@ -1,6 +1,5 @@
 package io.github.dimazigel.yfinance.assembly.build;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import io.github.dimazigel.yfinance.assembly.Resolved;
 import io.github.dimazigel.yfinance.detail.EtfDetail;
 import io.github.dimazigel.yfinance.detail.FundDetail;
@@ -11,6 +10,7 @@ import java.net.URI;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import tools.jackson.databind.JsonNode;
 
 /** {@link Resolved} → {@link EtfDetail} or {@link MutualFundDetail}. Callers must have checked {@code missingRequired()} first. */
 public final class FundDetailBuilder {
@@ -57,7 +57,7 @@ public final class FundDetailBuilder {
                 r.decimal("lastDividendValue"),
                 r.decimal("beta3Year"),
                 new MutualFundDetail.Minimums(r.decimal("minimums.initial"), r.decimal("minimums.subsequent")),
-                r.list("brokerages").stream().map(JsonNode::asText).toList(),
+                r.list("brokerages").stream().map(JsonNode::asString).toList(),
                 new MutualFundDetail.LoadAdjustedReturns(
                         r.decimal("loadAdjustedReturns.oneYear"),
                         r.decimal("loadAdjustedReturns.threeYear"),

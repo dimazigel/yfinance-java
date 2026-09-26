@@ -1,18 +1,19 @@
 package io.github.dimazigel.yfinance.api;
 
+import feign.Param;
+import feign.RequestLine;
 import io.github.dimazigel.yfinance.dto.lookup.LookupResponse;
-import retrofit2.http.GET;
-import retrofit2.http.Query;
 
-/** Retrofit binding for Yahoo's lookup endpoint. */
+/** Feign binding for Yahoo's lookup endpoint. */
 public interface LookupApi {
 
-    @GET("v1/finance/lookup")
+    @RequestLine("GET /v1/finance/lookup?query={query}&type={type}&start={start}&count={count}"
+            + "&formatted={formatted}&fetchPricingData={fetchPricingData}")
     LookupResponse lookup(
-            @Query("query") String query,
-            @Query("type") String type,
-            @Query("start") int start,
-            @Query("count") int count,
-            @Query("formatted") boolean formatted,
-            @Query("fetchPricingData") boolean fetchPricingData);
+            @Param("query") String query,
+            @Param("type") String type,
+            @Param("start") int start,
+            @Param("count") int count,
+            @Param("formatted") boolean formatted,
+            @Param("fetchPricingData") boolean fetchPricingData);
 }

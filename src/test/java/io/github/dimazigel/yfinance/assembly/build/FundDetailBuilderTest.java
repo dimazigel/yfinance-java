@@ -3,7 +3,6 @@ package io.github.dimazigel.yfinance.assembly.build;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import ch.qos.logback.classic.Level;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.github.dimazigel.yfinance.assembly.Payload;
 import io.github.dimazigel.yfinance.assembly.Resolver;
 import io.github.dimazigel.yfinance.assembly.specs.DetailSpecs;
@@ -20,6 +19,7 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.node.ObjectNode;
 
 class FundDetailBuilderTest {
 
@@ -75,7 +75,7 @@ class FundDetailBuilderTest {
     @Test
     void holdingsWithoutANameAreDroppedNotNamedAfterTheSymbol() {   // final review, finding 9
         var modules = new HashMap<>(InstrumentFixtures.qsModules("SPY"));
-        ObjectNode top = modules.get("topHoldings").deepCopy();
+        ObjectNode top = (ObjectNode) modules.get("topHoldings").deepCopy();
         ((ObjectNode) top.get("holdings").get(0)).remove("holdingName");
         modules.put("topHoldings", top);
         var r = Resolver.resolve(new Payload(Symbol.of("SPY"), Optional.empty(), modules), EtfDetailSpecs.DETAIL);
