@@ -1,32 +1,36 @@
 package io.github.dimazigel.yfinance;
 
+import io.github.dimazigel.yfinance.detail.CryptoDetail;
+import io.github.dimazigel.yfinance.detail.EquityDetail;
+import io.github.dimazigel.yfinance.detail.EtfDetail;
+import io.github.dimazigel.yfinance.detail.MutualFundDetail;
 import io.github.dimazigel.yfinance.enums.Frequency;
 import io.github.dimazigel.yfinance.enums.Interval;
 import io.github.dimazigel.yfinance.enums.Range;
 import io.github.dimazigel.yfinance.enums.StatementType;
-import io.github.dimazigel.yfinance.model.AnalystPriceTarget;
-import io.github.dimazigel.yfinance.model.Dividend;
-import io.github.dimazigel.yfinance.model.EarningsHistoryEntry;
-import io.github.dimazigel.yfinance.model.EpsRevisionsPeriod;
-import io.github.dimazigel.yfinance.model.EpsTrendPeriod;
-import io.github.dimazigel.yfinance.model.FinancialStatement;
-import io.github.dimazigel.yfinance.model.GrowthEstimate;
-import io.github.dimazigel.yfinance.model.Holders;
-import io.github.dimazigel.yfinance.model.Info;
-import io.github.dimazigel.yfinance.model.OptionChain;
-import io.github.dimazigel.yfinance.model.PeriodEstimate;
-import io.github.dimazigel.yfinance.model.PriceHistory;
-import io.github.dimazigel.yfinance.model.Quote;
-import io.github.dimazigel.yfinance.model.SearchResult.NewsArticle;
-import io.github.dimazigel.yfinance.model.Split;
+import io.github.dimazigel.yfinance.exception.YFClassMismatchException;
+import io.github.dimazigel.yfinance.fundamentals.FinancialStatement;
+import io.github.dimazigel.yfinance.instrument.Crypto;
+import io.github.dimazigel.yfinance.instrument.Equity;
+import io.github.dimazigel.yfinance.instrument.Etf;
+import io.github.dimazigel.yfinance.instrument.Instrument;
+import io.github.dimazigel.yfinance.instrument.MutualFund;
+import io.github.dimazigel.yfinance.market.Dividend;
+import io.github.dimazigel.yfinance.market.OptionChain;
+import io.github.dimazigel.yfinance.market.PriceHistory;
+import io.github.dimazigel.yfinance.market.Split;
+import io.github.dimazigel.yfinance.search.SearchResult.NewsArticle;
 import io.github.dimazigel.yfinance.service.HistoryRequest;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
-import org.jspecify.annotations.Nullable;
+import java.util.Optional;
 
-/** A handle to a single instrument, exposing all per-symbol data. */
+/**
+ * A handle to a single instrument: every call returns a value or throws. Batch work goes through
+ * {@link Tickers} or the {@code YFinance} batch methods, which never throw per symbol.
+ */
 public final class Ticker {
 
     private final YFinance yf;
@@ -39,6 +43,58 @@ public final class Ticker {
 
     public Symbol symbol() {
         return symbol;
+    }
+
+    /**
+     * The instrument at snapshot depth, typed by asset class; {@code switch} over the sealed
+     * {@link Instrument} to get at class-specific fields, or use {@link #as(Class)}.
+     *
+     * @throws io.github.dimazigel.yfinance.exception.YFSkippedException when Yahoo does not know
+     *     the symbol ({@code reason() == UNKNOWN_SYMBOL})
+     */
+    public Instrument instrument() {
+        return yf.instruments.instrument(symbol);
+    }
+
+    /**
+     * {@link #instrument()} as {@code type}, e.g. {@code ticker.as(Equity.class)}: the proof token
+     * that {@link #detail(Equity)} and {@link #statements} take.
+     *
+     * @throws YFClassMismatchException when the instrument is another class (a downgraded
+     *     instrument reports {@link io.github.dimazigel.yfinance.instrument.AssetClass#UNCLASSIFIED})
+     */
+    public <I extends Instrument> I as(Class<I> type) {
+        Instrument instrument = instrument();
+        if (type.isInstance(instrument)) {
+            return type.cast(instrument);
+        }
+        throw new YFClassMismatchException(symbol, instrument.assetClass(), type);
+    }
+
+    /**
+     * Equity detail (profile, statistics, financial health, analyst view, ownership).
+     *
+     * @throws IllegalArgumentException if {@code equity} is for a different symbol
+     * @throws io.github.dimazigel.yfinance.exception.YFSkippedException when quoteSummary no longer
+     *     knows the symbol ({@code UNKNOWN_SYMBOL}) or lacks a guaranteed module ({@code MODULE_ABSENT})
+     */
+    public EquityDetail detail(Equity equity) {
+        return yf.details.equity(proof(equity)).orElseThrow();
+    }
+
+    /** ETF detail; see {@link #detail(Equity)} for the contract. */
+    public EtfDetail detail(Etf etf) {
+        return yf.details.etf(proof(etf)).orElseThrow();
+    }
+
+    /** Mutual fund detail; see {@link #detail(Equity)} for the contract. */
+    public MutualFundDetail detail(MutualFund fund) {
+        return yf.details.mutualFund(proof(fund)).orElseThrow();
+    }
+
+    /** Cryptocurrency detail; see {@link #detail(Equity)} for the contract. */
+    public CryptoDetail detail(Crypto crypto) {
+        return yf.details.crypto(proof(crypto)).orElseThrow();
     }
 
     /**
@@ -74,6 +130,28 @@ public final class Ticker {
         return fullHistory().splits();
     }
 
+    /** The nearest expiration's option chain, or empty when this instrument has no listed options. */
+    public Optional<OptionChain> options() {
+        return yf.options.getOptionChain(symbol);
+    }
+
+    /** The option chain for a specific expiration, or empty when this instrument has no listed options. */
+    public Optional<OptionChain> options(Instant expiration) {
+        return yf.options.getOptionChain(symbol, expiration);
+    }
+
+    /**
+     * A financial statement for this ticker's symbol. Statements are equities-only; {@code proof}
+     * is the compile-time evidence that this instrument is an {@link Equity} (Yahoo's timeseries
+     * endpoint returns empty series for every other class).
+     *
+     * @throws IllegalArgumentException if {@code proof} is for a different symbol; a proof for MSFT
+     *     passed through the AAPL ticker would otherwise silently fetch MSFT's statement
+     */
+    public FinancialStatement statements(Equity proof, StatementType type, Frequency frequency) {
+        return yf.fundamentals.getStatement(proof(proof), type, frequency);
+    }
+
     /** Recent news articles related to this symbol. */
     public List<NewsArticle> news() {
         return yf.search(symbol.value()).news();
@@ -83,66 +161,12 @@ public final class Ticker {
         return history(HistoryRequest.builder(symbol).range(Range.MAX).interval(Interval.ONE_DAY).build());
     }
 
-    /**
-     * Full company info (profile, quote, recommendations, filings, ...). For instruments
-     * quoteSummary cannot describe (indices, ETFs, crypto, FX, futures) this degrades to quote-only
-     * info: {@code profile()} is {@code null} and the trend lists are empty.
-     */
-    public Info info() {
-        return yf.quote.getInfo(symbol);
-    }
-
-    /** A lightweight market quote in one request; works for every asset class. */
-    public Quote quote() {
-        return yf.quote.getQuote(symbol);
-    }
-
-    public FinancialStatement financials(StatementType type, Frequency frequency) {
-        return yf.fundamentals.getStatement(symbol, type, frequency);
-    }
-
-    public OptionChain optionChain() {
-        return yf.options.getOptionChain(symbol);
-    }
-
-    public OptionChain optionChain(Instant expiration) {
-        return yf.options.getOptionChain(symbol, expiration);
-    }
-
-    public List<Instant> optionExpirations() {
-        return yf.options.getExpirationDates(symbol);
-    }
-
-    public Holders holders() {
-        return yf.holders.getHolders(symbol);
-    }
-
-    /** Analyst price targets, or {@code null} when Yahoo has no {@code financialData} for the symbol. */
-    public @Nullable AnalystPriceTarget analystPriceTargets() {
-        return yf.analysis.getAnalystPriceTargets(symbol);
-    }
-
-    public List<PeriodEstimate> earningsEstimate() {
-        return yf.analysis.getEarningsEstimate(symbol);
-    }
-
-    public List<PeriodEstimate> revenueEstimate() {
-        return yf.analysis.getRevenueEstimate(symbol);
-    }
-
-    public List<EarningsHistoryEntry> earningsHistory() {
-        return yf.analysis.getEarningsHistory(symbol);
-    }
-
-    public List<EpsTrendPeriod> epsTrend() {
-        return yf.analysis.getEpsTrend(symbol);
-    }
-
-    public List<EpsRevisionsPeriod> epsRevisions() {
-        return yf.analysis.getEpsRevisions(symbol);
-    }
-
-    public List<GrowthEstimate> growthEstimates() {
-        return yf.analysis.getGrowthEstimates(symbol);
+    /** {@code instrument} itself, once it is confirmed to be this ticker's; the proof-token guard. */
+    private <I extends Instrument> I proof(I instrument) {
+        if (!instrument.symbol().equals(symbol)) {
+            throw new IllegalArgumentException(instrument.getClass().getSimpleName() + " proof is for "
+                    + instrument.symbol() + " but this ticker is " + symbol);
+        }
+        return instrument;
     }
 }

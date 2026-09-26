@@ -13,9 +13,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
-import java.util.Currency;
 import java.util.List;
-import java.util.function.Function;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,18 +37,6 @@ final class MapperSupport {
             return new URI(value);
         } catch (URISyntaxException e) {
             LOG.atDebug().log("Malformed URI \"{}\"; left null", value);
-            return null;
-        }
-    }
-
-    static @Nullable Currency currency(@Nullable String code) {
-        if (code == null || code.isBlank()) {
-            return null;
-        }
-        try {
-            return Currency.getInstance(code);
-        } catch (IllegalArgumentException e) {
-            LOG.atDebug().log("Unknown currency \"{}\"; left null", code);
             return null;
         }
     }
@@ -112,11 +98,6 @@ final class MapperSupport {
             }
         }
         return List.copyOf(ranges);
-    }
-
-    /** Applies {@code accessor} to {@code source}, returning {@code null} when the source is null. */
-    static <S, T extends @Nullable Object> @Nullable T from(@Nullable S source, Function<S, T> accessor) {
-        return source == null ? null : accessor.apply(source);
     }
 
     /**

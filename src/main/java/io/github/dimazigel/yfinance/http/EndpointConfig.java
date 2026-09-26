@@ -1,5 +1,6 @@
 package io.github.dimazigel.yfinance.http;
 
+import io.github.dimazigel.yfinance.Tickers;
 import java.time.Duration;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -22,6 +23,10 @@ import okhttp3.OkHttpClient;
  * @param clientCustomizer hook applied to every OkHttp client builder <em>after</em> the library's
  *     own interceptors and timeouts, so it can add a proxy, extra interceptors (logging, metrics), a
  *     custom dispatcher or connection pool, or override a timeout
+ * @param fanOutConcurrency how many per-symbol requests a fan-out keeps in flight at once: the
+ *     bound for {@code equityDetails(...)} and the other detail batches, and the default for
+ *     {@code Tickers} (overridable per instance with {@code withConcurrency(n)}); at least 1,
+ *     {@link Tickers#DEFAULT_CONCURRENCY} by default
  */
 public record EndpointConfig(
         HttpUrl query1Base,
@@ -31,7 +36,8 @@ public record EndpointConfig(
         Duration callTimeout,
         AdaptiveRateLimitConfig adaptiveRateLimit,
         RetryConfig transientRetry,
-        Consumer<OkHttpClient.Builder> clientCustomizer) {
+        Consumer<OkHttpClient.Builder> clientCustomizer,
+        int fanOutConcurrency) {
 
     private static final String DEFAULT_USER_AGENT =
             "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
@@ -50,6 +56,9 @@ public record EndpointConfig(
         Objects.requireNonNull(adaptiveRateLimit, "adaptiveRateLimit");
         Objects.requireNonNull(transientRetry, "transientRetry");
         Objects.requireNonNull(clientCustomizer, "clientCustomizer");
+        if (fanOutConcurrency < 1) {
+            throw new IllegalArgumentException("fanOutConcurrency must be >= 1, was " + fanOutConcurrency);
+        }
     }
 
     /** The production Yahoo Finance configuration. */
@@ -62,7 +71,8 @@ public record EndpointConfig(
                 DEFAULT_CALL_TIMEOUT,
                 AdaptiveRateLimitConfig.defaults(),
                 RetryConfig.defaults(),
-                NO_CUSTOMIZATION);
+                NO_CUSTOMIZATION,
+                Tickers.DEFAULT_CONCURRENCY);
     }
 
     /**
@@ -77,33 +87,35 @@ public record EndpointConfig(
     public EndpointConfig withHosts(HttpUrl query1Base, HttpUrl query2Base, HttpUrl cookieUrl) {
         return new EndpointConfig(
                 query1Base, query2Base, cookieUrl, userAgent, callTimeout, adaptiveRateLimit, transientRetry,
-                clientCustomizer);
+                clientCustomizer, fanOutConcurrency);
     }
 
     /** Returns a copy with a different {@code User-Agent}. */
     public EndpointConfig withUserAgent(String userAgent) {
         return new EndpointConfig(
                 query1Base, query2Base, cookieUrl, userAgent, callTimeout, adaptiveRateLimit, transientRetry,
-                clientCustomizer);
+                clientCustomizer, fanOutConcurrency);
     }
 
     /** Returns a copy with a different call timeout. */
     public EndpointConfig withCallTimeout(Duration timeout) {
         return new EndpointConfig(
                 query1Base, query2Base, cookieUrl, userAgent, timeout, adaptiveRateLimit, transientRetry,
-                clientCustomizer);
+                clientCustomizer, fanOutConcurrency);
     }
 
     /** Returns a copy with a different adaptive rate-limit config. */
     public EndpointConfig withAdaptiveRateLimit(AdaptiveRateLimitConfig config) {
         return new EndpointConfig(
-                query1Base, query2Base, cookieUrl, userAgent, callTimeout, config, transientRetry, clientCustomizer);
+                query1Base, query2Base, cookieUrl, userAgent, callTimeout, config, transientRetry, clientCustomizer,
+                fanOutConcurrency);
     }
 
     /** Returns a copy with a different transient-server-error retry policy. */
     public EndpointConfig withTransientRetry(RetryConfig config) {
         return new EndpointConfig(
-                query1Base, query2Base, cookieUrl, userAgent, callTimeout, adaptiveRateLimit, config, clientCustomizer);
+                query1Base, query2Base, cookieUrl, userAgent, callTimeout, adaptiveRateLimit, config, clientCustomizer,
+                fanOutConcurrency);
     }
 
     /**
@@ -113,7 +125,19 @@ public record EndpointConfig(
     public EndpointConfig withClientCustomizer(Consumer<OkHttpClient.Builder> customizer) {
         return new EndpointConfig(
                 query1Base, query2Base, cookieUrl, userAgent, callTimeout, adaptiveRateLimit, transientRetry,
-                customizer);
+                customizer, fanOutConcurrency);
+    }
+
+    /**
+     * Returns a copy with a different fan-out bound: how many per-symbol requests the detail
+     * batches keep in flight at once, and the default {@code Tickers} concurrency. Raising it
+     * makes a batch of 500 equity details faster at the cost of more simultaneous requests
+     * against Yahoo's rate limit; the adaptive limiter still paces every request while degraded.
+     */
+    public EndpointConfig withFanOutConcurrency(int concurrency) {
+        return new EndpointConfig(
+                query1Base, query2Base, cookieUrl, userAgent, callTimeout, adaptiveRateLimit, transientRetry,
+                clientCustomizer, concurrency);
     }
 
     private static void noCustomization(OkHttpClient.Builder builder) {}

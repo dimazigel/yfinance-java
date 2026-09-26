@@ -2,10 +2,11 @@ package io.github.dimazigel.yfinance.mapper;
 
 import io.github.dimazigel.yfinance.dto.lookup.LookupResponse;
 import io.github.dimazigel.yfinance.exception.YFDataException;
-import io.github.dimazigel.yfinance.model.LookupQuote;
+import io.github.dimazigel.yfinance.search.LookupQuote;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /** Maps the raw lookup response into a list of {@link LookupQuote}. */
 public final class LookupMapper {
@@ -29,7 +30,10 @@ public final class LookupMapper {
                 .filter(d -> d.symbol() != null && !d.symbol().isBlank())
                 .map(d -> new LookupQuote(
                         Symbol.of(Objects.requireNonNull(d.symbol())), // filtered above
-                        d.shortName(), d.quoteType(), d.exchange(), d.regularMarketPrice()))
+                        Optional.ofNullable(d.shortName()),
+                        Optional.ofNullable(d.quoteType()),
+                        Optional.ofNullable(d.exchange()),
+                        Optional.ofNullable(d.regularMarketPrice())))
                 .toList();
     }
 }

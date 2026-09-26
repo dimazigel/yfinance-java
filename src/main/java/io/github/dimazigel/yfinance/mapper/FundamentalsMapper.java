@@ -6,7 +6,7 @@ import io.github.dimazigel.yfinance.dto.timeseries.TimeseriesResponse.Result;
 import io.github.dimazigel.yfinance.enums.Frequency;
 import io.github.dimazigel.yfinance.enums.StatementType;
 import io.github.dimazigel.yfinance.exception.YFDataException;
-import io.github.dimazigel.yfinance.model.FinancialStatement;
+import io.github.dimazigel.yfinance.fundamentals.FinancialStatement;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.LinkedHashMap;

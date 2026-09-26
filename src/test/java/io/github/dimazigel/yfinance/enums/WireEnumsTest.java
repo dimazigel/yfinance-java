@@ -36,13 +36,6 @@ class WireEnumsTest {
     }
 
     @Test
-    void quoteSummaryModuleWireValuesAreCamelCase() {
-        assertThat(QuoteSummaryModule.FINANCIAL_DATA.wireValue()).isEqualTo("financialData");
-        assertThat(QuoteSummaryModule.UPGRADE_DOWNGRADE_HISTORY.wireValue())
-                .isEqualTo("upgradeDowngradeHistory");
-    }
-
-    @Test
     void fromWireRejectsUnknown() {
         assertThatThrownBy(() -> Interval.fromWire("nope"))
                 .isInstanceOf(IllegalArgumentException.class);

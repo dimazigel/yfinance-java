@@ -6,8 +6,10 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import io.github.dimazigel.yfinance.api.FundamentalsApi;
 import io.github.dimazigel.yfinance.enums.Frequency;
 import io.github.dimazigel.yfinance.enums.StatementType;
-import io.github.dimazigel.yfinance.model.FinancialStatement;
+import io.github.dimazigel.yfinance.fundamentals.FinancialStatement;
+import io.github.dimazigel.yfinance.instrument.Equity;
 import io.github.dimazigel.yfinance.testsupport.Fixtures;
+import io.github.dimazigel.yfinance.testsupport.Instruments;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
 import java.time.LocalDate;
 import java.util.Map;
@@ -34,6 +36,37 @@ class FundamentalsServiceTest {
         server.shutdown();
     }
 
+    /**
+     * Statements are equities-only (design D8): the public overload takes an {@link Equity},
+     * proof at compile time that this instrument belongs to the one class Yahoo's timeseries
+     * endpoint actually serves. There is deliberately no overload taking an {@code Etf},
+     * {@code MutualFund}, or any other {@code Instrument} subtype — that absence is itself the
+     * compile-time assertion this test documents; it isn't (and can't be) expressed as a runtime
+     * check, since code calling {@code service.getStatement(someEtf, ...)} simply fails to compile.
+     */
+    @Test
+    void acceptsOnlyEquities() throws Exception {
+        server.enqueue(Fixtures.jsonResponse("timeseries_income_annual.json"));
+        Equity equity = Instruments.equity("AAPL");
+
+        FinancialStatement stmt = service.getStatement(equity, StatementType.INCOME, Frequency.ANNUAL);
+
+        assertThat(stmt.type()).isEqualTo(StatementType.INCOME);
+        RecordedRequest req = server.takeRequest();
+        assertThat(req.getRequestUrl().encodedPath())
+                .isEqualTo("/ws/fundamentals-timeseries/v1/finance/timeseries/AAPL");
+    }
+
+    @Test
+    void equityOverloadStillRejectsTrailingBalanceSheet() {
+        assertThatThrownBy(() -> service.getStatement(
+                        Instruments.equity("AAPL"), StatementType.BALANCE_SHEET, Frequency.TRAILING))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("trailing")
+                .hasMessageContaining("balance sheet");
+        assertThat(server.getRequestCount()).isZero();
+    }
+
     @Test
     void parsesTimeseriesIntoStatement() {
         server.enqueue(Fixtures.jsonResponse("timeseries_income_annual.json"));
@@ -44,15 +77,16 @@ class FundamentalsServiceTest {
         assertThat(stmt.frequency()).isEqualTo(Frequency.ANNUAL);
         assertThat(stmt.periods()).containsExactly(LocalDate.parse("2022-09-30"), LocalDate.parse("2023-09-30"));
 
-        assertThat(stmt.value("TotalRevenue", LocalDate.parse("2023-09-30")))
+        assertThat(stmt.value("TotalRevenue", LocalDate.parse("2023-09-30")).orElseThrow())
                 .isEqualByComparingTo("383285000000");
-        assertThat(stmt.value(io.github.dimazigel.yfinance.enums.LineItem.TOTAL_REVENUE, LocalDate.parse("2023-09-30")))
+        assertThat(stmt.value(io.github.dimazigel.yfinance.enums.LineItem.TOTAL_REVENUE, LocalDate.parse("2023-09-30")).orElseThrow())
                 .isEqualByComparingTo("383285000000");
-        assertThat(stmt.value("TotalRevenue", LocalDate.parse("2022-09-30")))
+        assertThat(stmt.value("TotalRevenue", LocalDate.parse("2022-09-30")).orElseThrow())
                 .isEqualByComparingTo("394328000000");
-        // NetIncome has no value for the first period (null datapoint)
-        assertThat(stmt.value("NetIncome", LocalDate.parse("2022-09-30"))).isNull();
-        assertThat(stmt.value("NetIncome", LocalDate.parse("2023-09-30")))
+        // NetIncome has no value for the first period (null datapoint); unknown line items and periods are empty too
+        assertThat(stmt.value("NetIncome", LocalDate.parse("2022-09-30"))).isEmpty();
+        assertThat(stmt.value("NoSuchLineItem", LocalDate.parse("2023-09-30"))).isEmpty();
+        assertThat(stmt.value("NetIncome", LocalDate.parse("2023-09-30")).orElseThrow())
                 .isEqualByComparingTo("96995000000");
     }
 
@@ -123,7 +157,7 @@ class FundamentalsServiceTest {
         FinancialStatement stmt = service.getStatement(Symbol.of("AAPL"), StatementType.INCOME, Frequency.ANNUAL);
 
         assertThat(stmt.periods()).containsExactly(LocalDate.parse("2023-09-30"));
-        assertThat(stmt.value("TotalRevenue", LocalDate.parse("2023-09-30"))).isEqualByComparingTo("2");
+        assertThat(stmt.value("TotalRevenue", LocalDate.parse("2023-09-30")).orElseThrow()).isEqualByComparingTo("2");
     }
 
     @Test

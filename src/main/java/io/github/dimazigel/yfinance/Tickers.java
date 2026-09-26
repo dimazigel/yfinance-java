@@ -1,49 +1,48 @@
 package io.github.dimazigel.yfinance;
 
+import io.github.dimazigel.yfinance.batch.Batch;
+import io.github.dimazigel.yfinance.batch.FanOut;
+import io.github.dimazigel.yfinance.batch.Outcome;
+import io.github.dimazigel.yfinance.batch.SkipReason;
 import io.github.dimazigel.yfinance.enums.Interval;
 import io.github.dimazigel.yfinance.enums.Range;
+import io.github.dimazigel.yfinance.exception.YFClassMismatchException;
 import io.github.dimazigel.yfinance.exception.YFDataException;
+import io.github.dimazigel.yfinance.exception.YFSkippedException;
 import io.github.dimazigel.yfinance.exception.YFinanceException;
-import io.github.dimazigel.yfinance.model.Info;
-import io.github.dimazigel.yfinance.model.PriceHistory;
+import io.github.dimazigel.yfinance.instrument.AssetClass;
+import io.github.dimazigel.yfinance.instrument.Instrument;
+import io.github.dimazigel.yfinance.logging.LogContext;
+import io.github.dimazigel.yfinance.market.PriceHistory;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.Semaphore;
 import java.util.function.Function;
-import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A group of tickers. Queries are fanned out across symbols with bounded concurrency, and each
- * symbol yields an independent {@link Result} — one symbol failing never discards the others, which
- * is what an ingestion pipeline needs.
- *
- * <p>{@link #fetch(Function)} fans out any {@link Ticker} call; {@link #infos()} and
- * {@link #histories(Range, Interval)} are shorthands for the two most common ones.
+ * A group of tickers. {@link #fetch(Function)} fans any {@link Ticker} call out across the symbols
+ * with bounded concurrency and collects one {@link Outcome} per symbol into a {@link Batch}: one
+ * symbol failing never discards the others, which is what an ingestion pipeline needs.
+ * {@link #instruments()} is not a fan-out: it classifies every symbol in one batched request.
  */
 public final class Tickers {
 
     private static final Logger LOG = LoggerFactory.getLogger(Tickers.class);
-    private static final int DEFAULT_CONCURRENCY = 4;
+
+    /**
+     * The fan-out bound when nothing else is configured: at most this many simultaneous
+     * per-symbol requests. {@code EndpointConfig.production()} starts from it; {@link
+     * #withConcurrency(int)} overrides it per instance.
+     */
+    public static final int DEFAULT_CONCURRENCY = 4;
 
     private final YFinance yf;
     private final List<Symbol> symbols;
     private final int concurrency;
 
-    Tickers(YFinance yf, List<Symbol> symbols) {
-        this(yf, symbols, DEFAULT_CONCURRENCY);
-    }
-
-    private Tickers(YFinance yf, List<Symbol> symbols, int concurrency) {
+    Tickers(YFinance yf, List<Symbol> symbols, int concurrency) {
         this.yf = yf;
         this.symbols = List.copyOf(Objects.requireNonNull(symbols, "symbols"));
         if (concurrency < 1) {
@@ -52,9 +51,17 @@ public final class Tickers {
         this.concurrency = concurrency;
     }
 
-    /** Returns a copy that fans out with at most {@code concurrency} simultaneous requests. */
+    /**
+     * Returns a copy that fans out with at most {@code concurrency} simultaneous requests,
+     * overriding the {@code EndpointConfig.fanOutConcurrency()} this instance started with.
+     */
     public Tickers withConcurrency(int concurrency) {
         return new Tickers(yf, symbols, concurrency);
+    }
+
+    /** The bound {@link #fetch} runs with; package-private for the facade tests. */
+    int concurrency() {
+        return concurrency;
     }
 
     public List<Symbol> symbols() {
@@ -67,153 +74,87 @@ public final class Tickers {
 
     /**
      * Applies {@code fetcher} to every symbol's {@link Ticker} concurrently, e.g.
-     * {@code tickers.fetch(Ticker::optionChain)} or {@code tickers.fetch(t -> t.financials(INCOME, ANNUAL))}.
+     * {@code tickers.fetch(Ticker::options)} or {@code tickers.fetch(Ticker::dividends)}, in input
+     * order, classifying each result the way the {@code YFinance} batch calls do:
      *
-     * <p>A fetcher that throws yields a {@link Result.Failure} for that symbol only; a fetcher that
-     * returns {@code null} (some calls are {@code @Nullable}, e.g. {@link Ticker#analystPriceTargets()}
-     * for an index) yields a failure whose message says no data was returned.
+     * <ul>
+     *   <li>{@link Outcome.Ok}: the fetcher returned a value.
+     *   <li>{@link Outcome.Skipped}: the fetcher threw what a single {@link Ticker} throws for a
+     *       non-answer — a {@link YFSkippedException} (unknown symbol, guaranteed module absent, …)
+     *       keeps its {@link SkipReason}; a {@link YFClassMismatchException} from {@link Ticker#as}
+     *       becomes {@link SkipReason#WRONG_ASSET_CLASS}, or {@link SkipReason#DOWNGRADED} when the
+     *       instrument is {@link AssetClass#UNCLASSIFIED}. Not worth retrying.
+     *   <li>{@link Outcome.Failed}: any other {@link YFinanceException} as itself; any other
+     *       exception or a {@code null} result wrapped in a {@link YFDataException}. Retryable.
+     * </ul>
      */
-    public <T> Map<Symbol, Result<T>> fetch(Function<? super Ticker, ? extends @Nullable T> fetcher) {
+    public <T> Batch<T> fetch(Function<? super Ticker, T> fetcher) {
         Objects.requireNonNull(fetcher, "fetcher");
-        return fanOut(symbol -> fetcher.apply(new Ticker(yf, symbol)));
+        if (symbols.isEmpty()) {
+            return new Batch<>(List.of());
+        }
+        long startedAt = System.nanoTime();
+        try (var ignored = LogContext.scope("fetch", symbols)) {
+            Batch<T> batch = FanOut.run(symbols, concurrency, symbol -> fetchOne(symbol, fetcher));
+            summarize(batch, (System.nanoTime() - startedAt) / 1_000_000);
+            return batch;
+        }
     }
 
-    public Map<Symbol, Result<Info>> infos() {
-        return fetch(Ticker::info);
+    /** Every symbol classified in one batched request; see {@code YFinance.instruments(Collection)}. */
+    public Batch<Instrument> instruments() {
+        return yf.instruments(symbols);
     }
 
-    public Map<Symbol, Result<PriceHistory>> histories(Range range, Interval interval) {
+    public Batch<PriceHistory> histories(Range range, Interval interval) {
         return fetch(ticker -> ticker.history(range, interval));
     }
 
-    private <T> Map<Symbol, Result<T>> fanOut(Function<Symbol, ? extends @Nullable T> fetch) {
-        long startedAt = System.nanoTime();
-        var permits = new Semaphore(concurrency);
-        try (ExecutorService pool = Executors.newVirtualThreadPerTaskExecutor()) {
-            Map<Symbol, Future<Result<T>>> futures = new LinkedHashMap<>();
-            for (Symbol symbol : symbols) {
-                futures.put(symbol, pool.submit(() -> {
-                    permits.acquire();
-                    try {
-                        return runOne(symbol, fetch);
-                    } finally {
-                        permits.release();
-                    }
-                }));
+    /**
+     * Runs on the {@link FanOut} worker thread, so the per-symbol {@link LogContext} scope is opened
+     * here: MDC is thread-local, and both the fetcher's HTTP calls and the failure line happen on
+     * this thread, not on the one that opened the batch scope.
+     */
+    private <T> Outcome<T> fetchOne(Symbol symbol, Function<? super Ticker, T> fetcher) {
+        try (var ignored = LogContext.scope("fetch", symbol)) {
+            Outcome<T> outcome;
+            try {
+                T value = fetcher.apply(new Ticker(yf, symbol));
+                outcome = value == null
+                        ? Outcome.failed(symbol, new YFDataException(symbol + ": no data returned"))
+                        : Outcome.ok(symbol, value);
+            } catch (YFSkippedException e) {
+                outcome = Outcome.skipped(symbol, e.reason(), e.field());
+            } catch (YFClassMismatchException e) {
+                SkipReason reason = e.actual() == AssetClass.UNCLASSIFIED ? SkipReason.DOWNGRADED : SkipReason.WRONG_ASSET_CLASS;
+                outcome = Outcome.skipped(symbol, reason, e.actual().name());
+            } catch (YFinanceException e) {
+                outcome = Outcome.failed(symbol, e);
+            } catch (RuntimeException e) {
+                outcome = Outcome.failed(symbol, new YFDataException("Failed to fetch " + symbol, e));
             }
-            Map<Symbol, Result<T>> results = new LinkedHashMap<>();
-            futures.forEach((symbol, future) -> results.put(symbol, join(symbol, future)));
-            summarize(results, (System.nanoTime() - startedAt) / 1_000_000);
-            return results;
+            switch (outcome) {
+                case Outcome.Failed<T> failed -> LOG.atDebug().log("{} failed: {}: {}", symbol,
+                        failed.error().getClass().getSimpleName(), failed.error().getMessage());
+                case Outcome.Skipped<T> skipped -> LOG.atDebug().addKeyValue("reason", skipped.reason())
+                        .log("{} skipped: {} ({})", symbol, skipped.reason(), skipped.detail());
+                case Outcome.Ok<T> ok -> { }
+            }
+            return outcome;
         }
     }
 
-    /** One INFO line per fan-out; each failure at DEBUG (the caller holds the exception itself). */
-    private static <T> void summarize(Map<Symbol, Result<T>> results, long durationMs) {
-        int failed = 0;
-        for (Result<T> result : results.values()) {
-            if (result instanceof Result.Failure<T> failure) {
-                failed++;
-                LOG.atDebug().log("{} failed: {}: {}", failure.symbol(),
-                        failure.error().getClass().getSimpleName(), failure.error().getMessage());
-            }
-        }
+    /** One INFO line per fan-out; each skip and failure was already logged at DEBUG on its worker. */
+    private static <T> void summarize(Batch<T> batch, long durationMs) {
+        int skipped = batch.skipped().size();
+        int failed = batch.failed().size();
+        int ok = batch.size() - skipped - failed;
         LOG.atInfo()
-                .addKeyValue("symbols", results.size())
-                .addKeyValue("ok", results.size() - failed)
+                .addKeyValue("symbols", batch.size())
+                .addKeyValue("ok", ok)
+                .addKeyValue("skipped", skipped)
                 .addKeyValue("failed", failed)
                 .addKeyValue("durationMs", durationMs)
-                .log("Fetched {} symbols: {} ok, {} failed in {} ms", results.size(), results.size() - failed, failed, durationMs);
-    }
-
-    private static <T> Result<T> runOne(Symbol symbol, Function<Symbol, ? extends @Nullable T> fetch) {
-        try {
-            T value = fetch.apply(symbol);
-            if (value == null) {
-                return Result.failure(symbol, new YFDataException(symbol + ": no data returned"));
-            }
-            return Result.success(symbol, value);
-        } catch (YFinanceException e) {
-            return Result.failure(symbol, e);
-        } catch (RuntimeException e) {
-            return Result.failure(symbol, new YFDataException("Failed to fetch " + symbol, e));
-        }
-    }
-
-    private static <T> Result<T> join(Symbol symbol, Future<Result<T>> future) {
-        try {
-            return future.get();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            return Result.failure(symbol, new YFDataException("Interrupted fetching " + symbol, e));
-        } catch (ExecutionException e) {
-            return Result.failure(symbol, new YFDataException("Failed to fetch " + symbol, e.getCause()));
-        }
-    }
-
-    /**
-     * The outcome of fetching one symbol: a {@link Success} carrying the value or a {@link Failure}
-     * carrying the exception. Sealed, so a {@code switch} over it is exhaustive without a default:
-     *
-     * <pre>{@code
-     * switch (result) {
-     *     case Tickers.Result.Success<Info> ok -> store(ok.symbol(), ok.value());
-     *     case Tickers.Result.Failure<Info> failed -> log.warn("{}: {}", failed.symbol(), failed.error().getMessage());
-     * }
-     * }</pre>
-     *
-     * @param <T> the payload type
-     */
-    public sealed interface Result<T> permits Result.Success, Result.Failure {
-
-        Symbol symbol();
-
-        /** Returns the value on success, or rethrows the captured error. */
-        T orElseThrow();
-
-        default boolean isSuccess() {
-            return this instanceof Success<T>;
-        }
-
-        /** The value on success, empty on failure. */
-        default Optional<T> toOptional() {
-            return this instanceof Success<T> ok ? Optional.of(ok.value()) : Optional.empty();
-        }
-
-        static <T> Result<T> success(Symbol symbol, T value) {
-            return new Success<>(symbol, value);
-        }
-
-        static <T> Result<T> failure(Symbol symbol, YFinanceException error) {
-            return new Failure<>(symbol, error);
-        }
-
-        /** A symbol whose fetch succeeded. */
-        record Success<T>(Symbol symbol, T value) implements Result<T> {
-
-            public Success {
-                Objects.requireNonNull(symbol, "symbol");
-                Objects.requireNonNull(value, "value");
-            }
-
-            @Override
-            public T orElseThrow() {
-                return value;
-            }
-        }
-
-        /** A symbol whose fetch failed; the batch carried on without it. */
-        record Failure<T>(Symbol symbol, YFinanceException error) implements Result<T> {
-
-            public Failure {
-                Objects.requireNonNull(symbol, "symbol");
-                Objects.requireNonNull(error, "error");
-            }
-
-            @Override
-            public T orElseThrow() {
-                throw error;
-            }
-        }
+                .log("Fetched {} symbols: {} ok, {} skipped, {} failed in {} ms", batch.size(), ok, skipped, failed, durationMs);
     }
 }

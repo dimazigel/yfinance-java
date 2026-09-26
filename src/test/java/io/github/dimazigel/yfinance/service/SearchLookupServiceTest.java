@@ -42,11 +42,11 @@ class SearchLookupServiceTest {
 
         assertThat(result.quotes()).hasSize(2);
         assertThat(result.quotes().getFirst().symbol()).isEqualTo(Symbol.of("AAPL"));
-        assertThat(result.quotes().getFirst().longName()).isEqualTo("Apple Inc.");
+        assertThat(result.quotes().getFirst().longName()).contains("Apple Inc.");
         assertThat(result.news()).singleElement().satisfies(n -> {
-            assertThat(n.title()).isEqualTo("Apple announces new product");
-            assertThat(n.link()).isEqualTo(URI.create("https://finance.yahoo.com/news/apple.html"));
-            assertThat(n.publishTime()).isEqualTo(Instant.ofEpochSecond(1714680000));
+            assertThat(n.title()).contains("Apple announces new product");
+            assertThat(n.link()).contains(URI.create("https://finance.yahoo.com/news/apple.html"));
+            assertThat(n.publishTime()).contains(Instant.ofEpochSecond(1714680000));
         });
 
         RecordedRequest req = server.takeRequest();
@@ -62,7 +62,7 @@ class SearchLookupServiceTest {
 
         assertThat(quotes).hasSize(2);
         assertThat(quotes.getFirst().symbol()).isEqualTo(Symbol.of("AAPL"));
-        assertThat(quotes.getFirst().regularMarketPrice()).isEqualByComparingTo("190.5");
+        assertThat(quotes.getFirst().regularMarketPrice()).hasValueSatisfying(p -> assertThat(p).isEqualByComparingTo("190.5"));
 
         RecordedRequest req = server.takeRequest();
         assertThat(req.getRequestUrl().encodedPath()).isEqualTo("/v1/finance/lookup");

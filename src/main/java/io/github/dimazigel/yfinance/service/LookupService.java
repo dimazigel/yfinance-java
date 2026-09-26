@@ -4,7 +4,7 @@ import io.github.dimazigel.yfinance.api.LookupApi;
 import io.github.dimazigel.yfinance.enums.LookupType;
 import io.github.dimazigel.yfinance.logging.LogContext;
 import io.github.dimazigel.yfinance.mapper.LookupMapper;
-import io.github.dimazigel.yfinance.model.LookupQuote;
+import io.github.dimazigel.yfinance.search.LookupQuote;
 import java.util.List;
 import java.util.Objects;
 

@@ -81,4 +81,17 @@ class SyncCallAdapterFactoryTest {
                 .isInstanceOf(YFDataException.class)
                 .hasMessage("Yahoo Finance returned HTTP 500 for /v8/finance/chart/AAPL: HTML error page (" + html.length() + " bytes)");
     }
+
+    @Test
+    void httpErrorsCarryStatusAndPath() {
+        server.enqueue(new MockResponse().setResponseCode(404).setBody("{\"quoteSummary\":{\"result\":null,\"error\":{\"code\":\"Not Found\",\"description\":\"Quote not found for symbol: NOPE\"}}}"));
+
+        assertThatThrownBy(() -> api.chart("NOPE", "1d", "1mo", null, null, false, null))
+                .isInstanceOf(io.github.dimazigel.yfinance.exception.YFHttpException.class)
+                .satisfies(e -> {
+                    var http = (io.github.dimazigel.yfinance.exception.YFHttpException) e;
+                    assertThat(http.status()).isEqualTo(404);
+                    assertThat(http.path()).isEqualTo("/v8/finance/chart/NOPE");
+                });
+    }
 }

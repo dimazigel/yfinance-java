@@ -3,19 +3,21 @@ package io.github.dimazigel.yfinance.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import ch.qos.logback.classic.Level;
 import io.github.dimazigel.yfinance.api.ChartApi;
 import io.github.dimazigel.yfinance.enums.Interval;
 import io.github.dimazigel.yfinance.enums.Range;
 import io.github.dimazigel.yfinance.exception.YFDataException;
-import io.github.dimazigel.yfinance.model.PriceHistory;
+import io.github.dimazigel.yfinance.market.PriceHistory;
 import io.github.dimazigel.yfinance.testsupport.Fixtures;
+import io.github.dimazigel.yfinance.testsupport.LogCapture;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
-import java.util.Currency;
+import java.util.HashMap;
 import java.util.Set;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -23,6 +25,7 @@ import okhttp3.mockwebserver.RecordedRequest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.slf4j.MDC;
 
 class HistoryServiceTest {
 
@@ -53,8 +56,8 @@ class HistoryServiceTest {
         assertThat(first.timestamp()).isEqualTo(Instant.ofEpochSecond(1700000000));
         assertThat(first.open()).isEqualByComparingTo("187.0");
         assertThat(first.close()).isEqualByComparingTo("188.0");
-        assertThat(first.adjClose()).isEqualByComparingTo("187.8");
-        assertThat(first.volume()).isEqualTo(50_000_000L);
+        assertThat(first.adjClose().orElseThrow()).isEqualByComparingTo("187.8");
+        assertThat(first.volume()).contains(50_000_000L);
 
         assertThat(history.dividends()).singleElement().satisfies(d -> {
             assertThat(d.amount()).isEqualByComparingTo("0.24");
@@ -67,10 +70,74 @@ class HistoryServiceTest {
         });
 
         var meta = history.metadata();
-        assertThat(meta.currency()).isEqualTo(Currency.getInstance("USD"));
+        assertThat(meta.currency().code()).isEqualTo("USD");
         assertThat(meta.timezone()).isEqualTo(ZoneId.of("America/New_York"));
         assertThat(meta.symbol()).isEqualTo(Symbol.of("AAPL"));
         assertThat(meta.regularMarketPrice()).isEqualByComparingTo("190.5");
+    }
+
+    @Test
+    void metadataIsNonNull() {
+        server.enqueue(Fixtures.jsonResponse("chart_aapl_1d.json"));
+
+        var meta = service.getHistory(
+                HistoryRequest.builder(Symbol.of("AAPL")).range(Range.ONE_MONTH).build()).metadata();
+
+        assertThat(meta.currency().code()).isEqualTo("USD");
+        assertThat(meta.regularMarketTime()).isEqualTo(Instant.ofEpochSecond(1700172800));
+        assertThat(meta.currentTradingPeriod().regular().start()).isEqualTo(Instant.ofEpochSecond(1700146200));
+    }
+
+    @Test
+    void incompleteMetadataThrows() {
+        // Every required field except currency is present.
+        server.enqueue(new MockResponse().setResponseCode(200).setBody(
+                "{\"chart\":{\"result\":[{\"meta\":{\"symbol\":\"AAPL\","
+                        + "\"exchangeName\":\"NMS\",\"fullExchangeName\":\"NasdaqGS\",\"instrumentType\":\"EQUITY\","
+                        + "\"firstTradeDate\":345479400,\"regularMarketTime\":1700172800,"
+                        + "\"exchangeTimezoneName\":\"America/New_York\",\"regularMarketPrice\":190.5,"
+                        + "\"chartPreviousClose\":186.9,\"priceHint\":2,\"hasPrePostMarketData\":true,"
+                        + "\"currentTradingPeriod\":{"
+                        + "\"pre\":{\"start\":1700126400,\"end\":1700146200},"
+                        + "\"regular\":{\"start\":1700146200,\"end\":1700169600},"
+                        + "\"post\":{\"start\":1700169600,\"end\":1700184000}}},"
+                        + "\"timestamp\":[1700000000],"
+                        + "\"indicators\":{\"quote\":[{\"open\":[1.0],\"high\":[1.2],\"low\":[0.9],\"close\":[1.1]}]}}],"
+                        + "\"error\":null}}"));
+
+        assertThatThrownBy(() -> service.getHistory(
+                        HistoryRequest.builder(Symbol.of("AAPL")).range(Range.ONE_DAY).build()))
+                .isInstanceOf(YFDataException.class)
+                .hasMessageContaining("currency");
+    }
+
+    @Test
+    void unknownCurrencyCodeIsPreservedRatherThanDropped() {
+        server.enqueue(new MockResponse().setResponseCode(200).setBody(
+                "{\"chart\":{\"result\":[{\"meta\":" + fullMeta("XYZ", "AAPL", "America/New_York") + ","
+                        + "\"timestamp\":[1700000000],"
+                        + "\"indicators\":{\"quote\":[{\"open\":[1.0],\"high\":[1.2],\"low\":[0.9],\"close\":[1.1]}]}}],"
+                        + "\"error\":null}}"));
+
+        var history = service.getHistory(
+                HistoryRequest.builder(Symbol.of("AAPL")).range(Range.ONE_DAY).build());
+
+        assertThat(history.metadata().currency().code()).isEqualTo("XYZ");
+        assertThat(history.metadata().currency().iso()).isEmpty();
+    }
+
+    @Test
+    void invalidTimezoneMakesMetadataIncomplete() {
+        server.enqueue(new MockResponse().setResponseCode(200).setBody(
+                "{\"chart\":{\"result\":[{\"meta\":" + fullMeta("USD", "AAPL", "Not/A_Zone") + ","
+                        + "\"timestamp\":[1700000000],"
+                        + "\"indicators\":{\"quote\":[{\"open\":[1.0],\"high\":[1.2],\"low\":[0.9],\"close\":[1.1]}]}}],"
+                        + "\"error\":null}}"));
+
+        assertThatThrownBy(() -> service.getHistory(
+                        HistoryRequest.builder(Symbol.of("AAPL")).range(Range.ONE_DAY).build()))
+                .isInstanceOf(YFDataException.class)
+                .hasMessageContaining("timezone");
     }
 
     @Test
@@ -136,29 +203,53 @@ class HistoryServiceTest {
     }
 
     @Test
-    void unknownCurrencyAndTimezoneDoNotAbortHistory() {
+    void incompleteChartEventsAreDroppedAndLogged() {
         server.enqueue(new MockResponse().setResponseCode(200).setBody(
-                "{\"chart\":{\"result\":[{\"meta\":{\"currency\":\"XYZ\",\"symbol\":\"AAPL\","
-                        + "\"exchangeTimezoneName\":\"Not/A_Zone\"},"
+                "{\"chart\":{\"result\":[{\"meta\":" + fullMeta("USD", "AAPL", "America/New_York") + ","
                         + "\"timestamp\":[1700000000],"
-                        + "\"indicators\":{\"quote\":[{\"open\":[1.0],\"high\":[2.0],\"low\":[0.5],"
-                        + "\"close\":[1.5],\"volume\":[100]}]}}],\"error\":null}}"));
+                        + "\"events\":{\"dividends\":{\"1699000000\":{\"date\":1699000000},"
+                        + "\"1698000000\":{\"amount\":0.24,\"date\":1698000000}}},"
+                        + "\"indicators\":{\"quote\":[{\"open\":[187.0],\"high\":[189.0],\"low\":[186.5],\"close\":[188.0],\"volume\":[1]}]}}],\"error\":null}}"));
 
-        var history = service.getHistory(
-                HistoryRequest.builder(Symbol.of("AAPL")).range(Range.ONE_MONTH).build());
+        try (var log = LogCapture.ofLibrary()) {
+            var history = service.getHistory(
+                    HistoryRequest.builder(Symbol.of("AAPL")).range(Range.ONE_DAY).build());
 
-        assertThat(history.bars()).hasSize(1);
-        assertThat(history.metadata().currency()).isNull();
-        assertThat(history.metadata().timezone()).isNull();
+            assertThat(history.dividends()).hasSize(1);
+            assertThat(log.messages(Level.DEBUG)).anySatisfy(m -> assertThat(m)
+                    .isEqualTo("Dropped a dividend event without a complete date and value (date=1699000000)"));
+        }
     }
 
     @Test
-    void skipsNullCloseBarsAndKeepsMissingVolumeAsNull() {
-        // Yahoo pads intraday responses with all-null rows (halts, pre-open) and sometimes
-        // omits volume. Null-close rows must be dropped; missing volume must NOT become 0.
+    void barsWithAnyNullOhlcAreDropped() {
+        // A row with just one missing OHLC value (here: open) is dropped, same as an all-null row.
         server.enqueue(new MockResponse().setResponseCode(200).setBody(
-                "{\"chart\":{\"result\":[{\"meta\":{\"currency\":\"USD\",\"symbol\":\"AAPL\","
-                        + "\"exchangeTimezoneName\":\"America/New_York\"},"
+                "{\"chart\":{\"result\":[{\"meta\":" + fullMeta("USD", "AAPL", "America/New_York") + ","
+                        + "\"timestamp\":[1700000000,1700000060,1700000120],"
+                        + "\"indicators\":{\"quote\":[{"
+                        + "\"open\":[187.0,null,189.1],"
+                        + "\"high\":[189.0,190.0,191.2],"
+                        + "\"low\":[186.5,187.9,188.0],"
+                        + "\"close\":[188.0,189.2,190.5],"
+                        + "\"volume\":[50000000,48000000,52000000]}]}}],\"error\":null}}"));
+
+        try (var log = LogCapture.ofLibrary()) {
+            var history = service.getHistory(
+                    HistoryRequest.builder(Symbol.of("AAPL")).range(Range.ONE_DAY).build());
+
+            assertThat(history.bars()).hasSize(2);
+            assertThat(log.messages(Level.DEBUG))
+                    .anySatisfy(m -> assertThat(m).isEqualTo("Dropped 1 of 3 bars without a complete OHLC"));
+        }
+    }
+
+    @Test
+    void skipsAllNullBarsAndKeepsMissingVolumeAsNull() {
+        // Yahoo pads intraday responses with all-null rows (halts, pre-open) and sometimes
+        // omits volume. All-null rows must be dropped; missing volume must NOT become 0.
+        server.enqueue(new MockResponse().setResponseCode(200).setBody(
+                "{\"chart\":{\"result\":[{\"meta\":" + fullMeta("USD", "AAPL", "America/New_York") + ","
                         + "\"timestamp\":[1700000000,1700000060,1700000120],"
                         + "\"indicators\":{\"quote\":[{"
                         + "\"open\":[187.0,null,189.1],"
@@ -170,9 +261,9 @@ class HistoryServiceTest {
         var history = service.getHistory(
                 HistoryRequest.builder(Symbol.of("AAPL")).range(Range.ONE_DAY).build());
 
-        assertThat(history.bars()).hasSize(2); // null-close row dropped
-        assertThat(history.bars().getFirst().volume()).isEqualTo(50_000_000L);
-        assertThat(history.bars().getLast().volume()).isNull(); // missing, not zero
+        assertThat(history.bars()).hasSize(2); // all-null row dropped
+        assertThat(history.bars().getFirst().volume()).contains(50_000_000L);
+        assertThat(history.bars().getLast().volume()).isEmpty(); // missing, not zero
         assertThat(history.bars().getLast().close()).isEqualByComparingTo("190.5");
     }
 
@@ -204,7 +295,7 @@ class HistoryServiceTest {
         // Yahoo returns 60m bars when asked for 30m, so (like yfinance) fetch 15m and resample.
         long t0 = 1_699_999_200L; // 30m bucket boundary
         server.enqueue(new MockResponse().setResponseCode(200).setBody(
-                "{\"chart\":{\"result\":[{\"meta\":{\"currency\":\"USD\",\"symbol\":\"AAPL\"},"
+                "{\"chart\":{\"result\":[{\"meta\":" + fullMeta("USD", "AAPL", "America/New_York") + ","
                         + "\"timestamp\":[" + t0 + "," + (t0 + 900) + "," + (t0 + 1800) + "],"
                         + "\"indicators\":{\"quote\":[{"
                         + "\"open\":[10,11,12],\"high\":[12,13,12.5],\"low\":[9,10,11.5],"
@@ -218,7 +309,7 @@ class HistoryServiceTest {
         assertThat(history.bars().getFirst().timestamp()).isEqualTo(Instant.ofEpochSecond(t0));
         assertThat(history.bars().getFirst().high()).isEqualByComparingTo("13");
         assertThat(history.bars().getFirst().close()).isEqualByComparingTo("12");
-        assertThat(history.bars().getFirst().volume()).isEqualTo(150L);
+        assertThat(history.bars().getFirst().volume()).contains(150L);
     }
 
     @Test
@@ -237,9 +328,10 @@ class HistoryServiceTest {
     @Test
     void blankMetaSymbolFallsBackToRequestedSymbol() {
         server.enqueue(new MockResponse().setResponseCode(200).setBody(
-                "{\"chart\":{\"result\":[{\"meta\":{\"currency\":\"USD\",\"symbol\":\"  \"},"
+                "{\"chart\":{\"result\":[{\"meta\":" + fullMeta("USD", "  ", "America/New_York") + ","
                         + "\"timestamp\":[1700000000],"
-                        + "\"indicators\":{\"quote\":[{\"close\":[1.5]}]}}],\"error\":null}}"));
+                        + "\"indicators\":{\"quote\":[{\"open\":[1.0],\"high\":[2.0],\"low\":[0.5],\"close\":[1.5]}]}}],"
+                        + "\"error\":null}}"));
 
         var history = service.getHistory(HistoryRequest.builder(Symbol.of("AAPL")).range(Range.ONE_DAY).build());
 
@@ -256,11 +348,10 @@ class HistoryServiceTest {
         assertThat(meta.regularMarketTime()).isEqualTo(Instant.ofEpochSecond(1700172800));
         assertThat(meta.priceHint()).isEqualTo(2);
         assertThat(meta.hasPrePostMarketData()).isTrue();
-        assertThat(meta.dataGranularity()).isEqualTo(Interval.ONE_DAY);
+        assertThat(meta.dataGranularity()).contains(Interval.ONE_DAY);
         assertThat(meta.validRanges()).startsWith(Range.ONE_DAY, Range.FIVE_DAYS).endsWith(Range.MAX)
                 .hasSize(11); // the unknown "bogus-range" is dropped, not fatal
         var periods = meta.currentTradingPeriod();
-        assertThat(periods).isNotNull();
         assertThat(periods.regular().start()).isEqualTo(Instant.ofEpochSecond(1700146200));
         assertThat(periods.regular().end()).isEqualTo(Instant.ofEpochSecond(1700169600));
         assertThat(periods.pre().end()).isEqualTo(periods.regular().start());
@@ -268,10 +359,27 @@ class HistoryServiceTest {
     }
 
     @Test
+    void unknownRangeIsDroppedAndLoggedAtDebug() {
+        server.enqueue(new MockResponse().setResponseCode(200).setBody(
+                "{\"chart\":{\"result\":[{\"meta\":" + fullMeta("GBp", "BP.L", "Europe/London", "[\"1d\",\"bogus\"]") + ","
+                        + "\"timestamp\":[1700000000],"
+                        + "\"indicators\":{\"quote\":[{\"open\":[1.0],\"high\":[1.2],\"low\":[0.9],\"close\":[1.1]}]}}],"
+                        + "\"error\":null}}"));
+
+        try (var log = LogCapture.ofLibrary()) {
+            var history = service.getHistory(HistoryRequest.builder(Symbol.of("BP.L")).range(Range.ONE_DAY).build());
+
+            assertThat(history.metadata().validRanges()).containsExactly(Range.ONE_DAY);
+            assertThat(log.messages(Level.DEBUG))
+                    .anySatisfy(m -> assertThat(m).isEqualTo("Unknown range \"bogus\"; ignored"));
+        }
+    }
+
+    @Test
     void requestsRunInsideALogContextScope() throws Exception {
-        var seen = new java.util.HashMap<String, String>();
+        var seen = new HashMap<String, String>();
         var api = Fixtures.retrofit(server.url("/"), chain -> {
-            seen.putAll(org.slf4j.MDC.getCopyOfContextMap());
+            seen.putAll(MDC.getCopyOfContextMap());
             return chain.proceed(chain.request());
         }).create(ChartApi.class);
         server.enqueue(Fixtures.jsonResponse("chart_aapl_1d.json"));
@@ -279,25 +387,25 @@ class HistoryServiceTest {
         new HistoryService(api).getHistory(HistoryRequest.builder(Symbol.of("AAPL")).range(Range.ONE_MONTH).build());
 
         assertThat(seen).containsEntry("yf.op", "history").containsEntry("yf.symbol", "AAPL");
-        assertThat(org.slf4j.MDC.get("yf.op")).isNull(); // cleared once the call returns
+        assertThat(MDC.get("yf.op")).isNull(); // cleared once the call returns
     }
 
-    @Test
-    void droppedBarsAndUnknownMetadataAreLoggedAtDebug() {
-        server.enqueue(new MockResponse().setResponseCode(200).setBody(
-                "{\"chart\":{\"result\":[{\"meta\":{\"currency\":\"GBp\",\"symbol\":\"BP.L\","
-                        + "\"exchangeTimezoneName\":\"Not/A_Zone\",\"validRanges\":[\"1d\",\"bogus\"]},"
-                        + "\"timestamp\":[1700000000,1700000060,1700000120],"
-                        + "\"indicators\":{\"quote\":[{\"close\":[1.5,null,null]}]}}],\"error\":null}}"));
+    /** A complete, valid chart {@code meta} object with an empty {@code validRanges}. */
+    private static String fullMeta(String currency, String symbol, String timezone) {
+        return fullMeta(currency, symbol, timezone, "[]");
+    }
 
-        try (var log = io.github.dimazigel.yfinance.testsupport.LogCapture.ofLibrary()) {
-            service.getHistory(HistoryRequest.builder(Symbol.of("BP.L")).range(Range.ONE_DAY).build());
-
-            assertThat(log.messages(ch.qos.logback.classic.Level.DEBUG))
-                    .anySatisfy(m -> assertThat(m).isEqualTo("Dropped 2 of 3 bars without a close"))
-                    .anySatisfy(m -> assertThat(m).isEqualTo("Unknown currency \"GBp\"; left null"))
-                    .anySatisfy(m -> assertThat(m).isEqualTo("Unknown timezone \"Not/A_Zone\"; left null"))
-                    .anySatisfy(m -> assertThat(m).isEqualTo("Unknown range \"bogus\"; ignored"));
-        }
+    /** As above, but with an explicit {@code validRanges} JSON array. */
+    private static String fullMeta(String currency, String symbol, String timezone, String validRangesJson) {
+        return "{\"currency\":\"" + currency + "\",\"symbol\":\"" + symbol + "\","
+                + "\"exchangeName\":\"NMS\",\"fullExchangeName\":\"NasdaqGS\",\"instrumentType\":\"EQUITY\","
+                + "\"firstTradeDate\":345479400,\"regularMarketTime\":1700172800,"
+                + "\"exchangeTimezoneName\":\"" + timezone + "\",\"regularMarketPrice\":190.5,"
+                + "\"chartPreviousClose\":186.9,\"priceHint\":2,\"hasPrePostMarketData\":true,"
+                + "\"validRanges\":" + validRangesJson + ","
+                + "\"currentTradingPeriod\":{"
+                + "\"pre\":{\"start\":1700126400,\"end\":1700146200},"
+                + "\"regular\":{\"start\":1700146200,\"end\":1700169600},"
+                + "\"post\":{\"start\":1700169600,\"end\":1700184000}}}";
     }
 }

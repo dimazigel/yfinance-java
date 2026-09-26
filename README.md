@@ -2,100 +2,260 @@
 
 [![Build](https://github.com/dimazigel/yfinance-java/actions/workflows/build.yml/badge.svg)](https://github.com/dimazigel/yfinance-java/actions/workflows/build.yml)
 
-A clean, type-safe **Java 21** reimplementation of the Python
+A type-safe **Java 21** reimplementation of the Python
 [`yfinance`](https://github.com/ranaroussi/yfinance) library, built on
 **Retrofit 3** / OkHttp 5 / Jackson and **Gradle 9**.
 
-It talks to Yahoo Finance's (undocumented) JSON endpoints and exposes the data
-as immutable **records** with specific types — `BigDecimal` for money,
-`Instant`/`LocalDate`/`ZoneId` for time, `java.util.Currency`, `java.net.URI`
-for URLs, and value records like `Symbol`. Package root: `io.github.dimazigel.yfinance`.
+It talks to Yahoo Finance's (undocumented) JSON endpoints and exposes the data as immutable
+**records** whose types state what Yahoo guarantees for each kind of instrument: an `Equity` has a
+non-null `marketCap`, an `Index` has no such field, and anything Yahoo only sometimes reports is an
+`Optional`. Values use specific types — `BigDecimal` for money, `Instant`/`LocalDate`/`ZoneId` for
+time, `java.net.URI` for URLs, and value records like `Symbol` and `QuoteCurrency`. Package root:
+`io.github.dimazigel.yfinance`.
 
-**Requires Java 21+.** No framework dependencies — plain library, safe to use
-from Spring, Quarkus, or a bare `main`.
+**Requires Java 21+.** No framework dependencies — plain library, safe to use from Spring, Quarkus,
+or a bare `main`.
 
 ## Quick start
 
 ```java
 try (var yf = YFinance.create()) { // cookie+crumb handshake; close() releases the HTTP client
-    var aapl = yf.ticker("AAPL");
+    Ticker aapl = yf.ticker("AAPL");
 
+    // One snapshot; the sealed hierarchy makes the switch exhaustive without a default.
+    Instrument instrument = aapl.instrument();
+    String line = switch (instrument) {
+        case Equity e -> e.symbol() + " market cap " + e.valuation().marketCap();
+        case Etf etf -> etf.symbol() + " YTD " + etf.ytdReturn();
+        case MutualFund mf -> mf.symbol() + " expense ratio " + mf.expenseRatio();
+        case Index i -> i.symbol() + " " + i.core().price();
+        case Crypto c -> c.symbol() + " circulating " + c.supply().circulating();
+        case FxPair fx -> fx.symbol() + " " + fx.core().price();
+        case Future f -> f.symbol() + " expires " + f.contract().expireDate();
+        case Unclassified u -> u.symbol() + " not classified, missing " + u.missing();
+    };
+
+    Equity equity = aapl.as(Equity.class);      // YFClassMismatchException if AAPL were not an equity
+    EquityDetail detail = aapl.detail(equity);  // profile, statistics, financials, analysts, ownership
     PriceHistory history = aapl.history(Range.ONE_MONTH, Interval.ONE_DAY);
-    PriceHistory backfill = aapl.history(start, end, Interval.ONE_DAY); // explicit window
-    List<Dividend> dividends = aapl.dividends();     // full-history corporate actions
-    Info info           = aapl.info();               // info.quote().price() / .keyStats() / .analyst()
-    Quote quote         = aapl.quote();              // lightweight, one request, any asset class
-    FinancialStatement income = aapl.financials(StatementType.INCOME, Frequency.ANNUAL);
-    OptionChain chain   = aapl.optionChain();
-    Holders holders     = aapl.holders();            // incl. insiderRoster(), netSharePurchaseActivity()
-    AnalystPriceTarget target = aapl.analystPriceTargets();
-    List<EarningsHistoryEntry> beats = aapl.earningsHistory();
-    List<EpsTrendPeriod> drift = aapl.epsTrend();    // also epsRevisions(), growthEstimates()
+    List<Dividend> dividends = aapl.dividends();          // full-history corporate actions
+    Optional<OptionChain> chain = aapl.options();          // empty when the instrument has no listed options
+    FinancialStatement income = aapl.statements(equity, StatementType.INCOME, Frequency.ANNUAL);
+    Optional<BigDecimal> revenue = income.value(LineItem.TOTAL_REVENUE, income.periods().getFirst());
     List<NewsArticle> news = aapl.news();
 
-    Map<Symbol, Quote> quotes = yf.quotes("AAPL", "^GSPC", "BTC-USD"); // one request for many symbols
     SearchResult results = yf.search("apple");
-    List<LookupQuote> quotes = yf.lookup("apple", LookupType.EQUITY);
+    List<LookupQuote> lookup = yf.lookup("apple", LookupType.EQUITY);
 }
 ```
 
-### Adjusted prices
+`Ticker` methods return a value or throw. `as(Class)` throws `YFClassMismatchException` (carrying
+the actual `AssetClass`) when the symbol is something else, including `Unclassified`; `instrument()`
+throws `YFMissingDataException` for a symbol Yahoo does not know. `detail(...)` and
+`statements(...)` take the instrument itself as proof of its class, so the compiler stops you from
+asking for a company profile of an index or the income statement of an ETF.
 
-Bars carry Yahoo's **raw** OHLC plus the split/dividend-adjusted close as `adjClose`. Python
-yfinance defaults to adjusted OHLC (`auto_adjust=True`); to get the same numbers:
+### Batches
+
+Every `YFinance` batch call is N in → N out: one `Outcome` per input symbol, in input order, never
+throwing for an individual symbol. Duplicates in the input yield duplicate outcomes; an empty input
+makes no request.
 
 ```java
-PriceHistory adjusted = aapl.history(Range.MAX, Interval.ONE_DAY).adjusted(); // or bar.adjusted()
-```
+List<Symbol> symbols = Stream.of("AAPL", "SPY", "VFIAX", "BTC-USD", "NOSUCHSYMBOL").map(Symbol::of).toList();
 
-`adjusted()` scales open/high/low/close by `adjClose / close` and leaves volume as reported.
-
-### Storing data: trading dates, typed line items, resilient batches
-
-```java
-// Corporate-action dates as the exchange's calendar date (not a UTC-shifted day):
-for (Dividend d : history.dividends()) {
-    LocalDate exDate = d.localDate(history.zoneId());
-}
-
-// Type-safe fundamental line items instead of magic strings:
-BigDecimal revenue = income.value(LineItem.TOTAL_REVENUE, period);
-
-// Fan out any Ticker call across symbols with bounded concurrency; one bad symbol never
-// drops the rest. Result is sealed, so the switch is exhaustive without a default:
-Map<Symbol, Tickers.Result<Info>> infos =
-        yf.tickers("AAPL", "MSFT", "GOOG").withConcurrency(4).infos();
-infos.forEach((symbol, result) -> {
-    switch (result) {
-        case Tickers.Result.Success<Info> ok -> store(symbol, ok.value());
-        case Tickers.Result.Failure<Info> failed -> log.warn("skip {}: {}", symbol, failed.error().getMessage());
+Batch<Instrument> batch = yf.instruments(symbols);   // one request per 100 symbols
+for (Outcome<Instrument> outcome : batch.outcomes()) {
+    switch (outcome) {
+        case Outcome.Ok<Instrument> ok -> store(ok.value());
+        case Outcome.Skipped<Instrument> s -> log.info("{} skipped: {} ({})", s.symbol(), s.reason(), s.detail());
+        case Outcome.Failed<Instrument> f -> retryLater(f.symbol(), f.error());
     }
-});
-Map<Symbol, Tickers.Result<OptionChain>> chains = yf.tickers("AAPL", "MSFT").fetch(Ticker::optionChain);
+}
+log.info(batch.summary());                           // "5 symbols: 4 ok, 1 skipped, 0 failed"
+
+Batch<Equity> equities = yf.instruments(symbols, Equity.class);   // others → Skipped(WRONG_ASSET_CLASS)
+Batch<EquityDetail> details = yf.equityDetails(equities.values()); // one quoteSummary request each
+Batch<PriceHistory> histories = yf.histories(symbols, Range.ONE_YEAR, Interval.ONE_DAY);
+Batch<Optional<OptionChain>> chains = yf.options(symbols);
+Batch<FinancialStatement> statements = yf.statements(equities.values(), StatementType.INCOME, Frequency.ANNUAL);
+
+// Fan out any Ticker call with bounded concurrency (virtual threads); a Ticker's non-answer
+// (unknown symbol, wrong class for as(...), absent module) comes back as Skipped, not Failed:
+Batch<List<Dividend>> dividends = yf.tickers("AAPL", "MSFT", "GOOG").withConcurrency(8).fetch(Ticker::dividends);
+Batch<Equity> viaFetch = yf.tickers(symbols).fetch(t -> t.as(Equity.class));   // same outcomes as instruments(symbols, Equity.class)
 ```
 
-`PriceHistory.metadata()` also carries what Yahoo says about the instrument: the interval it
-actually served (`dataGranularity()`), the `validRanges()` it accepts, today's pre/regular/post
-sessions (`currentTradingPeriod()`), `regularMarketTime()` and `priceHint()`.
+`Outcome<T>` is sealed:
 
-`YFinance` is thread-safe — hold one instance (e.g. a singleton) and `close()` it on shutdown.
-The shared client adaptively throttles on HTTP 429: a throttled request is retried up to
-`maxAttempts` times (waiting the adapted, jittered delay, honoring `Retry-After`), and while
-degraded **every** request is paced by the current delay until traffic recovers — no burst-429
-oscillation. Only after retries are exhausted is `YFRateLimitException` (with `retryAfter()`)
-thrown. A stale crumb (401/403) is automatically invalidated and the request retried once. Transient
-server errors (HTTP 500/502/503/504 — Yahoo's lookup endpoint is known to hiccup) are retried with
-exponential backoff, honouring `Retry-After`: 3 attempts by default, tunable or disabled via
-`EndpointConfig.withTransientRetry(RetryConfig)`.
+| Outcome | Meaning | Retry? |
+|---|---|---|
+| `Ok(symbol, value)` | the value | — |
+| `Skipped(symbol, reason, detail)` | Yahoo answered, but there is nothing to return for this symbol | no |
+| `Failed(symbol, error)` | transport, 429 after retries, 5xx after retries, malformed JSON — a `YFinanceException` | yes |
 
-`info()` on an instrument quoteSummary cannot describe (indices, ETFs, crypto, FX, futures) does
-not fail: it falls back to `/v7/finance/quote` and returns quote-only info (`profile()` is `null`,
-trend lists empty), mirroring Python yfinance. `quote()` / `quotes(...)` hit that endpoint directly.
+`SkipReason` is `UNKNOWN_SYMBOL` (not in Yahoo's quote response), `WRONG_ASSET_CLASS`
+(`instruments(symbols, Equity.class)` met an ETF), `DOWNGRADED` (see below), `NOT_AVAILABLE_FOR_CLASS`
+and `MODULE_ABSENT` (a detail request lacked a guaranteed module; `detail` names the fields).
+`Batch` offers `outcomes()`, `values()` (the `Ok` values only), `skipped()`, `failed()`, `get(symbol)`
+and `summary()`; each `Outcome` has `optional()` and `orElseThrow()` (`Skipped` throws
+`YFSkippedException`, a `YFMissingDataException` carrying the `SkipReason`; `Failed` rethrows its
+error). The mapping is symmetric: `Tickers.fetch` turns a `YFSkippedException` or a
+`YFClassMismatchException` thrown inside the fetcher back into `Skipped`, so `fetch(t -> t.as(Equity.class))`
+skips for the same reasons as `instruments(symbols, Equity.class)`.
 
-Data-quality guarantees for storage pipelines: missing volume stays `null` (never coerced to 0),
-Yahoo's all-null padding bars are dropped, and `FinancialStatement` collections are immutable.
-30m history is fetched as 15m and resampled (Yahoo has been known to return 60m bars for 30m
-requests; Python yfinance applies the same workaround).
+## The model
+
+### Hierarchy and tiers
+
+```
+Instrument            core(), assetClass(), symbol(), fetchedAt()
+├── Equity            IntradayTraded, Quoted
+├── Etf               IntradayTraded, Quoted, Fund
+├── MutualFund        Fund                     (no intraday session, no order book)
+├── Index             IntradayTraded, Quoted
+├── Crypto            IntradayTraded           (no order book)
+├── FxPair            IntradayTraded, Quoted
+├── Future            IntradayTraded, Quoted
+└── Unclassified      the universal core only
+```
+
+All interfaces are sealed. `Core` (22 fields, all non-null except `Optional<String> longName`) is
+the universal tier: symbol, names, `QuoteCurrency`, exchange and time zone, `MarketState`, price,
+change, previous close, 52-week range, moving averages, average volumes, first trade date. The tier
+interfaces add what a group shares: `IntradayTraded.session()` (open, day low/high, volume),
+`Quoted.book()` (an `Optional<TopOfBook>` — bid/ask, with `Optional` sizes), `Fund.ytdReturn()` /
+`threeMonthReturn()`. Match on a tier when you only need that slice:
+
+```java
+if (instrument instanceof IntradayTraded traded) {
+    long volume = traded.session().volume();
+}
+```
+
+### Guarantees, `Optional`, and the downgrade
+
+There is **no `@Nullable` anywhere in the public model.** A field is one of three things:
+
+- **Absent from the class** — an `Index` has no `marketCap` accessor at all.
+- **Guaranteed** — a plain non-null component. Guaranteed means *intrinsic to the class*: a field
+  is non-null only if every miss in the 282-instrument survey was an instrument we accept
+  downgrading (in practice the preferred share `BAC-PL`). A miss on an ordinary member — Samsung
+  lacking `bookValue`, Costco lacking `beta` — makes the field `Optional` whatever its percentage,
+  so you never lose Samsung's market cap because Yahoo omitted its book value.
+- **`Optional<T>`** — Yahoo reports it for some members of the class, or only at some times of day
+  (`postMarket`). Fields whose absences always co-occur are grouped into a cluster record
+  (`TopOfBook`, `TrailingDividend`, `Equity.CurrentDividend`, `PostMarket`, `EquityLikeStats`,
+  `EquityDetail.Targets`, …): a cluster is `Optional.of(cluster)` only when **every** member is
+  present, so inside it nothing is optional again.
+
+When a guaranteed field is missing anyway — Yahoo drifted, or the instrument is an odd one — the
+snapshot **downgrades to `Unclassified`** instead of returning a null or throwing. `Unclassified`
+still carries the full `Core`, plus `reportedQuoteType()`, `attempted()` (the class it failed to be)
+and `missing()` (the field names). `instruments(symbols, Equity.class)` reports such a symbol as
+`Skipped(DOWNGRADED)`; `as(Equity.class)` throws `YFClassMismatchException`. Downgrades log once at
+`DEBUG` with the missing list. Lists (holders, holdings, trends, filings, officers) are never
+`Optional`: empty when Yahoo omits the module.
+
+### Two depths, and what they cost
+
+| Depth | Types | Requests |
+|---|---|---|
+| **Snapshot** | the `Instrument` hierarchy | one `/v7/finance/quote` request per 100 symbols, plus at most one `quoteSummary` request per symbol whose v7 row left a guaranteed field short (the modules requested depend on the class) |
+| **Detail** | `EquityDetail`, `EtfDetail`, `MutualFundDetail`, `CryptoDetail` | one `quoteSummary` request per instrument; `equityDetails(...)` and friends keep at most `EndpointConfig.fanOutConcurrency()` requests in flight (4 by default — raise it with `withFanOutConcurrency(n)`); `tickers(...).withConcurrency(n)` overrides the bound for one `fetch`/`histories` call |
+
+Each snapshot field is assembled from both endpoints in a fixed precedence (v7 first, then the
+quoteSummary modules) before it counts as missing, which is what lifts e.g. ETF trailing returns
+from ~82 % to 100 %. `Index`, `FxPair` and `Future` have no detail tier: Yahoo has nothing beyond
+price data for them. Detail records are fetched with the instrument as proof, so
+`yf.ticker("SPY").detail(etf)` only compiles for an `Etf`.
+
+### Units and values
+
+- Percentages that Yahoo serves as percents (v7 `changePercent`, `postMarketChangePercent`,
+  `dividendYield`, fund `expenseRatio`/`ytdReturn`/`threeMonthReturn`; `debtToEquity`,
+  `fiveYearAvgDividendYield`, option `changePercent`) are **stored as fractions** (`0.0098`, not
+  `0.98`), so every yield, margin, return and held-percent in the model is a fraction. The
+  `quoteSummary` counterparts of the v7 percents already arrive as fractions, and the unit
+  conversion is applied per source, so a value is the same fraction whichever endpoint supplied it.
+- Epoch seconds and milliseconds become `Instant`; date-only epochs (fiscal year end, ex-dividend
+  date, fund inception) become `LocalDate` (UTC). Corporate-action dates in a `PriceHistory` are
+  best read as exchange-local dates: `dividend.localDate(history.zoneId())`.
+- Currencies are `QuoteCurrency(code, Optional<Currency> iso)`. Pence-quoted instruments (`GBp` on
+  the LSE, also `ZAc`, `ILA`) keep their code with an empty `iso()` and `isPence()` true; prices are
+  in that unit, exactly as Yahoo reports them. Crypto `toCurrency` arrives as an FX ticker
+  (`USD=X`) and is normalised to `USD`.
+- Bars carry Yahoo's **raw** OHLC (non-null; a bar missing any of the four is dropped) plus
+  `Optional` `adjClose` and `volume` (never coerced to 0). `PriceBar.adjusted()` /
+  `PriceHistory.adjusted()` give Python yfinance's `auto_adjust=True` view by scaling OHLC by
+  `adjClose / close`; nothing is adjusted silently. 30m history is fetched as 15m and resampled
+  (Yahoo has returned 60m bars for 30m requests; Python yfinance applies the same workaround).
+
+### Per-class notes
+
+- **ETF** — `expenseRatio`, `netAssets` and `yield` are `Optional`: in the survey about one ETF
+  in ten lacked the expense ratio in every source (which listings varies over time — CSPX.L, once
+  a documented miss, now reports it). `ytdReturn` and
+  `threeMonthReturn` are guaranteed. Equity-like stats (book value, P/B, shares, financial
+  currency) come as one `Optional<EquityLikeStats>` cluster.
+- **Mutual fund** — no intraday session and no order book (Yahoo prices funds once a day), so
+  `MutualFund` is not `IntradayTraded`/`Quoted`. Net assets, expense ratio, yield, dividend rate
+  and the two returns are guaranteed. The guarantees rest on US funds; non-US funds may downgrade
+  until surveyed.
+- **Options** are a discovered capability, never a class promise: `options()` is `Optional` and
+  empty when the instrument has no listed expirations (`SAP.DE` and `^GSPC` have none, `^SPX` has
+  hundreds). Within a chain, `bid`, `openInterest` and `volume` are `Optional`; a contract missing
+  any other field is dropped.
+- **Financial statements** exist for equities only (the timeseries endpoint returns empty series
+  for every other class), hence the `Equity` proof. `FinancialStatement.value(...)` is
+  `Optional<BigDecimal>`; line items are the `LineItem` enum or a raw key.
+- **`HistoryMetadata`** is fully non-null except `dataGranularity` (`Optional<Interval>`, in case
+  Yahoo reports an interval this version does not know); an incomplete chart response throws
+  rather than returning a half-filled record.
+
+The normative list of every field, its kind (required / optional / cluster / list), its wire
+sources in precedence order and the survey coverage behind it is
+[Appendix A](docs/superpowers/specs/2026-09-26-typed-instrument-model-appendix.md) of the
+[design](docs/superpowers/specs/2026-09-26-typed-instrument-model-design.md); a unit test keeps the
+code's field tables identical to it. A weekly live test (`GuaranteeDriftTest`) re-classifies the
+282-symbol survey and fails, naming the field, if Yahoo stops sending a guaranteed one — the
+library itself degrades to `Unclassified` rather than breaking.
+
+## What's covered
+
+Per asset class — what the snapshot guarantees beyond the universal `Core`, what is `Optional`,
+and which deeper calls exist. History and `options()` exist for every class (options may be empty).
+
+| Class | Guaranteed (snapshot) | `Optional` (snapshot) | Detail | Statements |
+|---|---|---|---|---|
+| `Equity` | `session`, `valuation` (market cap, shares, implied shares, financial currency), `nextEarnings` | `book`, `bookValue`, `priceToBook`, `trailingEps`, `forwardEps`, `forwardPE`, `trailingPE`, `trailingDividend`, `currentDividend`, `currentYearEps`, `averageAnalystRating`, `postMarket` | `EquityDetail` | yes |
+| `Etf` | `session`, `ytdReturn`, `threeMonthReturn` | `book`, `netAssets`, `expenseRatio`, `yield`, `navPrice`, `beta3Year`, `trailingThreeMonthNavReturns`, `trailingPE`, `equityLikeStats`, `trailingDividend`, `postMarket` | `EtfDetail` | — |
+| `MutualFund` | `netAssets`, `expenseRatio`, `yield`, `dividendRate`, `ytdReturn`, `threeMonthReturn` | `equityLikeStats`, `trailingPE`, `trailingDividend` | `MutualFundDetail` | — |
+| `Index` | `session` | `book` | — | — |
+| `Crypto` | `session`, `marketCap`, `supply`, `volume24Hr`, `volumeAllCurrencies`, `fromCurrency`, `toCurrency`, `startDate`, `lastMarket`, `branding` | — | `CryptoDetail` | — |
+| `FxPair` | `session` | `book` | — | — |
+| `Future` | `session`, `contract` (expiry, open interest, underlying, continuous root) | `book` | — | — |
+
+Detail contents: `EquityDetail` = `CompanyProfile`, `Statistics`, `FinancialHealth`, `AnalystView`
+(recommendation, targets, trends, estimates, upgrades/downgrades, SEC filings), `Ownership`
+(breakdown, institutions, funds, insiders, transactions, net purchase activity). `EtfDetail` /
+`MutualFundDetail` share `FundDetail`: family, inception, trailing returns, annual returns,
+allocation, equity valuation, holdings, sector weightings, bond ratings, category; the mutual-fund
+record adds Morningstar ratings, turnover, minimums, load-adjusted returns and category ranks.
+`CryptoDetail` = name, description, website, start date, fully diluted value, optional whitepaper,
+Twitter and proof-of-work stats.
+
+| Area | Endpoint | API |
+|---|---|---|
+| Snapshot, every asset class | `/v7/finance/quote` + `/v10/finance/quoteSummary` fallback | `Ticker.instrument()`, `as(...)`, `YFinance.instruments(...)` |
+| Detail per class | `/v10/finance/quoteSummary` | `Ticker.detail(...)`, `YFinance.equityDetails(...)`, `etfDetails`, `mutualFundDetails`, `cryptoDetails` |
+| Price history, dividends, splits, capital gains, metadata | `/v8/finance/chart` | `Ticker.history(...)`, `dividends()`, `splits()`, `YFinance.histories(...)` |
+| Income / balance sheet / cash flow (annual + quarterly) | `/ws/fundamentals-timeseries` | `Ticker.statements(...)`, `YFinance.statements(...)` |
+| Options chain | `/v7/finance/options` | `Ticker.options(...)`, `YFinance.options(...)` |
+| Search & per-symbol news | `/v1/finance/search` | `YFinance.search(...)`, `Ticker.news()` |
+| Lookup | `/v1/finance/lookup` | `YFinance.lookup(...)` |
+
+Not covered: live WebSocket streaming, `EquityQuery`/`Screener`, `Sector`/`Industry`.
 
 ## Configuration
 
@@ -104,6 +264,7 @@ Everything is tuned through `EndpointConfig` (an immutable record with `with...`
 ```java
 var config = EndpointConfig.production()
         .withCallTimeout(Duration.ofSeconds(10))
+        .withFanOutConcurrency(8)          // detail batches and the Tickers default; 4 if unset
         .withAdaptiveRateLimit(new AdaptiveRateLimitConfig(
                 true,                      // enabled
                 Duration.ofMillis(500),    // initialDelay after the first 429
@@ -119,7 +280,8 @@ try (var yf = YFinance.create(config)) {
 ```
 
 Derive variants from `production()` with `withHosts(...)`, `withUserAgent(...)`, `withCallTimeout(...)`,
-`withAdaptiveRateLimit(...)`, `withTransientRetry(...)` and `withClientCustomizer(...)`.
+`withAdaptiveRateLimit(...)`, `withTransientRetry(...)`, `withFanOutConcurrency(...)` and
+`withClientCustomizer(...)`.
 `AdaptiveRateLimitConfig.defaults()` is what `EndpointConfig.production()` uses;
 `AdaptiveRateLimitConfig.disabled()` turns throttling and 429-retries off entirely.
 
@@ -133,92 +295,96 @@ var config = EndpointConfig.production()
                 .addInterceptor(myMetricsInterceptor));
 ```
 
+### Rate limiting and retries
+
+`YFinance` is thread-safe — hold one instance (e.g. a singleton) and `close()` it on shutdown.
+The shared client adaptively throttles on HTTP 429: a throttled request is retried up to
+`maxAttempts` times (waiting the adapted, jittered delay, honoring `Retry-After`), and while
+degraded **every** request is paced by the current delay until traffic recovers — no burst-429
+oscillation. Only after retries are exhausted is `YFRateLimitException` (with `retryAfter()`)
+thrown. A stale crumb (401/403) is automatically invalidated and the request retried once. Transient
+server errors (HTTP 500/502/503/504 — Yahoo's lookup endpoint is known to hiccup) are retried with
+exponential backoff, honouring `Retry-After`: 3 attempts by default, tunable or disabled via
+`EndpointConfig.withTransientRetry(RetryConfig)`.
+
 ### Nullability
 
 The public API is annotated with [JSpecify](https://jspecify.dev): every package is `@NullMarked`,
-so an unannotated type is never null and anything Yahoo may omit is `@Nullable`. IDEs, Kotlin and
-NullAway pick this up automatically. The annotations are verified by NullAway on every build.
-
-Most leaf values are nullable because Yahoo omits them per instrument: an index has no `marketCap`,
-crypto has no EPS, an ETF has no analyst rating. When you *know* you are looking at an equity and
-would rather fail clearly than null-check, insist:
-
-```java
-BigDecimal marketCap = quote.require(q -> q.price().marketCap(), "marketCap");
-CompanyProfile profile = info.require(Info::profile, "profile");
-Long volume = bar.require(PriceBar::volume, "volume");
-BigDecimal pct = Required.value(holder, Holders.InstitutionalHolder::pctHeld, "pctHeld"); // any record
-```
-
-A missing value raises `YFMissingDataException` (a `YFDataException`) such as
-`marketCap is not available for ^GSPC`, with `field()` and `subject()` for programmatic handling.
+so an unannotated type is never null, and the model has no `@Nullable` at all — absence is an
+`Optional` or a downgrade, as described above. IDEs, Kotlin and NullAway pick this up automatically;
+the annotations are verified by NullAway on every build.
 
 ### Logging
 
 The library logs through **SLF4J** (`slf4j-api` is its only logging dependency); bind whichever
 backend your application uses (Logback, Log4j 2, `slf4j-simple`, …). Loggers are named after the
-classes under `io.github.dimazigel.yfinance`. At `INFO` you see the rate limiter entering and leaving
-degraded mode; at `WARN`, degraded authentication (cookie or crumb unavailable); at `DEBUG`,
-individual waits, crumb refreshes, 5xx retries and the quote-endpoint fallback.
-
-What you get at each level — a healthy production log from this library is **empty at `WARN`**:
+classes under `io.github.dimazigel.yfinance`. A healthy production log from this library is
+**empty at `WARN`**:
 
 | level | when | examples |
 |---|---|---|
 | `WARN` | degraded, or gave up | cookie/crumb unavailable; still 429 or 5xx after all retries |
-| `INFO` | once per client, once per batch | effective config at `create()`; rate limiter entering/leaving degraded mode; `Fetched 500 symbols: 497 ok, 3 failed in 12 s` |
-| `DEBUG` | once per request or per dropped datum | `GET /v8/finance/chart/AAPL?range=1mo&interval=1d -> 200 (23 KB) in 412 ms`; `Dropped 4 of 390 bars without a close`; `Unknown currency "GBp"; left null`; each retry; each failed symbol in a batch |
+| `INFO` | once per client, once per multi-symbol batch (a single `Ticker` lookup logs its summary at `DEBUG`) | effective config at `create()`; rate limiter entering/leaving degraded mode; `instruments: 500 symbols: 497 ok, 2 skipped, 1 failed`; `Fetched 20 symbols: 20 ok, 0 skipped, 0 failed in 1 812 ms` |
+| `DEBUG` | once per request or per dropped datum | `GET /v8/finance/chart/AAPL?range=1mo&interval=1d -> 200 (23 KB) in 412 ms`; `BAC-PL downgraded from EQUITY: missing [marketCap, impliedSharesOutstanding]`; `Dropped 4 of 390 bars without a complete OHLC`; each retry; each failed symbol in a batch |
 
 The library never logs an error it also throws: the exception message carries Yahoo's reason and
 the request path, and the caller decides what to do with it.
 
 Every call runs inside an MDC scope so log lines can be correlated without parsing messages:
-`yf.op` (`history`, `info`, `quote`, `quotes`, `financials`, `options`, `holders`, `analysis`,
-`search`, `lookup`), `yf.symbol` (comma-joined for batch quotes) and, while an HTTP request is in
-flight, `yf.endpoint` (e.g. `/v8/finance/chart/AAPL`). Event-specific facts such as `status`,
-`attempt` and `delayMs` are attached as SLF4J key-value pairs. (Note: `slf4j-simple` has a no-op MDC, so use Logback, Log4j 2 or another full backend to see
-them.) A Logback pattern that shows them:
+`yf.op` (`instruments`, `details`, `history`, `statements`, `options`, `search`, `lookup`,
+`fetch`), `yf.symbol` (comma-joined for a batch; the per-symbol scope is opened on the worker
+thread that serves that symbol) and, while an HTTP request is in flight, `yf.endpoint`
+(e.g. `/v8/finance/chart/AAPL`). Event-specific facts such as `status`, `attempt`, `delayMs` and
+`missing` are attached as SLF4J key-value pairs. (Note: `slf4j-simple` has a no-op MDC, so use
+Logback, Log4j 2 or another full backend to see them.) A Logback pattern that shows them:
 
 ```
 %d %-5level [%X{yf.op}] %X{yf.symbol} %X{yf.endpoint} %logger{0} - %msg %kvp%n
 ```
 
-## What's covered
+## Error handling
 
-| Area | Endpoint | API |
-|---|---|---|
-| Price history, dividends, splits, capital gains, metadata | `/v8/finance/chart` | `Ticker.history(...)`, `dividends()`, `splits()` |
-| Company info, quote, recommendations, upgrades/downgrades, calendar, SEC filings | `/v10/finance/quoteSummary` | `Ticker.info()` |
-| Lightweight quotes, single or batched, every asset class; also the `info()` fallback for indices/ETFs/crypto/FX/futures | `/v7/finance/quote` | `Ticker.quote()`, `YFinance.quotes(...)` |
-| Income / balance sheet / cash flow (annual + quarterly) | `/ws/fundamentals-timeseries` | `Ticker.financials(...)` |
-| Holders, insider transactions, insider roster, net purchase activity | `/v10/finance/quoteSummary` | `Ticker.holders()` |
-| Analyst price targets, earnings/revenue estimates, earnings history, EPS trend/revisions, growth | `/v10/finance/quoteSummary` | `Ticker.analystPriceTargets()`, `earningsEstimate()`, `earningsHistory()`, `epsTrend()`, ... |
-| Options chain | `/v7/finance/options` | `Ticker.optionChain(...)` |
-| Search & per-symbol news | `/v1/finance/search` | `YFinance.search(...)`, `Ticker.news()` |
-| Lookup | `/v1/finance/lookup` | `YFinance.lookup(...)` |
+All failures surface as `YFinanceException` subtypes (unchecked):
 
-Deferred (the package layout leaves room for them): live WebSocket streaming,
-`EquityQuery`/`Screener`, `Sector`/`Industry`, funds data, parallel downloads.
+| Exception | Meaning |
+|---|---|
+| `YFDataException` | Yahoo error envelope, malformed or incomplete response, or I/O failure |
+| ↳ `YFHttpException` | unexpected HTTP status; carries `status()` and `path()`, body in the message |
+| ↳ `YFMissingDataException` | `Ticker` asked for something Yahoo has nothing for: unknown symbol, or a detail whose guaranteed module is absent; `field()` and `subject()` |
+| ↳↳ `YFSkippedException` | what `Outcome.Skipped.orElseThrow()` (and so every `Ticker` non-answer) actually throws; adds `reason()` (`SkipReason`) and `symbol()` |
+| ↳ `YFClassMismatchException` | `as(Equity.class)` on an instrument of another class; `actual()` and `requested()` |
+| `YFRateLimitException` | HTTP 429 after all adaptive retries; `retryAfter()` when Yahoo sent it |
+| `YFAuthException` | the cookie/crumb handshake failed |
+
+Batch calls never throw per symbol: a failure becomes `Outcome.Failed` (retryable) and a
+non-answer becomes `Outcome.Skipped` (not retryable). Passing an instrument of a different symbol as
+proof to `Ticker.detail(...)`/`statements(...)` is a programming error and throws
+`IllegalArgumentException`.
 
 ## Architecture
 
 ```
-api/        Retrofit interfaces (one per endpoint) + YahooApis bundle
-dto/        raw records mirroring Yahoo's JSON shape
-model/      clean, public domain records
-mapper/     DTO -> model conversion
-service/    one service per concern (APIs return DTOs via SyncCallAdapterFactory)
-auth/       CrumbStore — cookie (fc.yahoo.com) then crumb handshake, invalidate-on-401/403
-http/       client factory, interceptors (UA, crumb, auth-retry, adaptive rate limit), ObjectMapper
-enums/      closed sets implementing WireEnum (Interval, Range, ... )
+YFinance / Ticker / Tickers — the facade; batch calls return Batch<Outcome<T>>
+service/     one service per concern (InstrumentService, DetailService, HistoryService, ...)
+http/        client factory, interceptors (UA, crumb, auth-retry, adaptive rate limit),
+             RawQuoteClient (batched v7 rows + per-symbol quoteSummary modules), ObjectMapper
+api/         Retrofit interfaces (one per endpoint) + YahooApis bundle
+assembly/    FieldSpec tables per class (specs/, mirrored from Appendix A), Resolver, builders (build/)
+instrument/  the sealed snapshot hierarchy and its value records
+detail/      EquityDetail, EtfDetail, MutualFundDetail, CryptoDetail (+ rows/)
+batch/       Batch, Outcome, SkipReason, FanOut
+market/      PriceHistory, PriceBar, HistoryMetadata, OptionChain, corporate actions
+fundamentals/ FinancialStatement;  search/ SearchResult, LookupQuote
+dto/ + mapper/ raw records and mappers for chart, options, timeseries, search, lookup
+auth/        CrumbStore — cookie (fc.yahoo.com) then crumb handshake, invalidate-on-401/403
+enums/       closed sets implementing WireEnum (Interval, Range, LineItem, ...)
 valueobject/ Symbol, Crumb
-YFinance / Ticker / Tickers — the facade
 ```
 
 ## Building, testing, consuming
 
 ```bash
-./gradlew test                # fast, deterministic unit tests (MockWebServer + JSON fixtures) + JaCoCo
+./gradlew test                # fast, deterministic unit tests (MockWebServer + captured JSON) + JaCoCo
 ./gradlew integrationTest     # opt-in: hits the real Yahoo Finance API (@Tag("live"))
                               # also runs weekly in CI (.github/workflows/live.yml) to catch API drift
 ./gradlew build               # compile + unit tests + Spotless check + coverage floor + assemble jar
@@ -254,35 +420,21 @@ dependencies { implementation("io.github.dimazigel:yfinance-java:<version>") }
 The library is deliberately not published to Maven Central; GitHub Packages is the only
 distribution channel. See [RELEASING.md](RELEASING.md) for how releases are cut.
 
-Unit tests never touch the network; they replay hand-written JSON fixtures from
-`src/test/resources/fixtures/` that mirror Yahoo's response shapes. The live suite
-(`src/integrationTest`) verifies shape against real responses; it is excluded from `build`
-and runs weekly in CI so that Yahoo API drift shows up as a failed run.
+Unit tests never touch the network; they replay captured Yahoo responses from
+`src/test/resources/fixtures/` (one snapshot per asset class plus edge cases such as a UCITS ETF,
+a preferred share and a dead symbol). The live suite (`src/integrationTest`) verifies shape against
+real responses and includes the guarantee-drift detector; it is excluded from `build` and runs
+weekly in CI so that Yahoo API drift shows up as a failed run.
 
-CI (GitHub Actions, `.github/workflows/build.yml`) runs `./gradlew build` on every
-push/PR and uploads the JaCoCo coverage report as an artifact; CodeQL scans on every push, PR and
-weekly. The build compiles main code with Error Prone, NullAway and `-Werror`, so a nullness mistake
-or an Error Prone finding is a compile error. The Gradle
-configuration cache is enabled via `gradle.properties`.
+CI (GitHub Actions, `.github/workflows/build.yml`) runs `./gradlew build` on every push/PR and
+uploads the JaCoCo coverage report as an artifact; CodeQL scans on every push, PR and weekly. The
+build compiles main code with Error Prone, NullAway and `-Werror`, so a nullness mistake or an
+Error Prone finding is a compile error. The Gradle configuration cache is enabled via
+`gradle.properties`.
 
 ## License
 
 Apache License 2.0 — see [LICENSE](LICENSE).
-
-## Error handling
-
-All failures surface as `YFinanceException` subtypes:
-
-| Exception | Meaning |
-|---|---|
-| `YFDataException` | Yahoo error envelope, unexpected HTTP status (body included in message), or I/O failure |
-| `YFRateLimitException` | HTTP 429 after all adaptive retries; carries `retryAfter()` when Yahoo sent it |
-| `YFAuthException` | The cookie/crumb handshake failed |
-| `YFMissingDataException` | A `require(...)` call asked for a value Yahoo did not report for that instrument; subtype of `YFDataException` |
-
-Batch calls via `Tickers` never throw per-symbol — each symbol yields a sealed
-`Tickers.Result`: a `Success` holding the value or a `Failure` holding the exception
-(`orElseThrow()` and `toOptional()` are available on both).
 
 > Note: Yahoo Finance has no public/supported API. This library mirrors what the
 > Python `yfinance` project does and is for personal/research use; endpoints and

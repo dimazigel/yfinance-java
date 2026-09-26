@@ -1,12 +1,13 @@
 package io.github.dimazigel.yfinance.mapper;
 
 import io.github.dimazigel.yfinance.dto.search.SearchResponse;
-import io.github.dimazigel.yfinance.model.SearchResult;
-import io.github.dimazigel.yfinance.model.SearchResult.NewsArticle;
-import io.github.dimazigel.yfinance.model.SearchResult.SearchQuote;
+import io.github.dimazigel.yfinance.search.SearchResult;
+import io.github.dimazigel.yfinance.search.SearchResult.NewsArticle;
+import io.github.dimazigel.yfinance.search.SearchResult.SearchQuote;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /** Maps the raw search response into {@link SearchResult}. */
 public final class SearchMapper {
@@ -25,8 +26,10 @@ public final class SearchMapper {
                 .filter(q -> q.symbol() != null && !q.symbol().isBlank())
                 .map(q -> new SearchQuote(
                         Symbol.of(Objects.requireNonNull(q.symbol())), // filtered above
-                        q.shortname(), q.longname(),
-                        q.exchDisp() != null ? q.exchDisp() : q.exchange(), q.quoteType()))
+                        Optional.ofNullable(q.shortname()),
+                        Optional.ofNullable(q.longname()),
+                        Optional.ofNullable(q.exchDisp() != null ? q.exchDisp() : q.exchange()),
+                        Optional.ofNullable(q.quoteType())))
                 .toList();
     }
 
@@ -36,8 +39,12 @@ public final class SearchMapper {
         }
         return response.news().stream()
                 .map(n -> new NewsArticle(
-                        n.uuid(), n.title(), n.publisher(), MapperSupport.uri(n.link()),
-                        MapperSupport.epochSecond(n.providerPublishTime()), n.type()))
+                        Optional.ofNullable(n.uuid()),
+                        Optional.ofNullable(n.title()),
+                        Optional.ofNullable(n.publisher()),
+                        Optional.ofNullable(MapperSupport.uri(n.link())),
+                        Optional.ofNullable(MapperSupport.epochSecond(n.providerPublishTime())),
+                        Optional.ofNullable(n.type())))
                 .toList();
     }
 }

@@ -1,7 +1,9 @@
 package io.github.dimazigel.yfinance.http;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import io.github.dimazigel.yfinance.Tickers;
 import java.time.Duration;
 import okhttp3.HttpUrl;
 import org.junit.jupiter.api.Test;
@@ -69,6 +71,21 @@ class EndpointConfigTest {
         var none = config.withTransientRetry(RetryConfig.disabled());
         assertThat(none.transientRetry().maxAttempts()).isEqualTo(1);
         assertThat(none.withCallTimeout(Duration.ofSeconds(1)).transientRetry()).isEqualTo(RetryConfig.disabled());
+    }
+
+    @Test
+    void fanOutConcurrencyDefaultsToTheTickersDefaultAndIsValidated() {   // final review, finding 5
+        var production = EndpointConfig.production();
+        assertThat(production.fanOutConcurrency()).isEqualTo(Tickers.DEFAULT_CONCURRENCY).isEqualTo(4);
+
+        var eight = production.withFanOutConcurrency(8);
+        assertThat(eight.fanOutConcurrency()).isEqualTo(8);
+        assertThat(eight.callTimeout()).isEqualTo(production.callTimeout());
+        assertThat(eight.withCallTimeout(Duration.ofSeconds(1)).fanOutConcurrency()).as("copies keep it").isEqualTo(8);
+        assertThat(eight.withHosts(URL).fanOutConcurrency()).isEqualTo(8);
+        assertThat(eight).isEqualTo(production.withFanOutConcurrency(8));
+
+        assertThatThrownBy(() -> production.withFanOutConcurrency(0)).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
