@@ -47,7 +47,7 @@ import org.slf4j.LoggerFactory;
  * symbol just classified at snapshot depth, since quoteSummary and v7 are independent endpoints —
  * is {@link SkipReason#UNKNOWN_SYMBOL}; a symbol whose response is missing a field the class
  * guarantees is {@link SkipReason#MODULE_ABSENT}. Fan-out runs on virtual threads bounded by a
- * fixed concurrency limit (the {@code Tickers.fanOut} pattern); results come back in input order,
+ * fixed concurrency limit (the {@code Tickers.fetch} pattern); results come back in input order,
  * one per input instrument including duplicates.
  */
 public final class DetailService {
