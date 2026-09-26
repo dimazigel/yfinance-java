@@ -139,6 +139,20 @@ The public API is annotated with [JSpecify](https://jspecify.dev): every package
 so an unannotated type is never null and anything Yahoo may omit is `@Nullable`. IDEs, Kotlin and
 NullAway pick this up automatically. The annotations are verified by NullAway on every build.
 
+Most leaf values are nullable because Yahoo omits them per instrument: an index has no `marketCap`,
+crypto has no EPS, an ETF has no analyst rating. When you *know* you are looking at an equity and
+would rather fail clearly than null-check, insist:
+
+```java
+BigDecimal marketCap = quote.require(q -> q.price().marketCap(), "marketCap");
+CompanyProfile profile = info.require(Info::profile, "profile");
+Long volume = bar.require(PriceBar::volume, "volume");
+BigDecimal pct = Required.value(holder, Holders.InstitutionalHolder::pctHeld, "pctHeld"); // any record
+```
+
+A missing value raises `YFMissingDataException` (a `YFDataException`) such as
+`marketCap is not available for ^GSPC`, with `field()` and `subject()` for programmatic handling.
+
 ### Logging
 
 The library logs through **SLF4J** (`slf4j-api` is its only logging dependency); bind whichever
@@ -264,6 +278,7 @@ All failures surface as `YFinanceException` subtypes:
 | `YFDataException` | Yahoo error envelope, unexpected HTTP status (body included in message), or I/O failure |
 | `YFRateLimitException` | HTTP 429 after all adaptive retries; carries `retryAfter()` when Yahoo sent it |
 | `YFAuthException` | The cookie/crumb handshake failed |
+| `YFMissingDataException` | A `require(...)` call asked for a value Yahoo did not report for that instrument; subtype of `YFDataException` |
 
 Batch calls via `Tickers` never throw per-symbol — each symbol yields a sealed
 `Tickers.Result`: a `Success` holding the value or a `Failure` holding the exception

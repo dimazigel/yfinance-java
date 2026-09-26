@@ -8,6 +8,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Currency;
 import java.util.List;
+import java.util.function.Function;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -41,6 +42,14 @@ public record HistoryMetadata(
 
     public HistoryMetadata {
         validRanges = validRanges == null ? List.of() : List.copyOf(validRanges);
+    }
+
+    /**
+     * A field the caller insists on, or a {@link io.github.dimazigel.yfinance.exception.YFMissingDataException}
+     * naming it and this symbol: {@code metadata.require(HistoryMetadata::currency, "currency")}.
+     */
+    public <V> V require(Function<? super HistoryMetadata, @Nullable V> accessor, String field) {
+        return Required.value(this, accessor, field, symbol);
     }
 
     /** One trading session: {@code [start, end)}. */
