@@ -1,6 +1,7 @@
 package io.github.dimazigel.yfinance;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import io.github.dimazigel.yfinance.api.YahooApis;
 import io.github.dimazigel.yfinance.enums.Frequency;
@@ -101,6 +102,17 @@ class YFinanceTest {
 
         server.enqueue(Fixtures.jsonResponse("options/options_AAPL.json"));
         assertThat(ticker.options().orElseThrow().calls()).hasSize(36);
+    }
+
+    @Test
+    void statementsRejectsMismatchedEquityProof() {
+        var ticker = yf.ticker("AAPL");
+
+        assertThatThrownBy(() -> ticker.statements(equityOf("MSFT"), StatementType.INCOME, Frequency.ANNUAL))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("MSFT")
+                .hasMessageContaining("AAPL");
+        assertThat(server.getRequestCount()).isZero();
     }
 
     /** Minimal {@link Equity} built with the canonical constructor; only {@code symbol} matters here. */
