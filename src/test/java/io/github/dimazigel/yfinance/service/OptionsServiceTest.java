@@ -65,7 +65,7 @@ class OptionsServiceTest {
         assertThat(firstItmCall.currency()).isEqualTo(QuoteCurrency.of("USD"));
         assertThat(firstItmCall.lastPrice()).isEqualByComparingTo("89.85");
         assertThat(firstItmCall.change()).isEqualByComparingTo("9.389999");
-        assertThat(firstItmCall.percentChange()).isEqualByComparingTo("11.670394");
+        assertThat(firstItmCall.changePercent()).as("wire 11.670394 % stored as a fraction").isEqualByComparingTo("0.11670394");
         assertThat(firstItmCall.ask()).isEqualByComparingTo("92.7");
         assertThat(firstItmCall.contractSize()).isEqualTo("REGULAR");
         assertThat(firstItmCall.lastTradeDate()).isEqualTo(Instant.ofEpochSecond(1790354792));

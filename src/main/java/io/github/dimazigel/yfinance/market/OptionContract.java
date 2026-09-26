@@ -16,6 +16,7 @@ import java.util.Optional;
  * openInterest} (97.2 %) and {@code volume} (95.4 %) fell short and are {@link Optional}.
  *
  * @param currency          the currency the contract's prices are quoted in
+ * @param changePercent     change since the previous close as a fraction (Yahoo sends a percent: 11.67 → 0.1167)
  * @param bid               the current bid, absent for contracts with no resting bid
  * @param openInterest      open interest, absent when Yahoo has not reported any for the contract
  * @param volume            trading volume, absent when Yahoo has not reported any for the contract
@@ -28,7 +29,7 @@ public record OptionContract(
         QuoteCurrency currency,
         BigDecimal lastPrice,
         BigDecimal change,
-        BigDecimal percentChange,
+        BigDecimal changePercent,
         BigDecimal ask,
         String contractSize,
         Instant lastTradeDate,

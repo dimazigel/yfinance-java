@@ -11,6 +11,7 @@ import io.github.dimazigel.yfinance.market.OptionChain;
 import io.github.dimazigel.yfinance.market.OptionContract;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +24,7 @@ import org.slf4j.LoggerFactory;
 public final class OptionsMapper {
 
     private static final Logger LOG = LoggerFactory.getLogger(OptionsMapper.class);
+    private static final BigDecimal HUNDRED = BigDecimal.valueOf(100);
 
     private OptionsMapper() {}
 
@@ -117,7 +119,7 @@ public final class OptionsMapper {
 
         return new OptionContract(
                 contractSymbol, type, strike, expiration,
-                QuoteCurrency.of(currencyCode), lastPrice, change, percentChange, ask, contractSize,
+                QuoteCurrency.of(currencyCode), lastPrice, change, percentChange.divide(HUNDRED, MathContext.DECIMAL64), ask, contractSize,
                 lastTradeDate, impliedVolatility, inTheMoney,
                 Optional.ofNullable(c.bid()), Optional.ofNullable(c.openInterest()), Optional.ofNullable(c.volume()));
     }
