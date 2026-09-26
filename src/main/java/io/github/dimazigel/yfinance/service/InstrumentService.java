@@ -64,7 +64,7 @@ public final class InstrumentService {
             try {
                 rows = client.quoteRows(symbols);
             } catch (YFinanceException e) {
-                return new Batch<>(symbols.stream().<Outcome<Instrument>>map(s -> Outcome.failed(s, e)).toList());
+                return summarised(new Batch<>(symbols.stream().<Outcome<Instrument>>map(s -> Outcome.failed(s, e)).toList()));
             }
             var outcomes = new ArrayList<Outcome<Instrument>>(symbols.size());
             for (Symbol symbol : symbols) {
@@ -81,10 +81,13 @@ public final class InstrumentService {
                     outcomes.add(Outcome.failed(symbol, new YFDataException("Failed to assemble " + symbol, e)));
                 }
             }
-            var batch = new Batch<>(outcomes);
-            LOG.atInfo().log("instruments: {}", batch.summary());
-            return batch;
+            return summarised(new Batch<>(outcomes));
         }
+    }
+
+    private static Batch<Instrument> summarised(Batch<Instrument> batch) {
+        LOG.atInfo().log("instruments: {}", batch.summary());
+        return batch;
     }
 
     /**

@@ -3,6 +3,7 @@ package io.github.dimazigel.yfinance.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import ch.qos.logback.classic.Level;
 import io.github.dimazigel.yfinance.api.QuoteApi;
 import io.github.dimazigel.yfinance.api.QuoteSummaryApi;
 import io.github.dimazigel.yfinance.batch.Outcome;
@@ -12,6 +13,7 @@ import io.github.dimazigel.yfinance.http.RawQuoteClient;
 import io.github.dimazigel.yfinance.instrument.*;
 import io.github.dimazigel.yfinance.testsupport.Fixtures;
 import io.github.dimazigel.yfinance.testsupport.InstrumentFixtures;
+import io.github.dimazigel.yfinance.testsupport.LogCapture;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
 import java.time.Clock;
 import java.time.Instant;
@@ -138,5 +140,25 @@ class InstrumentServiceTest {
         server.shutdown();   // v7 itself fails: every symbol Failed, nothing thrown
         var batch = service.instruments(List.of(Symbol.of("AAPL"), Symbol.of("SPY")));
         assertThat(batch.failed()).hasSize(2);
+    }
+
+    @Test
+    void logsOneSummaryPerBatchAndDowngradesAtDebug() {
+        try (var log = LogCapture.of(InstrumentService.class)) {
+            service.instruments(List.of(Symbol.of("AAPL"), Symbol.of("BAC-PL"), Symbol.of("RIDE")));
+
+            assertThat(log.messages(Level.INFO)).containsExactly("instruments: 3 symbols: 2 ok, 1 skipped, 0 failed");
+            assertThat(log.messages(Level.DEBUG)).anySatisfy(m -> assertThat(m).startsWith("BAC-PL downgraded from EQUITY: missing [marketCap"));
+            assertThat(log.messages(Level.WARN)).isEmpty();
+        }
+    }
+
+    @Test
+    void logsTheSummaryWhenTheWholeBatchFails() throws Exception {
+        server.shutdown();
+        try (var log = LogCapture.of(InstrumentService.class)) {
+            service.instruments(List.of(Symbol.of("AAPL"), Symbol.of("SPY")));
+            assertThat(log.messages(Level.INFO)).containsExactly("instruments: 2 symbols: 0 ok, 0 skipped, 2 failed");
+        }
     }
 }
