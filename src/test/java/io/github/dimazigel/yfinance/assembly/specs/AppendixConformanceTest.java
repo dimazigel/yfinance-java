@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import io.github.dimazigel.yfinance.assembly.FieldSpec;
 import io.github.dimazigel.yfinance.assembly.Kind;
+import io.github.dimazigel.yfinance.assembly.Unit;
 import io.github.dimazigel.yfinance.assembly.WirePath;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -26,28 +27,31 @@ import org.junit.jupiter.api.Test;
  * ({@code docs/superpowers/specs/2026-09-26-typed-instrument-model-appendix.md}), the normative
  * field list for the typed instrument model (design doc, Task 18).
  *
- * <p>For each appendix table this test parses the {@code | `name` | kind | type | sources | coverage
- * | notes |} rows into {@code (name, kind, cluster, paths)} tuples and asserts that the
- * corresponding in-code list has exactly the same {@code (name, kind, cluster)} set, and that each
- * field's wire paths resolve in the same precedence order (rendered {@code source:path}, ignoring
- * any {@code |UNIT} override — a path-order mismatch there would mean a precedence bug even though
- * the resolved unit is unaffected). A row whose name uses the appendix's {@code .*} or
- * {@code .\{a,b\}} shorthand (e.g. {@code profile.governance.*}) expands to a prefix check: every
- * code {@link FieldSpec} whose name starts with that prefix must carry the row's kind and cluster;
- * paths are not checked for such rows, since the appendix does not spell out one precedence chain
- * per member.
- *
- * <p>This test intentionally does not force every mismatch to green. A handful of appendix rows
- * document a fact the implementation does not (yet) match, and per the task's controller rulings an
- * uncovered appendix/code disagreement must be surfaced, not silently resolved in either direction.
- * Those specific rows are left exactly as the appendix already states them, so the corresponding
- * assertions below are expected to fail until a controller decides which side is right; see
- * {@code task-18-report.md} for the list.
+ * <p>For each appendix table this test parses the {@code | `name` | kind | type | sources | unit |
+ * coverage | notes |} rows into {@code (name, kind, cluster, paths, unit)} tuples and asserts that
+ * the corresponding in-code list has exactly the same {@code (name, kind, cluster)} set, that each
+ * field's wire paths resolve in the same precedence order (rendered {@code source:path}), and that
+ * the <em>effective unit per path</em> agrees: the appendix's {@code unit} column is the field's
+ * base unit (blank = {@code RAW}) and a {@code \|PERCENT} suffix on a source overrides it for that
+ * source only, exactly as {@link FieldSpec#unit()} and {@link WirePath#unit()} do in code. The unit
+ * check exists because the appendix twice carried a wrong unit into code (Task 7's v7 fund percents;
+ * the final review's {@code qs:price.regularMarketChangePercent}, a fraction the code divided by
+ * 100 again). A row whose name uses the appendix's {@code .*} or {@code .\{a,b\}} shorthand (e.g.
+ * {@code profile.governance.*}) expands to a prefix check: every code {@link FieldSpec} whose name
+ * starts with that prefix must carry the row's kind and cluster; paths and units are not checked
+ * for such rows, since the appendix does not spell out one precedence chain per member.
  */
 class AppendixConformanceTest {
 
     private static final Path APPENDIX = Path.of("docs/superpowers/specs/2026-09-26-typed-instrument-model-appendix.md");
     private static final Pattern CLUSTER_KIND = Pattern.compile("C:(\\w+)(\\(R\\))?");
+    /** GFM needs the {@code |} of a unit suffix escaped inside a table cell; unescape before splitting cells. */
+    private static final String ESCAPED_PIPE = "\\|";
+    private static final char PIPE_PLACEHOLDER = '\u0001';
+    private static final int NAME = 0;
+    private static final int KIND = 1;
+    private static final int SOURCES = 3;
+    private static final int UNIT = 4;
 
     private static List<String> lines;
 
@@ -56,8 +60,11 @@ class AppendixConformanceTest {
         lines = Files.readAllLines(APPENDIX);
     }
 
-    /** One parsed appendix row: a field name (possibly a {@code .*}/{@code .\{...\}} shorthand), its kind, cluster and wire paths. */
-    private record AppendixRow(String name, Kind kind, Optional<String> cluster, List<String> paths) {
+    /**
+     * One parsed appendix row: a field name (possibly a {@code .*}/{@code .\{...\}} shorthand), its
+     * kind, cluster, wire paths (without unit suffixes) and the effective unit of each path.
+     */
+    private record AppendixRow(String name, Kind kind, Optional<String> cluster, List<String> paths, List<Unit> units) {
 
         boolean isShorthand() {
             return name.contains(".*") || name.contains(".{");
@@ -121,13 +128,16 @@ class AppendixConformanceTest {
         if (cells.size() < 4) {
             return Optional.empty();
         }
-        String name = unbacktick(cells.get(0));
+        String name = unbacktick(cells.get(NAME));
         if (name.isEmpty() || name.equals("field") || name.chars().allMatch(c -> c == '-')) {
             return Optional.empty(); // header or separator row
         }
+        if (cells.size() <= UNIT) {
+            throw new IllegalStateException("Field row without a unit column: " + line);
+        }
         Kind kind;
         Optional<String> cluster;
-        String kindCell = cells.get(1).trim();
+        String kindCell = cells.get(KIND).trim();
         Matcher m = CLUSTER_KIND.matcher(kindCell);
         if (m.matches()) {
             cluster = Optional.of(m.group(1));
@@ -141,17 +151,26 @@ class AppendixConformanceTest {
                 default -> throw new IllegalStateException("Unparseable kind '" + kindCell + "' in row: " + line);
             };
         }
-        List<String> paths = Arrays.stream(cells.get(3).split("→"))
+        List<String> sources = Arrays.stream(cells.get(SOURCES).split("→"))
                 .map(AppendixConformanceTest::unbacktick)
                 .map(String::trim)
                 .filter(s -> !s.isEmpty())
                 .toList();
-        return Optional.of(new AppendixRow(name, kind, cluster, paths));
+        String unitCell = unbacktick(cells.get(UNIT));
+        Unit baseUnit = unitCell.isEmpty() ? Unit.RAW : Unit.valueOf(unitCell);
+        var paths = new ArrayList<String>();
+        var units = new ArrayList<Unit>();
+        for (String source : sources) {
+            int bar = source.indexOf('|');
+            paths.add(bar < 0 ? source : source.substring(0, bar));
+            units.add(bar < 0 ? baseUnit : Unit.valueOf(source.substring(bar + 1)));
+        }
+        return Optional.of(new AppendixRow(name, kind, cluster, List.copyOf(paths), List.copyOf(units)));
     }
 
     private static List<String> cells(String tableLine) {
-        String body = tableLine.substring(1, tableLine.length() - 1);
-        return Arrays.stream(body.split("\\|", -1)).toList();
+        String body = tableLine.substring(1, tableLine.length() - 1).replace(ESCAPED_PIPE, String.valueOf(PIPE_PLACEHOLDER));
+        return Arrays.stream(body.split("\\|", -1)).map(c -> c.replace(PIPE_PLACEHOLDER, '|')).toList();
     }
 
     private static String unbacktick(String cell) {
@@ -167,8 +186,8 @@ class AppendixConformanceTest {
     /**
      * Asserts that {@code actual} has exactly the {@code (name, kind, cluster)} set the appendix
      * {@code expected} rows describe, and that exact-name rows' wire paths resolve in the same
-     * order. Collects every discrepancy into one readable failure per table instead of stopping at
-     * the first one.
+     * order with the same effective unit per path. Collects every discrepancy into one readable
+     * failure per table instead of stopping at the first one.
      */
     private static void verify(String table, List<FieldSpec> actual, List<AppendixRow> expected) {
         Map<String, FieldSpec> actualByName = new LinkedHashMap<>();
@@ -214,6 +233,11 @@ class AppendixConformanceTest {
                 List<String> actualPaths = spec.paths().stream().map(WirePath::toString).toList();
                 if (!actualPaths.equals(row.paths())) {
                     problems.add("field '" + row.name() + "': appendix paths " + row.paths() + " vs code paths " + actualPaths);
+                }
+                List<Unit> actualUnits = spec.paths().stream().map(p -> p.unit().orElse(spec.unit())).toList();
+                if (!actualUnits.equals(row.units())) {
+                    problems.add("field '" + row.name() + "': appendix effective units " + row.units()
+                            + " vs code effective units " + actualUnits + " (paths " + actualPaths + ")");
                 }
             }
         }

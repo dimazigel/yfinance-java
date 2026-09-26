@@ -167,10 +167,12 @@ price data for them. Detail records are fetched with the instrument as proof, so
 
 ### Units and values
 
-- Percentages that Yahoo serves as percents (`changePercent`, `postMarketChangePercent`, v7
-  `dividendYield`, fund `expenseRatio`/`ytdReturn`/`threeMonthReturn`, `debtToEquity`,
+- Percentages that Yahoo serves as percents (v7 `changePercent`, `postMarketChangePercent`,
+  `dividendYield`, fund `expenseRatio`/`ytdReturn`/`threeMonthReturn`; `debtToEquity`,
   `fiveYearAvgDividendYield`, option `changePercent`) are **stored as fractions** (`0.0098`, not
-  `0.98`), so every yield, margin, return and held-percent in the model is a fraction.
+  `0.98`), so every yield, margin, return and held-percent in the model is a fraction. The
+  `quoteSummary` counterparts of the v7 percents already arrive as fractions, and the unit
+  conversion is applied per source, so a value is the same fraction whichever endpoint supplied it.
 - Epoch seconds and milliseconds become `Instant`; date-only epochs (fiscal year end, ex-dividend
   date, fund inception) become `LocalDate` (UTC). Corporate-action dates in a `PriceHistory` are
   best read as exchange-local dates: `dividend.localDate(history.zoneId())`.

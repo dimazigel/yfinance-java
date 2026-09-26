@@ -4,7 +4,6 @@ import static io.github.dimazigel.yfinance.assembly.FieldSpec.optional;
 import static io.github.dimazigel.yfinance.assembly.FieldSpec.required;
 import static io.github.dimazigel.yfinance.assembly.Unit.EPOCH_MILLIS;
 import static io.github.dimazigel.yfinance.assembly.Unit.EPOCH_SECONDS;
-import static io.github.dimazigel.yfinance.assembly.Unit.PERCENT;
 import static io.github.dimazigel.yfinance.assembly.Unit.RAW;
 
 import io.github.dimazigel.yfinance.assembly.FieldSpec;
@@ -26,7 +25,7 @@ public final class CoreSpecs {
             required("marketState", RAW, "v7:marketState", "qs:price.marketState"),
             required("price", RAW, "v7:regularMarketPrice", "qs:price.regularMarketPrice"),
             required("change", RAW, "v7:regularMarketChange", "qs:price.regularMarketChange"),
-            required("changePercent", PERCENT, "v7:regularMarketChangePercent", "qs:price.regularMarketChangePercent"),
+            required("changePercent", RAW, "v7:regularMarketChangePercent|PERCENT", "qs:price.regularMarketChangePercent"),
             required("previousClose", RAW, "v7:regularMarketPreviousClose", "qs:price.regularMarketPreviousClose", "qs:summaryDetail.previousClose"),
             required("priceTime", EPOCH_SECONDS, "v7:regularMarketTime", "qs:price.regularMarketTime"),
             required("fiftyTwoWeekLow", RAW, "v7:fiftyTwoWeekLow", "qs:summaryDetail.fiftyTwoWeekLow"),

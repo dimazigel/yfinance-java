@@ -86,6 +86,36 @@ class EquityBuilderTest {
     }
 
     @Test
+    void changePercentIsAFractionFromEitherSource() {   // final review, finding 1: v7 percent, price module fraction
+        ObjectNode row = InstrumentFixtures.v7Row("AAPL").deepCopy();
+        assertThat(row.get("regularMarketChangePercent").decimalValue()).isEqualByComparingTo("1.5331");
+        var fromV7 = EquityBuilder.build(Resolver.resolve(new Payload(Symbol.of("AAPL"), Optional.of(row), Map.of()), EquitySpecs.SNAPSHOT), NOW);
+        assertThat(fromV7.core().changePercent()).isEqualByComparingTo("0.015331");
+
+        row.remove("regularMarketChangePercent");
+        var modules = InstrumentFixtures.qsModules("AAPL");
+        assertThat(modules.get("price").get("regularMarketChangePercent").decimalValue()).isEqualByComparingTo("0.015331");
+        var fromQs = EquityBuilder.build(Resolver.resolve(new Payload(Symbol.of("AAPL"), Optional.of(row), modules), EquitySpecs.SNAPSHOT), NOW);
+        assertThat(fromQs.core().changePercent()).as("the price module already serves a fraction").isEqualByComparingTo("0.015331");
+    }
+
+    @Test
+    void postMarketChangePercentIsAFractionFromEitherSource() {   // final review, finding 1
+        ObjectNode row = InstrumentFixtures.v7Row("AAPL").deepCopy();
+        assertThat(row.get("postMarketChangePercent").decimalValue()).isEqualByComparingTo("0.11443085");
+        var fromV7 = EquityBuilder.build(Resolver.resolve(new Payload(Symbol.of("AAPL"), Optional.of(row), Map.of()), EquitySpecs.SNAPSHOT), NOW);
+        assertThat(fromV7.postMarket()).isPresent();
+        assertThat(fromV7.postMarket().get().changePercent()).isEqualByComparingTo("0.0011443085");
+
+        row.remove("postMarketChangePercent");
+        var modules = InstrumentFixtures.qsModules("AAPL");
+        assertThat(modules.get("price").get("postMarketChangePercent").decimalValue()).isEqualByComparingTo("0.0011443085");
+        var fromQs = EquityBuilder.build(Resolver.resolve(new Payload(Symbol.of("AAPL"), Optional.of(row), modules), EquitySpecs.SNAPSHOT), NOW);
+        assertThat(fromQs.postMarket()).as("the cluster completes through the price module").isPresent();
+        assertThat(fromQs.postMarket().get().changePercent()).isEqualByComparingTo("0.0011443085");
+    }
+
+    @Test
     void postMarketIsAllOrNothing() {
         ObjectNode row = InstrumentFixtures.v7Row("AAPL").deepCopy();
         row.remove("postMarketTime");   // three of four present

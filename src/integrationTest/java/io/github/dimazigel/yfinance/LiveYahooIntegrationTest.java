@@ -93,6 +93,8 @@ class LiveYahooIntegrationTest {
             assertThat(aaplEquity.symbol()).isEqualTo(Symbol.of("AAPL"));
             assertThat(aaplEquity.core().currency().code()).isEqualTo("USD");
             assertThat(aaplEquity.core().price()).isPositive();
+            // A fraction, whichever endpoint supplied it: a daily move of 100 % or more would mean a unit slipped
+            assertThat(aaplEquity.core().changePercent().abs()).isLessThan(java.math.BigDecimal.ONE);
             assertThat(aaplEquity.session().open()).isPositive();
             assertThat(aaplEquity.valuation().marketCap()).isPositive();
             assertThat(aaplEquity.valuation().sharesOutstanding()).isPositive();
