@@ -13,7 +13,6 @@ import io.github.dimazigel.yfinance.batch.Outcome;
 import io.github.dimazigel.yfinance.batch.SkipReason;
 import io.github.dimazigel.yfinance.http.RawQuoteClient;
 import io.github.dimazigel.yfinance.http.YahooObjectMapper;
-import io.github.dimazigel.yfinance.instrument.Core;
 import io.github.dimazigel.yfinance.instrument.Crypto;
 import io.github.dimazigel.yfinance.instrument.Equity;
 import io.github.dimazigel.yfinance.instrument.Etf;
@@ -21,6 +20,7 @@ import io.github.dimazigel.yfinance.instrument.Instrument;
 import io.github.dimazigel.yfinance.logging.LogContext;
 import io.github.dimazigel.yfinance.testsupport.Fixtures;
 import io.github.dimazigel.yfinance.testsupport.InstrumentFixtures;
+import io.github.dimazigel.yfinance.testsupport.Instruments;
 import io.github.dimazigel.yfinance.testsupport.LogCapture;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
 import java.io.IOException;
@@ -77,7 +77,7 @@ class DetailServiceTest {
 
     @Test
     void detailForVanishedSymbolIsSkippedNotFailed() { // Review Focus 5
-        Equity gone = withSymbol(aapl, "GONE");
+        Equity gone = Instruments.withSymbol(aapl, "GONE");
         var outcome = service.equity(gone);
         assertThat(outcome).isInstanceOfSatisfying(
                 Outcome.Skipped.class, s -> assertThat(s.reason()).isEqualTo(SkipReason.UNKNOWN_SYMBOL));
@@ -106,7 +106,7 @@ class DetailServiceTest {
     @Test
     void batchKeepsOrderAndIsolatesFailures() throws Exception {
         Equity plug = instrumentOf("PLUG", Equity.class);
-        Equity gone = withSymbol(aapl, "GONE");
+        Equity gone = Instruments.withSymbol(aapl, "GONE");
 
         var batch = service.equities(List.of(aapl, gone, plug));
 
@@ -167,51 +167,6 @@ class DetailServiceTest {
         } finally {
             setup.shutdown();
         }
-    }
-
-    private static Equity withSymbol(Equity e, String symbol) {
-        Core core = e.core();
-        Core replaced = new Core(
-                Symbol.of(symbol),
-                core.shortName(),
-                core.longName(),
-                core.currency(),
-                core.exchange(),
-                core.fullExchangeName(),
-                core.exchangeTimezone(),
-                core.marketState(),
-                core.price(),
-                core.change(),
-                core.changePercent(),
-                core.previousClose(),
-                core.priceTime(),
-                core.fiftyTwoWeekLow(),
-                core.fiftyTwoWeekHigh(),
-                core.fiftyDayAverage(),
-                core.twoHundredDayAverage(),
-                core.averageVolume10Day(),
-                core.averageVolume3Month(),
-                core.firstTradeDate(),
-                core.priceHint(),
-                core.hasPrePostMarketData());
-        return new Equity(
-                replaced,
-                e.session(),
-                e.book(),
-                e.valuation(),
-                e.nextEarnings(),
-                e.bookValue(),
-                e.priceToBook(),
-                e.trailingEps(),
-                e.forwardEps(),
-                e.forwardPE(),
-                e.trailingPE(),
-                e.trailingDividend(),
-                e.currentDividend(),
-                e.currentYearEps(),
-                e.averageAnalystRating(),
-                e.postMarket(),
-                e.fetchedAt());
     }
 
     // v7: answer with the captured rows for whatever symbols were asked; quoteSummary: the captured file per symbol

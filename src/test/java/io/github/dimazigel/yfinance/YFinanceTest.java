@@ -9,18 +9,9 @@ import io.github.dimazigel.yfinance.enums.Interval;
 import io.github.dimazigel.yfinance.enums.LookupType;
 import io.github.dimazigel.yfinance.enums.Range;
 import io.github.dimazigel.yfinance.enums.StatementType;
-import io.github.dimazigel.yfinance.instrument.Core;
-import io.github.dimazigel.yfinance.instrument.Equity;
-import io.github.dimazigel.yfinance.instrument.MarketState;
-import io.github.dimazigel.yfinance.instrument.QuoteCurrency;
-import io.github.dimazigel.yfinance.instrument.Session;
 import io.github.dimazigel.yfinance.testsupport.Fixtures;
-import io.github.dimazigel.yfinance.valueobject.Symbol;
-import java.math.BigDecimal;
-import java.time.Instant;
+import io.github.dimazigel.yfinance.testsupport.Instruments;
 import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.Optional;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -96,7 +87,7 @@ class YFinanceTest {
         assertThat(ticker.info().profile().sector()).isEqualTo("Technology");
 
         server.enqueue(Fixtures.jsonResponse("timeseries_income_annual.json"));
-        var income = ticker.statements(equityOf("AAPL"), StatementType.INCOME, Frequency.ANNUAL);
+        var income = ticker.statements(Instruments.equity("AAPL"), StatementType.INCOME, Frequency.ANNUAL);
         assertThat(income.value("TotalRevenue", LocalDate.parse("2023-09-30")))
                 .isEqualByComparingTo("383285000000");
 
@@ -108,56 +99,11 @@ class YFinanceTest {
     void statementsRejectsMismatchedEquityProof() {
         var ticker = yf.ticker("AAPL");
 
-        assertThatThrownBy(() -> ticker.statements(equityOf("MSFT"), StatementType.INCOME, Frequency.ANNUAL))
+        assertThatThrownBy(() -> ticker.statements(Instruments.equity("MSFT"), StatementType.INCOME, Frequency.ANNUAL))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("MSFT")
                 .hasMessageContaining("AAPL");
         assertThat(server.getRequestCount()).isZero();
-    }
-
-    /** Minimal {@link Equity} built with the canonical constructor; only {@code symbol} matters here. */
-    private static Equity equityOf(String symbol) {
-        Core core = new Core(
-                Symbol.of(symbol),
-                "Apple Inc.",
-                Optional.of("Apple Inc."),
-                QuoteCurrency.of("USD"),
-                "NMS",
-                "NasdaqGS",
-                ZoneId.of("America/New_York"),
-                MarketState.REGULAR,
-                BigDecimal.TEN,
-                BigDecimal.ONE,
-                BigDecimal.ONE,
-                BigDecimal.TEN,
-                Instant.EPOCH,
-                BigDecimal.ONE,
-                BigDecimal.TEN,
-                BigDecimal.TEN,
-                BigDecimal.TEN,
-                1L,
-                1L,
-                Instant.EPOCH,
-                2,
-                true);
-        return new Equity(
-                core,
-                new Session(BigDecimal.TEN, BigDecimal.ONE, BigDecimal.TEN, 1L),
-                Optional.empty(),
-                new Equity.Valuation(BigDecimal.TEN, 1L, 1L, QuoteCurrency.of("USD")),
-                new Equity.NextEarnings(Instant.EPOCH, Instant.EPOCH, Instant.EPOCH, false),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Instant.EPOCH);
     }
 
     @Test

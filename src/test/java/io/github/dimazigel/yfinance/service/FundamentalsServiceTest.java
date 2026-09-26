@@ -7,19 +7,12 @@ import io.github.dimazigel.yfinance.api.FundamentalsApi;
 import io.github.dimazigel.yfinance.enums.Frequency;
 import io.github.dimazigel.yfinance.enums.StatementType;
 import io.github.dimazigel.yfinance.fundamentals.FinancialStatement;
-import io.github.dimazigel.yfinance.instrument.Core;
 import io.github.dimazigel.yfinance.instrument.Equity;
-import io.github.dimazigel.yfinance.instrument.MarketState;
-import io.github.dimazigel.yfinance.instrument.QuoteCurrency;
-import io.github.dimazigel.yfinance.instrument.Session;
 import io.github.dimazigel.yfinance.testsupport.Fixtures;
+import io.github.dimazigel.yfinance.testsupport.Instruments;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
-import java.math.BigDecimal;
-import java.time.Instant;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.Map;
-import java.util.Optional;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
 import org.junit.jupiter.api.AfterEach;
@@ -54,7 +47,7 @@ class FundamentalsServiceTest {
     @Test
     void acceptsOnlyEquities() throws Exception {
         server.enqueue(Fixtures.jsonResponse("timeseries_income_annual.json"));
-        Equity equity = equityOf("AAPL");
+        Equity equity = Instruments.equity("AAPL");
 
         FinancialStatement stmt = service.getStatement(equity, StatementType.INCOME, Frequency.ANNUAL);
 
@@ -67,56 +60,11 @@ class FundamentalsServiceTest {
     @Test
     void equityOverloadStillRejectsTrailingBalanceSheet() {
         assertThatThrownBy(() -> service.getStatement(
-                        equityOf("AAPL"), StatementType.BALANCE_SHEET, Frequency.TRAILING))
+                        Instruments.equity("AAPL"), StatementType.BALANCE_SHEET, Frequency.TRAILING))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("trailing")
                 .hasMessageContaining("balance sheet");
         assertThat(server.getRequestCount()).isZero();
-    }
-
-    /** Minimal {@link Equity} built with the canonical constructor; only {@code symbol} matters here. */
-    private static Equity equityOf(String symbol) {
-        Core core = new Core(
-                Symbol.of(symbol),
-                "Apple Inc.",
-                Optional.of("Apple Inc."),
-                QuoteCurrency.of("USD"),
-                "NMS",
-                "NasdaqGS",
-                ZoneId.of("America/New_York"),
-                MarketState.REGULAR,
-                BigDecimal.TEN,
-                BigDecimal.ONE,
-                BigDecimal.ONE,
-                BigDecimal.TEN,
-                Instant.EPOCH,
-                BigDecimal.ONE,
-                BigDecimal.TEN,
-                BigDecimal.TEN,
-                BigDecimal.TEN,
-                1L,
-                1L,
-                Instant.EPOCH,
-                2,
-                true);
-        return new Equity(
-                core,
-                new Session(BigDecimal.TEN, BigDecimal.ONE, BigDecimal.TEN, 1L),
-                Optional.empty(),
-                new Equity.Valuation(BigDecimal.TEN, 1L, 1L, QuoteCurrency.of("USD")),
-                new Equity.NextEarnings(Instant.EPOCH, Instant.EPOCH, Instant.EPOCH, false),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Instant.EPOCH);
     }
 
     @Test

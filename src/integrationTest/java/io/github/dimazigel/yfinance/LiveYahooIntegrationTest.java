@@ -15,13 +15,10 @@ import io.github.dimazigel.yfinance.exception.YFDataException;
 import io.github.dimazigel.yfinance.fundamentals.FinancialStatement;
 import io.github.dimazigel.yfinance.http.AdaptiveRateLimitConfig;
 import io.github.dimazigel.yfinance.http.EndpointConfig;
-import io.github.dimazigel.yfinance.instrument.Core;
 import io.github.dimazigel.yfinance.instrument.Equity;
-import io.github.dimazigel.yfinance.instrument.MarketState;
-import io.github.dimazigel.yfinance.instrument.QuoteCurrency;
-import io.github.dimazigel.yfinance.instrument.Session;
 import io.github.dimazigel.yfinance.market.PriceBar;
 import io.github.dimazigel.yfinance.service.HistoryRequest;
+import io.github.dimazigel.yfinance.testsupport.Instruments;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
 import java.time.Duration;
 import java.time.Instant;
@@ -29,7 +26,6 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Currency;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
@@ -61,57 +57,7 @@ class LiveYahooIntegrationTest {
     void setUp() {
         yf = YFinance.create();
         aapl = yf.ticker("AAPL");
-        aaplEquity = equityOf("AAPL");
-    }
-
-    /**
-     * Minimal {@link Equity} built with the canonical constructor, real symbol only: the facade
-     * doesn't yet expose a way to obtain a live {@code Equity} through {@link Ticker} (Task 16), and
-     * {@link Ticker#statements(Equity, StatementType, Frequency)} only needs the symbol to reach the
-     * real timeseries endpoint below.
-     */
-    private static Equity equityOf(String symbol) {
-        Core core = new Core(
-                Symbol.of(symbol),
-                "Apple Inc.",
-                Optional.of("Apple Inc."),
-                QuoteCurrency.of("USD"),
-                "NMS",
-                "NasdaqGS",
-                ZoneId.of("America/New_York"),
-                MarketState.REGULAR,
-                java.math.BigDecimal.TEN,
-                java.math.BigDecimal.ONE,
-                java.math.BigDecimal.ONE,
-                java.math.BigDecimal.TEN,
-                Instant.EPOCH,
-                java.math.BigDecimal.ONE,
-                java.math.BigDecimal.TEN,
-                java.math.BigDecimal.TEN,
-                java.math.BigDecimal.TEN,
-                1L,
-                1L,
-                Instant.EPOCH,
-                2,
-                true);
-        return new Equity(
-                core,
-                new Session(java.math.BigDecimal.TEN, java.math.BigDecimal.ONE, java.math.BigDecimal.TEN, 1L),
-                Optional.empty(),
-                new Equity.Valuation(java.math.BigDecimal.TEN, 1L, 1L, QuoteCurrency.of("USD")),
-                new Equity.NextEarnings(Instant.EPOCH, Instant.EPOCH, Instant.EPOCH, false),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Optional.empty(),
-                Instant.EPOCH);
+        aaplEquity = Instruments.equity("AAPL");
     }
 
     @AfterAll
