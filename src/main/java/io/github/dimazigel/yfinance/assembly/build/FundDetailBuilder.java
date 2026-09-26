@@ -6,9 +6,11 @@ import io.github.dimazigel.yfinance.detail.EtfDetail;
 import io.github.dimazigel.yfinance.detail.FundDetail;
 import io.github.dimazigel.yfinance.detail.MutualFundDetail;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
+import java.net.URI;
 import java.time.Instant;
+import java.util.List;
 
-/** {@link Resolved} → {@link EtfDetail} or {@link MutualFundDetail}. */
+/** {@link Resolved} → {@link EtfDetail} or {@link MutualFundDetail}. Callers must have checked {@code missingRequired()} first. */
 public final class FundDetailBuilder {
 
     private FundDetailBuilder() {}
@@ -66,7 +68,7 @@ public final class FundDetailBuilder {
                         r.decimal("rankInCategory.oneYear"),
                         r.decimal("rankInCategory.threeYear"),
                         r.decimal("rankInCategory.fiveYear")),
-                java.net.URI.create(r.string("styleBoxUrl")),
+                URI.create(r.string("styleBoxUrl")),
                 fetchedAt);
     }
 
@@ -82,7 +84,7 @@ public final class FundDetailBuilder {
                 r.date("trailingReturns.asOf"));
     }
 
-    static java.util.List<FundDetail.YearReturn> annualReturns(Resolved r) {
+    static List<FundDetail.YearReturn> annualReturns(Resolved r) {
         return r.list("annualTotalReturns").stream()
                 .filter(n -> Nodes.get(n, "year").isPresent() && Nodes.get(n, "annualValue").isPresent())
                 .map(n -> new FundDetail.YearReturn(Integer.parseInt(Nodes.string(n, "year")), Nodes.decimal(n, "annualValue")))
@@ -107,7 +109,7 @@ public final class FundDetailBuilder {
                 r.decimal("equityValuation.priceToCashflow"));
     }
 
-    static java.util.List<FundDetail.Holding> holdings(Resolved r) {
+    static List<FundDetail.Holding> holdings(Resolved r) {
         return r.list("holdings").stream()
                 .filter(n -> Nodes.get(n, "symbol").isPresent() && Nodes.get(n, "holdingPercent").isPresent())
                 .map(n -> new FundDetail.Holding(
@@ -117,13 +119,13 @@ public final class FundDetailBuilder {
                 .toList();
     }
 
-    static java.util.List<FundDetail.SectorWeight> sectors(Resolved r) {
+    static List<FundDetail.SectorWeight> sectors(Resolved r) {
         return Nodes.singleKeyList(r.list("sectorWeightings")).stream()
                 .map(e -> new FundDetail.SectorWeight(e.getKey(), e.getValue()))
                 .toList();
     }
 
-    static java.util.List<FundDetail.BondRating> bondRatings(Resolved r) {
+    static List<FundDetail.BondRating> bondRatings(Resolved r) {
         return Nodes.singleKeyList(r.list("bondRatings")).stream()
                 .map(e -> new FundDetail.BondRating(e.getKey(), e.getValue()))
                 .toList();
