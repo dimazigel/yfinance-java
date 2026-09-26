@@ -29,7 +29,7 @@ final class Nodes {
     static Optional<JsonNode> get(JsonNode node, String key) {
         JsonNode v = node.path(key);
         if (v.isObject() && v.has("raw")) v = v.get("raw");
-        if (v.isMissingNode() || v.isNull() || (v.isTextual() && v.asText().isBlank()) || ((v.isObject() || v.isArray()) && v.isEmpty())) return Optional.empty();
+        if (v.isMissingNode() || v.isNull() || (v.isString() && v.asString().isBlank()) || ((v.isObject() || v.isArray()) && v.isEmpty())) return Optional.empty();
         return Optional.of(v);
     }
 
@@ -42,23 +42,23 @@ final class Nodes {
     }
 
     static Optional<Long> optLong(JsonNode node, String key) {
-        return get(node, key).map(v -> v.isNumber() ? v.longValue() : Long.parseLong(v.asText().strip()));
+        return get(node, key).map(v -> v.isNumber() ? v.longValue() : Long.parseLong(v.asString().strip()));
     }
 
     static Optional<Integer> optInt(JsonNode node, String key) {
-        return get(node, key).map(v -> v.isNumber() ? v.intValue() : Integer.parseInt(v.asText().strip()));
+        return get(node, key).map(v -> v.isNumber() ? v.intValue() : Integer.parseInt(v.asString().strip()));
     }
 
     static String string(JsonNode node, String key) {
-        return get(node, key).map(JsonNode::asText).orElseThrow(() -> new IllegalStateException("missing " + key));
+        return get(node, key).map(JsonNode::asString).orElseThrow(() -> new IllegalStateException("missing " + key));
     }
 
     static Optional<String> optString(JsonNode node, String key) {
-        return get(node, key).map(JsonNode::asText);
+        return get(node, key).map(JsonNode::asString);
     }
 
     static Optional<Instant> optInstantSeconds(JsonNode node, String key) {
-        return get(node, key).map(v -> Instant.ofEpochSecond(v.asLong()));
+        return get(node, key).map(v -> Instant.ofEpochSecond(v.isNumber() ? v.longValue() : Long.parseLong(v.asString().strip())));
     }
 
     static Optional<LocalDate> optDateSeconds(JsonNode node, String key) {
@@ -96,7 +96,7 @@ final class Nodes {
     }
 
     private static BigDecimal toDecimal(JsonNode v) {
-        return v.isNumber() ? v.decimalValue() : new BigDecimal(v.asText().strip());
+        return v.isNumber() ? v.decimalValue() : new BigDecimal(v.asString().strip());
     }
 
     /** Yahoo's "[{key: value}, ...]" lists: one map entry per element. */

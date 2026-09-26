@@ -67,15 +67,15 @@ public final class Resolved {
     }
 
     public long longValue(String name) {
-        return node(name).isNumber() ? node(name).longValue() : Long.parseLong(node(name).asText().strip());
+        return node(name).isNumber() ? node(name).longValue() : Long.parseLong(node(name).asString().strip());
     }
 
     public int intValue(String name) {
-        return node(name).isNumber() ? node(name).intValue() : Integer.parseInt(node(name).asText().strip());
+        return node(name).isNumber() ? node(name).intValue() : Integer.parseInt(node(name).asString().strip());
     }
 
     public String string(String name) {
-        return node(name).asText();
+        return node(name).asString();
     }
 
     public boolean bool(String name) {
@@ -108,15 +108,15 @@ public final class Resolved {
     }
 
     public Optional<Long> optLong(String name) {
-        return opt(name, n -> n.isNumber() ? n.longValue() : Long.parseLong(n.asText().strip()));
+        return opt(name, n -> n.isNumber() ? n.longValue() : Long.parseLong(n.asString().strip()));
     }
 
     public Optional<Integer> optInt(String name) {
-        return opt(name, n -> n.isNumber() ? n.intValue() : Integer.parseInt(n.asText().strip()));
+        return opt(name, n -> n.isNumber() ? n.intValue() : Integer.parseInt(n.asString().strip()));
     }
 
     public Optional<String> optString(String name) {
-        return opt(name, JsonNode::asText);
+        return opt(name, JsonNode::asString);
     }
 
     public Optional<Instant> optInstant(String name) {
@@ -135,7 +135,7 @@ public final class Resolved {
     // ---- unit conversion
 
     private BigDecimal convertDecimal(String name, JsonNode node) {
-        BigDecimal value = node.isNumber() ? node.decimalValue() : new BigDecimal(node.asText().strip());
+        BigDecimal value = node.isNumber() ? node.decimalValue() : new BigDecimal(node.asString().strip());
         return unit(name) == Unit.PERCENT ? value.divide(HUNDRED, MathContext.DECIMAL64) : value;
     }
 
@@ -144,14 +144,14 @@ public final class Resolved {
         return switch (unit(name)) {
             case EPOCH_MILLIS -> Instant.ofEpochMilli(n);
             case EPOCH_SECONDS, EPOCH_DATE, RAW -> Instant.ofEpochSecond(n);
-            case ISO_DATE -> LocalDate.parse(node.asText()).atStartOfDay(ZoneOffset.UTC).toInstant();
+            case ISO_DATE -> LocalDate.parse(node.asString()).atStartOfDay(ZoneOffset.UTC).toInstant();
             case PERCENT -> throw new IllegalStateException("Field '" + name + "' is a percent, not a time");
         };
     }
 
     private LocalDate convertDate(String name, JsonNode node) {
         return switch (unit(name)) {
-            case ISO_DATE -> LocalDate.parse(node.asText().strip());
+            case ISO_DATE -> LocalDate.parse(node.asString().strip());
             case EPOCH_DATE, EPOCH_SECONDS -> LocalDate.ofInstant(Instant.ofEpochSecond(node.longValue()), ZoneOffset.UTC);
             case EPOCH_MILLIS -> LocalDate.ofInstant(Instant.ofEpochMilli(node.longValue()), ZoneOffset.UTC);
             case RAW, PERCENT -> throw new IllegalStateException("Field '" + name + "' has no date unit");

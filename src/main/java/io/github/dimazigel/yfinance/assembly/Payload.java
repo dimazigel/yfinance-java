@@ -74,7 +74,7 @@ public final class Payload {
         if (node.isNull() || node.isMissingNode()) {
             return Optional.empty();
         }
-        if (node.isTextual() && node.asText().isBlank()) {
+        if (node.isString() && node.asString().isBlank()) {
             return Optional.empty();
         }
         if ((node.isObject() || node.isArray()) && node.isEmpty()) {

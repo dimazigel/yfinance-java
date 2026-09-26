@@ -57,7 +57,7 @@ public final class FundDetailBuilder {
                 r.decimal("lastDividendValue"),
                 r.decimal("beta3Year"),
                 new MutualFundDetail.Minimums(r.decimal("minimums.initial"), r.decimal("minimums.subsequent")),
-                r.list("brokerages").stream().map(JsonNode::asText).toList(),
+                r.list("brokerages").stream().map(JsonNode::asString).toList(),
                 new MutualFundDetail.LoadAdjustedReturns(
                         r.decimal("loadAdjustedReturns.oneYear"),
                         r.decimal("loadAdjustedReturns.threeYear"),

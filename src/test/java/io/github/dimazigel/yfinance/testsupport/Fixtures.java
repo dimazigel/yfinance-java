@@ -38,7 +38,7 @@ public final class Fixtures {
                 .setBody(load(fixtureName));
     }
 
-    /** All eight interfaces against {@code server}, with optional OkHttp interceptors (e.g. to observe MDC). */
+    /** All seven interfaces against {@code server}, with optional OkHttp interceptors (e.g. to observe MDC). */
     public static YahooApis apis(MockWebServer server, okhttp3.Interceptor... interceptors) {
         var client = new okhttp3.OkHttpClient.Builder();
         for (var interceptor : interceptors) {

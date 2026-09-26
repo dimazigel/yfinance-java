@@ -25,7 +25,7 @@ public final class RawAwareNumberModule extends SimpleModule {
     }
 
     private static BigDecimal toBigDecimal(JsonNode node) {
-        return node.isNumber() ? node.decimalValue() : new BigDecimal(node.asText());
+        return node.isNumber() ? node.decimalValue() : new BigDecimal(node.asString());
     }
 
     private static final class RawAware<T> extends ValueDeserializer<T> {
@@ -48,7 +48,7 @@ public final class RawAwareNumberModule extends SimpleModule {
                 JsonNode raw = node.get("raw");
                 return raw == null || raw.isNull() ? null : convert.apply(raw);
             }
-            if (node.isTextual() && node.asText().isBlank()) {
+            if (node.isString() && node.asString().isBlank()) {
                 return null;
             }
             return convert.apply(node);

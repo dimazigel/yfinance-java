@@ -74,6 +74,18 @@ class RawAwareNumberModuleTest {
     }
 
     @Test
+    void nonNumericTextFailsLoudlyForLongs() {   // final review, finding 2b: Jackson 3 throws instead of returning 0
+        assertThatThrownBy(() -> mapper.readValue("{\"count\":\"abc\"}", Numbers.class))
+                .isInstanceOf(Exception.class);
+    }
+
+    @Test
+    void booleanFailsLoudlyForLongs() {   // final review, finding 2b: Jackson 3 throws instead of returning 1
+        assertThatThrownBy(() -> mapper.readValue("{\"count\":true}", Numbers.class))
+                .isInstanceOf(Exception.class);
+    }
+
+    @Test
     void unknownPropertiesAndUnknownEnumsAreTolerated() {
         record WithEnum(@Nullable DayOfWeek day) {}
         assertThat(mapper.readValue("{\"count\":1,\"surprise\":true}", Numbers.class).count()).isEqualTo(1L);

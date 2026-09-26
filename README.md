@@ -367,7 +367,7 @@ proof to `Ticker.detail(...)`/`statements(...)` is a programming error and throw
 YFinance / Ticker / Tickers — the facade; batch calls return Batch<Outcome<T>>
 service/     one service per concern (InstrumentService, DetailService, HistoryService, ...)
 http/        client factory, interceptors (UA, crumb, auth-retry, adaptive rate limit),
-             RawQuoteClient (batched v7 rows + per-symbol quoteSummary modules), ObjectMapper
+             RawQuoteClient (batched v7 rows + per-symbol quoteSummary modules), YahooJsonMapper
 api/         Feign interfaces (one per endpoint) + YahooApis bundle
 assembly/    FieldSpec tables per class (specs/, mirrored from Appendix A), Resolver, builders (build/)
 instrument/  the sealed snapshot hierarchy and its value records

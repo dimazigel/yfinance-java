@@ -46,7 +46,7 @@ public final class RawQuoteClient {
             String joined = chunk.stream().map(Symbol::value).collect(Collectors.joining(","));
             JsonNode result = quoteApi.quoteRows(joined, false).path("quoteResponse").path("result");
             for (JsonNode row : result) {
-                String reported = row.path("symbol").asText("");
+                String reported = row.path("symbol").asString("");
                 if (!reported.isBlank()) {
                     rows.put(Symbol.of(reported), row); // Symbol.of upper-cases, matching the requested key
                 }

@@ -1,5 +1,6 @@
 package io.github.dimazigel.yfinance.http;
 
+import feign.DefaultInvocationHandlerFactory;
 import feign.FeignException;
 import feign.InvocationHandlerFactory;
 import feign.Target;
@@ -17,7 +18,7 @@ import java.util.Map;
  */
 final class YahooInvocationHandlerFactory implements InvocationHandlerFactory {
 
-    private final InvocationHandlerFactory delegate = new InvocationHandlerFactory.Default();
+    private final InvocationHandlerFactory delegate = new DefaultInvocationHandlerFactory();
 
     @Override
     public InvocationHandler create(Target target, Map<Method, MethodHandler> dispatch) {

@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import ch.qos.logback.classic.Level;
 import io.github.dimazigel.yfinance.http.YahooJsonMapper;
 import io.github.dimazigel.yfinance.testsupport.LogCapture;
+import java.time.Instant;
 import java.time.LocalDate;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.JsonNode;
@@ -31,6 +32,17 @@ class NodesTest {
         assertThat(Nodes.optInt(node, "s")).contains(34);
         assertThatThrownBy(() -> Nodes.optLong(node, "junk")).as("never 0 for non-numeric text").isInstanceOf(NumberFormatException.class);
         assertThatThrownBy(() -> Nodes.optInt(node, "junk")).isInstanceOf(NumberFormatException.class);
+    }
+
+    @Test
+    void optInstantSecondsParsesStrictlyLikeItsSiblings() throws Exception {   // final review, finding 2c
+        JsonNode node = json("{\"n\": 1700000000, \"s\": \" 1700000000 \", \"junk\": \"abc\"}");
+
+        assertThat(Nodes.optInstantSeconds(node, "n")).contains(Instant.ofEpochSecond(1700000000));
+        assertThat(Nodes.optInstantSeconds(node, "s")).contains(Instant.ofEpochSecond(1700000000));
+        assertThatThrownBy(() -> Nodes.optInstantSeconds(node, "junk"))
+                .as("never epoch 0 for non-numeric text")
+                .isInstanceOf(NumberFormatException.class);
     }
 
     @Test

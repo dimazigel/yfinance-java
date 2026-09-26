@@ -119,7 +119,7 @@ public final class InstrumentService {
     }
 
     private Outcome<Instrument> assemble(Symbol symbol, JsonNode row, Instant now) {
-        String reported = row.path("quoteType").asText("");
+        String reported = row.path("quoteType").asString("");
         Optional<AssetClass> attempted = AssetClass.fromQuoteType(reported);
         AssetClass target = attempted.orElse(AssetClass.UNCLASSIFIED);
         var specs = SnapshotSpecs.forClass(target);
