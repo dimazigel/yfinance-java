@@ -1,6 +1,5 @@
 package io.github.dimazigel.yfinance.assembly.build;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import io.github.dimazigel.yfinance.assembly.Resolved;
 import io.github.dimazigel.yfinance.detail.EquityDetail;
 import io.github.dimazigel.yfinance.detail.EquityDetail.AnalystView;
@@ -25,6 +24,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import tools.jackson.databind.JsonNode;
 
 /** {@link Resolved} → {@link EquityDetail}. Callers must have checked {@code missingRequired()} first. */
 public final class EquityDetailBuilder {

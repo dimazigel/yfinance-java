@@ -1,6 +1,5 @@
 package io.github.dimazigel.yfinance.http;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import io.github.dimazigel.yfinance.api.QuoteApi;
 import io.github.dimazigel.yfinance.api.QuoteSummaryApi;
 import io.github.dimazigel.yfinance.exception.YFHttpException;
@@ -11,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import tools.jackson.databind.JsonNode;
 
 /**
  * Fetches the raw JSON the assembler works on: batched v7 rows and per-symbol quoteSummary modules.

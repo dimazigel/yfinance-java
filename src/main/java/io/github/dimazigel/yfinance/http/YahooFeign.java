@@ -14,7 +14,10 @@ import tools.jackson.databind.json.JsonMapper;
  * failure to a {@link io.github.dimazigel.yfinance.exception.YFinanceException}. Request options mirror
  * the client's timeouts so {@code feign-okhttp} uses the configured client as is instead of cloning it.
  *
- * <p>Internal to the library — not API; may change without notice.
+ * <p>Internal to the library — not API; may change without notice. {@code public} only because
+ * {@code api.YahooApis} lives in another package; Feign is an {@code implementation} dependency of
+ * this library, so referencing this class from consumer code requires Feign on that code's compile
+ * classpath.
  */
 public final class YahooFeign {
 

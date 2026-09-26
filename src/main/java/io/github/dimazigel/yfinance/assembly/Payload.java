@@ -1,10 +1,10 @@
 package io.github.dimazigel.yfinance.assembly;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import tools.jackson.databind.JsonNode;
 
 /** The raw JSON Yahoo returned for one symbol: its v7 quote row and any quoteSummary modules. */
 public final class Payload {

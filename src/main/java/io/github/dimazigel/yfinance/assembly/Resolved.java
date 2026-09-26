@@ -1,6 +1,5 @@
 package io.github.dimazigel.yfinance.assembly;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.time.Instant;
@@ -11,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
+import tools.jackson.databind.JsonNode;
 
 /** Field values after resolution, with typed, unit-aware access. Built only by {@link Resolver}. */
 public final class Resolved {

@@ -3,9 +3,7 @@ package io.github.dimazigel.yfinance.assembly;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.github.dimazigel.yfinance.http.YahooObjectMapper;
+import io.github.dimazigel.yfinance.http.YahooJsonMapper;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -13,10 +11,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 
 class ResolverTest {
 
-    private static final ObjectMapper JSON = YahooObjectMapper.create();
+    private static final JsonMapper JSON = YahooJsonMapper.create();
     private static final Symbol AAPL = Symbol.of("AAPL");
 
     private static JsonNode json(String s) throws Exception {

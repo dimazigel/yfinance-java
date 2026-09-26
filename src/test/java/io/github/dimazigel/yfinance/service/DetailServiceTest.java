@@ -4,15 +4,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.spi.ILoggingEvent;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.github.dimazigel.yfinance.api.QuoteApi;
 import io.github.dimazigel.yfinance.api.QuoteSummaryApi;
 import io.github.dimazigel.yfinance.batch.Outcome;
 import io.github.dimazigel.yfinance.batch.SkipReason;
 import io.github.dimazigel.yfinance.http.RawQuoteClient;
-import io.github.dimazigel.yfinance.http.YahooObjectMapper;
+import io.github.dimazigel.yfinance.http.YahooJsonMapper;
 import io.github.dimazigel.yfinance.instrument.Crypto;
 import io.github.dimazigel.yfinance.instrument.Equity;
 import io.github.dimazigel.yfinance.instrument.Etf;
@@ -24,8 +21,6 @@ import io.github.dimazigel.yfinance.testsupport.Instruments;
 import io.github.dimazigel.yfinance.testsupport.LogCapture;
 import io.github.dimazigel.yfinance.testsupport.YahooDispatcher;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
-import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
@@ -37,6 +32,9 @@ import okhttp3.mockwebserver.RecordedRequest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.node.ObjectNode;
 
 class DetailServiceTest {
 
@@ -204,13 +202,9 @@ class DetailServiceTest {
     }
 
     private static String withoutModule(String body, String moduleName) {
-        ObjectMapper mapper = YahooObjectMapper.create();
-        try {
-            JsonNode root = mapper.readTree(body);
-            ((ObjectNode) root.at("/quoteSummary/result/0")).remove(moduleName);
-            return mapper.writeValueAsString(root);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        JsonMapper mapper = YahooJsonMapper.create();
+        JsonNode root = mapper.readTree(body);
+        ((ObjectNode) root.at("/quoteSummary/result/0")).remove(moduleName);
+        return mapper.writeValueAsString(root);
     }
 }

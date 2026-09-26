@@ -1,21 +1,21 @@
 package io.github.dimazigel.yfinance.api;
 
+import feign.Param;
+import feign.RequestLine;
 import io.github.dimazigel.yfinance.dto.chart.ChartResponse;
 import org.jspecify.annotations.Nullable;
-import retrofit2.http.GET;
-import retrofit2.http.Path;
-import retrofit2.http.Query;
 
-/** Retrofit binding for Yahoo's price-history (chart) endpoint. */
+/** Feign binding for Yahoo's price-history (chart) endpoint. */
 public interface ChartApi {
 
-    @GET("v8/finance/chart/{symbol}")
+    @RequestLine("GET /v8/finance/chart/{symbol}?interval={interval}&range={range}&period1={period1}"
+            + "&period2={period2}&includePrePost={includePrePost}&events={events}")
     ChartResponse chart(
-            @Path("symbol") String symbol,
-            @Query("interval") String interval,
-            @Query("range") @Nullable String range,
-            @Query("period1") @Nullable Long period1,
-            @Query("period2") @Nullable Long period2,
-            @Query("includePrePost") boolean includePrePost,
-            @Query("events") @Nullable String events);
+            @Param("symbol") String symbol,
+            @Param("interval") String interval,
+            @Param("range") @Nullable String range,
+            @Param("period1") @Nullable Long period1,
+            @Param("period2") @Nullable Long period2,
+            @Param("includePrePost") boolean includePrePost,
+            @Param("events") @Nullable String events);
 }

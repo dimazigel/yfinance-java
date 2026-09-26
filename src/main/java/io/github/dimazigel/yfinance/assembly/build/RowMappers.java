@@ -1,6 +1,5 @@
 package io.github.dimazigel.yfinance.assembly.build;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import io.github.dimazigel.yfinance.detail.EquityDetail.NetSharePurchaseActivity;
 import io.github.dimazigel.yfinance.detail.rows.EarningsHistoryEntry;
 import io.github.dimazigel.yfinance.detail.rows.EpsRevisionsPeriod;
@@ -20,6 +19,7 @@ import java.util.function.Function;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.databind.JsonNode;
 
 /**
  * Maps raw JSON rows from the equity detail modules into {@code detail.rows} records, dropping

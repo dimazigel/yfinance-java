@@ -1,17 +1,21 @@
 package io.github.dimazigel.yfinance.testsupport;
 
-import io.github.dimazigel.yfinance.http.SyncCallAdapterFactory;
-import io.github.dimazigel.yfinance.http.YahooObjectMapper;
+import io.github.dimazigel.yfinance.api.ChartApi;
+import io.github.dimazigel.yfinance.api.FundamentalsApi;
+import io.github.dimazigel.yfinance.api.LookupApi;
+import io.github.dimazigel.yfinance.api.OptionsApi;
+import io.github.dimazigel.yfinance.api.QuoteApi;
+import io.github.dimazigel.yfinance.api.QuoteSummaryApi;
+import io.github.dimazigel.yfinance.api.SearchApi;
+import io.github.dimazigel.yfinance.api.YahooApis;
+import io.github.dimazigel.yfinance.http.EndpointConfig;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
-import okhttp3.HttpUrl;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
-import retrofit2.Retrofit;
-import retrofit2.converter.jackson.JacksonConverterFactory;
 
-/** Shared helpers for fixture-driven Retrofit tests. */
+/** Shared helpers for fixture-driven Feign tests. */
 public final class Fixtures {
 
     private Fixtures() {}
@@ -34,20 +38,27 @@ public final class Fixtures {
                 .setBody(load(fixtureName));
     }
 
-    public static <T> T api(MockWebServer server, Class<T> apiClass) {
-        return retrofit(server.url("/")).create(apiClass);
-    }
-
-    public static Retrofit retrofit(HttpUrl baseUrl, okhttp3.Interceptor... interceptors) {
+    /** All eight interfaces against {@code server}, with optional OkHttp interceptors (e.g. to observe MDC). */
+    public static YahooApis apis(MockWebServer server, okhttp3.Interceptor... interceptors) {
         var client = new okhttp3.OkHttpClient.Builder();
         for (var interceptor : interceptors) {
             client.addInterceptor(interceptor);
         }
-        return new Retrofit.Builder()
-                .baseUrl(baseUrl)
-                .client(client.build())
-                .addCallAdapterFactory(SyncCallAdapterFactory.create())
-                .addConverterFactory(JacksonConverterFactory.create(YahooObjectMapper.create()))
-                .build();
+        var base = server.url("/");
+        return YahooApis.create(EndpointConfig.production().withHosts(base, base, base), client.build());
+    }
+
+    public static <T> T api(MockWebServer server, Class<T> apiClass) {
+        YahooApis apis = apis(server);
+        Object api;
+        if (apiClass == ChartApi.class) api = apis.chart();
+        else if (apiClass == QuoteSummaryApi.class) api = apis.quoteSummary();
+        else if (apiClass == QuoteApi.class) api = apis.quote();
+        else if (apiClass == FundamentalsApi.class) api = apis.fundamentals();
+        else if (apiClass == OptionsApi.class) api = apis.options();
+        else if (apiClass == SearchApi.class) api = apis.search();
+        else if (apiClass == LookupApi.class) api = apis.lookup();
+        else throw new IllegalArgumentException("Not a Yahoo API interface: " + apiClass);
+        return apiClass.cast(api);
     }
 }

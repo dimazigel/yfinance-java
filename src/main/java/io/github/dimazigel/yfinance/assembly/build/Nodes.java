@@ -1,6 +1,5 @@
 package io.github.dimazigel.yfinance.assembly.build;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import java.math.BigDecimal;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -14,6 +13,7 @@ import java.util.Map;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.databind.JsonNode;
 
 /**
  * Helpers over JsonNode, unwrapping {raw, fmt} like Payload.present. The lenient helpers ({@link
@@ -103,7 +103,7 @@ final class Nodes {
     static List<Map.Entry<String, BigDecimal>> singleKeyList(List<JsonNode> nodes) {
         var out = new ArrayList<Map.Entry<String, BigDecimal>>();
         for (JsonNode n : nodes) {
-            var it = n.fields();
+            var it = n.properties().iterator();
             if (it.hasNext()) {
                 var e = it.next();
                 get(n, e.getKey()).ifPresent(v -> out.add(Map.entry(e.getKey(), toDecimal(v))));
