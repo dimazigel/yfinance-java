@@ -3,10 +3,14 @@ package io.github.dimazigel.yfinance;
 import io.github.dimazigel.yfinance.batch.Batch;
 import io.github.dimazigel.yfinance.batch.FanOut;
 import io.github.dimazigel.yfinance.batch.Outcome;
+import io.github.dimazigel.yfinance.batch.SkipReason;
 import io.github.dimazigel.yfinance.enums.Interval;
 import io.github.dimazigel.yfinance.enums.Range;
+import io.github.dimazigel.yfinance.exception.YFClassMismatchException;
 import io.github.dimazigel.yfinance.exception.YFDataException;
+import io.github.dimazigel.yfinance.exception.YFSkippedException;
 import io.github.dimazigel.yfinance.exception.YFinanceException;
+import io.github.dimazigel.yfinance.instrument.AssetClass;
 import io.github.dimazigel.yfinance.instrument.Instrument;
 import io.github.dimazigel.yfinance.logging.LogContext;
 import io.github.dimazigel.yfinance.market.PriceHistory;
@@ -61,9 +65,18 @@ public final class Tickers {
     /**
      * Applies {@code fetcher} to every symbol's {@link Ticker} concurrently, e.g.
      * {@code tickers.fetch(Ticker::options)} or {@code tickers.fetch(Ticker::dividends)}, in input
-     * order. Outcomes are {@link Outcome.Ok} or {@link Outcome.Failed} only: a fetcher that throws
-     * a {@link YFinanceException} fails that symbol with it, any other exception or a {@code null}
-     * result is wrapped in a {@link YFDataException}.
+     * order, classifying each result the way the {@code YFinance} batch calls do:
+     *
+     * <ul>
+     *   <li>{@link Outcome.Ok}: the fetcher returned a value.
+     *   <li>{@link Outcome.Skipped}: the fetcher threw what a single {@link Ticker} throws for a
+     *       non-answer — a {@link YFSkippedException} (unknown symbol, guaranteed module absent, …)
+     *       keeps its {@link SkipReason}; a {@link YFClassMismatchException} from {@link Ticker#as}
+     *       becomes {@link SkipReason#WRONG_ASSET_CLASS}, or {@link SkipReason#DOWNGRADED} when the
+     *       instrument is {@link AssetClass#UNCLASSIFIED}. Not worth retrying.
+     *   <li>{@link Outcome.Failed}: any other {@link YFinanceException} as itself; any other
+     *       exception or a {@code null} result wrapped in a {@link YFDataException}. Retryable.
+     * </ul>
      */
     public <T> Batch<T> fetch(Function<? super Ticker, T> fetcher) {
         Objects.requireNonNull(fetcher, "fetcher");
@@ -100,28 +113,38 @@ public final class Tickers {
                 outcome = value == null
                         ? Outcome.failed(symbol, new YFDataException(symbol + ": no data returned"))
                         : Outcome.ok(symbol, value);
+            } catch (YFSkippedException e) {
+                outcome = Outcome.skipped(symbol, e.reason(), e.field());
+            } catch (YFClassMismatchException e) {
+                SkipReason reason = e.actual() == AssetClass.UNCLASSIFIED ? SkipReason.DOWNGRADED : SkipReason.WRONG_ASSET_CLASS;
+                outcome = Outcome.skipped(symbol, reason, e.actual().name());
             } catch (YFinanceException e) {
                 outcome = Outcome.failed(symbol, e);
             } catch (RuntimeException e) {
                 outcome = Outcome.failed(symbol, new YFDataException("Failed to fetch " + symbol, e));
             }
-            if (outcome instanceof Outcome.Failed<T> failed) {
-                LOG.atDebug().log("{} failed: {}: {}", symbol,
+            switch (outcome) {
+                case Outcome.Failed<T> failed -> LOG.atDebug().log("{} failed: {}: {}", symbol,
                         failed.error().getClass().getSimpleName(), failed.error().getMessage());
+                case Outcome.Skipped<T> skipped -> LOG.atDebug().addKeyValue("reason", skipped.reason())
+                        .log("{} skipped: {} ({})", symbol, skipped.reason(), skipped.detail());
+                case Outcome.Ok<T> ok -> { }
             }
             return outcome;
         }
     }
 
-    /** One INFO line per fan-out; each failure was already logged at DEBUG on its worker. */
+    /** One INFO line per fan-out; each skip and failure was already logged at DEBUG on its worker. */
     private static <T> void summarize(Batch<T> batch, long durationMs) {
+        int skipped = batch.skipped().size();
         int failed = batch.failed().size();
-        int ok = batch.size() - failed;
+        int ok = batch.size() - skipped - failed;
         LOG.atInfo()
                 .addKeyValue("symbols", batch.size())
                 .addKeyValue("ok", ok)
+                .addKeyValue("skipped", skipped)
                 .addKeyValue("failed", failed)
                 .addKeyValue("durationMs", durationMs)
-                .log("Fetched {} symbols: {} ok, {} failed in {} ms", batch.size(), ok, failed, durationMs);
+                .log("Fetched {} symbols: {} ok, {} skipped, {} failed in {} ms", batch.size(), ok, skipped, failed, durationMs);
     }
 }

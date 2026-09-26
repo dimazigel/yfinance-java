@@ -80,8 +80,10 @@ Batch<PriceHistory> histories = yf.histories(symbols, Range.ONE_YEAR, Interval.O
 Batch<Optional<OptionChain>> chains = yf.options(symbols);
 Batch<FinancialStatement> statements = yf.statements(equities.values(), StatementType.INCOME, Frequency.ANNUAL);
 
-// Fan out any Ticker call with bounded concurrency (virtual threads):
+// Fan out any Ticker call with bounded concurrency (virtual threads); a Ticker's non-answer
+// (unknown symbol, wrong class for as(...), absent module) comes back as Skipped, not Failed:
 Batch<List<Dividend>> dividends = yf.tickers("AAPL", "MSFT", "GOOG").withConcurrency(8).fetch(Ticker::dividends);
+Batch<Equity> viaFetch = yf.tickers(symbols).fetch(t -> t.as(Equity.class));   // same outcomes as instruments(symbols, Equity.class)
 ```
 
 `Outcome<T>` is sealed:
@@ -97,7 +99,10 @@ Batch<List<Dividend>> dividends = yf.tickers("AAPL", "MSFT", "GOOG").withConcurr
 and `MODULE_ABSENT` (a detail request lacked a guaranteed module; `detail` names the fields).
 `Batch` offers `outcomes()`, `values()` (the `Ok` values only), `skipped()`, `failed()`, `get(symbol)`
 and `summary()`; each `Outcome` has `optional()` and `orElseThrow()` (`Skipped` throws
-`YFMissingDataException`, `Failed` rethrows its error).
+`YFSkippedException`, a `YFMissingDataException` carrying the `SkipReason`; `Failed` rethrows its
+error). The mapping is symmetric: `Tickers.fetch` turns a `YFSkippedException` or a
+`YFClassMismatchException` thrown inside the fetcher back into `Skipped`, so `fetch(t -> t.as(Equity.class))`
+classifies exactly like `instruments(symbols, Equity.class)`.
 
 ## The model
 
@@ -317,7 +322,7 @@ classes under `io.github.dimazigel.yfinance`. A healthy production log from this
 | level | when | examples |
 |---|---|---|
 | `WARN` | degraded, or gave up | cookie/crumb unavailable; still 429 or 5xx after all retries |
-| `INFO` | once per client, once per batch | effective config at `create()`; rate limiter entering/leaving degraded mode; `instruments: 500 symbols: 497 ok, 2 skipped, 1 failed`; `Fetched 20 symbols: 20 ok, 0 failed in 1 812 ms` |
+| `INFO` | once per client, once per batch | effective config at `create()`; rate limiter entering/leaving degraded mode; `instruments: 500 symbols: 497 ok, 2 skipped, 1 failed`; `Fetched 20 symbols: 20 ok, 0 skipped, 0 failed in 1 812 ms` |
 | `DEBUG` | once per request or per dropped datum | `GET /v8/finance/chart/AAPL?range=1mo&interval=1d -> 200 (23 KB) in 412 ms`; `BAC-PL downgraded from EQUITY: missing [marketCap, impliedSharesOutstanding]`; `Dropped 4 of 390 bars without a complete OHLC`; each retry; each failed symbol in a batch |
 
 The library never logs an error it also throws: the exception message carries Yahoo's reason and
@@ -344,6 +349,7 @@ All failures surface as `YFinanceException` subtypes (unchecked):
 | `YFDataException` | Yahoo error envelope, malformed or incomplete response, or I/O failure |
 | ↳ `YFHttpException` | unexpected HTTP status; carries `status()` and `path()`, body in the message |
 | ↳ `YFMissingDataException` | `Ticker` asked for something Yahoo has nothing for: unknown symbol, or a detail whose guaranteed module is absent; `field()` and `subject()` |
+| ↳↳ `YFSkippedException` | what `Outcome.Skipped.orElseThrow()` (and so every `Ticker` non-answer) actually throws; adds `reason()` (`SkipReason`) and `symbol()` |
 | ↳ `YFClassMismatchException` | `as(Equity.class)` on an instrument of another class; `actual()` and `requested()` |
 | `YFRateLimitException` | HTTP 429 after all adaptive retries; `retryAfter()` when Yahoo sent it |
 | `YFAuthException` | the cookie/crumb handshake failed |

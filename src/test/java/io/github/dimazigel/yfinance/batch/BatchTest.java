@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import io.github.dimazigel.yfinance.exception.YFDataException;
 import io.github.dimazigel.yfinance.exception.YFMissingDataException;
+import io.github.dimazigel.yfinance.exception.YFSkippedException;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -56,11 +57,14 @@ class BatchTest {
 
         assertThatThrownBy(skipped::orElseThrow)
                 .isInstanceOf(YFMissingDataException.class)
+                .isInstanceOf(YFSkippedException.class)
                 .hasMessage("MSFT skipped: MODULE_ABSENT (financials.totalRevenue)")
                 .satisfies(e -> {
-                    var missing = (YFMissingDataException) e;
+                    var missing = (YFSkippedException) e;
                     assertThat(missing.field()).isEqualTo("financials.totalRevenue");
                     assertThat(missing.subject()).isEqualTo("MSFT");
+                    assertThat(missing.reason()).isEqualTo(SkipReason.MODULE_ABSENT);   // what Tickers.fetch unwraps
+                    assertThat(missing.symbol()).isEqualTo(MSFT);
                 });
     }
 

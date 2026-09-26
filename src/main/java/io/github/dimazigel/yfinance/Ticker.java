@@ -9,7 +9,6 @@ import io.github.dimazigel.yfinance.enums.Interval;
 import io.github.dimazigel.yfinance.enums.Range;
 import io.github.dimazigel.yfinance.enums.StatementType;
 import io.github.dimazigel.yfinance.exception.YFClassMismatchException;
-import io.github.dimazigel.yfinance.exception.YFDataException;
 import io.github.dimazigel.yfinance.fundamentals.FinancialStatement;
 import io.github.dimazigel.yfinance.instrument.Crypto;
 import io.github.dimazigel.yfinance.instrument.Equity;
@@ -50,7 +49,8 @@ public final class Ticker {
      * The instrument at snapshot depth, typed by asset class; {@code switch} over the sealed
      * {@link Instrument} to get at class-specific fields, or use {@link #as(Class)}.
      *
-     * @throws YFDataException when Yahoo does not know the symbol
+     * @throws io.github.dimazigel.yfinance.exception.YFSkippedException when Yahoo does not know
+     *     the symbol ({@code reason() == UNKNOWN_SYMBOL})
      */
     public Instrument instrument() {
         return yf.instruments.instrument(symbol);
@@ -75,7 +75,8 @@ public final class Ticker {
      * Equity detail (profile, statistics, financial health, analyst view, ownership).
      *
      * @throws IllegalArgumentException if {@code equity} is for a different symbol
-     * @throws YFDataException when quoteSummary no longer knows the symbol or lacks a guaranteed module
+     * @throws io.github.dimazigel.yfinance.exception.YFSkippedException when quoteSummary no longer
+     *     knows the symbol ({@code UNKNOWN_SYMBOL}) or lacks a guaranteed module ({@code MODULE_ABSENT})
      */
     public EquityDetail detail(Equity equity) {
         return yf.details.equity(proof(equity)).orElseThrow();

@@ -8,15 +8,19 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import io.github.dimazigel.yfinance.api.YahooApis;
 import io.github.dimazigel.yfinance.batch.Batch;
 import io.github.dimazigel.yfinance.batch.Outcome;
+import io.github.dimazigel.yfinance.batch.SkipReason;
 import io.github.dimazigel.yfinance.enums.Interval;
 import io.github.dimazigel.yfinance.enums.Range;
 import io.github.dimazigel.yfinance.exception.YFDataException;
 import io.github.dimazigel.yfinance.exception.YFRateLimitException;
 import io.github.dimazigel.yfinance.instrument.AssetClass;
+import io.github.dimazigel.yfinance.instrument.Equity;
+import io.github.dimazigel.yfinance.instrument.Etf;
 import io.github.dimazigel.yfinance.instrument.Instrument;
 import io.github.dimazigel.yfinance.logging.LogContext;
 import io.github.dimazigel.yfinance.market.Dividend;
 import io.github.dimazigel.yfinance.testsupport.Fixtures;
+import io.github.dimazigel.yfinance.testsupport.Instruments;
 import io.github.dimazigel.yfinance.testsupport.LogCapture;
 import io.github.dimazigel.yfinance.testsupport.YahooDispatcher;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
@@ -74,7 +78,34 @@ class TickersTest {
             assertThat(f.symbol()).isEqualTo(Symbol.of("MSFT"));
             assertThat(f.error()).isSameAs(rateLimited);
         });
-        assertThat(batch.skipped()).as("fetch never skips").isEmpty();
+        assertThat(batch.skipped()).as("a transport failure is never a skip").isEmpty();
+    }
+
+    @Test
+    void fetchKeepsSkippedDistinctFromFailed() {   // final review, finding 3
+        var unknown = yf.tickers("AAPL", YahooDispatcher.UNKNOWN).fetch(Ticker::instrument);
+        assertThat(unknown.values()).singleElement().satisfies(i -> assertThat(i.assetClass()).isEqualTo(AssetClass.EQUITY));
+        assertThat(unknown.failed()).as("an unknown symbol is not retryable").isEmpty();
+        assertThat(unknown.skipped()).singleElement().satisfies(s -> {
+            assertThat(s.symbol()).isEqualTo(Symbol.of(YahooDispatcher.UNKNOWN));
+            assertThat(s.reason()).isEqualTo(SkipReason.UNKNOWN_SYMBOL);
+        });
+
+        var wrongClass = yf.tickers("AAPL").fetch(t -> t.as(Etf.class));
+        assertThat(wrongClass.skipped()).singleElement().satisfies(s -> {
+            assertThat(s.reason()).isEqualTo(SkipReason.WRONG_ASSET_CLASS);
+            assertThat(s.detail()).isEqualTo("EQUITY");
+        });
+
+        var downgraded = yf.tickers("BAC-PL").fetch(t -> t.as(Equity.class));   // the preferred share fails marketCap
+        assertThat(downgraded.skipped()).singleElement().satisfies(s -> {
+            assertThat(s.reason()).isEqualTo(SkipReason.DOWNGRADED);
+            assertThat(s.detail()).isEqualTo("UNCLASSIFIED");
+        });
+
+        Equity vanished = Instruments.equity("GONE");   // classified earlier; quoteSummary no longer answers
+        var gone = yf.tickers("GONE").fetch(t -> t.detail(vanished));
+        assertThat(gone.skipped()).singleElement().satisfies(s -> assertThat(s.reason()).isEqualTo(SkipReason.UNKNOWN_SYMBOL));
     }
 
     @Test
@@ -163,7 +194,7 @@ class TickersTest {
             yf.tickers("AAPL", YahooDispatcher.UNKNOWN).histories(Range.ONE_MONTH, Interval.ONE_DAY);
 
             assertThat(log.messages(Level.INFO)).singleElement().satisfies(m ->
-                    assertThat(m).matches("Fetched 2 symbols: 1 ok, 1 failed in \\d+ ms"));
+                    assertThat(m).matches("Fetched 2 symbols: 1 ok, 0 skipped, 1 failed in \\d+ ms"));
             assertThat(log.messages(Level.DEBUG)).singleElement().satisfies(m ->
                     assertThat(m).startsWith(YahooDispatcher.UNKNOWN + " failed: YF").contains("Exception"));
             assertThat(log.messages(Level.WARN)).isEmpty();
