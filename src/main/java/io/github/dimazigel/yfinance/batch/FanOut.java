@@ -15,8 +15,10 @@ import java.util.function.Function;
 /**
  * The fan-out skeleton shared by {@code Tickers.fetch} and {@code DetailService}: one virtual
  * thread per symbol, at most {@code concurrency} of them past the semaphore at once, outcomes
- * joined back in input order (duplicates included). Library plumbing; public only because both
- * callers live in other packages.
+ * joined back in input order (duplicates included).
+ *
+ * <p><strong>Internal to the library — not API; may change without notice.</strong> {@code public}
+ * only because both callers live in other packages.
  *
  * <p>{@code perSymbol} runs on the worker thread, so it must open its own
  * {@link io.github.dimazigel.yfinance.logging.LogContext} scope there (MDC is thread-local) and is

@@ -29,7 +29,12 @@ public record FieldSpec(String name, Kind kind, Optional<String> cluster, List<W
         return new FieldSpec(name, Kind.OPTIONAL, Optional.of(cluster), parse(paths), unit);
     }
 
-    /** A required field that also belongs to a named group, for documentation symmetry with the appendix. */
+    /**
+     * A required field that also belongs to a named group, for documentation symmetry with the
+     * appendix ({@code C:name(R)}). Required clusters are never checked with {@link
+     * Resolved#clusterPresent}: every member is REQUIRED, so an absent member already shows up in
+     * {@link Resolved#missingRequired()} and the record is not built at all.
+     */
     public static FieldSpec requiredCluster(String cluster, String name, Unit unit, String... paths) {
         return new FieldSpec(name, Kind.REQUIRED, Optional.of(cluster), parse(paths), unit);
     }

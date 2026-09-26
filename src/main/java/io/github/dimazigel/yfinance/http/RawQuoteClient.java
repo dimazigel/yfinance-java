@@ -12,7 +12,12 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-/** Fetches the raw JSON the assembler works on: batched v7 rows and per-symbol quoteSummary modules. */
+/**
+ * Fetches the raw JSON the assembler works on: batched v7 rows and per-symbol quoteSummary modules.
+ *
+ * <p><strong>Internal to the library — not API; may change without notice.</strong> {@code public}
+ * only because the services live in another package; it exposes Jackson's {@code JsonNode}.
+ */
 public final class RawQuoteClient {
 
     /** Verified in the field survey: Yahoo accepts 100 symbols per v7 request. */
@@ -27,7 +32,12 @@ public final class RawQuoteClient {
         this.quoteSummaryApi = quoteSummaryApi;
     }
 
-    /** One row per known symbol, keyed by the requested {@link Symbol}; unknown symbols are simply absent. */
+    /**
+     * One row per known symbol, keyed by the requested {@link Symbol}; unknown symbols are simply
+     * absent. Rows are matched by the symbol Yahoo echoes, upper-cased, so a request for {@code aapl}
+     * finds the {@code AAPL} row; a symbol Yahoo would answer under a different spelling (an alias)
+     * is not matched and comes back as unknown.
+     */
     public Map<Symbol, JsonNode> quoteRows(List<Symbol> symbols) {
         var rows = new LinkedHashMap<Symbol, JsonNode>();
         List<Symbol> distinct = symbols.stream().distinct().toList();
@@ -45,7 +55,11 @@ public final class RawQuoteClient {
         return rows;
     }
 
-    /** The requested modules for one symbol (module name → object), or empty when Yahoo does not know it. */
+    /**
+     * The requested modules for one symbol (module name → object), or empty when Yahoo has no
+     * result for it — a 404, or a 200 whose {@code result} is null or empty; the two are not
+     * distinguished.
+     */
     public Optional<Map<String, JsonNode>> modules(Symbol symbol, Collection<String> moduleNames) {
         String joined = String.join(",", moduleNames);
         JsonNode response;

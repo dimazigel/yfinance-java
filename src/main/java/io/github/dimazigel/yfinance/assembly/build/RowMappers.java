@@ -15,6 +15,7 @@ import io.github.dimazigel.yfinance.detail.rows.SecFiling;
 import io.github.dimazigel.yfinance.detail.rows.UpgradeDowngrade;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -22,7 +23,9 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Maps raw JSON rows from the equity detail modules into {@code detail.rows} records, dropping
- * any row that lacks the one field that identifies it.
+ * any row that lacks the field that identifies it or a count the record cannot do without (a
+ * missing count is never coerced to 0). {@link #mapRows} is the shared drop-and-log skeleton the
+ * other builders use for their own row lists.
  */
 final class RowMappers {
 
@@ -30,16 +33,20 @@ final class RowMappers {
 
     private RowMappers() {}
 
+    /** A period needs all five counts; a row missing any of them is dropped rather than read as 0. */
     static List<RecommendationPeriod> recommendationTrend(List<JsonNode> rows) {
-        return mapRows(rows, "recommendation periods", row -> Nodes.optString(row, "period")
-                .map(period -> new RecommendationPeriod(
-                        period,
-                        Nodes.optInt(row, "strongBuy").orElse(0),
-                        Nodes.optInt(row, "buy").orElse(0),
-                        Nodes.optInt(row, "hold").orElse(0),
-                        Nodes.optInt(row, "sell").orElse(0),
-                        Nodes.optInt(row, "strongSell").orElse(0)))
-                .orElse(null));
+        return mapRows(rows, "recommendation periods", row -> {
+            Optional<String> period = Nodes.optString(row, "period");
+            Optional<Integer> strongBuy = Nodes.optInt(row, "strongBuy");
+            Optional<Integer> buy = Nodes.optInt(row, "buy");
+            Optional<Integer> hold = Nodes.optInt(row, "hold");
+            Optional<Integer> sell = Nodes.optInt(row, "sell");
+            Optional<Integer> strongSell = Nodes.optInt(row, "strongSell");
+            if (period.isEmpty() || strongBuy.isEmpty() || buy.isEmpty() || hold.isEmpty() || sell.isEmpty() || strongSell.isEmpty()) {
+                return null;
+            }
+            return new RecommendationPeriod(period.get(), strongBuy.get(), buy.get(), hold.get(), sell.get(), strongSell.get());
+        });
     }
 
     static List<EarningsHistoryEntry> earningsHistory(List<JsonNode> rows) {
@@ -176,8 +183,11 @@ final class RowMappers {
                 Nodes.optLong(module, "totalInsiderShares"));
     }
 
-    /** Maps each row, dropping (and logging) any for which {@code fn} yields {@code null}. */
-    private static <T> List<T> mapRows(List<JsonNode> rows, String what, Function<JsonNode, @Nullable T> fn) {
+    /**
+     * Maps each row, dropping (and logging at DEBUG, once per list) any for which {@code fn} yields
+     * {@code null} — the repo's rule that every lenient skip says what it dropped and why.
+     */
+    static <T> List<T> mapRows(List<JsonNode> rows, String what, Function<JsonNode, @Nullable T> fn) {
         var out = new ArrayList<T>(rows.size());
         int dropped = 0;
         for (JsonNode row : rows) {
@@ -190,7 +200,7 @@ final class RowMappers {
         }
         if (dropped > 0) {
             LOG.atDebug().addKeyValue("dropped", dropped).addKeyValue("total", rows.size())
-                    .log("Dropped {} of {} {} without an identifier", dropped, rows.size(), what);
+                    .log("Dropped {} of {} {} lacking a required field", dropped, rows.size(), what);
         }
         return List.copyOf(out);
     }

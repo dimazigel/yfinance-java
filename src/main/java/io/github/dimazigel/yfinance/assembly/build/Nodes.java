@@ -12,9 +12,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/** Helpers over JsonNode, unwrapping {raw, fmt} like Payload.present. */
+/**
+ * Helpers over JsonNode, unwrapping {raw, fmt} like Payload.present. The lenient helpers ({@link
+ * #uri}, {@link #isoDate}) log what they drop at DEBUG; the numeric ones parse strictly, like
+ * {@code Resolved}, so a non-numeric string fails instead of reading as 0.
+ */
 final class Nodes {
+
+    private static final Logger LOG = LoggerFactory.getLogger(Nodes.class);
 
     private Nodes() {}
 
@@ -34,11 +42,11 @@ final class Nodes {
     }
 
     static Optional<Long> optLong(JsonNode node, String key) {
-        return get(node, key).map(JsonNode::asLong);
+        return get(node, key).map(v -> v.isNumber() ? v.longValue() : Long.parseLong(v.asText().strip()));
     }
 
     static Optional<Integer> optInt(JsonNode node, String key) {
-        return get(node, key).map(JsonNode::asInt);
+        return get(node, key).map(v -> v.isNumber() ? v.intValue() : Integer.parseInt(v.asText().strip()));
     }
 
     static String string(JsonNode node, String key) {
@@ -66,6 +74,8 @@ final class Nodes {
         try {
             return Optional.of(LocalDate.parse(value.strip()));
         } catch (DateTimeParseException e) {
+            LOG.atDebug().addKeyValue("value", value).addKeyValue("reason", e.getMessage())
+                    .log("Dropped unparseable ISO date '{}'", value);
             return Optional.empty();
         }
     }
@@ -74,10 +84,13 @@ final class Nodes {
         return optString(node, key).flatMap(Nodes::uri);
     }
 
+    /** A URI, or empty (logged at DEBUG) when Yahoo's text is not one; callers of optional URL fields use this. */
     static Optional<URI> uri(String s) {
         try {
             return Optional.of(new URI(s));
         } catch (URISyntaxException e) {
+            LOG.atDebug().addKeyValue("value", s).addKeyValue("reason", e.getReason())
+                    .log("Dropped malformed URI '{}': {}", s, e.getReason());
             return Optional.empty();
         }
     }

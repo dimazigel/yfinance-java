@@ -22,7 +22,6 @@ import io.github.dimazigel.yfinance.detail.EquityDetail.Targets;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
 import java.net.URI;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -74,15 +73,14 @@ public final class EquityDetailBuilder {
     }
 
     private static List<Officer> officers(Resolved r) {
-        var out = new ArrayList<Officer>();
-        for (JsonNode node : r.list("profile.officers")) {
+        return RowMappers.mapRows(r.list("profile.officers"), "company officers", node -> {
             Optional<String> name = Nodes.optString(node, "name");
             Optional<String> title = Nodes.optString(node, "title");
-            if (name.isPresent() && title.isPresent()) {
-                out.add(new Officer(name.get(), title.get(), Nodes.optInt(node, "age"), Nodes.optLong(node, "totalPay")));
+            if (name.isEmpty() || title.isEmpty()) {
+                return null;
             }
-        }
-        return List.copyOf(out);
+            return new Officer(name.get(), title.get(), Nodes.optInt(node, "age"), Nodes.optLong(node, "totalPay"));
+        });
     }
 
     // ---- statistics ----

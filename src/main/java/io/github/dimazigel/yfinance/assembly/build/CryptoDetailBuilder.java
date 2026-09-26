@@ -20,7 +20,7 @@ public final class CryptoDetailBuilder {
                 URI.create(r.string("website")),
                 r.date("startDate"),
                 r.decimal("fullyDilutedValue"),
-                r.optString("whitepaper").map(URI::create),
+                r.optString("whitepaper").flatMap(Nodes::uri),   // optional URL: lenient, logged when dropped
                 r.optString("twitter"),
                 r.clusterPresent("proofOfWork") ? Optional.of(proofOfWork(r)) : Optional.empty(),
                 fetchedAt);

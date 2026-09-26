@@ -6,9 +6,11 @@ import io.github.dimazigel.yfinance.detail.EtfDetail;
 import io.github.dimazigel.yfinance.detail.FundDetail;
 import io.github.dimazigel.yfinance.detail.MutualFundDetail;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
+import java.math.BigDecimal;
 import java.net.URI;
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 /** {@link Resolved} → {@link EtfDetail} or {@link MutualFundDetail}. Callers must have checked {@code missingRequired()} first. */
 public final class FundDetailBuilder {
@@ -84,11 +86,16 @@ public final class FundDetailBuilder {
                 r.date("trailingReturns.asOf"));
     }
 
+    /** Yahoo pads the list with a year whose value is not yet known; such rows are dropped (DEBUG). */
     static List<FundDetail.YearReturn> annualReturns(Resolved r) {
-        return r.list("annualTotalReturns").stream()
-                .filter(n -> Nodes.get(n, "year").isPresent() && Nodes.get(n, "annualValue").isPresent())
-                .map(n -> new FundDetail.YearReturn(Integer.parseInt(Nodes.string(n, "year")), Nodes.decimal(n, "annualValue")))
-                .toList();
+        return RowMappers.mapRows(r.list("annualTotalReturns"), "annual returns", n -> {
+            Optional<Integer> year = Nodes.optInt(n, "year");
+            Optional<BigDecimal> value = Nodes.optDecimal(n, "annualValue");
+            if (year.isEmpty() || value.isEmpty()) {
+                return null;
+            }
+            return new FundDetail.YearReturn(year.get(), value.get());
+        });
     }
 
     static FundDetail.Allocation allocation(Resolved r) {
@@ -109,14 +116,17 @@ public final class FundDetailBuilder {
                 r.decimal("equityValuation.priceToCashflow"));
     }
 
+    /** A holding needs its symbol, name and weight; a row missing any is dropped (DEBUG), never named after its symbol. */
     static List<FundDetail.Holding> holdings(Resolved r) {
-        return r.list("holdings").stream()
-                .filter(n -> Nodes.get(n, "symbol").isPresent() && Nodes.get(n, "holdingPercent").isPresent())
-                .map(n -> new FundDetail.Holding(
-                        Nodes.string(n, "symbol"),
-                        Nodes.optString(n, "holdingName").orElse(Nodes.string(n, "symbol")),
-                        Nodes.decimal(n, "holdingPercent")))
-                .toList();
+        return RowMappers.mapRows(r.list("holdings"), "holdings", n -> {
+            Optional<String> symbol = Nodes.optString(n, "symbol");
+            Optional<String> name = Nodes.optString(n, "holdingName");
+            Optional<BigDecimal> weight = Nodes.optDecimal(n, "holdingPercent");
+            if (symbol.isEmpty() || name.isEmpty() || weight.isEmpty()) {
+                return null;
+            }
+            return new FundDetail.Holding(symbol.get(), name.get(), weight.get());
+        });
     }
 
     static List<FundDetail.SectorWeight> sectors(Resolved r) {

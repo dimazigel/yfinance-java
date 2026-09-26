@@ -2,6 +2,8 @@ package io.github.dimazigel.yfinance.assembly.build;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import ch.qos.logback.classic.Level;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.github.dimazigel.yfinance.assembly.Payload;
 import io.github.dimazigel.yfinance.assembly.Resolver;
 import io.github.dimazigel.yfinance.assembly.specs.DetailSpecs;
@@ -11,9 +13,11 @@ import io.github.dimazigel.yfinance.detail.EtfDetail;
 import io.github.dimazigel.yfinance.detail.MutualFundDetail;
 import io.github.dimazigel.yfinance.instrument.AssetClass;
 import io.github.dimazigel.yfinance.testsupport.InstrumentFixtures;
+import io.github.dimazigel.yfinance.testsupport.LogCapture;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
@@ -66,6 +70,36 @@ class FundDetailBuilderTest {
         assertThat(v.loadAdjustedReturns().oneYear()).isNotNull();
         assertThat(v.rankInCategory().ytd()).isNotNull();
         assertThat(v.styleBoxUrl().getHost()).isNotBlank();
+    }
+
+    @Test
+    void holdingsWithoutANameAreDroppedNotNamedAfterTheSymbol() {   // final review, finding 9
+        var modules = new HashMap<>(InstrumentFixtures.qsModules("SPY"));
+        ObjectNode top = modules.get("topHoldings").deepCopy();
+        ((ObjectNode) top.get("holdings").get(0)).remove("holdingName");
+        modules.put("topHoldings", top);
+        var r = Resolver.resolve(new Payload(Symbol.of("SPY"), Optional.empty(), modules), EtfDetailSpecs.DETAIL);
+
+        try (var log = LogCapture.of(RowMappers.class)) {
+            EtfDetail spy = FundDetailBuilder.etf(r, Symbol.of("SPY"), NOW);
+
+            assertThat(spy.holdings()).hasSize(top.get("holdings").size() - 1)
+                    .allSatisfy(h -> assertThat(h.name()).isNotEqualTo(h.symbol()));
+            assertThat(log.messages(Level.DEBUG)).anySatisfy(m -> assertThat(m).startsWith("Dropped 1 of").contains("holdings"));
+        }
+    }
+
+    @Test
+    void annualReturnsMissingAValueAreDroppedWithADebugLine() {   // final review, finding 10; VFIAX carries one such row
+        var r = Resolver.resolve(detailPayload("VFIAX"), MutualFundDetailSpecs.DETAIL);
+        int rows = InstrumentFixtures.qsModules("VFIAX").get("fundPerformance").path("annualTotalReturns").path("returns").size();
+
+        try (var log = LogCapture.of(RowMappers.class)) {
+            MutualFundDetail v = FundDetailBuilder.mutualFund(r, Symbol.of("VFIAX"), NOW);
+
+            assertThat(v.annualTotalReturns()).hasSize(rows - 1);
+            assertThat(log.messages(Level.DEBUG)).anySatisfy(m -> assertThat(m).startsWith("Dropped 1 of").contains("annual returns"));
+        }
     }
 
     @Test

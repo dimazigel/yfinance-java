@@ -124,8 +124,8 @@ public final class DetailService {
     private <D> Outcome<D> one(Symbol symbol, AssetClass expected, Instant fetchedAt, Assembler<D> assemble) {
         try (var ignored = LogContext.scope("details", symbol)) {
             Optional<Map<String, JsonNode>> modules = client.modules(symbol, DetailSpecs.modules(expected));
-            if (modules.isEmpty()) {
-                return Outcome.skipped(symbol, SkipReason.UNKNOWN_SYMBOL, "quoteSummary 404");
+            if (modules.isEmpty()) {   // a 404, or a 200 whose result is null: RawQuoteClient reports both as "no result"
+                return Outcome.skipped(symbol, SkipReason.UNKNOWN_SYMBOL, "quoteSummary has no result");
             }
             Resolved r = Resolver.resolve(new Payload(symbol, Optional.empty(), modules.get()), DetailSpecs.forClass(expected));
             if (!r.missingRequired().isEmpty()) {

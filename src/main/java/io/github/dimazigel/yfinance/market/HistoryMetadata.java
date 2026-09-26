@@ -13,8 +13,8 @@ import java.util.Optional;
 /**
  * Instrument metadata accompanying a price-history response.
  *
- * <p>Every field except {@code dataGranularity} is required: {@link io.github.dimazigel.yfinance.mapper.ChartMapper}
- * throws rather than return a partially-populated metadata (history has no downgrade tier).
+ * <p>Every field except {@code dataGranularity} is required: the chart mapper throws rather than
+ * return a partially-populated metadata (history has no downgrade tier).
  *
  * @param regularMarketTime     time of the last regular-session trade Yahoo knew about
  * @param priceHint             number of decimal places Yahoo displays for this instrument

@@ -80,8 +80,10 @@ class DetailServiceTest {
     void detailForVanishedSymbolIsSkippedNotFailed() { // Review Focus 5
         Equity gone = Instruments.withSymbol(aapl, "GONE");
         var outcome = service.equity(gone);
-        assertThat(outcome).isInstanceOfSatisfying(
-                Outcome.Skipped.class, s -> assertThat(s.reason()).isEqualTo(SkipReason.UNKNOWN_SYMBOL));
+        assertThat(outcome).isInstanceOfSatisfying(Outcome.Skipped.class, s -> {
+            assertThat(s.reason()).isEqualTo(SkipReason.UNKNOWN_SYMBOL);
+            assertThat(s.detail()).as("a 200 with a null result reads the same as a 404 here").isEqualTo("quoteSummary has no result");
+        });
     }
 
     @Test
