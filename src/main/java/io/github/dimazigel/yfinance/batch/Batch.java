@@ -21,6 +21,7 @@ public record Batch<T>(List<Outcome<T>> outcomes) {
         return outcomes.stream().flatMap(o -> o.optional().stream()).toList();
     }
 
+    /** The skipped outcomes, in input order. */
     public List<Outcome.Skipped<T>> skipped() {
         var result = new ArrayList<Outcome.Skipped<T>>();
         for (var outcome : outcomes) {
@@ -31,6 +32,7 @@ public record Batch<T>(List<Outcome<T>> outcomes) {
         return List.copyOf(result);
     }
 
+    /** The failed outcomes, in input order. */
     public List<Outcome.Failed<T>> failed() {
         var result = new ArrayList<Outcome.Failed<T>>();
         for (var outcome : outcomes) {

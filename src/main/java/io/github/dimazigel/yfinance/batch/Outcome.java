@@ -34,6 +34,7 @@ public sealed interface Outcome<T> permits Outcome.Ok, Outcome.Skipped, Outcome.
         return new Failed<>(symbol, error);
     }
 
+    /** A symbol whose fetch produced a value. */
     record Ok<T>(Symbol symbol, T value) implements Outcome<T> {
         public Ok {
             Objects.requireNonNull(symbol, "symbol");
@@ -46,6 +47,7 @@ public sealed interface Outcome<T> permits Outcome.Ok, Outcome.Skipped, Outcome.
         }
     }
 
+    /** A symbol the library chose not to answer for; {@link #reason()} says why (never a transport failure). */
     record Skipped<T>(Symbol symbol, SkipReason reason, String detail) implements Outcome<T> {
         public Skipped {
             Objects.requireNonNull(symbol, "symbol");
@@ -59,6 +61,7 @@ public sealed interface Outcome<T> permits Outcome.Ok, Outcome.Skipped, Outcome.
         }
     }
 
+    /** A symbol whose fetch failed with an exception; the batch carried on without it. */
     record Failed<T>(Symbol symbol, YFinanceException error) implements Outcome<T> {
         public Failed {
             Objects.requireNonNull(symbol, "symbol");
