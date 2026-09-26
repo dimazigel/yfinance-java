@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.dimazigel.yfinance.exception.YFDataException;
+import io.github.dimazigel.yfinance.exception.YFHttpException;
 import io.github.dimazigel.yfinance.exception.YFRateLimitException;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
@@ -63,7 +64,7 @@ public final class SyncCallAdapterFactory extends CallAdapter.Factory {
                     parseRetryAfter(response.headers().get("Retry-After")));
         }
         if (!response.isSuccessful()) {
-            throw new YFDataException(
+            throw new YFHttpException(response.code(), path,
                     "Yahoo Finance returned HTTP " + response.code() + " for " + path + errorDetail(response));
         }
         Object body = response.body();
