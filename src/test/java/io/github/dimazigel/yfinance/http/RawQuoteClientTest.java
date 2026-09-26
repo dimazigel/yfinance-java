@@ -39,7 +39,7 @@ class RawQuoteClientTest {
 
         assertThat(server.takeRequest().getRequestUrl().queryParameter("symbols")).isEqualTo("AAPL,NOPE");
         assertThat(rows).containsOnlyKeys(Symbol.of("AAPL"));          // Symbol normalises case; NOPE absent = unknown
-        assertThat(rows.get(Symbol.of("AAPL")).path("quoteType").asText()).isEqualTo("EQUITY");
+        assertThat(rows.get(Symbol.of("AAPL")).path("quoteType").asString()).isEqualTo("EQUITY");
     }
 
     @Test

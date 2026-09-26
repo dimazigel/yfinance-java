@@ -1,10 +1,10 @@
 package io.github.dimazigel.yfinance.assembly;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Optional;
+import tools.jackson.databind.JsonNode;
 
 /** Executes a field table against a payload: first source that has the value wins. */
 public final class Resolver {

@@ -1,17 +1,16 @@
 package io.github.dimazigel.yfinance.api;
 
+import feign.Param;
+import feign.RequestLine;
 import io.github.dimazigel.yfinance.dto.timeseries.TimeseriesResponse;
-import retrofit2.http.GET;
-import retrofit2.http.Path;
-import retrofit2.http.Query;
 
-/** Retrofit binding for Yahoo's fundamentals timeseries endpoint. */
+/** Feign binding for Yahoo's fundamentals timeseries endpoint. */
 public interface FundamentalsApi {
 
-    @GET("ws/fundamentals-timeseries/v1/finance/timeseries/{symbol}")
+    @RequestLine("GET /ws/fundamentals-timeseries/v1/finance/timeseries/{symbol}?type={type}&period1={period1}&period2={period2}")
     TimeseriesResponse timeseries(
-            @Path("symbol") String symbol,
-            @Query("type") String type,
-            @Query("period1") long period1,
-            @Query("period2") long period2);
+            @Param("symbol") String symbol,
+            @Param("type") String type,
+            @Param("period1") long period1,
+            @Param("period2") long period2);
 }

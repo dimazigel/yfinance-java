@@ -1,15 +1,12 @@
 package io.github.dimazigel.yfinance.api;
 
 import io.github.dimazigel.yfinance.http.EndpointConfig;
-import io.github.dimazigel.yfinance.http.SyncCallAdapterFactory;
-import io.github.dimazigel.yfinance.http.YahooObjectMapper;
+import io.github.dimazigel.yfinance.http.YahooFeign;
 import okhttp3.OkHttpClient;
-import retrofit2.Retrofit;
-import retrofit2.converter.jackson.JacksonConverterFactory;
 
 /**
- * Bundle of the Retrofit interfaces. Most endpoints live on the primary host; the fundamentals
- * timeseries endpoint is served from the secondary host.
+ * The Feign interfaces for Yahoo's endpoints, bundled so {@code YFinance} can be wired from one object.
+ * Fundamentals timeseries is served by the query2 host; everything else by query1.
  */
 public record YahooApis(
         ChartApi chart,
@@ -20,34 +17,16 @@ public record YahooApis(
         SearchApi search,
         LookupApi lookup) {
 
-    /** Builds all interfaces, sourcing fundamentals from {@code fundamentalsRetrofit}. */
-    public static YahooApis create(Retrofit primary, Retrofit fundamentalsRetrofit) {
-        return new YahooApis(
-                primary.create(ChartApi.class),
-                primary.create(QuoteSummaryApi.class),
-                primary.create(QuoteApi.class),
-                fundamentalsRetrofit.create(FundamentalsApi.class),
-                primary.create(OptionsApi.class),
-                primary.create(SearchApi.class),
-                primary.create(LookupApi.class));
-    }
-
     /** Builds all interfaces from the given client and host configuration. */
     public static YahooApis create(EndpointConfig config, OkHttpClient client) {
-        var converter = JacksonConverterFactory.create(YahooObjectMapper.create());
-        var callAdapter = SyncCallAdapterFactory.create();
-        Retrofit primary = new Retrofit.Builder()
-                .baseUrl(config.query1Base())
-                .client(client)
-                .addCallAdapterFactory(callAdapter)
-                .addConverterFactory(converter)
-                .build();
-        Retrofit secondary = new Retrofit.Builder()
-                .baseUrl(config.query2Base())
-                .client(client)
-                .addCallAdapterFactory(callAdapter)
-                .addConverterFactory(converter)
-                .build();
-        return create(primary, secondary);
+        YahooFeign feign = YahooFeign.of(client);
+        return new YahooApis(
+                feign.target(ChartApi.class, config.query1Base()),
+                feign.target(QuoteSummaryApi.class, config.query1Base()),
+                feign.target(QuoteApi.class, config.query1Base()),
+                feign.target(FundamentalsApi.class, config.query2Base()),
+                feign.target(OptionsApi.class, config.query1Base()),
+                feign.target(SearchApi.class, config.query1Base()),
+                feign.target(LookupApi.class, config.query1Base()));
     }
 }

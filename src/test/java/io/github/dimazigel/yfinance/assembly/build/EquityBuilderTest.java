@@ -2,7 +2,6 @@ package io.github.dimazigel.yfinance.assembly.build;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.github.dimazigel.yfinance.assembly.Payload;
 import io.github.dimazigel.yfinance.assembly.Resolver;
 import io.github.dimazigel.yfinance.assembly.specs.EquitySpecs;
@@ -15,6 +14,7 @@ import java.time.Instant;
 import java.util.Map;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.node.ObjectNode;
 
 class EquityBuilderTest {
 
@@ -69,7 +69,7 @@ class EquityBuilderTest {
 
     @Test
     void currentDividendYieldIsAFractionFromEitherSource() {   // Review Focus 4
-        ObjectNode row = InstrumentFixtures.v7Row("AAPL").deepCopy();
+        ObjectNode row = (ObjectNode) InstrumentFixtures.v7Row("AAPL").deepCopy();
         row.put("dividendRate", 1.08).put("dividendYield", 0.32);            // v7: percent
         var fromV7 = EquityBuilder.build(Resolver.resolve(new Payload(Symbol.of("AAPL"), Optional.of(row), Map.of()), EquitySpecs.SNAPSHOT), NOW);
         assertThat(fromV7.currentDividend()).isPresent();
@@ -78,7 +78,7 @@ class EquityBuilderTest {
         row.remove("dividendYield");
         row.remove("dividendRate");
         var modules = new java.util.HashMap<>(InstrumentFixtures.qsModules("AAPL"));
-        ObjectNode sd = modules.get("summaryDetail").deepCopy();
+        ObjectNode sd = (ObjectNode) modules.get("summaryDetail").deepCopy();
         sd.put("dividendRate", 1.08).put("dividendYield", 0.0032);          // summaryDetail: fraction
         modules.put("summaryDetail", sd);
         var fromQs = EquityBuilder.build(Resolver.resolve(new Payload(Symbol.of("AAPL"), Optional.of(row), modules), EquitySpecs.SNAPSHOT), NOW);
@@ -87,7 +87,7 @@ class EquityBuilderTest {
 
     @Test
     void changePercentIsAFractionFromEitherSource() {   // final review, finding 1: v7 percent, price module fraction
-        ObjectNode row = InstrumentFixtures.v7Row("AAPL").deepCopy();
+        ObjectNode row = (ObjectNode) InstrumentFixtures.v7Row("AAPL").deepCopy();
         assertThat(row.get("regularMarketChangePercent").decimalValue()).isEqualByComparingTo("1.5331");
         var fromV7 = EquityBuilder.build(Resolver.resolve(new Payload(Symbol.of("AAPL"), Optional.of(row), Map.of()), EquitySpecs.SNAPSHOT), NOW);
         assertThat(fromV7.core().changePercent()).isEqualByComparingTo("0.015331");
@@ -101,7 +101,7 @@ class EquityBuilderTest {
 
     @Test
     void postMarketChangePercentIsAFractionFromEitherSource() {   // final review, finding 1
-        ObjectNode row = InstrumentFixtures.v7Row("AAPL").deepCopy();
+        ObjectNode row = (ObjectNode) InstrumentFixtures.v7Row("AAPL").deepCopy();
         assertThat(row.get("postMarketChangePercent").decimalValue()).isEqualByComparingTo("0.11443085");
         var fromV7 = EquityBuilder.build(Resolver.resolve(new Payload(Symbol.of("AAPL"), Optional.of(row), Map.of()), EquitySpecs.SNAPSHOT), NOW);
         assertThat(fromV7.postMarket()).isPresent();
@@ -117,7 +117,7 @@ class EquityBuilderTest {
 
     @Test
     void postMarketIsAllOrNothing() {
-        ObjectNode row = InstrumentFixtures.v7Row("AAPL").deepCopy();
+        ObjectNode row = (ObjectNode) InstrumentFixtures.v7Row("AAPL").deepCopy();
         row.remove("postMarketTime");   // three of four present
         var r = Resolver.resolve(new Payload(Symbol.of("AAPL"), Optional.of(row), Map.of()), EquitySpecs.SNAPSHOT);
         assertThat(EquityBuilder.build(r, NOW).postMarket()).isEmpty();

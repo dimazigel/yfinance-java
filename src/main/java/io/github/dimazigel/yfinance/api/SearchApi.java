@@ -1,16 +1,16 @@
 package io.github.dimazigel.yfinance.api;
 
+import feign.Param;
+import feign.RequestLine;
 import io.github.dimazigel.yfinance.dto.search.SearchResponse;
-import retrofit2.http.GET;
-import retrofit2.http.Query;
 
-/** Retrofit binding for Yahoo's search endpoint. */
+/** Feign binding for Yahoo's search endpoint. */
 public interface SearchApi {
 
-    @GET("v1/finance/search")
+    @RequestLine("GET /v1/finance/search?q={q}&quotesCount={quotesCount}&newsCount={newsCount}&enableFuzzyQuery={enableFuzzyQuery}")
     SearchResponse search(
-            @Query("q") String query,
-            @Query("quotesCount") int quotesCount,
-            @Query("newsCount") int newsCount,
-            @Query("enableFuzzyQuery") boolean enableFuzzyQuery);
+            @Param("q") String query,
+            @Param("quotesCount") int quotesCount,
+            @Param("newsCount") int newsCount,
+            @Param("enableFuzzyQuery") boolean enableFuzzyQuery);
 }

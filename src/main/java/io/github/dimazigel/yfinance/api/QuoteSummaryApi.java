@@ -1,15 +1,14 @@
 package io.github.dimazigel.yfinance.api;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import retrofit2.http.GET;
-import retrofit2.http.Path;
-import retrofit2.http.Query;
+import feign.Param;
+import feign.RequestLine;
+import tools.jackson.databind.JsonNode;
 
-/** Retrofit binding for Yahoo's quoteSummary endpoint. */
+/** Feign binding for Yahoo's quoteSummary endpoint. */
 public interface QuoteSummaryApi {
 
     /** Raw modules for the assembler; {@code quoteSummary.result[0]} maps module name to object. */
-    @GET("v10/finance/quoteSummary/{symbol}")
-    JsonNode modules(@Path("symbol") String symbol, @Query("modules") String modules,
-            @Query("formatted") boolean formatted, @Query("corsDomain") String corsDomain);
+    @RequestLine("GET /v10/finance/quoteSummary/{symbol}?modules={modules}&formatted={formatted}&corsDomain={corsDomain}")
+    JsonNode modules(@Param("symbol") String symbol, @Param("modules") String modules,
+            @Param("formatted") boolean formatted, @Param("corsDomain") String corsDomain);
 }

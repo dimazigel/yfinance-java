@@ -3,7 +3,6 @@ package io.github.dimazigel.yfinance;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import ch.qos.logback.classic.Level;
-import io.github.dimazigel.yfinance.api.YahooApis;
 import io.github.dimazigel.yfinance.batch.Outcome;
 import io.github.dimazigel.yfinance.batch.SkipReason;
 import io.github.dimazigel.yfinance.enums.Frequency;
@@ -45,8 +44,7 @@ class YFinanceTest {
         server = new MockWebServer();
         server.start();
         server.setDispatcher(new YahooDispatcher());
-        var retrofit = Fixtures.retrofit(server.url("/"));
-        yf = YFinance.fromApis(YahooApis.create(retrofit, retrofit));
+        yf = YFinance.fromApis(Fixtures.apis(server));
     }
 
     @AfterEach
@@ -175,8 +173,7 @@ class YFinanceTest {
 
     @Test
     void yFinanceIsCloseable() {
-        var retrofit = Fixtures.retrofit(server.url("/"));
-        YFinance closeable = YFinance.fromApis(YahooApis.create(retrofit, retrofit));
+        YFinance closeable = YFinance.fromApis(Fixtures.apis(server));
         closeable.close(); // no-op for fromApis, must not throw
         closeable.close(); // idempotent
     }

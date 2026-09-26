@@ -1,19 +1,19 @@
 package io.github.dimazigel.yfinance.testsupport;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.MissingNode;
 import io.github.dimazigel.yfinance.assembly.Payload;
-import io.github.dimazigel.yfinance.http.YahooObjectMapper;
+import io.github.dimazigel.yfinance.http.YahooJsonMapper;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.node.MissingNode;
 
 /** Real captured responses from src/test/resources/fixtures/instruments (see CaptureInstrumentFixtures). */
 public final class InstrumentFixtures {
 
-    private static final ObjectMapper JSON = YahooObjectMapper.create();
+    private static final JsonMapper JSON = YahooJsonMapper.create();
 
     private InstrumentFixtures() {}
 
@@ -32,24 +32,16 @@ public final class InstrumentFixtures {
         } catch (IllegalArgumentException noFixture) {
             return MissingNode.getInstance();
         }
-        try {
-            return JSON.readTree(body).path("quoteResponse").path("result").path(0);
-        } catch (java.io.IOException e) {
-            throw new java.io.UncheckedIOException(e);
-        }
+        return JSON.readTree(body).path("quoteResponse").path("result").path(0);
     }
 
     /** All modules of the captured quoteSummary response; empty map for a 404 capture. */
     public static Map<String, JsonNode> qsModules(String symbol) {
-        try {
-            JsonNode first = JSON.readTree(Fixtures.load("instruments/qs_" + safe(symbol) + ".json"))
-                    .path("quoteSummary").path("result").path(0);
-            var modules = new LinkedHashMap<String, JsonNode>();
-            first.fields().forEachRemaining(e -> modules.put(e.getKey(), e.getValue()));
-            return modules;
-        } catch (java.io.IOException e) {
-            throw new java.io.UncheckedIOException(e);
-        }
+        JsonNode first = JSON.readTree(Fixtures.load("instruments/qs_" + safe(symbol) + ".json"))
+                .path("quoteSummary").path("result").path(0);
+        var modules = new LinkedHashMap<String, JsonNode>();
+        first.properties().forEach(e -> modules.put(e.getKey(), e.getValue()));
+        return modules;
     }
 
     public static Payload payload(String symbol, boolean withModules) {

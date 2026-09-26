@@ -1,14 +1,13 @@
 package io.github.dimazigel.yfinance.http;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.function.Function;
 import org.jspecify.annotations.Nullable;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.module.SimpleModule;
 
 /**
  * Yahoo's quoteSummary endpoint returns some numeric fields as plain scalars and others as
@@ -19,16 +18,17 @@ import org.jspecify.annotations.Nullable;
 public final class RawAwareNumberModule extends SimpleModule {
 
     public RawAwareNumberModule() {
+        super("yahoo-raw-aware-numbers");
         addDeserializer(Long.class, new RawAware<>(JsonNode::asLong));
         addDeserializer(Integer.class, new RawAware<>(JsonNode::asInt));
         addDeserializer(BigDecimal.class, new RawAware<>(RawAwareNumberModule::toBigDecimal));
     }
 
     private static BigDecimal toBigDecimal(JsonNode node) {
-        return node.isNumber() ? node.decimalValue() : new BigDecimal(node.asText());
+        return node.isNumber() ? node.decimalValue() : new BigDecimal(node.asString());
     }
 
-    private static final class RawAware<T> extends JsonDeserializer<T> {
+    private static final class RawAware<T> extends ValueDeserializer<T> {
         private final Function<JsonNode, T> convert;
 
         private RawAware(Function<JsonNode, T> convert) {
@@ -36,9 +36,8 @@ public final class RawAwareNumberModule extends SimpleModule {
         }
 
         @Override
-        public @Nullable T deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
-            JsonNode node = p.readValueAsTree();
-            return fromNode(node);
+        public @Nullable T deserialize(JsonParser p, DeserializationContext ctxt) {
+            return fromNode(ctxt.readTree(p));
         }
 
         private @Nullable T fromNode(@Nullable JsonNode node) {
@@ -49,7 +48,7 @@ public final class RawAwareNumberModule extends SimpleModule {
                 JsonNode raw = node.get("raw");
                 return raw == null || raw.isNull() ? null : convert.apply(raw);
             }
-            if (node.isTextual() && node.asText().isBlank()) {
+            if (node.isString() && node.asString().isBlank()) {
                 return null;
             }
             return convert.apply(node);

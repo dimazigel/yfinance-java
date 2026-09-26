@@ -4,7 +4,7 @@
 
 A type-safe **Java 21** reimplementation of the Python
 [`yfinance`](https://github.com/ranaroussi/yfinance) library, built on
-**Retrofit 3** / OkHttp 5 / Jackson and **Gradle 9**.
+**OpenFeign 13** / OkHttp 5 / Jackson 3 and **Gradle 9**.
 
 It talks to Yahoo Finance's (undocumented) JSON endpoints and exposes the data as immutable
 **records** whose types state what Yahoo guarantees for each kind of instrument: an `Equity` has a
@@ -367,8 +367,8 @@ proof to `Ticker.detail(...)`/`statements(...)` is a programming error and throw
 YFinance / Ticker / Tickers — the facade; batch calls return Batch<Outcome<T>>
 service/     one service per concern (InstrumentService, DetailService, HistoryService, ...)
 http/        client factory, interceptors (UA, crumb, auth-retry, adaptive rate limit),
-             RawQuoteClient (batched v7 rows + per-symbol quoteSummary modules), ObjectMapper
-api/         Retrofit interfaces (one per endpoint) + YahooApis bundle
+             RawQuoteClient (batched v7 rows + per-symbol quoteSummary modules), YahooJsonMapper
+api/         Feign interfaces (one per endpoint) + YahooApis bundle
 assembly/    FieldSpec tables per class (specs/, mirrored from Appendix A), Resolver, builders (build/)
 instrument/  the sealed snapshot hierarchy and its value records
 detail/      EquityDetail, EtfDetail, MutualFundDetail, CryptoDetail (+ rows/)

@@ -3,7 +3,6 @@ package io.github.dimazigel.yfinance;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import io.github.dimazigel.yfinance.api.YahooApis;
 import io.github.dimazigel.yfinance.enums.Frequency;
 import io.github.dimazigel.yfinance.enums.Interval;
 import io.github.dimazigel.yfinance.enums.Range;
@@ -41,8 +40,7 @@ class TickerTest {
         server = new MockWebServer();
         server.start();
         server.setDispatcher(new YahooDispatcher());
-        var retrofit = Fixtures.retrofit(server.url("/"));
-        yf = YFinance.fromApis(YahooApis.create(retrofit, retrofit));
+        yf = YFinance.fromApis(Fixtures.apis(server));
     }
 
     @AfterEach

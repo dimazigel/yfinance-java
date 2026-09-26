@@ -1,6 +1,5 @@
 package io.github.dimazigel.yfinance.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import io.github.dimazigel.yfinance.assembly.Payload;
 import io.github.dimazigel.yfinance.assembly.Resolved;
 import io.github.dimazigel.yfinance.assembly.Resolver;
@@ -34,6 +33,7 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
+import tools.jackson.databind.JsonNode;
 
 /**
  * Snapshot-depth instruments: one batched v7 request per call, classified by {@code quoteType},
@@ -119,7 +119,7 @@ public final class InstrumentService {
     }
 
     private Outcome<Instrument> assemble(Symbol symbol, JsonNode row, Instant now) {
-        String reported = row.path("quoteType").asText("");
+        String reported = row.path("quoteType").asString("");
         Optional<AssetClass> attempted = AssetClass.fromQuoteType(reported);
         AssetClass target = attempted.orElse(AssetClass.UNCLASSIFIED);
         var specs = SnapshotSpecs.forClass(target);

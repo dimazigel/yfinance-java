@@ -1,6 +1,5 @@
 package io.github.dimazigel.yfinance.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import io.github.dimazigel.yfinance.assembly.Payload;
 import io.github.dimazigel.yfinance.assembly.Resolved;
 import io.github.dimazigel.yfinance.assembly.Resolver;
@@ -35,6 +34,7 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
+import tools.jackson.databind.JsonNode;
 
 /**
  * Detail-depth instruments: for each already-classified instrument, one quoteSummary request

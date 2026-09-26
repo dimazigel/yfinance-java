@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import io.github.dimazigel.yfinance.assembly.Payload;
 import io.github.dimazigel.yfinance.assembly.Resolver;
 import io.github.dimazigel.yfinance.assembly.specs.CoreSpecs;
-import io.github.dimazigel.yfinance.http.YahooObjectMapper;
+import io.github.dimazigel.yfinance.http.YahooJsonMapper;
 import io.github.dimazigel.yfinance.instrument.MarketState;
 import io.github.dimazigel.yfinance.testsupport.InstrumentFixtures;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
@@ -60,8 +60,8 @@ class CoreBuilderTest {
 
     @Test
     void penceQuotedCurrencyIsKeptNotNulled() throws Exception {
-        var row = YahooObjectMapper.create().readTree(InstrumentFixtures.v7Row("AAPL").toString());
-        ((com.fasterxml.jackson.databind.node.ObjectNode) row).put("currency", "GBp");
+        var row = YahooJsonMapper.create().readTree(InstrumentFixtures.v7Row("AAPL").toString());
+        ((tools.jackson.databind.node.ObjectNode) row).put("currency", "GBp");
         var resolved = Resolver.resolve(new Payload(Symbol.of("BP.L"), Optional.of(row), Map.of()), CoreSpecs.CORE);
         var core = CoreBuilder.build(resolved);
         assertThat(core.currency().code()).isEqualTo("GBp");

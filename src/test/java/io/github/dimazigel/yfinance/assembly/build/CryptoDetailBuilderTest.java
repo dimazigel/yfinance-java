@@ -2,7 +2,6 @@ package io.github.dimazigel.yfinance.assembly.build;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.github.dimazigel.yfinance.assembly.Payload;
 import io.github.dimazigel.yfinance.assembly.Resolver;
 import io.github.dimazigel.yfinance.assembly.specs.CryptoDetailSpecs;
@@ -13,6 +12,7 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.node.ObjectNode;
 
 class CryptoDetailBuilderTest {
 
@@ -35,7 +35,7 @@ class CryptoDetailBuilderTest {
     @Test
     void malformedOptionalWhitepaperIsDroppedNotFatal() {   // final review, finding 6
         var modules = new HashMap<>(InstrumentFixtures.qsModules("BTC-USD"));
-        ObjectNode profile = modules.get("assetProfile").deepCopy();
+        ObjectNode profile = (ObjectNode) modules.get("assetProfile").deepCopy();
         profile.put("whitepaper", "not a uri, with spaces");
         modules.put("assetProfile", profile);
         var r = Resolver.resolve(new Payload(BTC, Optional.empty(), modules), CryptoDetailSpecs.DETAIL);

@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.spi.ILoggingEvent;
-import io.github.dimazigel.yfinance.api.YahooApis;
 import io.github.dimazigel.yfinance.batch.Batch;
 import io.github.dimazigel.yfinance.batch.Outcome;
 import io.github.dimazigel.yfinance.batch.SkipReason;
@@ -43,8 +42,7 @@ class TickersTest {
         server = new MockWebServer();
         server.start();
         server.setDispatcher(new YahooDispatcher());
-        var retrofit = Fixtures.retrofit(server.url("/"));
-        yf = YFinance.fromApis(YahooApis.create(retrofit, retrofit));
+        yf = YFinance.fromApis(Fixtures.apis(server));
     }
 
     @AfterEach

@@ -378,10 +378,10 @@ class HistoryServiceTest {
     @Test
     void requestsRunInsideALogContextScope() throws Exception {
         var seen = new HashMap<String, String>();
-        var api = Fixtures.retrofit(server.url("/"), chain -> {
+        var api = Fixtures.apis(server, chain -> {
             seen.putAll(MDC.getCopyOfContextMap());
             return chain.proceed(chain.request());
-        }).create(ChartApi.class);
+        }).chart();
         server.enqueue(Fixtures.jsonResponse("chart_aapl_1d.json"));
 
         new HistoryService(api).getHistory(HistoryRequest.builder(Symbol.of("AAPL")).range(Range.ONE_MONTH).build());

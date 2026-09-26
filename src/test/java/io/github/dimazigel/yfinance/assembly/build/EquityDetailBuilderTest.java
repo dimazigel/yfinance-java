@@ -3,8 +3,6 @@ package io.github.dimazigel.yfinance.assembly.build;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import ch.qos.logback.classic.Level;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.github.dimazigel.yfinance.assembly.Payload;
 import io.github.dimazigel.yfinance.assembly.Resolver;
 import io.github.dimazigel.yfinance.assembly.specs.EquityDetailSpecs;
@@ -18,6 +16,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ObjectNode;
 
 class EquityDetailBuilderTest {
 
@@ -83,7 +83,7 @@ class EquityDetailBuilderTest {
     @Test
     void recommendationPeriodsMissingACountAreDroppedNotZeroed() {   // final review, finding 8
         var modules = new HashMap<>(InstrumentFixtures.qsModules("AAPL"));
-        ObjectNode trend = modules.get("recommendationTrend").deepCopy();
+        ObjectNode trend = (ObjectNode) modules.get("recommendationTrend").deepCopy();
         ((ObjectNode) trend.get("trend").get(0)).remove("buy");
         modules.put("recommendationTrend", trend);
         var r = Resolver.resolve(new Payload(Symbol.of("AAPL"), Optional.empty(), modules), EquityDetailSpecs.DETAIL);
@@ -99,7 +99,7 @@ class EquityDetailBuilderTest {
     @Test
     void officersMissingATitleAreDroppedWithADebugLine() {   // final review, finding 10
         var modules = new HashMap<>(InstrumentFixtures.qsModules("AAPL"));
-        ObjectNode profile = modules.get("assetProfile").deepCopy();
+        ObjectNode profile = (ObjectNode) modules.get("assetProfile").deepCopy();
         ((ObjectNode) profile.get("companyOfficers").get(0)).remove("title");
         modules.put("assetProfile", profile);
         var r = Resolver.resolve(new Payload(Symbol.of("AAPL"), Optional.empty(), modules), EquityDetailSpecs.DETAIL);
@@ -115,8 +115,8 @@ class EquityDetailBuilderTest {
     @Test
     void rowsMissingTheirIdentifierAreDropped() throws Exception {
         var modules = new HashMap<>(InstrumentFixtures.qsModules("AAPL"));
-        var trend = (com.fasterxml.jackson.databind.node.ObjectNode) modules.get("recommendationTrend").deepCopy();
-        ((com.fasterxml.jackson.databind.node.ObjectNode) trend.get("trend").get(0)).remove("period");
+        var trend = (ObjectNode) modules.get("recommendationTrend").deepCopy();
+        ((ObjectNode) trend.get("trend").get(0)).remove("period");
         modules.put("recommendationTrend", trend);
         var r = Resolver.resolve(new Payload(Symbol.of("AAPL"), Optional.empty(), modules), EquityDetailSpecs.DETAIL);
         EquityDetail d = EquityDetailBuilder.build(r, modules, Symbol.of("AAPL"), NOW);

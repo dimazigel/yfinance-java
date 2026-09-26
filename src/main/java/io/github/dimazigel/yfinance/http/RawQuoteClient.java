@@ -1,6 +1,5 @@
 package io.github.dimazigel.yfinance.http;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import io.github.dimazigel.yfinance.api.QuoteApi;
 import io.github.dimazigel.yfinance.api.QuoteSummaryApi;
 import io.github.dimazigel.yfinance.exception.YFHttpException;
@@ -11,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import tools.jackson.databind.JsonNode;
 
 /**
  * Fetches the raw JSON the assembler works on: batched v7 rows and per-symbol quoteSummary modules.
@@ -46,7 +46,7 @@ public final class RawQuoteClient {
             String joined = chunk.stream().map(Symbol::value).collect(Collectors.joining(","));
             JsonNode result = quoteApi.quoteRows(joined, false).path("quoteResponse").path("result");
             for (JsonNode row : result) {
-                String reported = row.path("symbol").asText("");
+                String reported = row.path("symbol").asString("");
                 if (!reported.isBlank()) {
                     rows.put(Symbol.of(reported), row); // Symbol.of upper-cases, matching the requested key
                 }

@@ -1,7 +1,5 @@
 package io.github.dimazigel.yfinance;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.dimazigel.yfinance.http.EndpointConfig;
 import io.github.dimazigel.yfinance.http.YahooClientFactory;
 import java.io.IOException;
@@ -17,6 +15,8 @@ import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * Refreshes the real-response fixtures under src/test/resources/fixtures/options. Run on demand:
@@ -32,7 +32,7 @@ class CaptureOptionFixtures {
     @Test
     void capture() throws Exception {
         var client = YahooClientFactory.apiClient(EndpointConfig.production());
-        var mapper = new ObjectMapper();
+        var mapper = JsonMapper.builder().build();
         var out = Path.of("src/test/resources/fixtures/options");
         Files.createDirectories(out);
 
@@ -63,7 +63,7 @@ class CaptureOptionFixtures {
         var request = new Request.Builder().url(urlBuilder.build()).build();
         try (var response = client.newCall(request).execute()) {
             String body = Objects.requireNonNull(response.body(), "response body").string();
-            return new ObjectMapper().readTree(body);
+            return JsonMapper.builder().build().readTree(body);
         }
     }
 
@@ -78,7 +78,7 @@ class CaptureOptionFixtures {
         return dates;
     }
 
-    private static void write(ObjectMapper mapper, Path file, JsonNode body) throws IOException {
+    private static void write(JsonMapper mapper, Path file, JsonNode body) throws IOException {
         Files.writeString(file, mapper.writerWithDefaultPrettyPrinter().writeValueAsString(body));
     }
 
