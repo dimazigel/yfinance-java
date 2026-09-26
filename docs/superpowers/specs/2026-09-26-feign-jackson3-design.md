@@ -64,7 +64,7 @@ A `feign.Client` decorator: delegates to `feign.okhttp.OkHttpClient`; catches `I
 
 ### 3.4 `http/YahooDecoder` (new, package-private)
 
-Delegates to `feign.jackson3.Jackson3Decoder(mapper)`. Before delegating: `response.body() == null` or `Content-Length: 0` → `YFDataException("Yahoo Finance returned an empty body")`. Wraps `tools.jackson.core.JacksonException` (unchecked in Jackson 3) into `YFDataException("Yahoo Finance returned malformed JSON for <path>", e)`.
+Delegates to `feign.jackson3.Jackson3Decoder(mapper)`. `feign-okhttp` yields a null `Response.Body` for a `Content-Length: 0` response, and `Jackson3Decoder.decode` returns `null` for a missing or zero-byte body; `YahooDecoder` checks the delegate's return value and maps a `null` result to `YFDataException("Yahoo Finance returned an empty body")`. Wraps `tools.jackson.core.JacksonException` (unchecked in Jackson 3) into `YFDataException("Yahoo Finance returned malformed JSON for <path>", e)`, and an `IOException` raised while Jackson streams the body (read timeout, reset, mid-body disconnect) into `YFDataException("I/O error calling Yahoo Finance", e)`.
 
 ### 3.5 `http/YahooErrorDecoder` (new, package-private)
 
@@ -77,7 +77,7 @@ public static JsonMapper create() {
     return JsonMapper.builder()
             .addModule(new RawAwareNumberModule())
             .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-            .enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)
+            .enable(EnumFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)
             .build();
 }
 ```
@@ -136,5 +136,5 @@ Delete `http/SyncCallAdapterFactory` and its test, `YahooApis.create(Retrofit, R
 ## 10. Open items / risks
 
 - Feign template expansion of `@Param` values containing `=` or `,` (`EURUSD=X`, module lists `price,summaryDetail`): Feign percent-encodes path and query values; Yahoo accepts `%3D`/`%2C` — verified by the live suite (EURUSD=X and multi-module quoteSummary calls are in it). If Yahoo rejected the encoding, the fallback is a `@Param(expander = …)` or `feign.template` literal — decided at implementation with evidence.
-- **Correction (final review, finding 2):** Jackson 3 `JsonNode.asLong()/asInt()/asString()` throw on a non-coercible node instead of defaulting (2.x returned `0`/`""`/`false`). This is not the same as 2.x. Through `RawAwareNumberModule`, garbage numerics now fail loudly as a `YFDataException("malformed JSON …")` instead of silently becoming `0` — consistent with the never-coerce rule (§ conventions in AGENTS.md), and now pinned by `RawAwareNumberModuleTest`. `Resolved`/`Nodes` already parsed strictly for numerics via `isNumber() ? ... : Long.parseLong(...)`, so they were unaffected there, but their no-arg `asString()`/`asBoolean()` getters (`Resolved.string()`, `Resolved.bool()`, `Nodes.string()/optString()`) now throw `JsonNodeException` on a container node instead of returning `""`/`false`; `InstrumentService`/`DetailService` wrap any `RuntimeException` from assembly into `YFDataException("Failed to assemble …")`, so this never leaks past the service boundary as a `Failed` outcome.
+- **Correction (final review, finding 2):** Jackson 3 `JsonNode.asLong()/asInt()/asString()` throw on a non-coercible node instead of defaulting (2.x returned `0`/`""`/`false`). This is not the same as 2.x. Through `RawAwareNumberModule`, garbage numerics now fail loudly as a `YFDataException("malformed JSON …")` instead of silently becoming `0` — consistent with the never-coerce rule (§ conventions in AGENTS.md), and now pinned by `RawAwareNumberModuleTest`. `Resolved`/`Nodes` were **not** unaffected: their `longValue`/`intValue`/`optLong`/`optInt` accessors call `JsonNode.longValue()`/`intValue()` directly on a numeric node, and Jackson 3's `NumericFPNode.longValue()/intValue()` now throw `JsonNodeException` (`"... cannot convert value ... to long: value has fractional part"`) on a fractional value instead of truncating it (2.x's `(long) 1.5 → 1`) — pinned by `ResolverTest.fractionalNumberRejectsARequiredLongAccessor`. Their no-arg `asString()`/`asBoolean()` getters (`Resolved.string()`, `Resolved.bool()`, `Nodes.string()/optString()`) likewise now throw `JsonNodeException` on a container node instead of returning `""`/`false`. In both cases `InstrumentService`/`DetailService` wrap any `RuntimeException` from assembly into `YFDataException("Failed to assemble …")`, so this never leaks past the service boundary as a `Failed` outcome — the throw is deliberate (never-coerce), not a gap.
 - `feign-okhttp` 13.15 depends on `okhttp-jvm`; the project's OkHttp BOM is the same 5.5.0, so no version skew.

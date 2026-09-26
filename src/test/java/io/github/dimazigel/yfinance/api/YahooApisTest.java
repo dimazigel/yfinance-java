@@ -69,6 +69,41 @@ class YahooApisTest {
         assertThat(qs.pathSegments()).containsExactly("v10", "finance", "quoteSummary", "BTC-USD");
         assertThat(qs.queryParameter("modules")).isEqualTo("price,summaryDetail");
         assertThat(qs.queryParameter("corsDomain")).isEqualTo("finance.yahoo.com");
+
+        server.enqueue(Fixtures.jsonResponse("instruments/qs_005930_KS.json"));
+        apis.quoteSummary().modules("005930.KS", "assetProfile", false, "finance.yahoo.com");
+        HttpUrl dotted = sent();
+        assertThat(dotted.pathSegments()).containsExactly("v10", "finance", "quoteSummary", "005930.KS"); // decoded
+        assertThat(dotted.encodedPath()).contains("005930.KS"); // wire form: '.' is unreserved, so unencoded
+    }
+
+    @Test
+    void searchSendsQueryAndCounts() throws Exception {
+        server.enqueue(Fixtures.jsonResponse("search_apple.json"));
+        apis.search().search("apple", 8, 8, true);
+        HttpUrl url = sent();
+        assertThat(url.encodedPath()).isEqualTo("/v1/finance/search");
+        assertThat(url.queryParameterNames()).containsExactlyInAnyOrder("q", "quotesCount", "newsCount", "enableFuzzyQuery");
+        assertThat(url.queryParameter("q")).isEqualTo("apple");
+        assertThat(url.queryParameter("quotesCount")).isEqualTo("8");
+        assertThat(url.queryParameter("newsCount")).isEqualTo("8");
+        assertThat(url.queryParameter("enableFuzzyQuery")).isEqualTo("true");
+    }
+
+    @Test
+    void lookupSendsQueryAndOptions() throws Exception {
+        server.enqueue(Fixtures.jsonResponse("lookup_apple.json"));
+        apis.lookup().lookup("apple", "equity", 0, 25, false, true);
+        HttpUrl url = sent();
+        assertThat(url.encodedPath()).isEqualTo("/v1/finance/lookup");
+        assertThat(url.queryParameterNames())
+                .containsExactlyInAnyOrder("query", "type", "start", "count", "formatted", "fetchPricingData");
+        assertThat(url.queryParameter("query")).isEqualTo("apple");
+        assertThat(url.queryParameter("type")).isEqualTo("equity");
+        assertThat(url.queryParameter("start")).isEqualTo("0");
+        assertThat(url.queryParameter("count")).isEqualTo("25");
+        assertThat(url.queryParameter("formatted")).isEqualTo("false");
+        assertThat(url.queryParameter("fetchPricingData")).isEqualTo("true");
     }
 
     @Test

@@ -30,8 +30,12 @@ final class YahooInvocationHandlerFactory implements InvocationHandlerFactory {
                 if (e.getCause() instanceof YFinanceException ours) {
                     throw ours;
                 }
+                // Backstop: YahooDecoder only ever throws YFinanceException, so a DecodeException with a
+                // different cause is not reachable through it today; belt-and-braces for a future decoder.
                 throw new YFDataException("Yahoo Finance response could not be decoded: " + e.getMessage(), e);
             } catch (FeignException e) {
+                // Backstop: YahooFeignClient/YahooErrorDecoder never let a raw FeignException reach here;
+                // belt-and-braces in case a future client or error decoder does.
                 throw new YFDataException("Yahoo Finance call failed: " + e.getMessage(), e);
             }
         };

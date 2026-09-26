@@ -51,7 +51,7 @@ class YahooFeignTest {
     }
 
     private ProbeApi api(OkHttpClient client) {
-        return YahooFeign.builder(client, YahooJsonMapper.create()).target(ProbeApi.class, server.url("/").toString());
+        return YahooFeign.of(client).target(ProbeApi.class, server.url("/"));
     }
 
     private OkHttpClient countingClient(Duration readTimeout) {

@@ -1,10 +1,7 @@
 package io.github.dimazigel.yfinance.api;
 
-import feign.Feign;
 import io.github.dimazigel.yfinance.http.EndpointConfig;
 import io.github.dimazigel.yfinance.http.YahooFeign;
-import io.github.dimazigel.yfinance.http.YahooJsonMapper;
-import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 
 /**
@@ -22,22 +19,14 @@ public record YahooApis(
 
     /** Builds all interfaces from the given client and host configuration. */
     public static YahooApis create(EndpointConfig config, OkHttpClient client) {
-        Feign.Builder feign = YahooFeign.builder(client, YahooJsonMapper.create());
-        String query1 = base(config.query1Base());
-        String query2 = base(config.query2Base());
+        YahooFeign feign = YahooFeign.of(client);
         return new YahooApis(
-                feign.target(ChartApi.class, query1),
-                feign.target(QuoteSummaryApi.class, query1),
-                feign.target(QuoteApi.class, query1),
-                feign.target(FundamentalsApi.class, query2),
-                feign.target(OptionsApi.class, query1),
-                feign.target(SearchApi.class, query1),
-                feign.target(LookupApi.class, query1));
-    }
-
-    /** Feign joins {@code base + template}; the templates start with {@code /}, so the base must not end with one. */
-    private static String base(HttpUrl url) {
-        String s = url.toString();
-        return s.endsWith("/") ? s.substring(0, s.length() - 1) : s;
+                feign.target(ChartApi.class, config.query1Base()),
+                feign.target(QuoteSummaryApi.class, config.query1Base()),
+                feign.target(QuoteApi.class, config.query1Base()),
+                feign.target(FundamentalsApi.class, config.query2Base()),
+                feign.target(OptionsApi.class, config.query1Base()),
+                feign.target(SearchApi.class, config.query1Base()),
+                feign.target(LookupApi.class, config.query1Base()));
     }
 }

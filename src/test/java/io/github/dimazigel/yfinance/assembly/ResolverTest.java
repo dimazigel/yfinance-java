@@ -119,6 +119,17 @@ class ResolverTest {
     }
 
     @Test
+    void fractionalNumberRejectsARequiredLongAccessor() throws Exception {   // final review, Minor-1
+        var payload = new Payload(AAPL, Optional.of(json("{\"frac\": 1.5}")), Map.of());
+        var specs = List.of(FieldSpec.required("frac", Unit.RAW, "v7:frac"));
+        var r = Resolver.resolve(payload, specs);
+
+        assertThatThrownBy(() -> r.longValue("frac"))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessageContaining("fractional part");
+    }
+
+    @Test
     void clustersArePresentOnlyWhenEveryMemberIs() throws Exception {
         var payload = new Payload(AAPL, Optional.of(json("{\"a\": 1, \"b\": 2, \"c\": 3}")), Map.of());
         var specs = List.of(
