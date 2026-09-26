@@ -6,11 +6,20 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import io.github.dimazigel.yfinance.api.FundamentalsApi;
 import io.github.dimazigel.yfinance.enums.Frequency;
 import io.github.dimazigel.yfinance.enums.StatementType;
-import io.github.dimazigel.yfinance.model.FinancialStatement;
+import io.github.dimazigel.yfinance.fundamentals.FinancialStatement;
+import io.github.dimazigel.yfinance.instrument.Core;
+import io.github.dimazigel.yfinance.instrument.Equity;
+import io.github.dimazigel.yfinance.instrument.MarketState;
+import io.github.dimazigel.yfinance.instrument.QuoteCurrency;
+import io.github.dimazigel.yfinance.instrument.Session;
 import io.github.dimazigel.yfinance.testsupport.Fixtures;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
+import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Map;
+import java.util.Optional;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
 import org.junit.jupiter.api.AfterEach;
@@ -32,6 +41,82 @@ class FundamentalsServiceTest {
     @AfterEach
     void tearDown() throws Exception {
         server.shutdown();
+    }
+
+    /**
+     * Statements are equities-only (design D8): the public overload takes an {@link Equity},
+     * proof at compile time that this instrument belongs to the one class Yahoo's timeseries
+     * endpoint actually serves. There is deliberately no overload taking an {@code Etf},
+     * {@code MutualFund}, or any other {@code Instrument} subtype — that absence is itself the
+     * compile-time assertion this test documents; it isn't (and can't be) expressed as a runtime
+     * check, since code calling {@code service.getStatement(someEtf, ...)} simply fails to compile.
+     */
+    @Test
+    void acceptsOnlyEquities() throws Exception {
+        server.enqueue(Fixtures.jsonResponse("timeseries_income_annual.json"));
+        Equity equity = equityOf("AAPL");
+
+        FinancialStatement stmt = service.getStatement(equity, StatementType.INCOME, Frequency.ANNUAL);
+
+        assertThat(stmt.type()).isEqualTo(StatementType.INCOME);
+        RecordedRequest req = server.takeRequest();
+        assertThat(req.getRequestUrl().encodedPath())
+                .isEqualTo("/ws/fundamentals-timeseries/v1/finance/timeseries/AAPL");
+    }
+
+    @Test
+    void equityOverloadStillRejectsTrailingBalanceSheet() {
+        assertThatThrownBy(() -> service.getStatement(
+                        equityOf("AAPL"), StatementType.BALANCE_SHEET, Frequency.TRAILING))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("trailing")
+                .hasMessageContaining("balance sheet");
+        assertThat(server.getRequestCount()).isZero();
+    }
+
+    /** Minimal {@link Equity} built with the canonical constructor; only {@code symbol} matters here. */
+    private static Equity equityOf(String symbol) {
+        Core core = new Core(
+                Symbol.of(symbol),
+                "Apple Inc.",
+                Optional.of("Apple Inc."),
+                QuoteCurrency.of("USD"),
+                "NMS",
+                "NasdaqGS",
+                ZoneId.of("America/New_York"),
+                MarketState.REGULAR,
+                BigDecimal.TEN,
+                BigDecimal.ONE,
+                BigDecimal.ONE,
+                BigDecimal.TEN,
+                Instant.EPOCH,
+                BigDecimal.ONE,
+                BigDecimal.TEN,
+                BigDecimal.TEN,
+                BigDecimal.TEN,
+                1L,
+                1L,
+                Instant.EPOCH,
+                2,
+                true);
+        return new Equity(
+                core,
+                new Session(BigDecimal.TEN, BigDecimal.ONE, BigDecimal.TEN, 1L),
+                Optional.empty(),
+                new Equity.Valuation(BigDecimal.TEN, 1L, 1L, QuoteCurrency.of("USD")),
+                new Equity.NextEarnings(Instant.EPOCH, Instant.EPOCH, Instant.EPOCH, false),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                Instant.EPOCH);
     }
 
     @Test

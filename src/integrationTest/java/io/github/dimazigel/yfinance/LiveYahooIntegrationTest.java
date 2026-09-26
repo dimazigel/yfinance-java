@@ -12,10 +12,15 @@ import io.github.dimazigel.yfinance.enums.OptionType;
 import io.github.dimazigel.yfinance.enums.Range;
 import io.github.dimazigel.yfinance.enums.StatementType;
 import io.github.dimazigel.yfinance.exception.YFDataException;
+import io.github.dimazigel.yfinance.fundamentals.FinancialStatement;
 import io.github.dimazigel.yfinance.http.AdaptiveRateLimitConfig;
 import io.github.dimazigel.yfinance.http.EndpointConfig;
+import io.github.dimazigel.yfinance.instrument.Core;
+import io.github.dimazigel.yfinance.instrument.Equity;
+import io.github.dimazigel.yfinance.instrument.MarketState;
+import io.github.dimazigel.yfinance.instrument.QuoteCurrency;
+import io.github.dimazigel.yfinance.instrument.Session;
 import io.github.dimazigel.yfinance.market.PriceBar;
-import io.github.dimazigel.yfinance.model.FinancialStatement;
 import io.github.dimazigel.yfinance.service.HistoryRequest;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
 import java.time.Duration;
@@ -24,6 +29,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Currency;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
@@ -49,11 +55,63 @@ class LiveYahooIntegrationTest {
 
     private YFinance yf;
     private Ticker aapl;
+    private Equity aaplEquity;
 
     @BeforeAll
     void setUp() {
         yf = YFinance.create();
         aapl = yf.ticker("AAPL");
+        aaplEquity = equityOf("AAPL");
+    }
+
+    /**
+     * Minimal {@link Equity} built with the canonical constructor, real symbol only: the facade
+     * doesn't yet expose a way to obtain a live {@code Equity} through {@link Ticker} (Task 16), and
+     * {@link Ticker#statements(Equity, StatementType, Frequency)} only needs the symbol to reach the
+     * real timeseries endpoint below.
+     */
+    private static Equity equityOf(String symbol) {
+        Core core = new Core(
+                Symbol.of(symbol),
+                "Apple Inc.",
+                Optional.of("Apple Inc."),
+                QuoteCurrency.of("USD"),
+                "NMS",
+                "NasdaqGS",
+                ZoneId.of("America/New_York"),
+                MarketState.REGULAR,
+                java.math.BigDecimal.TEN,
+                java.math.BigDecimal.ONE,
+                java.math.BigDecimal.ONE,
+                java.math.BigDecimal.TEN,
+                Instant.EPOCH,
+                java.math.BigDecimal.ONE,
+                java.math.BigDecimal.TEN,
+                java.math.BigDecimal.TEN,
+                java.math.BigDecimal.TEN,
+                1L,
+                1L,
+                Instant.EPOCH,
+                2,
+                true);
+        return new Equity(
+                core,
+                new Session(java.math.BigDecimal.TEN, java.math.BigDecimal.ONE, java.math.BigDecimal.TEN, 1L),
+                Optional.empty(),
+                new Equity.Valuation(java.math.BigDecimal.TEN, 1L, 1L, QuoteCurrency.of("USD")),
+                new Equity.NextEarnings(Instant.EPOCH, Instant.EPOCH, Instant.EPOCH, false),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
+                Instant.EPOCH);
     }
 
     @AfterAll
@@ -334,7 +392,7 @@ class LiveYahooIntegrationTest {
         void everyStatementTypeAtAnnualAndQuarterly() {
             for (StatementType type : StatementType.values()) {
                 for (Frequency frequency : List.of(Frequency.ANNUAL, Frequency.QUARTERLY)) {
-                    var statement = aapl.financials(type, frequency);
+                    var statement = aapl.statements(aaplEquity, type, frequency);
                     assertThat(statement.periods()).as("%s %s periods", type, frequency).isNotEmpty();
                     assertThat(statement.lineItems()).as("%s %s line items", type, frequency).isNotEmpty();
                     assertThat(statement.type()).isEqualTo(type);
@@ -346,15 +404,15 @@ class LiveYahooIntegrationTest {
         @Test
         void trailingTwelveMonthsForIncomeAndCashFlow() {
             // Yahoo serves trailing (TTM) figures as a series, one value per quarter-end.
-            var income = aapl.financials(StatementType.INCOME, Frequency.TRAILING);
+            var income = aapl.statements(aaplEquity, StatementType.INCOME, Frequency.TRAILING);
             assertThat(income.periods()).isNotEmpty();
             assertThat(income.value(LineItem.TOTAL_REVENUE, income.periods().getLast())).isPositive();
 
-            var cashFlow = aapl.financials(StatementType.CASH_FLOW, Frequency.TRAILING);
+            var cashFlow = aapl.statements(aaplEquity, StatementType.CASH_FLOW, Frequency.TRAILING);
             assertThat(cashFlow.periods()).isNotEmpty();
 
             // Yahoo has no trailing balance sheet; the library rejects the combination up front.
-            assertThatThrownBy(() -> aapl.financials(StatementType.BALANCE_SHEET, Frequency.TRAILING))
+            assertThatThrownBy(() -> aapl.statements(aaplEquity, StatementType.BALANCE_SHEET, Frequency.TRAILING))
                     .isInstanceOf(IllegalArgumentException.class);
         }
 
@@ -363,7 +421,7 @@ class LiveYahooIntegrationTest {
             // Guards against Yahoo renaming keys: most typed line items must resolve for a large
             // industrial company. (Financial-sector keys like NetLoan legitimately stay absent.)
             for (StatementType type : StatementType.values()) {
-                var statement = aapl.financials(type, Frequency.ANNUAL);
+                var statement = aapl.statements(aaplEquity, type, Frequency.ANNUAL);
                 LocalDate latest = statement.periods().getLast();
                 var items = LineItem.forStatement(type);
                 long present = items.stream().filter(li -> statement.value(li, latest) != null).count();
@@ -375,7 +433,7 @@ class LiveYahooIntegrationTest {
 
         @Test
         void unknownLineItemOrPeriodIsNull() {
-            FinancialStatement income = aapl.financials(StatementType.INCOME, Frequency.ANNUAL);
+            FinancialStatement income = aapl.statements(aaplEquity, StatementType.INCOME, Frequency.ANNUAL);
             assertThat(income.value("NoSuchLineItem", income.periods().getLast())).isNull();
             assertThat(income.value(LineItem.TOTAL_REVENUE, LocalDate.of(1990, 1, 1))).isNull();
         }

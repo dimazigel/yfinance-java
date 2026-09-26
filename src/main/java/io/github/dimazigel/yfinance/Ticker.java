@@ -4,6 +4,8 @@ import io.github.dimazigel.yfinance.enums.Frequency;
 import io.github.dimazigel.yfinance.enums.Interval;
 import io.github.dimazigel.yfinance.enums.Range;
 import io.github.dimazigel.yfinance.enums.StatementType;
+import io.github.dimazigel.yfinance.fundamentals.FinancialStatement;
+import io.github.dimazigel.yfinance.instrument.Equity;
 import io.github.dimazigel.yfinance.market.Dividend;
 import io.github.dimazigel.yfinance.market.OptionChain;
 import io.github.dimazigel.yfinance.market.PriceHistory;
@@ -12,7 +14,6 @@ import io.github.dimazigel.yfinance.model.AnalystPriceTarget;
 import io.github.dimazigel.yfinance.model.EarningsHistoryEntry;
 import io.github.dimazigel.yfinance.model.EpsRevisionsPeriod;
 import io.github.dimazigel.yfinance.model.EpsTrendPeriod;
-import io.github.dimazigel.yfinance.model.FinancialStatement;
 import io.github.dimazigel.yfinance.model.GrowthEstimate;
 import io.github.dimazigel.yfinance.model.Holders;
 import io.github.dimazigel.yfinance.model.Info;
@@ -98,8 +99,20 @@ public final class Ticker {
         return yf.quote.getQuote(symbol);
     }
 
-    public FinancialStatement financials(StatementType type, Frequency frequency) {
-        return yf.fundamentals.getStatement(symbol, type, frequency);
+    /**
+     * A financial statement for this ticker's symbol. Statements are equities-only; {@code proof}
+     * is the compile-time evidence that this instrument is an {@link Equity} (Yahoo's timeseries
+     * endpoint returns empty series for every other class).
+     *
+     * @throws IllegalArgumentException if {@code proof} is for a different symbol; a proof for MSFT
+     *     passed through the AAPL ticker would otherwise silently fetch MSFT's statement
+     */
+    public FinancialStatement statements(Equity proof, StatementType type, Frequency frequency) {
+        if (!proof.symbol().equals(symbol)) {
+            throw new IllegalArgumentException(
+                    "Equity proof is for " + proof.symbol() + " but this ticker is " + symbol);
+        }
+        return yf.fundamentals.getStatement(proof, type, frequency);
     }
 
     /** The nearest expiration's option chain, or empty when this instrument has no listed options. */

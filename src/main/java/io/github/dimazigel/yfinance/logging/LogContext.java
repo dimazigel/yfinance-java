@@ -14,7 +14,7 @@ import org.slf4j.MDC;
  *
  * <ul>
  *   <li>{@value #OP} — the operation: {@code history}, {@code info}, {@code quote}, {@code quotes},
- *       {@code financials}, {@code options}, {@code holders}, {@code analysis}, {@code search},
+ *       {@code statements}, {@code options}, {@code holders}, {@code analysis}, {@code search},
  *       {@code lookup}
  *   <li>{@value #SYMBOL} — the ticker symbol (comma-joined for batch quotes)
  *   <li>{@value #ENDPOINT} — the request path, e.g. {@code /v8/finance/chart/AAPL}, present while an

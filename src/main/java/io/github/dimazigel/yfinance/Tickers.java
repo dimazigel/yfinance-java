@@ -67,7 +67,7 @@ public final class Tickers {
 
     /**
      * Applies {@code fetcher} to every symbol's {@link Ticker} concurrently, e.g.
-     * {@code tickers.fetch(Ticker::options)} or {@code tickers.fetch(t -> t.financials(INCOME, ANNUAL))}.
+     * {@code tickers.fetch(Ticker::options)} or {@code tickers.fetch(t -> t.statements(equity, INCOME, ANNUAL))}.
      *
      * <p>A fetcher that throws yields a {@link Result.Failure} for that symbol only; a fetcher that
      * returns {@code null} (some calls are {@code @Nullable}, e.g. {@link Ticker#analystPriceTargets()}

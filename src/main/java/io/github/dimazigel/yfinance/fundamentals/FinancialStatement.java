@@ -1,4 +1,4 @@
-package io.github.dimazigel.yfinance.model;
+package io.github.dimazigel.yfinance.fundamentals;
 
 import io.github.dimazigel.yfinance.enums.Frequency;
 import io.github.dimazigel.yfinance.enums.LineItem;
