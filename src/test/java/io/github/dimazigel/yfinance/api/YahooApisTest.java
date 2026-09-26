@@ -12,7 +12,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-/** The eight Feign interfaces send the same requests the Retrofit ones did. */
+/** The seven Feign interfaces send the request shapes Yahoo expects: path variables, query names, omitted nulls, and the query2 host for fundamentals. */
 class YahooApisTest {
 
     private MockWebServer server;
