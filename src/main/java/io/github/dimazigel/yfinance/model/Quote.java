@@ -3,6 +3,7 @@ package io.github.dimazigel.yfinance.model;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
 import java.math.BigDecimal;
 import java.util.Currency;
+import java.util.function.Function;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -21,6 +22,14 @@ public record Quote(
         PriceSnapshot price,
         KeyStats keyStats,
         AnalystSummary analyst) {
+
+    /**
+     * A field the caller insists on, or a {@link io.github.dimazigel.yfinance.exception.YFMissingDataException}
+     * naming it and this symbol: {@code quote.require(q -> q.price().marketCap(), "marketCap")}.
+     */
+    public <V> V require(Function<? super Quote, @Nullable V> accessor, String field) {
+        return Required.value(this, accessor, field, symbol);
+    }
 
     /** Current market prices and trading ranges. */
     public record PriceSnapshot(

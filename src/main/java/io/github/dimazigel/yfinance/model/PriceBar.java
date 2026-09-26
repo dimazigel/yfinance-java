@@ -3,6 +3,7 @@ package io.github.dimazigel.yfinance.model;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.time.Instant;
+import java.util.function.Function;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -46,6 +47,14 @@ public record PriceBar(
         BigDecimal factor = adjClose.divide(close, PRECISION);
         return new PriceBar(timestamp, scale(open, factor), scale(high, factor), scale(low, factor),
                 adjClose, adjClose, volume);
+    }
+
+    /**
+     * A field the caller insists on, or a {@link io.github.dimazigel.yfinance.exception.YFMissingDataException}
+     * naming it and this bar's timestamp: {@code bar.require(PriceBar::volume, "volume")}.
+     */
+    public <V> V require(Function<? super PriceBar, @Nullable V> accessor, String field) {
+        return Required.value(this, accessor, field, "bar at " + timestamp);
     }
 
     private static @Nullable BigDecimal scale(@Nullable BigDecimal value, BigDecimal factor) {

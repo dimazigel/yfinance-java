@@ -2,6 +2,7 @@ package io.github.dimazigel.yfinance.model;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.function.Function;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -24,5 +25,13 @@ public record Info(
         upgradesDowngrades = upgradesDowngrades == null ? List.of() : List.copyOf(upgradesDowngrades);
         earningsDates = earningsDates == null ? List.of() : List.copyOf(earningsDates);
         secFilings = secFilings == null ? List.of() : List.copyOf(secFilings);
+    }
+
+    /**
+     * A field the caller insists on, or a {@link io.github.dimazigel.yfinance.exception.YFMissingDataException}
+     * naming it and this symbol: {@code info.require(Info::profile, "profile")}.
+     */
+    public <V> V require(Function<? super Info, @Nullable V> accessor, String field) {
+        return Required.value(this, accessor, field, quote.symbol());
     }
 }
