@@ -162,7 +162,7 @@ and `missing()` (the field names). `instruments(symbols, Equity.class)` reports 
 | Depth | Types | Requests |
 |---|---|---|
 | **Snapshot** | the `Instrument` hierarchy | one `/v7/finance/quote` request per 100 symbols, plus at most one `quoteSummary` request per symbol whose v7 row left a guaranteed field short (the modules requested depend on the class) |
-| **Detail** | `EquityDetail`, `EtfDetail`, `MutualFundDetail`, `CryptoDetail` | one `quoteSummary` request per instrument; `equityDetails(...)` and friends run at most four at once, `tickers(...).withConcurrency(n).fetch(...)` lets you choose the bound |
+| **Detail** | `EquityDetail`, `EtfDetail`, `MutualFundDetail`, `CryptoDetail` | one `quoteSummary` request per instrument; `equityDetails(...)` and friends keep at most `EndpointConfig.fanOutConcurrency()` requests in flight (4 by default — raise it with `withFanOutConcurrency(n)`); `tickers(...).withConcurrency(n)` overrides the bound for one `fetch`/`histories` call |
 
 Each snapshot field is assembled from both endpoints in a fixed precedence (v7 first, then the
 quoteSummary modules) before it counts as missing, which is what lifts e.g. ETF trailing returns
@@ -264,6 +264,7 @@ Everything is tuned through `EndpointConfig` (an immutable record with `with...`
 ```java
 var config = EndpointConfig.production()
         .withCallTimeout(Duration.ofSeconds(10))
+        .withFanOutConcurrency(8)          // detail batches and the Tickers default; 4 if unset
         .withAdaptiveRateLimit(new AdaptiveRateLimitConfig(
                 true,                      // enabled
                 Duration.ofMillis(500),    // initialDelay after the first 429
@@ -279,7 +280,8 @@ try (var yf = YFinance.create(config)) {
 ```
 
 Derive variants from `production()` with `withHosts(...)`, `withUserAgent(...)`, `withCallTimeout(...)`,
-`withAdaptiveRateLimit(...)`, `withTransientRetry(...)` and `withClientCustomizer(...)`.
+`withAdaptiveRateLimit(...)`, `withTransientRetry(...)`, `withFanOutConcurrency(...)` and
+`withClientCustomizer(...)`.
 `AdaptiveRateLimitConfig.defaults()` is what `EndpointConfig.production()` uses;
 `AdaptiveRateLimitConfig.disabled()` turns throttling and 429-retries off entirely.
 
@@ -322,7 +324,7 @@ classes under `io.github.dimazigel.yfinance`. A healthy production log from this
 | level | when | examples |
 |---|---|---|
 | `WARN` | degraded, or gave up | cookie/crumb unavailable; still 429 or 5xx after all retries |
-| `INFO` | once per client, once per batch | effective config at `create()`; rate limiter entering/leaving degraded mode; `instruments: 500 symbols: 497 ok, 2 skipped, 1 failed`; `Fetched 20 symbols: 20 ok, 0 skipped, 0 failed in 1 812 ms` |
+| `INFO` | once per client, once per multi-symbol batch (a single `Ticker` lookup logs its summary at `DEBUG`) | effective config at `create()`; rate limiter entering/leaving degraded mode; `instruments: 500 symbols: 497 ok, 2 skipped, 1 failed`; `Fetched 20 symbols: 20 ok, 0 skipped, 0 failed in 1 812 ms` |
 | `DEBUG` | once per request or per dropped datum | `GET /v8/finance/chart/AAPL?range=1mo&interval=1d -> 200 (23 KB) in 412 ms`; `BAC-PL downgraded from EQUITY: missing [marketCap, impliedSharesOutstanding]`; `Dropped 4 of 390 bars without a complete OHLC`; each retry; each failed symbol in a batch |
 
 The library never logs an error it also throws: the exception message carries Yahoo's reason and

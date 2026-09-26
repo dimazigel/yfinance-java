@@ -77,13 +77,15 @@ public final class YFinance implements AutoCloseable {
     private final SearchService search;
     private final LookupService lookup;
     private final Runnable closer;
+    private final int fanOutConcurrency;
     private final AtomicBoolean closed = new AtomicBoolean();
 
-    private YFinance(YahooApis apis, Runnable closer) {
+    private YFinance(YahooApis apis, int fanOutConcurrency, Runnable closer) {
         var rawQuotes = new RawQuoteClient(apis.quote(), apis.quoteSummary());
         Clock clock = Clock.systemUTC();
+        this.fanOutConcurrency = fanOutConcurrency;
         this.instruments = new InstrumentService(rawQuotes, clock);
-        this.details = new DetailService(rawQuotes, clock, Tickers.DEFAULT_CONCURRENCY);
+        this.details = new DetailService(rawQuotes, clock, fanOutConcurrency);
         this.history = new HistoryService(apis.chart());
         this.fundamentals = new FundamentalsService(apis.fundamentals());
         this.options = new OptionsService(apis.options());
@@ -97,28 +99,36 @@ public final class YFinance implements AutoCloseable {
         return create(EndpointConfig.production());
     }
 
-    /** Instance against the given host configuration, performing the cookie/crumb handshake. */
+    /**
+     * Instance against the given configuration, performing the cookie/crumb handshake lazily on
+     * the first request. {@link EndpointConfig#fanOutConcurrency()} bounds the detail batches and
+     * seeds every {@link Tickers} this instance hands out.
+     */
     public static YFinance create(EndpointConfig config) {
         var cookieJar = new InMemoryCookieJar();
         var authClient = YahooClientFactory.baseClient(config, cookieJar);
         var crumbStore = new CrumbStore(authClient, config);
         var client = YahooClientFactory.apiClient(
                 config, cookieJar, () -> crumbStore.tryGetCrumb().orElse(null), crumbStore::invalidate);
-        LOG.atInfo().log("yfinance-java client created: hosts={}/{}, callTimeout={}, rateLimit={}, retry5xx={} attempts, customizer={}",
+        LOG.atInfo().log("yfinance-java client created: hosts={}/{}, callTimeout={}, rateLimit={}, retry5xx={} attempts, fanOut={}, customizer={}",
                 config.query1Base().host(), config.query2Base().host(), config.callTimeout(),
                 config.adaptiveRateLimit().enabled() ? "on/" + config.adaptiveRateLimit().maxAttempts() + " attempts" : "off",
                 config.transientRetry().maxAttempts(),
+                config.fanOutConcurrency(),
                 config.hasClientCustomizer() ? "yes" : "no");
-        return new YFinance(YahooApis.create(config, client), () -> {
+        return new YFinance(YahooApis.create(config, client), config.fanOutConcurrency(), () -> {
             closeClient(client);
             closeClient(authClient);
             LOG.atDebug().log("yfinance-java client closed");
         });
     }
 
-    /** Instance backed by pre-built API interfaces (advanced use and testing). */
+    /**
+     * Instance backed by pre-built API interfaces (advanced use and testing); fan-outs run with
+     * {@link Tickers#DEFAULT_CONCURRENCY}.
+     */
     public static YFinance fromApis(YahooApis apis) {
-        return new YFinance(Objects.requireNonNull(apis, "apis"), () -> {});
+        return new YFinance(Objects.requireNonNull(apis, "apis"), Tickers.DEFAULT_CONCURRENCY, () -> {});
     }
 
     /** Releases the underlying OkHttp client's threads and connections. Idempotent. */
@@ -137,12 +147,14 @@ public final class YFinance implements AutoCloseable {
         return new Ticker(this, symbol);
     }
 
+    /** A {@link Tickers} over {@code symbols}, fanning out with the configured concurrency. */
     public Tickers tickers(String... symbols) {
-        return new Tickers(this, Arrays.stream(symbols).map(Symbol::of).toList());
+        return new Tickers(this, Arrays.stream(symbols).map(Symbol::of).toList(), fanOutConcurrency);
     }
 
+    /** A {@link Tickers} over {@code symbols}, fanning out with the configured concurrency. */
     public Tickers tickers(List<Symbol> symbols) {
-        return new Tickers(this, symbols);
+        return new Tickers(this, symbols, fanOutConcurrency);
     }
 
     /**
@@ -164,7 +176,10 @@ public final class YFinance implements AutoCloseable {
         return instruments.instruments(List.copyOf(symbols), as);
     }
 
-    /** Equity detail for each equity, one quoteSummary request per symbol with bounded concurrency. */
+    /**
+     * Equity detail for each equity: one quoteSummary request per symbol, at most
+     * {@link EndpointConfig#fanOutConcurrency()} of them in flight at once.
+     */
     public Batch<EquityDetail> equityDetails(Collection<Equity> equities) {
         return details.equities(List.copyOf(equities));
     }
@@ -184,7 +199,7 @@ public final class YFinance implements AutoCloseable {
         return details.cryptos(List.copyOf(cryptos));
     }
 
-    /** Price history per symbol, fanned out with {@link Tickers}' default concurrency. */
+    /** Price history per symbol, fanned out with the configured concurrency. */
     public Batch<PriceHistory> histories(Collection<Symbol> symbols, Range range, Interval interval) {
         return tickers(List.copyOf(symbols)).histories(range, interval);
     }

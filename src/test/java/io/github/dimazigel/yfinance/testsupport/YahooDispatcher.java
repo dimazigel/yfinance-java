@@ -19,6 +19,9 @@ import okhttp3.mockwebserver.RecordedRequest;
  *   <li>{@code /v7/finance/options/{symbol}}: the captured chain for that symbol (and expiration,
  *       when {@code date} is given), or the no-listed-options capture for anything else
  *   <li>search, lookup and fundamentals timeseries: the single fixture each
+ *   <li>{@code /v1/test/getcrumb}: a fixed crumb, so a {@code YFinance.create(config)} pointed at
+ *       the mock server completes its handshake (the cookie URL falls through to the 404 below,
+ *       which the handshake tolerates)
  * </ul>
  */
 public class YahooDispatcher extends Dispatcher {
@@ -38,6 +41,9 @@ public class YahooDispatcher extends Dispatcher {
         }
         if (path.equals("/v1/finance/lookup")) {
             return Fixtures.jsonResponse("lookup_apple.json");
+        }
+        if (path.equals("/v1/test/getcrumb")) {
+            return new MockResponse().setResponseCode(200).setBody("mock-crumb");
         }
         if (path.startsWith("/ws/fundamentals-timeseries/")) {
             return Fixtures.jsonResponse("timeseries_income_annual.json");

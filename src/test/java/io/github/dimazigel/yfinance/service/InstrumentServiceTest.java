@@ -142,6 +142,16 @@ class InstrumentServiceTest {
     }
 
     @Test
+    void singleSymbolLookupLogsItsSummaryAtDebugNotInfo() {   // final review, finding 4
+        try (var log = LogCapture.of(InstrumentService.class)) {
+            service.instrument(Symbol.of("AAPL"));
+
+            assertThat(log.messages(Level.INFO)).as("INFO is per batch, never per symbol").isEmpty();
+            assertThat(log.messages(Level.DEBUG)).contains("instruments: 1 symbols: 1 ok, 0 skipped, 0 failed");
+        }
+    }
+
+    @Test
     void logsTheSummaryWhenTheWholeBatchFails() throws Exception {
         server.shutdown();
         try (var log = LogCapture.of(InstrumentService.class)) {

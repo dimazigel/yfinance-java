@@ -30,17 +30,19 @@ import org.slf4j.LoggerFactory;
 public final class Tickers {
 
     private static final Logger LOG = LoggerFactory.getLogger(Tickers.class);
-    static final int DEFAULT_CONCURRENCY = 4;
+
+    /**
+     * The fan-out bound when nothing else is configured: at most this many simultaneous
+     * per-symbol requests. {@code EndpointConfig.production()} starts from it; {@link
+     * #withConcurrency(int)} overrides it per instance.
+     */
+    public static final int DEFAULT_CONCURRENCY = 4;
 
     private final YFinance yf;
     private final List<Symbol> symbols;
     private final int concurrency;
 
-    Tickers(YFinance yf, List<Symbol> symbols) {
-        this(yf, symbols, DEFAULT_CONCURRENCY);
-    }
-
-    private Tickers(YFinance yf, List<Symbol> symbols, int concurrency) {
+    Tickers(YFinance yf, List<Symbol> symbols, int concurrency) {
         this.yf = yf;
         this.symbols = List.copyOf(Objects.requireNonNull(symbols, "symbols"));
         if (concurrency < 1) {
@@ -49,9 +51,17 @@ public final class Tickers {
         this.concurrency = concurrency;
     }
 
-    /** Returns a copy that fans out with at most {@code concurrency} simultaneous requests. */
+    /**
+     * Returns a copy that fans out with at most {@code concurrency} simultaneous requests,
+     * overriding the {@code EndpointConfig.fanOutConcurrency()} this instance started with.
+     */
     public Tickers withConcurrency(int concurrency) {
         return new Tickers(yf, symbols, concurrency);
+    }
+
+    /** The bound {@link #fetch} runs with; package-private for the facade tests. */
+    int concurrency() {
+        return concurrency;
     }
 
     public List<Symbol> symbols() {

@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 
 /**
  * Snapshot-depth instruments: one batched v7 request per call, classified by {@code quoteType},
@@ -85,8 +86,9 @@ public final class InstrumentService {
         }
     }
 
+    /** INFO once per batch; a single-symbol lookup ({@code Ticker.instrument()}) is per-symbol detail, so DEBUG. */
     private static Batch<Instrument> summarised(Batch<Instrument> batch) {
-        LOG.atInfo().log("instruments: {}", batch.summary());
+        LOG.atLevel(batch.size() > 1 ? Level.INFO : Level.DEBUG).log("instruments: {}", batch.summary());
         return batch;
     }
 

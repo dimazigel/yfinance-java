@@ -140,8 +140,9 @@ class DetailServiceTest {
             try (var log = LogCapture.of(DetailService.class)) {
                 strippedService.equity(aapl);
 
-                assertThat(log.messages(Level.INFO)).containsExactly("details: 1 symbols: 0 ok, 1 skipped, 0 failed");
+                assertThat(log.messages(Level.INFO)).as("a single-instrument lookup is not a batch").isEmpty();
                 assertThat(log.messages(Level.DEBUG))
+                        .contains("details: 1 symbols: 0 ok, 1 skipped, 0 failed")
                         .anySatisfy(m -> assertThat(m).contains("AAPL detail skipped: missing").contains("financials.totalRevenue"));
 
                 // The DEBUG skip line runs on the fanOut worker thread; its MDC must still carry
@@ -154,6 +155,16 @@ class DetailServiceTest {
             }
         } finally {
             stripped.shutdown();
+        }
+    }
+
+    @Test
+    void logsOneInfoSummaryPerMultiSymbolBatch() throws Exception {   // final review, finding 4
+        Equity plug = instrumentOf("PLUG", Equity.class);
+        try (var log = LogCapture.of(DetailService.class)) {
+            service.equities(List.of(aapl, plug));
+
+            assertThat(log.messages(Level.INFO)).containsExactly("details: 2 symbols: 2 ok, 0 skipped, 0 failed");
         }
     }
 

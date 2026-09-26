@@ -27,7 +27,10 @@ import io.github.dimazigel.yfinance.valueobject.Symbol;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
+import okhttp3.mockwebserver.RecordedRequest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -195,6 +198,48 @@ class YFinanceTest {
                     .contains("retry5xx=3 attempts")
                     .contains("customizer=no"));
             assertThat(log.messages(Level.DEBUG)).containsExactly("yfinance-java client closed");
+        }
+    }
+
+    @Test
+    void fanOutConcurrencyFromTheConfigBoundsDetailRequestsAndSeedsTickers() {   // final review, finding 5
+        var inFlight = new AtomicInteger();
+        var maxInFlight = new AtomicInteger();
+        server.setDispatcher(new YahooDispatcher() {
+            @Override
+            public MockResponse dispatch(RecordedRequest request) {
+                if (!request.getRequestUrl().encodedPath().startsWith("/v10/finance/quoteSummary/")) {
+                    return super.dispatch(request);
+                }
+                maxInFlight.accumulateAndGet(inFlight.incrementAndGet(), Math::max);
+                try {
+                    Thread.sleep(150);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                } finally {
+                    inFlight.decrementAndGet();
+                }
+                return super.dispatch(request);
+            }
+        });
+        Equity aapl = Instruments.equity("AAPL");
+        Equity plug = Instruments.equity("PLUG");
+        var config = EndpointConfig.production().withHosts(server.url("/"));
+
+        try (var serial = YFinance.create(config.withFanOutConcurrency(1))) {
+            var batch = serial.equityDetails(List.of(aapl, plug, aapl, plug));
+            assertThat(batch.values()).hasSize(4);
+            assertThat(maxInFlight.get()).as("one quoteSummary request at a time").isEqualTo(1);
+            assertThat(serial.tickers("AAPL", "PLUG").concurrency()).as("Tickers default follows the config").isEqualTo(1);
+            assertThat(serial.tickers("AAPL").withConcurrency(3).concurrency()).as("per-instance override still wins").isEqualTo(3);
+        }
+
+        maxInFlight.set(0);
+        try (var parallel = YFinance.create(config.withFanOutConcurrency(4))) {
+            var batch = parallel.equityDetails(List.of(aapl, plug, aapl, plug));
+            assertThat(batch.values()).hasSize(4);
+            assertThat(maxInFlight.get()).as("four permits: the requests overlap").isGreaterThan(1);
+            assertThat(parallel.tickers("AAPL").concurrency()).isEqualTo(4);
         }
     }
 

@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 
 /**
  * Detail-depth instruments: for each already-classified instrument, one quoteSummary request
@@ -140,8 +141,9 @@ public final class DetailService {
         }
     }
 
+    /** INFO once per batch; a single-instrument lookup ({@code Ticker.detail(...)}) is per-symbol detail, so DEBUG. */
     private static <D> Batch<D> summarised(Batch<D> batch) {
-        LOG.atInfo().log("details: {}", batch.summary());
+        LOG.atLevel(batch.size() > 1 ? Level.INFO : Level.DEBUG).log("details: {}", batch.summary());
         return batch;
     }
 
