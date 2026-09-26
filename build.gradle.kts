@@ -150,6 +150,13 @@ dependencies {
     implementation(libs.jackson.databind)
     implementation(libs.jackson.datatype.jsr310)
 
+    implementation(platform(libs.feign.bom))
+    implementation(libs.feign.core)
+    implementation(libs.feign.okhttp)
+    implementation(libs.feign.jackson3)
+    implementation(platform(libs.jackson3.bom))
+    implementation(libs.jackson3.databind)
+
     errorprone(libs.errorprone.core)
     errorprone(libs.nullaway)
 
