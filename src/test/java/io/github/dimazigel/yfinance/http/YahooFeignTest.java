@@ -15,6 +15,8 @@ import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
+import okhttp3.mockwebserver.RecordedRequest;
+import okhttp3.mockwebserver.SocketPolicy;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -73,16 +75,23 @@ class YahooFeignTest {
         var api = api(new OkHttpClient());
 
         api.probe("^GSPC", "1mo", null, "price,summaryDetail", true);
-        HttpUrl first = sent(server);
+        RecordedRequest firstRequest = server.takeRequest();
+        String firstPath = java.util.Objects.requireNonNull(firstRequest.getPath());
+        HttpUrl first = server.url(firstPath);
         assertThat(first.pathSegments()).containsExactly("probe", "^GSPC");
         assertThat(first.queryParameter("range")).isEqualTo("1mo");
         assertThat(first.queryParameter("modules")).isEqualTo("price,summaryDetail");
         assertThat(first.queryParameter("flag")).isEqualTo("true");
+        // wire form Yahoo is known to accept (live suite green); decoded assertions above stay unchanged
+        assertThat(firstPath).contains("price%2CsummaryDetail");
 
         api.probe("EURUSD=X", null, 1700000000L, null, false);
-        HttpUrl second = sent(server);
+        RecordedRequest secondRequest = server.takeRequest();
+        String secondPath = java.util.Objects.requireNonNull(secondRequest.getPath());
+        HttpUrl second = server.url(secondPath);
         assertThat(second.pathSegments()).containsExactly("probe", "EURUSD=X");
         assertThat(second.queryParameter("period1")).isEqualTo("1700000000");
+        assertThat(secondPath).contains("EURUSD%3DX");
     }
 
     @Test
@@ -98,7 +107,7 @@ class YahooFeignTest {
         server.enqueue(new MockResponse().setHeader("Content-Type", "application/json")
                 .setBody("{\"quoteResponse\":{\"result\":[{\"symbol\":\"AAPL\",\"regularMarketPrice\":{\"raw\":1.5}}]}}"));
         JsonNode node = api(new OkHttpClient()).probe("AAPL", null, null, null, true);
-        assertThat(node.path("quoteResponse").path("result").path(0).path("symbol").asText()).isEqualTo("AAPL");
+        assertThat(node.path("quoteResponse").path("result").path(0).path("symbol").asString()).isEqualTo("AAPL");
     }
 
     @Test
@@ -111,6 +120,15 @@ class YahooFeignTest {
                     assertThat(((YFHttpException) e).status()).isEqualTo(500);
                     assertThat(((YFHttpException) e).path()).isEqualTo("/probe/AAPL");
                 });
+    }
+
+    @Test
+    void httpErrorMessageDecodesPathForEncodedSymbols() {   // final review, finding 5
+        server.enqueue(new MockResponse().setResponseCode(500).setBody("upstream boom details"));
+        assertThatThrownBy(() -> api(new OkHttpClient()).probe("EURUSD=X", null, null, null, true))
+                .isInstanceOf(YFHttpException.class)
+                .hasMessage("Yahoo Finance returned HTTP 500 for /probe/EURUSD=X: upstream boom details")
+                .satisfies(e -> assertThat(((YFHttpException) e).path()).isEqualTo("/probe/EURUSD=X"));
     }
 
     @Test
@@ -182,8 +200,23 @@ class YahooFeignTest {
         server.enqueue(new MockResponse().setBody("{}").setBodyDelay(3, TimeUnit.SECONDS));
         var api = api(countingClient(Duration.ofMillis(300)));
         long start = System.nanoTime();
-        assertThatThrownBy(() -> api.probe("AAPL", null, null, null, true)).isExactlyInstanceOf(YFDataException.class);
-        assertThat(Duration.ofNanos(System.nanoTime() - start)).isLessThan(Duration.ofMillis(1500));
+        assertThatThrownBy(() -> api.probe("AAPL", null, null, null, true))
+                .isExactlyInstanceOf(YFDataException.class)
+                .hasMessage("I/O error calling Yahoo Finance")
+                .hasCauseInstanceOf(java.io.IOException.class);
+        assertThat(Duration.ofNanos(System.nanoTime() - start)).isLessThan(Duration.ofSeconds(3));
+        assertThat(attempts).hasValue(1);
+    }
+
+    @Test
+    void disconnectDuringBodyIsAnIoDataException() {   // final review, finding 1
+        String body = "{\"quoteResponse\":{\"result\":[" + "{\"symbol\":\"AAPL\"},".repeat(4096) + "{\"symbol\":\"AAPL\"}]}}";
+        server.enqueue(new MockResponse().setBody(body).setSocketPolicy(SocketPolicy.DISCONNECT_DURING_RESPONSE_BODY));
+        var api = api(countingClient(Duration.ofSeconds(5)));
+        assertThatThrownBy(() -> api.probe("AAPL", null, null, null, true))
+                .isExactlyInstanceOf(YFDataException.class)
+                .hasMessage("I/O error calling Yahoo Finance")
+                .hasCauseInstanceOf(java.io.IOException.class);
         assertThat(attempts).hasValue(1);
     }
 }

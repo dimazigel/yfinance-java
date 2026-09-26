@@ -5,6 +5,7 @@ import feign.codec.ErrorDecoder;
 import io.github.dimazigel.yfinance.exception.YFHttpException;
 import io.github.dimazigel.yfinance.exception.YFRateLimitException;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Collection;
@@ -46,8 +47,9 @@ final class YahooErrorDecoder implements ErrorDecoder {
         if (body == null) {
             return "";
         }
+        Charset charset = response.charset() != null ? response.charset() : StandardCharsets.UTF_8;
         try (var in = body.asInputStream()) {
-            String text = new String(in.readAllBytes(), StandardCharsets.UTF_8).strip();
+            String text = new String(in.readAllBytes(), charset).strip();
             if (text.isEmpty()) {
                 return "";
             }
@@ -64,7 +66,7 @@ final class YahooErrorDecoder implements ErrorDecoder {
     private Optional<String> yahooErrorDescription(String text) {
         try {
             for (JsonNode envelope : mapper.readTree(text)) {
-                String description = envelope.path("error").path("description").asText("");
+                String description = envelope.path("error").path("description").asString("");
                 if (!description.isBlank()) {
                     return Optional.of(description);
                 }
