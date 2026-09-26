@@ -186,8 +186,9 @@ price data for them. Detail records are fetched with the instrument as proof, so
 
 ### Per-class notes
 
-- **ETF** — `expenseRatio`, `netAssets` and `yield` are `Optional`: about one ETF in ten,
-  mostly UCITS listings, lacks the expense ratio in every source. `ytdReturn` and
+- **ETF** — `expenseRatio`, `netAssets` and `yield` are `Optional`: in the survey about one ETF
+  in ten lacked the expense ratio in every source (which listings varies over time — CSPX.L, once
+  a documented miss, now reports it). `ytdReturn` and
   `threeMonthReturn` are guaranteed. Equity-like stats (book value, P/B, shares, financial
   currency) come as one `Optional<EquityLikeStats>` cluster.
 - **Mutual fund** — no intraday session and no order book (Yahoo prices funds once a day), so
@@ -221,8 +222,8 @@ and which deeper calls exist. History and `options()` exist for every class (opt
 | Class | Guaranteed (snapshot) | `Optional` (snapshot) | Detail | Statements |
 |---|---|---|---|---|
 | `Equity` | `session`, `valuation` (market cap, shares, implied shares, financial currency), `nextEarnings` | `book`, `bookValue`, `priceToBook`, `trailingEps`, `forwardEps`, `forwardPE`, `trailingPE`, `trailingDividend`, `currentDividend`, `currentYearEps`, `averageAnalystRating`, `postMarket` | `EquityDetail` | yes |
-| `Etf` | `session`, `ytdReturn`, `threeMonthReturn` | `book`, `netAssets`, `expenseRatio`, `yield`, `navPrice`, `trailingThreeMonthNavReturns`, `trailingPE`, `equityLikeStats`, `trailingDividend`, `postMarket` | `EtfDetail` | — |
-| `MutualFund` | `netAssets`, `expenseRatio`, `yield`, `dividendRate`, `ytdReturn`, `threeMonthReturn` | `trailingPE`, `trailingDividend` | `MutualFundDetail` | — |
+| `Etf` | `session`, `ytdReturn`, `threeMonthReturn` | `book`, `netAssets`, `expenseRatio`, `yield`, `navPrice`, `beta3Year`, `trailingThreeMonthNavReturns`, `trailingPE`, `equityLikeStats`, `trailingDividend`, `postMarket` | `EtfDetail` | — |
+| `MutualFund` | `netAssets`, `expenseRatio`, `yield`, `dividendRate`, `ytdReturn`, `threeMonthReturn` | `equityLikeStats`, `trailingPE`, `trailingDividend` | `MutualFundDetail` | — |
 | `Index` | `session` | `book` | — | — |
 | `Crypto` | `session`, `marketCap`, `supply`, `volume24Hr`, `volumeAllCurrencies`, `fromCurrency`, `toCurrency`, `startDate`, `lastMarket`, `branding` | — | `CryptoDetail` | — |
 | `FxPair` | `session` | `book` | — | — |
