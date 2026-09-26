@@ -7,6 +7,7 @@ import java.net.URISyntaxException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -54,6 +55,19 @@ final class Nodes {
 
     static Optional<LocalDate> optDateSeconds(JsonNode node, String key) {
         return optInstantSeconds(node, key).map(i -> LocalDate.ofInstant(i, ZoneOffset.UTC));
+    }
+
+    /** An ISO date such as {@code 2026-09-30}; empty if absent or unparseable. */
+    static Optional<LocalDate> optIsoDate(JsonNode node, String key) {
+        return optString(node, key).flatMap(Nodes::isoDate);
+    }
+
+    private static Optional<LocalDate> isoDate(String value) {
+        try {
+            return Optional.of(LocalDate.parse(value.strip()));
+        } catch (DateTimeParseException e) {
+            return Optional.empty();
+        }
     }
 
     static Optional<URI> optUri(JsonNode node, String key) {

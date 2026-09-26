@@ -34,7 +34,8 @@ public final class DetailSpecs {
         return switch (assetClass) {
             case ETF -> EtfDetailSpecs.DETAIL;
             case MUTUAL_FUND -> MutualFundDetailSpecs.DETAIL;
-            case EQUITY, CRYPTO, INDEX, FX, FUTURE, UNCLASSIFIED -> List.of();
+            case EQUITY -> EquityDetailSpecs.DETAIL;
+            case CRYPTO, INDEX, FX, FUTURE, UNCLASSIFIED -> List.of();
         };
     }
 }
