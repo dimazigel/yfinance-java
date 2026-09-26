@@ -1,7 +1,6 @@
 package io.github.dimazigel.yfinance.api;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import io.github.dimazigel.yfinance.dto.quote.QuoteResponse;
 import retrofit2.http.GET;
 import retrofit2.http.Query;
 
@@ -11,9 +10,6 @@ import retrofit2.http.Query;
  * simply omitted from the result rather than reported as an error.
  */
 public interface QuoteApi {
-
-    @GET("v7/finance/quote")
-    QuoteResponse quote(@Query("symbols") String symbols, @Query("formatted") boolean formatted);
 
     /** Raw rows for the assembler; {@code quoteResponse.result} is an array, absent symbols are omitted. */
     @GET("v7/finance/quote")
