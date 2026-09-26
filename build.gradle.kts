@@ -137,25 +137,19 @@ configurations[integrationTest.runtimeOnlyConfigurationName]
 
 dependencies {
     // `api`: types that appear in the public API (HttpUrl/OkHttpClient.Builder in EndpointConfig,
-    // Retrofit in YahooApis, JSpecify annotations everywhere). Jackson is an implementation detail:
-    // consumers see it at runtime only.
+    // JSpecify annotations everywhere). Feign and Jackson are implementation details: consumers see
+    // them at runtime only (the Feign annotations on the api/ interfaces are not needed to compile).
     api(platform(libs.okhttp.bom))
     api(libs.okhttp)
-    api(libs.retrofit)
     api(libs.jspecify)
     api(libs.slf4j.api) // consumers bind their own backend; only the API is a dependency
-
-    implementation(platform(libs.jackson.bom))
-    implementation(libs.retrofit.converter.jackson)
-    implementation(libs.jackson.databind)
-    implementation(libs.jackson.datatype.jsr310)
 
     implementation(platform(libs.feign.bom))
     implementation(libs.feign.core)
     implementation(libs.feign.okhttp)
     implementation(libs.feign.jackson3)
-    implementation(platform(libs.jackson3.bom))
-    implementation(libs.jackson3.databind)
+    implementation(platform(libs.jackson.bom))
+    implementation(libs.jackson.databind)
 
     errorprone(libs.errorprone.core)
     errorprone(libs.nullaway)
