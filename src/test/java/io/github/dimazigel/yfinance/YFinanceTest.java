@@ -1,17 +1,32 @@
 package io.github.dimazigel.yfinance;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import ch.qos.logback.classic.Level;
 import io.github.dimazigel.yfinance.api.YahooApis;
+import io.github.dimazigel.yfinance.batch.Outcome;
+import io.github.dimazigel.yfinance.batch.SkipReason;
 import io.github.dimazigel.yfinance.enums.Frequency;
 import io.github.dimazigel.yfinance.enums.Interval;
 import io.github.dimazigel.yfinance.enums.LookupType;
 import io.github.dimazigel.yfinance.enums.Range;
 import io.github.dimazigel.yfinance.enums.StatementType;
+import io.github.dimazigel.yfinance.exception.YFDataException;
+import io.github.dimazigel.yfinance.http.EndpointConfig;
+import io.github.dimazigel.yfinance.instrument.AssetClass;
+import io.github.dimazigel.yfinance.instrument.Crypto;
+import io.github.dimazigel.yfinance.instrument.Equity;
+import io.github.dimazigel.yfinance.instrument.Etf;
+import io.github.dimazigel.yfinance.instrument.Instrument;
+import io.github.dimazigel.yfinance.instrument.MutualFund;
 import io.github.dimazigel.yfinance.testsupport.Fixtures;
 import io.github.dimazigel.yfinance.testsupport.Instruments;
+import io.github.dimazigel.yfinance.testsupport.LogCapture;
+import io.github.dimazigel.yfinance.testsupport.YahooDispatcher;
+import io.github.dimazigel.yfinance.valueobject.Symbol;
+import java.time.Duration;
 import java.time.LocalDate;
+import java.util.List;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,6 +41,7 @@ class YFinanceTest {
     void setUp() throws Exception {
         server = new MockWebServer();
         server.start();
+        server.setDispatcher(new YahooDispatcher());
         var retrofit = Fixtures.retrofit(server.url("/"));
         yf = YFinance.fromApis(YahooApis.create(retrofit, retrofit));
     }
@@ -36,164 +52,153 @@ class YFinanceTest {
     }
 
     @Test
-    void tickerDividendsAndSplitsConveniences() throws Exception {
-        var ticker = yf.ticker("AAPL");
+    void instrumentsClassifiesEveryClassInOneRequest() {
+        var batch = yf.instruments(symbols("AAPL", "SPY", "VFIAX", "^GSPC", "BTC-USD", "EURUSD=X", "ES=F", YahooDispatcher.UNKNOWN));
 
-        server.enqueue(Fixtures.jsonResponse("chart_aapl_1d.json"));
-        var dividends = ticker.dividends();
-        assertThat(dividends).singleElement()
-                .satisfies(d -> assertThat(d.amount()).isEqualByComparingTo("0.24"));
-        assertThat(server.takeRequest().getRequestUrl().queryParameter("range")).isEqualTo("max");
-
-        server.enqueue(Fixtures.jsonResponse("chart_aapl_1d.json"));
-        assertThat(ticker.splits()).singleElement()
-                .satisfies(s -> assertThat(s.ratio()).isEqualTo("4:1"));
+        assertThat(batch.size()).isEqualTo(8);
+        assertThat(batch.values()).extracting(Instrument::assetClass).containsExactly(AssetClass.EQUITY, AssetClass.ETF,
+                AssetClass.MUTUAL_FUND, AssetClass.INDEX, AssetClass.CRYPTO, AssetClass.FX, AssetClass.FUTURE);
+        assertThat(batch.skipped()).singleElement().satisfies(s -> {
+            assertThat(s.symbol()).isEqualTo(Symbol.of(YahooDispatcher.UNKNOWN));
+            assertThat(s.reason()).isEqualTo(SkipReason.UNKNOWN_SYMBOL);
+        });
+        assertThat(server.getRequestCount()).as("one batched v7 request, no fallback").isEqualTo(1);
     }
 
     @Test
-    void tickerNewsSearchesBySymbol() throws Exception {
-        server.enqueue(Fixtures.jsonResponse("search_apple.json"));
+    void typedInstrumentsSkipOtherClasses() {
+        var equities = yf.instruments(symbols("AAPL", "SPY"), Equity.class);
 
-        var news = yf.ticker("AAPL").news();
-
-        assertThat(news).singleElement()
-                .satisfies(n -> assertThat(n.title()).isEqualTo("Apple announces new product"));
-        assertThat(server.takeRequest().getRequestUrl().queryParameter("q")).isEqualTo("AAPL");
+        assertThat(equities.values()).singleElement().satisfies(e -> assertThat(e.symbol()).isEqualTo(Symbol.of("AAPL")));
+        assertThat(equities.skipped()).singleElement().satisfies(s -> assertThat(s.reason()).isEqualTo(SkipReason.WRONG_ASSET_CLASS));
     }
 
     @Test
-    void tickerExposesExtendedAnalysis() {
-        var ticker = yf.ticker("AAPL");
-        for (int i = 0; i < 4; i++) {
-            server.enqueue(Fixtures.jsonResponse("quotesummary_holders_aapl.json"));
-        }
+    void detailsForEveryDetailClass() {
+        Equity aapl = yf.ticker("AAPL").as(Equity.class);
+        Etf spy = yf.ticker("SPY").as(Etf.class);
+        MutualFund vfiax = yf.ticker("VFIAX").as(MutualFund.class);
+        Crypto btc = yf.ticker("BTC-USD").as(Crypto.class);
 
-        assertThat(ticker.earningsHistory()).hasSize(2);
-        assertThat(ticker.epsTrend()).hasSize(2);
-        assertThat(ticker.epsRevisions()).hasSize(2);
-        assertThat(ticker.growthEstimates()).hasSize(2);
+        assertThat(yf.equityDetails(List.of(aapl)).values()).singleElement()
+                .satisfies(d -> assertThat(d.profile().sector()).isEqualTo("Technology"));
+        assertThat(yf.etfDetails(List.of(spy)).values()).singleElement()
+                .satisfies(d -> assertThat(d.symbol()).isEqualTo(Symbol.of("SPY")));
+        assertThat(yf.mutualFundDetails(List.of(vfiax)).values()).singleElement()
+                .satisfies(d -> assertThat(d.symbol()).isEqualTo(Symbol.of("VFIAX")));
+        assertThat(yf.cryptoDetails(List.of(btc)).values()).singleElement()
+                .satisfies(d -> assertThat(d.name()).isEqualTo("Bitcoin"));
     }
 
     @Test
-    void tickerExposesHistoryInfoFundamentalsAndOptions() {
-        var ticker = yf.ticker("aapl");
-        assertThat(ticker.symbol().value()).isEqualTo("AAPL");
+    void detailsKeepOrderAndSkipVanishedSymbols() {
+        Equity aapl = yf.ticker("AAPL").as(Equity.class);
+        Equity gone = Instruments.withSymbol(aapl, "GONE");
 
-        server.enqueue(Fixtures.jsonResponse("chart_aapl_1d.json"));
-        var history = ticker.history(Range.ONE_MONTH, Interval.ONE_DAY);
-        assertThat(history.bars()).hasSize(3);
+        var batch = yf.equityDetails(List.of(gone, aapl));
 
-        server.enqueue(Fixtures.jsonResponse("quotesummary_aapl.json"));
-        assertThat(ticker.info().profile().sector()).isEqualTo("Technology");
-
-        server.enqueue(Fixtures.jsonResponse("timeseries_income_annual.json"));
-        var income = ticker.statements(Instruments.equity("AAPL"), StatementType.INCOME, Frequency.ANNUAL);
-        assertThat(income.value("TotalRevenue", LocalDate.parse("2023-09-30")))
-                .isEqualByComparingTo("383285000000");
-
-        server.enqueue(Fixtures.jsonResponse("options/options_AAPL.json"));
-        assertThat(ticker.options().orElseThrow().calls()).hasSize(36);
+        assertThat(batch.outcomes()).extracting(Outcome::symbol).containsExactly(Symbol.of("GONE"), Symbol.of("AAPL"));
+        assertThat(batch.outcomes().getFirst()).isInstanceOfSatisfying(Outcome.Skipped.class,
+                s -> assertThat(s.reason()).isEqualTo(SkipReason.UNKNOWN_SYMBOL));
+        assertThat(batch.values()).hasSize(1);
     }
 
     @Test
-    void statementsRejectsMismatchedEquityProof() {
-        var ticker = yf.ticker("AAPL");
+    void optionsBatchIsOkForBothChainsAndNoListedOptions() {
+        var batch = yf.options(symbols("AAPL", "EURUSD=X"));
 
-        assertThatThrownBy(() -> ticker.statements(Instruments.equity("MSFT"), StatementType.INCOME, Frequency.ANNUAL))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("MSFT")
-                .hasMessageContaining("AAPL");
+        assertThat(batch.outcomes()).extracting(Outcome::symbol).containsExactly(Symbol.of("AAPL"), Symbol.of("EURUSD=X"));
+        assertThat(batch.failed()).isEmpty();
+        assertThat(batch.values()).hasSize(2);
+        assertThat(batch.values().get(0)).hasValueSatisfying(chain -> assertThat(chain.calls()).hasSize(36));
+        assertThat(batch.values().get(1)).isEmpty();
+    }
+
+    @Test
+    void historiesPreserveInputOrderAndIsolateFailures() {
+        var batch = yf.histories(symbols("MSFT", YahooDispatcher.UNKNOWN, "AAPL"), Range.ONE_MONTH, Interval.ONE_DAY);
+
+        assertThat(batch.outcomes()).extracting(Outcome::symbol)
+                .containsExactly(Symbol.of("MSFT"), Symbol.of(YahooDispatcher.UNKNOWN), Symbol.of("AAPL"));
+        assertThat(batch.values()).hasSize(2).allSatisfy(h -> assertThat(h.bars()).hasSize(3));
+        assertThat(batch.failed()).singleElement().satisfies(f -> {
+            assertThat(f.symbol()).isEqualTo(Symbol.of(YahooDispatcher.UNKNOWN));
+            assertThat(f.error()).isInstanceOf(YFDataException.class);
+        });
+        assertThat(batch.skipped()).isEmpty();
+    }
+
+    @Test
+    void statementsBatchUsesEachEquityAsItsOwnProof() {
+        Equity aapl = yf.ticker("AAPL").as(Equity.class);
+        Equity msft = Instruments.withSymbol(aapl, "MSFT");
+
+        var batch = yf.statements(List.of(aapl, msft, aapl), StatementType.INCOME, Frequency.ANNUAL);
+
+        assertThat(batch.outcomes()).extracting(Outcome::symbol)
+                .containsExactly(Symbol.of("AAPL"), Symbol.of("MSFT"), Symbol.of("AAPL"));
+        assertThat(batch.values()).hasSize(3).allSatisfy(s ->
+                assertThat(s.value("TotalRevenue", LocalDate.parse("2023-09-30")).orElseThrow()).isEqualByComparingTo("383285000000"));
+    }
+
+    @Test
+    void emptyInputsMakeNoRequest() {
+        assertThat(yf.instruments(List.of()).size()).isZero();
+        assertThat(yf.instruments(List.of(), Equity.class).size()).isZero();
+        assertThat(yf.equityDetails(List.of()).size()).isZero();
+        assertThat(yf.histories(List.of(), Range.ONE_MONTH, Interval.ONE_DAY).size()).isZero();
+        assertThat(yf.statements(List.of(), StatementType.INCOME, Frequency.ANNUAL).size()).isZero();
+        assertThat(yf.options(List.of()).size()).isZero();
         assertThat(server.getRequestCount()).isZero();
     }
 
     @Test
-    void historyBackfillOverloadSendsPeriodParams() throws Exception {
-        server.enqueue(Fixtures.jsonResponse("chart_aapl_1d.json"));
+    void tickersAreBuiltFromStringsOrSymbols() {
+        assertThat(yf.tickers("aapl", "MSFT").symbols()).containsExactly(Symbol.of("AAPL"), Symbol.of("MSFT"));
+        assertThat(yf.tickers(List.of(Symbol.of("SPY"))).symbols()).containsExactly(Symbol.of("SPY"));
+        assertThat(yf.ticker(Symbol.of("AAPL")).symbol()).isEqualTo(Symbol.of("AAPL"));
+    }
 
-        yf.ticker("AAPL").history(
-                java.time.Instant.ofEpochSecond(1000),
-                java.time.Instant.ofEpochSecond(2000),
-                Interval.ONE_DAY);
+    @Test
+    void facadeExposesSearchAndLookup() {
+        var result = yf.search("apple");
+        assertThat(result.quotes()).hasSize(2);
+        assertThat(result.quotes().getFirst().longName()).contains("Apple Inc.");
 
-        var url = server.takeRequest().getRequestUrl();
-        assertThat(url.queryParameter("period1")).isEqualTo("1000");
-        assertThat(url.queryParameter("period2")).isEqualTo("2000");
-        assertThat(url.queryParameter("interval")).isEqualTo("1d");
+        var quotes = yf.lookup("apple", LookupType.EQUITY);
+        assertThat(quotes).hasSize(2);
+        assertThat(quotes.getFirst().regularMarketPrice()).hasValueSatisfying(p -> assertThat(p).isEqualByComparingTo("190.5"));
     }
 
     @Test
     void yFinanceIsCloseable() {
-        YFinance closeable = YFinance.fromApis(
-                io.github.dimazigel.yfinance.api.YahooApis.create(
-                        Fixtures.retrofit(server.url("/")), Fixtures.retrofit(server.url("/"))));
+        var retrofit = Fixtures.retrofit(server.url("/"));
+        YFinance closeable = YFinance.fromApis(YahooApis.create(retrofit, retrofit));
         closeable.close(); // no-op for fromApis, must not throw
         closeable.close(); // idempotent
     }
 
     @Test
-    void facadeExposesSearchAndLookup() {
-        server.enqueue(Fixtures.jsonResponse("search_apple.json"));
-        assertThat(yf.search("apple").quotes()).hasSize(2);
-
-        server.enqueue(Fixtures.jsonResponse("lookup_apple.json"));
-        assertThat(yf.lookup("apple", LookupType.EQUITY)).hasSize(2);
-    }
-
-    @Test
-    void tickersFanOutAcrossSymbols() {
-        var tickers = yf.tickers("AAPL", "MSFT");
-        assertThat(tickers.symbols()).extracting(s -> s.value()).containsExactly("AAPL", "MSFT");
-
-        server.enqueue(Fixtures.jsonResponse("quotesummary_aapl.json"));
-        server.enqueue(Fixtures.jsonResponse("quotesummary_aapl.json"));
-        var infos = tickers.infos();
-        assertThat(infos).hasSize(2);
-        assertThat(infos.get(tickers.symbols().getFirst()).orElseThrow().profile().sector())
-                .isEqualTo("Technology");
-    }
-
-    @Test
-    void tickerQuoteAndFacadeBatchQuotesUseTheQuoteEndpoint() throws Exception {
-        server.enqueue(Fixtures.jsonResponse("quote_aapl.json"));
-        var quote = yf.ticker("AAPL").quote();
-        assertThat(quote.price().regularMarketPrice()).isEqualByComparingTo("336.62");
-        assertThat(server.takeRequest().getPath()).startsWith("/v7/finance/quote");
-
-        server.enqueue(Fixtures.jsonResponse("quote_gspc_btc.json"));
-        var quotes = yf.quotes("^GSPC", "BTC-USD");
-        assertThat(quotes.keySet()).extracting(s -> s.value()).containsExactly("^GSPC", "BTC-USD");
-        assertThat(server.getRequestCount()).isEqualTo(2);
-    }
-
-    @Test
-    void tickerRejectsHistoryRequestBuiltForAnotherSymbol() {
-        var request = io.github.dimazigel.yfinance.service.HistoryRequest.builder(io.github.dimazigel.yfinance.valueobject.Symbol.of("MSFT"))
-                .range(Range.ONE_MONTH).build();
-
-        org.assertj.core.api.Assertions.assertThatThrownBy(() -> yf.ticker("AAPL").history(request))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("MSFT")
-                .hasMessageContaining("AAPL");
-        assertThat(server.getRequestCount()).isZero();
-    }
-
-    @Test
     void createLogsEffectiveConfigAndCloseLogsOnce() {
-        var config = io.github.dimazigel.yfinance.http.EndpointConfig.production()
+        var config = EndpointConfig.production()
                 .withHosts(server.url("/"))
-                .withCallTimeout(java.time.Duration.ofSeconds(7));
+                .withCallTimeout(Duration.ofSeconds(7));
 
-        try (var log = io.github.dimazigel.yfinance.testsupport.LogCapture.of(YFinance.class)) {
+        try (var log = LogCapture.of(YFinance.class)) {
             YFinance created = YFinance.create(config); // no request yet: the crumb handshake is lazy
             created.close();
 
-            assertThat(log.messages(ch.qos.logback.classic.Level.INFO)).singleElement().satisfies(m -> assertThat(m)
+            assertThat(log.messages(Level.INFO)).singleElement().satisfies(m -> assertThat(m)
                     .startsWith("yfinance-java client created:")
                     .contains("callTimeout=PT7S")
                     .contains("rateLimit=on/3 attempts")
                     .contains("retry5xx=3 attempts")
                     .contains("customizer=no"));
-            assertThat(log.messages(ch.qos.logback.classic.Level.DEBUG)).containsExactly("yfinance-java client closed");
+            assertThat(log.messages(Level.DEBUG)).containsExactly("yfinance-java client closed");
         }
+    }
+
+    private static List<Symbol> symbols(String... values) {
+        return java.util.Arrays.stream(values).map(Symbol::of).toList();
     }
 }

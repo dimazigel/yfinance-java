@@ -1,10 +1,9 @@
 package io.github.dimazigel.yfinance.exception;
 
 /**
- * Raised by {@code require(...)} helpers when a value the caller insists on is one Yahoo did not
- * report for this instrument (for example {@code marketCap} on an index). A {@link YFDataException},
- * so existing handlers keep working; {@link #field()} and {@link #subject()} say what was missing
- * and for what.
+ * Raised when a value the caller insists on is one Yahoo did not report for this instrument (for
+ * example {@code marketCap} on an index). A {@link YFDataException}, so existing handlers keep
+ * working; {@link #field()} and {@link #subject()} say what was missing and for what.
  */
 public class YFMissingDataException extends YFDataException {
 

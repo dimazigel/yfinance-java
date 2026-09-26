@@ -77,15 +77,16 @@ class FundamentalsServiceTest {
         assertThat(stmt.frequency()).isEqualTo(Frequency.ANNUAL);
         assertThat(stmt.periods()).containsExactly(LocalDate.parse("2022-09-30"), LocalDate.parse("2023-09-30"));
 
-        assertThat(stmt.value("TotalRevenue", LocalDate.parse("2023-09-30")))
+        assertThat(stmt.value("TotalRevenue", LocalDate.parse("2023-09-30")).orElseThrow())
                 .isEqualByComparingTo("383285000000");
-        assertThat(stmt.value(io.github.dimazigel.yfinance.enums.LineItem.TOTAL_REVENUE, LocalDate.parse("2023-09-30")))
+        assertThat(stmt.value(io.github.dimazigel.yfinance.enums.LineItem.TOTAL_REVENUE, LocalDate.parse("2023-09-30")).orElseThrow())
                 .isEqualByComparingTo("383285000000");
-        assertThat(stmt.value("TotalRevenue", LocalDate.parse("2022-09-30")))
+        assertThat(stmt.value("TotalRevenue", LocalDate.parse("2022-09-30")).orElseThrow())
                 .isEqualByComparingTo("394328000000");
-        // NetIncome has no value for the first period (null datapoint)
-        assertThat(stmt.value("NetIncome", LocalDate.parse("2022-09-30"))).isNull();
-        assertThat(stmt.value("NetIncome", LocalDate.parse("2023-09-30")))
+        // NetIncome has no value for the first period (null datapoint); unknown line items and periods are empty too
+        assertThat(stmt.value("NetIncome", LocalDate.parse("2022-09-30"))).isEmpty();
+        assertThat(stmt.value("NoSuchLineItem", LocalDate.parse("2023-09-30"))).isEmpty();
+        assertThat(stmt.value("NetIncome", LocalDate.parse("2023-09-30")).orElseThrow())
                 .isEqualByComparingTo("96995000000");
     }
 
@@ -156,7 +157,7 @@ class FundamentalsServiceTest {
         FinancialStatement stmt = service.getStatement(Symbol.of("AAPL"), StatementType.INCOME, Frequency.ANNUAL);
 
         assertThat(stmt.periods()).containsExactly(LocalDate.parse("2023-09-30"));
-        assertThat(stmt.value("TotalRevenue", LocalDate.parse("2023-09-30"))).isEqualByComparingTo("2");
+        assertThat(stmt.value("TotalRevenue", LocalDate.parse("2023-09-30")).orElseThrow()).isEqualByComparingTo("2");
     }
 
     @Test

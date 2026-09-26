@@ -19,7 +19,6 @@ class ValueTypesTest {
         assertThat(AssetClass.fromQuoteType("FUTURE")).contains(AssetClass.FUTURE);
         assertThat(AssetClass.fromQuoteType("OPTION")).isEmpty();
         assertThat(AssetClass.fromQuoteType("NONE")).isEmpty();
-        assertThat(AssetClass.fromQuoteType(null)).isEmpty();
     }
 
     @Test
@@ -27,7 +26,6 @@ class ValueTypesTest {
         assertThat(MarketState.fromWire("REGULAR")).isEqualTo(MarketState.REGULAR);
         assertThat(MarketState.fromWire("PREPRE")).isEqualTo(MarketState.PREPRE);
         assertThat(MarketState.fromWire("something-new")).isEqualTo(MarketState.OTHER);
-        assertThat(MarketState.fromWire(null)).isEqualTo(MarketState.OTHER);
     }
 
     @Test

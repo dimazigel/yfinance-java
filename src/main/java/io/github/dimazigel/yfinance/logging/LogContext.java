@@ -13,10 +13,10 @@ import org.slf4j.MDC;
  * back to what was being done, for which symbol, against which Yahoo endpoint:
  *
  * <ul>
- *   <li>{@value #OP} — the operation: {@code history}, {@code info}, {@code quote}, {@code quotes},
- *       {@code statements}, {@code options}, {@code holders}, {@code analysis}, {@code search},
- *       {@code lookup}
- *   <li>{@value #SYMBOL} — the ticker symbol (comma-joined for batch quotes)
+ *   <li>{@value #OP} — the operation: {@code instruments}, {@code details}, {@code history},
+ *       {@code statements}, {@code options}, {@code search}, {@code lookup}, and {@code fetch}
+ *       for a {@code Tickers} fan-out (each worker then nests the operation it fetches)
+ *   <li>{@value #SYMBOL} — the ticker symbol (comma-joined for a batch)
  *   <li>{@value #ENDPOINT} — the request path, e.g. {@code /v8/finance/chart/AAPL}, present while an
  *       HTTP call is in flight
  * </ul>

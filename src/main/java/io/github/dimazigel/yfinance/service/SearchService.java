@@ -3,7 +3,7 @@ package io.github.dimazigel.yfinance.service;
 import io.github.dimazigel.yfinance.api.SearchApi;
 import io.github.dimazigel.yfinance.logging.LogContext;
 import io.github.dimazigel.yfinance.mapper.SearchMapper;
-import io.github.dimazigel.yfinance.model.SearchResult;
+import io.github.dimazigel.yfinance.search.SearchResult;
 import java.util.Objects;
 
 /** Searches Yahoo Finance for quotes and news. */

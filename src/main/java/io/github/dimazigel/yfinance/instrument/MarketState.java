@@ -1,15 +1,10 @@
 package io.github.dimazigel.yfinance.instrument;
 
-import org.jspecify.annotations.Nullable;
-
 /** Yahoo's session state; unknown values map to {@link #OTHER} rather than failing. */
 public enum MarketState {
     PRE, REGULAR, POST, CLOSED, PREPRE, POSTPOST, OTHER;
 
-    public static MarketState fromWire(@Nullable String wire) {
-        if (wire == null) {
-            return OTHER;
-        }
+    public static MarketState fromWire(String wire) {
         return switch (wire) {
             case "PRE" -> PRE;
             case "REGULAR" -> REGULAR;

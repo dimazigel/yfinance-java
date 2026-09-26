@@ -1,17 +1,27 @@
 package io.github.dimazigel.yfinance;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.spi.ILoggingEvent;
 import io.github.dimazigel.yfinance.api.YahooApis;
+import io.github.dimazigel.yfinance.batch.Batch;
+import io.github.dimazigel.yfinance.batch.Outcome;
+import io.github.dimazigel.yfinance.enums.Interval;
+import io.github.dimazigel.yfinance.enums.Range;
 import io.github.dimazigel.yfinance.exception.YFDataException;
-import io.github.dimazigel.yfinance.market.OptionChain;
-import io.github.dimazigel.yfinance.model.Info;
+import io.github.dimazigel.yfinance.exception.YFRateLimitException;
+import io.github.dimazigel.yfinance.instrument.AssetClass;
+import io.github.dimazigel.yfinance.instrument.Instrument;
+import io.github.dimazigel.yfinance.logging.LogContext;
+import io.github.dimazigel.yfinance.market.Dividend;
 import io.github.dimazigel.yfinance.testsupport.Fixtures;
+import io.github.dimazigel.yfinance.testsupport.LogCapture;
+import io.github.dimazigel.yfinance.testsupport.YahooDispatcher;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import okhttp3.mockwebserver.Dispatcher;
+import java.util.concurrent.atomic.AtomicInteger;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
@@ -28,6 +38,7 @@ class TickersTest {
     void setUp() throws Exception {
         server = new MockWebServer();
         server.start();
+        server.setDispatcher(new YahooDispatcher());
         var retrofit = Fixtures.retrofit(server.url("/"));
         yf = YFinance.fromApis(YahooApis.create(retrofit, retrofit));
     }
@@ -38,10 +49,76 @@ class TickersTest {
     }
 
     @Test
+    void fetchFansOutAnyTickerMethodIntoABatch() {
+        Batch<List<Dividend>> batch = yf.tickers("AAPL", "MSFT").fetch(Ticker::dividends);
+
+        assertThat(batch.outcomes()).extracting(Outcome::symbol).containsExactly(Symbol.of("AAPL"), Symbol.of("MSFT"));
+        assertThat(batch.values()).hasSize(2).allSatisfy(dividends -> assertThat(dividends).hasSize(1));
+        assertThat(batch.get(Symbol.of("MSFT"))).containsInstanceOf(Outcome.Ok.class);
+        assertThat(server.getRequestCount()).isEqualTo(2);
+    }
+
+    @Test
+    void fetchTurnsALibraryExceptionIntoFailedWithThatException() {
+        var rateLimited = new YFRateLimitException("slow down", null);
+
+        var batch = yf.tickers("AAPL", "MSFT").fetch(t -> {
+            if (t.symbol().value().equals("MSFT")) {
+                throw rateLimited;
+            }
+            return t.symbol().value();
+        });
+
+        assertThat(batch.values()).containsExactly("AAPL");
+        assertThat(batch.failed()).singleElement().satisfies(f -> {
+            assertThat(f.symbol()).isEqualTo(Symbol.of("MSFT"));
+            assertThat(f.error()).isSameAs(rateLimited);
+        });
+        assertThat(batch.skipped()).as("fetch never skips").isEmpty();
+    }
+
+    @Test
+    void fetchTurnsNullAndRuntimeFailuresIntoFailed() {
+        var batch = yf.tickers("AAPL", "MSFT").fetch(t -> {
+            if (t.symbol().value().equals("AAPL")) {
+                return null;
+            }
+            throw new IllegalStateException("mapper bug");
+        });
+
+        assertThat(batch.get(Symbol.of("AAPL"))).get().isInstanceOfSatisfying(Outcome.Failed.class,
+                f -> assertThat(f.error()).isInstanceOf(YFDataException.class).hasMessageContaining("no data"));
+        assertThat(batch.get(Symbol.of("MSFT"))).get().isInstanceOfSatisfying(Outcome.Failed.class,
+                f -> assertThat(f.error()).isInstanceOf(YFDataException.class).hasCauseInstanceOf(IllegalStateException.class));
+        assertThat(batch.values()).isEmpty();
+        assertThat(server.getRequestCount()).isZero();
+    }
+
+    @Test
+    void instrumentsIsOneBatchedRequestNotAFanOut() {
+        var batch = yf.tickers("AAPL", "SPY", YahooDispatcher.UNKNOWN).instruments();
+
+        assertThat(batch.size()).isEqualTo(3);
+        assertThat(batch.values()).extracting(Instrument::assetClass).containsExactly(AssetClass.EQUITY, AssetClass.ETF);
+        assertThat(batch.skipped()).hasSize(1);
+        assertThat(server.getRequestCount()).isEqualTo(1);
+    }
+
+    @Test
+    void historiesKeepOrderAndIsolateFailures() {
+        var batch = yf.tickers("AAPL", YahooDispatcher.UNKNOWN).histories(Range.ONE_MONTH, Interval.ONE_DAY);
+
+        assertThat(batch.outcomes()).extracting(Outcome::symbol).containsExactly(Symbol.of("AAPL"), Symbol.of(YahooDispatcher.UNKNOWN));
+        assertThat(batch.values()).singleElement().satisfies(h -> assertThat(h.bars()).hasSize(3));
+        assertThat(batch.failed()).singleElement().satisfies(f -> assertThat(f.error()).isInstanceOf(YFDataException.class));
+        assertThatThrownBy(() -> batch.outcomes().getLast().orElseThrow()).isInstanceOf(YFDataException.class);
+    }
+
+    @Test
     void fanOutRespectsConcurrencyBound() {
-        var inFlight = new java.util.concurrent.atomic.AtomicInteger();
-        var maxInFlight = new java.util.concurrent.atomic.AtomicInteger();
-        server.setDispatcher(new Dispatcher() {
+        var inFlight = new AtomicInteger();
+        var maxInFlight = new AtomicInteger();
+        server.setDispatcher(new YahooDispatcher() {
             @Override
             public MockResponse dispatch(RecordedRequest request) {
                 int current = inFlight.incrementAndGet();
@@ -53,129 +130,49 @@ class TickersTest {
                 } finally {
                     inFlight.decrementAndGet();
                 }
-                return Fixtures.jsonResponse("quotesummary_aapl.json");
+                return super.dispatch(request);
             }
         });
 
-        var results = yf.tickers("AAPL", "MSFT", "GOOG", "AMZN", "META", "NFLX")
+        var batch = yf.tickers("AAPL", "MSFT", "GOOG", "AMZN", "META", "NFLX")
                 .withConcurrency(2)
-                .infos();
+                .histories(Range.ONE_MONTH, Interval.ONE_DAY);
 
-        assertThat(results).hasSize(6);
-        assertThat(results.values()).allMatch(Tickers.Result::isSuccess);
+        assertThat(batch.values()).hasSize(6);
         assertThat(maxInFlight.get()).isLessThanOrEqualTo(2);
     }
 
     @Test
-    void infosReturnPerSymbolResultsAndNeverLoseSuccessesOnFailure() {
-        server.setDispatcher(new Dispatcher() {
-            @Override
-            public MockResponse dispatch(RecordedRequest request) {
-                if (request.getPath() != null && request.getPath().contains("MSFT")) {
-                    return new MockResponse().setResponseCode(200).setBody(
-                            "{\"quoteSummary\":{\"result\":null,"
-                                    + "\"error\":{\"code\":\"Not Found\",\"description\":\"boom\"}}}");
-                }
-                return Fixtures.jsonResponse("quotesummary_aapl.json");
-            }
-        });
-
-        var results = yf.tickers("AAPL", "MSFT").infos();
-
-        assertThat(results).containsOnlyKeys(Symbol.of("AAPL"), Symbol.of("MSFT"));
-
-        var aapl = results.get(Symbol.of("AAPL"));
-        assertThat(aapl.isSuccess()).isTrue();
-        assertThat(aapl).isInstanceOfSatisfying(Tickers.Result.Success.class,
-                ok -> assertThat(((Info) ok.value()).profile().sector()).isEqualTo("Technology"));
-        assertThat(aapl.toOptional()).isPresent();
-
-        var msft = results.get(Symbol.of("MSFT"));
-        assertThat(msft.isSuccess()).isFalse();
-        assertThat(msft.toOptional()).isEmpty();
-        assertThat(msft).isInstanceOfSatisfying(Tickers.Result.Failure.class,
-                failed -> assertThat(failed.error()).isInstanceOf(YFDataException.class).hasMessageContaining("boom"));
+    void concurrencyMustBePositive() {
+        var tickers = yf.tickers("AAPL");
+        assertThatThrownBy(() -> tickers.withConcurrency(0)).isInstanceOf(IllegalArgumentException.class);
+        assertThat(tickers.ticker(Symbol.of("MSFT")).symbol()).isEqualTo(Symbol.of("MSFT"));
     }
 
     @Test
-    void fetchFansOutAnyTickerMethod() {
-        server.setDispatcher(new Dispatcher() {
-            @Override
-            public MockResponse dispatch(RecordedRequest request) {
-                return Fixtures.jsonResponse("options/options_AAPL.json");
-            }
-        });
+    void emptyTickersFetchNothing() {
+        var batch = yf.tickers().fetch(Ticker::dividends);
 
-        Map<Symbol, Tickers.Result<Optional<OptionChain>>> chains = yf.tickers("AAPL", "MSFT").fetch(Ticker::options);
-
-        assertThat(chains.keySet()).extracting(Symbol::value).containsExactly("AAPL", "MSFT");
-        assertThat(chains.values()).allSatisfy(r -> assertThat(r.orElseThrow()).isPresent()
-                .hasValueSatisfying(chain -> assertThat(chain.calls()).hasSize(36)));
-        assertThat(server.getRequestCount()).isEqualTo(2);
-    }
-
-    @Test
-    void fetchTurnsNullAndRuntimeFailuresIntoFailures() {
-        var results = yf.tickers("AAPL", "MSFT").fetch(t -> {
-            if (t.symbol().value().equals("AAPL")) {
-                return null; // e.g. analystPriceTargets() for an index
-            }
-            throw new IllegalStateException("mapper bug");
-        });
-
-        assertThat(results.get(Symbol.of("AAPL"))).isInstanceOfSatisfying(Tickers.Result.Failure.class,
-                f -> assertThat(f.error()).isInstanceOf(YFDataException.class).hasMessageContaining("no data"));
-        assertThat(results.get(Symbol.of("MSFT"))).isInstanceOfSatisfying(Tickers.Result.Failure.class,
-                f -> assertThat(f.error()).isInstanceOf(YFDataException.class).hasCauseInstanceOf(IllegalStateException.class));
+        assertThat(batch.size()).isZero();
         assertThat(server.getRequestCount()).isZero();
     }
 
     @Test
-    void resultIsSealedAndPatternMatchable() {
-        List<Tickers.Result<String>> results = List.of(
-                Tickers.Result.success(Symbol.of("AAPL"), "v"),
-                Tickers.Result.failure(Symbol.of("X"), new YFDataException("nope")));
+    void fanOutLogsASummaryAndEachFailureOnTheWorkerThreadWithItsScope() {
+        try (var log = LogCapture.of(Tickers.class)) {
+            yf.tickers("AAPL", YahooDispatcher.UNKNOWN).histories(Range.ONE_MONTH, Interval.ONE_DAY);
 
-        // Exhaustive switch: no default branch needed because Result is sealed.
-        var described = results.stream().map(r -> switch (r) {
-            case Tickers.Result.Success<String> ok -> ok.symbol() + "=" + ok.value();
-            case Tickers.Result.Failure<String> failed -> failed.symbol() + "!" + failed.error().getMessage();
-        }).toList();
-
-        assertThat(described).containsExactly("AAPL=v", "X!nope");
-    }
-
-    @Test
-    void resultOrElseThrowReturnsValueOrRaises() {
-        var ok = Tickers.Result.success(Symbol.of("AAPL"), "v");
-        assertThat(ok.orElseThrow()).isEqualTo("v");
-
-        var bad = Tickers.Result.<String>failure(Symbol.of("X"), new YFDataException("nope"));
-        assertThat(bad.isSuccess()).isFalse();
-        org.assertj.core.api.Assertions.assertThatThrownBy(bad::orElseThrow)
-                .isInstanceOf(YFDataException.class);
-    }
-
-    @Test
-    void fanOutLogsASummaryAndEachFailure() {
-        server.setDispatcher(new Dispatcher() {
-            @Override
-            public MockResponse dispatch(RecordedRequest request) {
-                if (request.getPath() != null && request.getPath().contains("MSFT")) {
-                    return new MockResponse().setResponseCode(200).setBody(
-                            "{\"quoteSummary\":{\"result\":null,\"error\":{\"code\":\"Not Found\",\"description\":\"boom\"}}}");
-                }
-                return Fixtures.jsonResponse("quotesummary_aapl.json");
-            }
-        });
-
-        try (var log = io.github.dimazigel.yfinance.testsupport.LogCapture.of(Tickers.class)) {
-            yf.tickers("AAPL", "MSFT").infos();
-
-            assertThat(log.messages(ch.qos.logback.classic.Level.INFO)).singleElement().satisfies(m ->
+            assertThat(log.messages(Level.INFO)).singleElement().satisfies(m ->
                     assertThat(m).matches("Fetched 2 symbols: 1 ok, 1 failed in \\d+ ms"));
-            assertThat(log.messages(ch.qos.logback.classic.Level.DEBUG)).singleElement().satisfies(m ->
-                    assertThat(m).startsWith("MSFT failed: YFDataException: ").contains("boom"));
+            assertThat(log.messages(Level.DEBUG)).singleElement().satisfies(m ->
+                    assertThat(m).startsWith(YahooDispatcher.UNKNOWN + " failed: YF").contains("Exception"));
+            assertThat(log.messages(Level.WARN)).isEmpty();
+
+            // MDC is thread-local: the failure line runs on the fan-out worker, whose scope must name the symbol.
+            ILoggingEvent failure = log.events().stream().filter(e -> e.getLevel() == Level.DEBUG).findFirst().orElseThrow();
+            assertThat(failure.getMDCPropertyMap())
+                    .containsEntry(LogContext.OP, "fetch")
+                    .containsEntry(LogContext.SYMBOL, YahooDispatcher.UNKNOWN);
         }
     }
 }

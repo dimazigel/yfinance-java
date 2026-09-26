@@ -9,7 +9,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import org.jspecify.annotations.Nullable;
+import java.util.Optional;
 
 /**
  * A financial statement as a tabular structure: line items (rows) by reporting period (columns).
@@ -38,14 +38,14 @@ public record FinancialStatement(
         }
     }
 
-    /** The value for a line item at a period, or {@code null} if absent. */
-    public @Nullable BigDecimal value(String lineItem, LocalDate period) {
+    /** The value for a line item at a period; empty when Yahoo reported none. */
+    public Optional<BigDecimal> value(String lineItem, LocalDate period) {
         var row = lineItems.get(lineItem);
-        return row == null ? null : row.get(period);
+        return row == null ? Optional.empty() : Optional.ofNullable(row.get(period));
     }
 
     /** Type-safe variant of {@link #value(String, LocalDate)}. */
-    public @Nullable BigDecimal value(LineItem lineItem, LocalDate period) {
+    public Optional<BigDecimal> value(LineItem lineItem, LocalDate period) {
         return value(lineItem.key(), period);
     }
 }
