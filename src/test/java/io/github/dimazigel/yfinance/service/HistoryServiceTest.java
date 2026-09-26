@@ -203,6 +203,25 @@ class HistoryServiceTest {
     }
 
     @Test
+    void incompleteChartEventsAreDroppedAndLogged() {
+        server.enqueue(new MockResponse().setResponseCode(200).setBody(
+                "{\"chart\":{\"result\":[{\"meta\":" + fullMeta("USD", "AAPL", "America/New_York") + ","
+                        + "\"timestamp\":[1700000000],"
+                        + "\"events\":{\"dividends\":{\"1699000000\":{\"date\":1699000000},"
+                        + "\"1698000000\":{\"amount\":0.24,\"date\":1698000000}}},"
+                        + "\"indicators\":{\"quote\":[{\"open\":[187.0],\"high\":[189.0],\"low\":[186.5],\"close\":[188.0],\"volume\":[1]}]}}],\"error\":null}}"));
+
+        try (var log = LogCapture.ofLibrary()) {
+            var history = service.getHistory(
+                    HistoryRequest.builder(Symbol.of("AAPL")).range(Range.ONE_DAY).build());
+
+            assertThat(history.dividends()).hasSize(1);
+            assertThat(log.messages(Level.DEBUG)).anySatisfy(m -> assertThat(m)
+                    .isEqualTo("Dropped a dividend event without a complete date and value (date=1699000000)"));
+        }
+    }
+
+    @Test
     void barsWithAnyNullOhlcAreDropped() {
         // A row with just one missing OHLC value (here: open) is dropped, same as an all-null row.
         server.enqueue(new MockResponse().setResponseCode(200).setBody(

@@ -208,7 +208,7 @@ public final class ChartMapper {
             return List.of();
         }
         return events.dividends().values().stream()
-                .filter(d -> d.date() != null && d.amount() != null)
+                .filter(d -> complete(d.date() != null && d.amount() != null, "dividend", d.date()))
                 .map(d -> new Dividend(
                         Objects.requireNonNull(MapperSupport.epochSecond(d.date())), // filtered above
                         Objects.requireNonNull(d.amount()))) // filtered above
@@ -221,7 +221,7 @@ public final class ChartMapper {
             return List.of();
         }
         return events.splits().values().stream()
-                .filter(s -> s.date() != null && s.numerator() != null && s.denominator() != null && s.splitRatio() != null)
+                .filter(s -> complete(s.date() != null && s.numerator() != null && s.denominator() != null && s.splitRatio() != null, "split", s.date()))
                 .map(s -> new Split(
                         Objects.requireNonNull(MapperSupport.epochSecond(s.date())), // filtered above
                         Objects.requireNonNull(s.numerator()), // filtered above
@@ -236,12 +236,21 @@ public final class ChartMapper {
             return List.of();
         }
         return events.capitalGains().values().stream()
-                .filter(c -> c.date() != null && c.amount() != null)
+                .filter(c -> complete(c.date() != null && c.amount() != null, "capital gain", c.date()))
                 .map(c -> new CapitalGain(
                         Objects.requireNonNull(MapperSupport.epochSecond(c.date())), // filtered above
                         Objects.requireNonNull(c.amount()))) // filtered above
                 .sorted(Comparator.comparing(CapitalGain::date))
                 .toList();
+    }
+
+    /** Every sampled chart event carried its date and value, so an incomplete one is drift worth a DEBUG line. */
+    private static boolean complete(boolean complete, String kind, @Nullable Object date) {
+        if (!complete) {
+            LOG.atDebug().addKeyValue("kind", kind).addKeyValue("date", date)
+                    .log("Dropped a {} event without a complete date and value (date={})", kind, date);
+        }
+        return complete;
     }
 
     private static <T extends @Nullable Object> @Nullable T at(@Nullable List<T> list, int index) {
