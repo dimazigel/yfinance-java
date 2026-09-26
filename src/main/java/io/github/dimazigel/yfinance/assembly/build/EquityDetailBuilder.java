@@ -191,7 +191,7 @@ public final class EquityDetailBuilder {
     }
 
     private static Rating rating(Resolved r) {
-        return new Rating(r.decimal("analysts.rating.mean"), r.optString("analysts.rating.averageAnalystRating"));
+        return new Rating(r.decimal("analysts.rating.mean"));
     }
 
     // ---- ownership ----

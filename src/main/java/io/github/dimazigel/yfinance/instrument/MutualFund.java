@@ -21,7 +21,7 @@ public record MutualFund(
         BigDecimal dividendRate,
         BigDecimal ytdReturn,
         BigDecimal threeMonthReturn,
-        Optional<Etf.EquityLikeStats> equityLikeStats,
+        Optional<EquityLikeStats> equityLikeStats,
         Optional<BigDecimal> trailingPE,
         Optional<TrailingDividend> trailingDividend,
         Instant fetchedAt) implements Instrument, Fund {

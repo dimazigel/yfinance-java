@@ -157,8 +157,11 @@ public record EquityDetail(
     /** Consensus analyst price targets. */
     public record Targets(BigDecimal low, BigDecimal mean, BigDecimal median, BigDecimal high, int analystCount) {}
 
-    /** Consensus analyst rating (1 strong buy, 5 strong sell). */
-    public record Rating(BigDecimal mean, Optional<String> averageAnalystRating) {}
+    /**
+     * Consensus analyst rating (1 strong buy, 5 strong sell). The display string Yahoo pairs with it
+     * ({@code "2.2 - Buy"}) is a v7 field and lives on the snapshot: {@code Equity.averageAnalystRating()}.
+     */
+    public record Rating(BigDecimal mean) {}
 
     /** Ownership breakdown, institutional/insider holders and net insider activity. */
     public record Ownership(

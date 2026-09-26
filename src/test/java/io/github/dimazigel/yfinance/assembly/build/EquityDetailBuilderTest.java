@@ -46,6 +46,7 @@ class EquityDetailBuilderTest {
         assertThat(d.analysts().targets()).isPresent();
         assertThat(d.analysts().targets().get().low()).isLessThanOrEqualTo(d.analysts().targets().get().high());
         assertThat(d.analysts().rating()).isPresent();
+        assertThat(d.analysts().rating().get().mean()).isBetween(BigDecimal.ONE, BigDecimal.valueOf(5));
         assertThat(d.analysts().recommendationTrend()).isNotEmpty();
         assertThat(d.analysts().earningsEstimates()).isNotEmpty();
         assertThat(d.analysts().epsTrend()).isNotEmpty();

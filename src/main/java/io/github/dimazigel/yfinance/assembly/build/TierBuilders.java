@@ -1,7 +1,7 @@
 package io.github.dimazigel.yfinance.assembly.build;
 
 import io.github.dimazigel.yfinance.assembly.Resolved;
-import io.github.dimazigel.yfinance.instrument.Etf;
+import io.github.dimazigel.yfinance.instrument.EquityLikeStats;
 import io.github.dimazigel.yfinance.instrument.PostMarket;
 import io.github.dimazigel.yfinance.instrument.QuoteCurrency;
 import io.github.dimazigel.yfinance.instrument.Session;
@@ -33,11 +33,11 @@ final class TierBuilders {
                 r.decimal("postMarketChangePercent"), r.instant("postMarketTime")));
     }
 
-    static Optional<Etf.EquityLikeStats> equityLikeStats(Resolved r) {
+    static Optional<EquityLikeStats> equityLikeStats(Resolved r) {
         if (!r.clusterPresent("equityLikeStats")) {
             return Optional.empty();
         }
-        return Optional.of(new Etf.EquityLikeStats(r.decimal("equityLikeStats.bookValue"), r.decimal("equityLikeStats.priceToBook"),
+        return Optional.of(new EquityLikeStats(r.decimal("equityLikeStats.bookValue"), r.decimal("equityLikeStats.priceToBook"),
                 r.longValue("equityLikeStats.sharesOutstanding"), QuoteCurrency.of(r.string("equityLikeStats.financialCurrency"))));
     }
 

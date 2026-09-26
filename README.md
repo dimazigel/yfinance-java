@@ -140,7 +140,7 @@ There is **no `@Nullable` anywhere in the public model.** A field is one of thre
   so you never lose Samsung's market cap because Yahoo omitted its book value.
 - **`Optional<T>`** — Yahoo reports it for some members of the class, or only at some times of day
   (`postMarket`). Fields whose absences always co-occur are grouped into a cluster record
-  (`TopOfBook`, `TrailingDividend`, `Equity.CurrentDividend`, `PostMarket`, `Etf.EquityLikeStats`,
+  (`TopOfBook`, `TrailingDividend`, `Equity.CurrentDividend`, `PostMarket`, `EquityLikeStats`,
   `EquityDetail.Targets`, …): a cluster is `Optional.of(cluster)` only when **every** member is
   present, so inside it nothing is optional again.
 

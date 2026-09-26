@@ -142,7 +142,7 @@ public final class InstrumentService {
         if (attempted.isPresent()) {
             LOG.atDebug().addKeyValue("missing", missing).log("{} downgraded from {}: missing {}", symbol, target, missing);
         }
-        return Outcome.ok(symbol, new Unclassified(core, reported, attempted, missing, Optional.empty(), now));
+        return Outcome.ok(symbol, new Unclassified(core, reported, attempted, missing, now));
     }
 
     private static Instrument build(AssetClass target, Resolved r, Instant now) {

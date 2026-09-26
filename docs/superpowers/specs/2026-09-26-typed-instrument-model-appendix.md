@@ -155,8 +155,7 @@ List-row identifiers: every `analysts.*`/`ownership.*` list below is mapped row-
 | `financials.earningsGrowth` | O | `BigDecimal` | `qs:financialData.earningsGrowth` | | 77% | 76% |
 | `analysts.recommendationKey` | R | `String` | `qs:financialData.recommendationKey` | | 100% | buy/hold/… vocabulary |
 | `analysts.targets.*` | C:targets | `BigDecimal×4 + int` | `qs:financialData.targetLowPrice` → `qs:financialData.targetMeanPrice` → `qs:financialData.targetMedianPrice` → `qs:financialData.targetHighPrice` → `qs:financialData.numberOfAnalystOpinions` | | 97% | perfect 96.5% |
-| `analysts.rating.mean` | C:rating | `BigDecimal` | `qs:financialData.recommendationMean` | | 90% | sole member of cluster `rating` (Task 12) |
-| `analysts.rating.averageAnalystRating` | O | `String` | `v7:averageAnalystRating` | | 90% | plain optional, **not** part of the `rating` cluster — the v7 row is often absent when detail is fetched from quoteSummary alone and must not empty the whole rating (Task 12) |
+| `analysts.rating.mean` | C:rating | `BigDecimal` | `qs:financialData.recommendationMean` | | 90% | sole member of cluster `rating` (Task 12); the display string `averageAnalystRating` is a v7 field and lives on the snapshot (`Equity.averageAnalystRating`) — the detail tier never fetches v7, so its earlier `analysts.rating.averageAnalystRating` row was removed in the final review |
 | `analysts.recommendationTrend` | L | `List<RecommendationPeriod>` | `qs:recommendationTrend.trend` | | 98% | list |
 | `analysts.earningsHistory` | L | `List<…>` | `qs:earningsHistory.history` | | 92% |  |
 | `analysts.earningsEstimates` | L | `List<PeriodEstimate>` | `qs:earningsTrend.trend` | | 100% | one of five lists derived from the same `earningsTrend.trend` module (see below) |
@@ -307,7 +306,7 @@ Universal core + Session + TopOfBook. No class-specific fields, no detail tier (
 
 ### Unclassified
 
-Universal core (all R) + `reportedQuoteType: String` + `attempted: Optional<AssetClass>` + `missing: List<String>` + `snapshot: Optional<Instrument>` (set when a detail request, not the snapshot, failed).
+Universal core (all R) + `reportedQuoteType: String` + `attempted: Optional<AssetClass>` + `missing: List<String>`. The `snapshot: Optional<Instrument>` component of design §4.2 was removed in the final review: nothing ever produced it — a failed detail request is `Skipped(MODULE_ABSENT)` and leaves the classified snapshot untouched, so the component was `Optional.empty()` for every instance.
 
 ### OptionContract (`/v7/finance/options`; not part of the `FieldSpec`/assembly system)
 

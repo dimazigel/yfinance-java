@@ -31,7 +31,4 @@ public record Etf(
     public AssetClass assetClass() {
         return AssetClass.ETF;
     }
-
-    /** Equity-style valuation facts Yahoo carries for some ETFs and not others; absent means none of it was quoted. */
-    public record EquityLikeStats(BigDecimal bookValue, BigDecimal priceToBook, long sharesOutstanding, QuoteCurrency financialCurrency) {}
 }

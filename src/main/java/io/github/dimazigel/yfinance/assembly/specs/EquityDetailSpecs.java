@@ -94,10 +94,8 @@ public final class EquityDetailSpecs {
             clustered("targets", "analysts.targets.median", RAW, "qs:financialData.targetMedianPrice"),
             clustered("targets", "analysts.targets.high", RAW, "qs:financialData.targetHighPrice"),
             clustered("targets", "analysts.targets.analystCount", RAW, "qs:financialData.numberOfAnalystOpinions"),
-            // Sole member of the "rating" cluster: the v7 row is often absent when detail is
-            // fetched from quoteSummary alone, and must not empty the whole rating (see brief).
+            // Sole member of the "rating" cluster; the v7 display string is a snapshot field (Equity.averageAnalystRating).
             clustered("rating", "analysts.rating.mean", RAW, "qs:financialData.recommendationMean"),
-            optional("analysts.rating.averageAnalystRating", RAW, "v7:averageAnalystRating"),
             list("analysts.recommendationTrend", "qs:recommendationTrend.trend"),
             list("analysts.earningsHistory", "qs:earningsHistory.history"),
             list("analysts.earningsEstimates", "qs:earningsTrend.trend"),
