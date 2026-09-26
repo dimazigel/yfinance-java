@@ -7,7 +7,6 @@ import io.github.dimazigel.yfinance.exception.YFDataException;
 import io.github.dimazigel.yfinance.exception.YFMissingDataException;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
 import java.math.BigDecimal;
-import java.time.Instant;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
@@ -50,19 +49,5 @@ class RequiredTest {
                 .hasMessage("profile is not available for ^GSPC");
         BigDecimal viaInfo = info.require(i -> i.quote().price().regularMarketPrice(), "regularMarketPrice");
         assertThat(viaInfo).isPositive();
-    }
-
-    @Test
-    void priceBarNamesItsTimestampAndMetadataItsSymbol() {
-        var bar = new PriceBar(Instant.parse("2023-11-14T21:00:00Z"), null, null, null, new BigDecimal("190.5"), null, null);
-        assertThatThrownBy(() -> bar.require(PriceBar::volume, "volume"))
-                .isInstanceOf(YFMissingDataException.class)
-                .hasMessage("volume is not available for bar at 2023-11-14T21:00:00Z");
-        assertThat(bar.require(PriceBar::close, "close")).isEqualByComparingTo("190.5");
-
-        var meta = new HistoryMetadata(Symbol.of("BP.L"), null, null, null, null, null, null, null, null,
-                null, null, null, List.of(), null, null);
-        assertThatThrownBy(() -> meta.require(HistoryMetadata::currency, "currency"))
-                .hasMessage("currency is not available for BP.L");
     }
 }

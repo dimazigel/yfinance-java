@@ -1,18 +1,17 @@
-package io.github.dimazigel.yfinance.mapper;
+package io.github.dimazigel.yfinance.market;
 
-import io.github.dimazigel.yfinance.model.PriceBar;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import org.jspecify.annotations.Nullable;
+import java.util.Optional;
 
 /**
  * Aggregates finer candles into coarser, epoch-aligned buckets (like pandas {@code resample}):
- * open = first, high = max, low = min, close/adjClose = last, volume = sum. Missing values are
- * skipped rather than propagated, and a bucket whose volumes are all missing keeps a {@code null}
- * volume. Buckets without any source bar are not emitted.
+ * open = first, high = max, low = min, close/adjClose = last, volume = sum over present values
+ * (absent when none of the source bars reported one). Buckets without any source bar are not
+ * emitted.
  */
 public final class PriceBarResampler {
 
@@ -42,36 +41,35 @@ public final class PriceBarResampler {
 
     private static final class Bucket {
         private final long start;
-        private @Nullable BigDecimal open;
-        private @Nullable BigDecimal high;
-        private @Nullable BigDecimal low;
+        private final BigDecimal open;
+        private BigDecimal high;
+        private BigDecimal low;
         private BigDecimal close; // every bucket holds at least one bar, and bars always have a close
-        private @Nullable BigDecimal adjClose;
-        private @Nullable Long volume;
+        private Optional<BigDecimal> adjClose;
+        private Optional<Long> volume;
 
         Bucket(long start, PriceBar first) {
             this.start = start;
+            this.open = first.open();
+            this.high = first.high();
+            this.low = first.low();
             this.close = first.close();
-            add(first);
+            this.adjClose = first.adjClose();
+            this.volume = first.volume();
         }
 
         void add(PriceBar bar) {
-            if (open == null) {
-                open = bar.open();
-            }
-            if (bar.high() != null && (high == null || bar.high().compareTo(high) > 0)) {
+            if (bar.high().compareTo(high) > 0) {
                 high = bar.high();
             }
-            if (bar.low() != null && (low == null || bar.low().compareTo(low) < 0)) {
+            if (bar.low().compareTo(low) < 0) {
                 low = bar.low();
             }
             close = bar.close();
-            if (bar.adjClose() != null) {
+            if (bar.adjClose().isPresent()) {
                 adjClose = bar.adjClose();
             }
-            if (bar.volume() != null) {
-                volume = volume == null ? bar.volume() : volume + bar.volume();
-            }
+            bar.volume().ifPresent(v -> volume = Optional.of(volume.map(sum -> sum + v).orElse(v)));
         }
 
         PriceBar toBar() {

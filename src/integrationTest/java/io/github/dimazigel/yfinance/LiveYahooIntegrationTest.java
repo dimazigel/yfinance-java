@@ -14,8 +14,8 @@ import io.github.dimazigel.yfinance.enums.StatementType;
 import io.github.dimazigel.yfinance.exception.YFDataException;
 import io.github.dimazigel.yfinance.http.AdaptiveRateLimitConfig;
 import io.github.dimazigel.yfinance.http.EndpointConfig;
+import io.github.dimazigel.yfinance.market.PriceBar;
 import io.github.dimazigel.yfinance.model.FinancialStatement;
-import io.github.dimazigel.yfinance.model.PriceBar;
 import io.github.dimazigel.yfinance.service.HistoryRequest;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
 import java.time.Duration;
@@ -69,19 +69,17 @@ class LiveYahooIntegrationTest {
             var history = aapl.history(Range.ONE_MONTH, Interval.ONE_DAY);
             assertThat(history.bars()).isNotEmpty();
             assertThat(history.bars().getFirst().close()).isNotNull();
-            assertThat(history.metadata().currency()).isEqualTo(Currency.getInstance("USD"));
+            assertThat(history.metadata().currency().code()).isEqualTo("USD");
             assertThat(history.metadata().timezone()).isEqualTo(ZoneId.of("America/New_York"));
             assertThat(history.metadata().symbol()).isEqualTo(Symbol.of("AAPL"));
             assertThat(history.zoneId()).isEqualTo(ZoneId.of("America/New_York"));
 
             var meta = history.metadata();
-            assertThat(meta.dataGranularity()).isEqualTo(Interval.ONE_DAY);
+            assertThat(meta.dataGranularity()).contains(Interval.ONE_DAY);
             assertThat(meta.validRanges()).contains(Range.ONE_DAY, Range.ONE_MONTH, Range.MAX);
             assertThat(meta.regularMarketTime()).isNotNull();
-            assertThat(meta.priceHint()).isNotNull();
             assertThat(meta.hasPrePostMarketData()).isTrue();
             var sessions = meta.currentTradingPeriod();
-            assertThat(sessions).isNotNull();
             assertThat(sessions.regular().start()).isBefore(sessions.regular().end());
             assertThat(sessions.pre().end()).isBeforeOrEqualTo(sessions.regular().start());
             assertThat(sessions.regular().end()).isBeforeOrEqualTo(sessions.post().start());
@@ -95,7 +93,7 @@ class LiveYahooIntegrationTest {
             // Decades of splits: the earliest adjusted close is a fraction of the raw close.
             var first = raw.bars().getFirst();
             var firstAdjusted = adjusted.bars().getFirst();
-            assertThat(firstAdjusted.close()).isEqualByComparingTo(first.adjClose());
+            assertThat(firstAdjusted.close()).isEqualByComparingTo(first.adjClose().orElseThrow());
             assertThat(firstAdjusted.close()).isLessThan(first.close());
             assertThat(firstAdjusted.volume()).isEqualTo(first.volume());
             // The latest bar needs (almost) no adjustment.
@@ -214,18 +212,18 @@ class LiveYahooIntegrationTest {
         void nonUsInstrumentCarriesItsOwnCurrencyAndTimezone() {
             var history = yf.ticker("SAP.DE").history(Range.ONE_MONTH, Interval.ONE_DAY);
             assertThat(history.bars()).isNotEmpty();
-            assertThat(history.metadata().currency()).isEqualTo(Currency.getInstance("EUR"));
+            assertThat(history.metadata().currency().code()).isEqualTo("EUR");
             assertThat(history.metadata().timezone()).isEqualTo(ZoneId.of("Europe/Berlin"));
         }
 
         @Test
         void penceQuotedInstrumentDoesNotAbort() {
-            // London quotes in GBp (pence), which is not an ISO currency: mapped leniently to null.
+            // London quotes in GBp (pence), which is not an ISO currency: the raw code is kept as-is,
+            // with iso() empty rather than the whole history failing.
             var history = yf.ticker("BP.L").history(Range.ONE_MONTH, Interval.ONE_DAY);
             assertThat(history.bars()).isNotEmpty();
-            assertThat(history.metadata().currency()).satisfiesAnyOf(
-                    c -> assertThat(c).isNull(),
-                    c -> assertThat(c).isEqualTo(Currency.getInstance("GBP")));
+            assertThat(history.metadata().currency().code()).isEqualTo("GBp");
+            assertThat(history.metadata().currency().iso()).isEmpty();
             assertThat(history.metadata().timezone()).isEqualTo(ZoneId.of("Europe/London"));
         }
 
@@ -541,8 +539,8 @@ class LiveYahooIntegrationTest {
             });
             assertThat(results.get(Symbol.of("BTC-USD")).orElseThrow().metadata().instrumentType())
                     .isEqualTo("CRYPTOCURRENCY");
-            assertThat(results.get(Symbol.of("EURUSD=X")).orElseThrow().metadata().currency())
-                    .isEqualTo(Currency.getInstance("USD"));
+            assertThat(results.get(Symbol.of("EURUSD=X")).orElseThrow().metadata().currency().code())
+                    .isEqualTo("USD");
         }
     }
 

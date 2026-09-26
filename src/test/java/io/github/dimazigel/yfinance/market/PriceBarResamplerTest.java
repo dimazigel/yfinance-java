@@ -1,12 +1,12 @@
-package io.github.dimazigel.yfinance.mapper;
+package io.github.dimazigel.yfinance.market;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import io.github.dimazigel.yfinance.model.PriceBar;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
 class PriceBarResamplerTest {
@@ -29,10 +29,10 @@ class PriceBarResamplerTest {
         assertThat(first.high()).isEqualByComparingTo("13");
         assertThat(first.low()).isEqualByComparingTo("9");
         assertThat(first.close()).isEqualByComparingTo("12");
-        assertThat(first.adjClose()).isEqualByComparingTo("11.9");
-        assertThat(first.volume()).isEqualTo(150L);
+        assertThat(first.adjClose().orElseThrow()).isEqualByComparingTo("11.9");
+        assertThat(first.volume()).contains(150L);
         assertThat(resampled.getLast().timestamp()).isEqualTo(Instant.ofEpochSecond(T0 + 1800));
-        assertThat(resampled.getLast().volume()).isEqualTo(70L);
+        assertThat(resampled.getLast().volume()).contains(70L);
     }
 
     @Test
@@ -45,18 +45,31 @@ class PriceBarResamplerTest {
     }
 
     @Test
-    void missingValuesStayNullAndDoNotPoisonAggregates() {
+    void adjCloseKeepsLastPresentValueAndIsEmptyWhenNeverReported() {
         var bars = List.of(
-                bar(T0, null, "12", null, "11", null, null),
-                bar(T0 + 900, "11", null, "10", "12", null, null));
+                bar(T0, "10", "12", "9", "11", null, null),
+                bar(T0 + 900, "11", "13", "10", "12", "11.9", null));
 
         var b = PriceBarResampler.resample(bars, Duration.ofMinutes(30)).getFirst();
+        assertThat(b.adjClose()).contains(new BigDecimal("11.9"));
 
-        assertThat(b.open()).isEqualByComparingTo("11");   // first non-null
-        assertThat(b.high()).isEqualByComparingTo("12");
-        assertThat(b.low()).isEqualByComparingTo("10");
-        assertThat(b.adjClose()).isNull();
-        assertThat(b.volume()).isNull();                   // all missing: not coerced to 0
+        var withoutAdjClose = PriceBarResampler.resample(
+                List.of(bar(T0, "1", "1", "1", "1", null, null)), Duration.ofMinutes(30)).getFirst();
+        assertThat(withoutAdjClose.adjClose()).isEmpty();
+    }
+
+    @Test
+    void volumeSumsPresentValuesAndIsEmptyWhenNonePresent() {
+        var bars = List.of(
+                bar(T0, "1", "1", "1", "1", null, null),
+                bar(T0 + 900, "1", "1", "1", "1", null, 5L));
+
+        var b = PriceBarResampler.resample(bars, Duration.ofMinutes(30)).getFirst();
+        assertThat(b.volume()).contains(5L); // missing values are skipped, not coerced to 0
+
+        var withoutVolume = PriceBarResampler.resample(
+                List.of(bar(T0, "1", "1", "1", "1", null, null)), Duration.ofMinutes(30)).getFirst();
+        assertThat(withoutVolume.volume()).isEmpty();
     }
 
     @Test
@@ -71,7 +84,8 @@ class PriceBarResamplerTest {
     }
 
     private static PriceBar bar(long epoch, String o, String h, String l, String c, String adj, Long v) {
-        return new PriceBar(Instant.ofEpochSecond(epoch), dec(o), dec(h), dec(l), dec(c), dec(adj), v);
+        return new PriceBar(Instant.ofEpochSecond(epoch), dec(o), dec(h), dec(l), dec(c),
+                Optional.ofNullable(dec(adj)), Optional.ofNullable(v));
     }
 
     private static BigDecimal dec(String s) {

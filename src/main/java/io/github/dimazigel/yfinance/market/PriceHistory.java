@@ -1,7 +1,6 @@
-package io.github.dimazigel.yfinance.model;
+package io.github.dimazigel.yfinance.market;
 
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.util.List;
 
 /** Result of a price-history query: candles plus corporate actions and metadata. */
@@ -25,10 +24,10 @@ public record PriceHistory(
     }
 
     /**
-     * The exchange timezone for this instrument, or {@link ZoneOffset#UTC} when Yahoo did not report
-     * one. Pass this to {@link Dividend#localDate(ZoneId)} and friends to get correct trading dates.
+     * The exchange timezone for this instrument. Pass this to {@link Dividend#localDate(ZoneId)} and
+     * friends to get correct trading dates.
      */
     public ZoneId zoneId() {
-        return metadata != null && metadata.timezone() != null ? metadata.timezone() : ZoneOffset.UTC;
+        return metadata.timezone();
     }
 }
