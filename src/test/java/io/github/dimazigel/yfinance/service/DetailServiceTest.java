@@ -1,0 +1,256 @@
+package io.github.dimazigel.yfinance.service;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import ch.qos.logback.classic.Level;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.github.dimazigel.yfinance.api.QuoteApi;
+import io.github.dimazigel.yfinance.api.QuoteSummaryApi;
+import io.github.dimazigel.yfinance.batch.Outcome;
+import io.github.dimazigel.yfinance.batch.SkipReason;
+import io.github.dimazigel.yfinance.http.RawQuoteClient;
+import io.github.dimazigel.yfinance.http.YahooObjectMapper;
+import io.github.dimazigel.yfinance.instrument.Core;
+import io.github.dimazigel.yfinance.instrument.Crypto;
+import io.github.dimazigel.yfinance.instrument.Equity;
+import io.github.dimazigel.yfinance.instrument.Etf;
+import io.github.dimazigel.yfinance.instrument.Instrument;
+import io.github.dimazigel.yfinance.testsupport.Fixtures;
+import io.github.dimazigel.yfinance.testsupport.InstrumentFixtures;
+import io.github.dimazigel.yfinance.testsupport.LogCapture;
+import io.github.dimazigel.yfinance.valueobject.Symbol;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.util.List;
+import okhttp3.mockwebserver.Dispatcher;
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
+import okhttp3.mockwebserver.RecordedRequest;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+class DetailServiceTest {
+
+    private static final Instant NOW = Instant.parse("2026-09-26T12:00:00Z");
+    private MockWebServer server;
+    private DetailService service;
+    private Equity aapl;
+    private Etf spy;
+    private Crypto btc;
+
+    @BeforeEach
+    void setUp() throws Exception {
+        aapl = instrumentOf("AAPL", Equity.class);
+        spy = instrumentOf("SPY", Etf.class);
+        btc = instrumentOf("BTC-USD", Crypto.class);
+
+        server = new MockWebServer();
+        server.start();
+        server.setDispatcher(defaultDispatcher());
+        var client = new RawQuoteClient(Fixtures.api(server, QuoteApi.class), Fixtures.api(server, QuoteSummaryApi.class));
+        service = new DetailService(client, Clock.fixed(NOW, ZoneOffset.UTC), 4);
+    }
+
+    @AfterEach
+    void tearDown() throws Exception {
+        server.shutdown();
+    }
+
+    @Test
+    void appleDetailIsOk() {
+        assertThat(service.equity(aapl).orElseThrow().profile().sector()).isEqualTo("Technology");
+    }
+
+    @Test
+    void spyDetailIsOkAndCryptoDetailIsOk() {
+        assertThat(service.etf(spy).orElseThrow().legalType()).isNotBlank();
+        assertThat(service.crypto(btc).orElseThrow().name()).isEqualTo("Bitcoin");
+    }
+
+    @Test
+    void detailForVanishedSymbolIsSkippedNotFailed() { // Review Focus 5
+        Equity gone = withSymbol(aapl, "GONE");
+        var outcome = service.equity(gone);
+        assertThat(outcome).isInstanceOfSatisfying(
+                Outcome.Skipped.class, s -> assertThat(s.reason()).isEqualTo(SkipReason.UNKNOWN_SYMBOL));
+    }
+
+    @Test
+    void missingGuaranteedModuleIsSkippedWithFieldNames() throws Exception {
+        MockWebServer stripped = new MockWebServer();
+        stripped.start();
+        stripped.setDispatcher(dispatcherWithout("AAPL", "financialData"));
+        try {
+            var client = new RawQuoteClient(Fixtures.api(stripped, QuoteApi.class), Fixtures.api(stripped, QuoteSummaryApi.class));
+            var strippedService = new DetailService(client, Clock.fixed(NOW, ZoneOffset.UTC), 4);
+
+            var outcome = strippedService.equity(aapl);
+
+            assertThat(outcome).isInstanceOfSatisfying(Outcome.Skipped.class, s -> {
+                assertThat(s.reason()).isEqualTo(SkipReason.MODULE_ABSENT);
+                assertThat(s.detail()).contains("financials.totalRevenue");
+            });
+        } finally {
+            stripped.shutdown();
+        }
+    }
+
+    @Test
+    void batchKeepsOrderAndIsolatesFailures() throws Exception {
+        Equity plug = instrumentOf("PLUG", Equity.class);
+        Equity gone = withSymbol(aapl, "GONE");
+
+        var batch = service.equities(List.of(aapl, gone, plug));
+
+        assertThat(batch.outcomes()).hasSize(3);
+        assertThat(batch.outcomes().get(0)).isInstanceOf(Outcome.Ok.class);
+        assertThat(batch.outcomes().get(1)).isInstanceOf(Outcome.Skipped.class);
+        assertThat(batch.outcomes().get(2)).isInstanceOf(Outcome.Ok.class);
+        assertThat(server.getRequestCount()).isEqualTo(3);
+    }
+
+    @Test
+    void requestsOnlyTheClassModules() throws Exception {
+        service.etf(spy);
+
+        RecordedRequest request = server.takeRequest();
+        String modules = request.getRequestUrl().queryParameter("modules");
+        assertThat(modules).contains("fundProfile");
+        assertThat(modules).doesNotContain("financialData");
+    }
+
+    @Test
+    void logsSummaryAndDebugSkipDetail() throws Exception {
+        MockWebServer stripped = new MockWebServer();
+        stripped.start();
+        stripped.setDispatcher(dispatcherWithout("AAPL", "financialData"));
+        try {
+            var client = new RawQuoteClient(Fixtures.api(stripped, QuoteApi.class), Fixtures.api(stripped, QuoteSummaryApi.class));
+            var strippedService = new DetailService(client, Clock.fixed(NOW, ZoneOffset.UTC), 4);
+
+            try (var log = LogCapture.of(DetailService.class)) {
+                strippedService.equity(aapl);
+
+                assertThat(log.messages(Level.INFO)).containsExactly("details: 1 symbols: 0 ok, 1 skipped, 0 failed");
+                assertThat(log.messages(Level.DEBUG))
+                        .anySatisfy(m -> assertThat(m).contains("AAPL detail skipped: missing").contains("financials.totalRevenue"));
+            }
+        } finally {
+            stripped.shutdown();
+        }
+    }
+
+    private static <I extends Instrument> I instrumentOf(String symbol, Class<I> as) throws Exception {
+        MockWebServer setup = new MockWebServer();
+        setup.start();
+        setup.setDispatcher(defaultDispatcher());
+        try {
+            var client = new RawQuoteClient(Fixtures.api(setup, QuoteApi.class), Fixtures.api(setup, QuoteSummaryApi.class));
+            var instruments = new InstrumentService(client, Clock.fixed(NOW, ZoneOffset.UTC));
+            return instruments.instruments(List.of(Symbol.of(symbol)), as).outcomes().getFirst().orElseThrow();
+        } finally {
+            setup.shutdown();
+        }
+    }
+
+    private static Equity withSymbol(Equity e, String symbol) {
+        Core core = e.core();
+        Core replaced = new Core(
+                Symbol.of(symbol),
+                core.shortName(),
+                core.longName(),
+                core.currency(),
+                core.exchange(),
+                core.fullExchangeName(),
+                core.exchangeTimezone(),
+                core.marketState(),
+                core.price(),
+                core.change(),
+                core.changePercent(),
+                core.previousClose(),
+                core.priceTime(),
+                core.fiftyTwoWeekLow(),
+                core.fiftyTwoWeekHigh(),
+                core.fiftyDayAverage(),
+                core.twoHundredDayAverage(),
+                core.averageVolume10Day(),
+                core.averageVolume3Month(),
+                core.firstTradeDate(),
+                core.priceHint(),
+                core.hasPrePostMarketData());
+        return new Equity(
+                replaced,
+                e.session(),
+                e.book(),
+                e.valuation(),
+                e.nextEarnings(),
+                e.bookValue(),
+                e.priceToBook(),
+                e.trailingEps(),
+                e.forwardEps(),
+                e.forwardPE(),
+                e.trailingPE(),
+                e.trailingDividend(),
+                e.currentDividend(),
+                e.currentYearEps(),
+                e.averageAnalystRating(),
+                e.postMarket(),
+                e.fetchedAt());
+    }
+
+    // v7: answer with the captured rows for whatever symbols were asked; quoteSummary: the captured file per symbol
+    private static Dispatcher defaultDispatcher() {
+        return new Dispatcher() {
+            @Override
+            public MockResponse dispatch(RecordedRequest request) {
+                var url = request.getRequestUrl();
+                if (url.encodedPath().equals("/v7/finance/quote")) {
+                    String[] symbols = url.queryParameter("symbols").split(",");
+                    return new MockResponse().setResponseCode(200).setBody(InstrumentFixtures.v7Response(symbols));
+                }
+                String symbol = url.pathSegments().getLast();
+                try {
+                    String body = Fixtures.load("instruments/qs_" + InstrumentFixtures.safe(symbol) + ".json");
+                    return new MockResponse().setResponseCode(body.contains("\"result\":null") ? 404 : 200).setBody(body);
+                } catch (IllegalArgumentException noFixture) {
+                    return new MockResponse().setResponseCode(404).setBody(
+                            "{\"quoteSummary\":{\"result\":null,\"error\":{\"code\":\"Not Found\",\"description\":\"Quote not found for symbol: "
+                                    + symbol + "\"}}}");
+                }
+            }
+        };
+    }
+
+    /** As {@link #defaultDispatcher()}, but {@code moduleToDrop} is stripped from {@code symbol}'s captured response. */
+    private static Dispatcher dispatcherWithout(String symbol, String moduleToDrop) {
+        Dispatcher fallback = defaultDispatcher();
+        return new Dispatcher() {
+            @Override
+            public MockResponse dispatch(RecordedRequest request) throws InterruptedException {
+                var url = request.getRequestUrl();
+                if (url.encodedPath().equals("/v7/finance/quote") || !url.pathSegments().getLast().equals(symbol)) {
+                    return fallback.dispatch(request);
+                }
+                String body = Fixtures.load("instruments/qs_" + InstrumentFixtures.safe(symbol) + ".json");
+                return new MockResponse().setResponseCode(200).setBody(withoutModule(body, moduleToDrop));
+            }
+        };
+    }
+
+    private static String withoutModule(String body, String moduleName) {
+        ObjectMapper mapper = YahooObjectMapper.create();
+        try {
+            JsonNode root = mapper.readTree(body);
+            ((ObjectNode) root.at("/quoteSummary/result/0")).remove(moduleName);
+            return mapper.writeValueAsString(root);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+}

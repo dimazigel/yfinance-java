@@ -11,14 +11,14 @@ public final class DetailSpecs {
 
     /**
      * Returns the module list for detail specs of the given {@code assetClass}.
-     * ETF/MUTUAL_FUND have detail; others have empty.
+     * ETF/MUTUAL_FUND, EQUITY and CRYPTO have detail; others have empty.
      */
     public static List<String> modules(AssetClass assetClass) {
         return switch (assetClass) {
             case ETF, MUTUAL_FUND -> List.of("price", "quoteType", "summaryDetail", "defaultKeyStatistics",
                     "assetProfile", "fundProfile", "topHoldings", "fundPerformance");
             case EQUITY -> List.of("price", "quoteType", "summaryDetail", "defaultKeyStatistics",
-                    "financialData", "assetProfile", "calendarEvents", "secFilings", "recommendationTrend",
+                    "financialData", "assetProfile", "summaryProfile", "calendarEvents", "secFilings", "recommendationTrend",
                     "upgradeDowngradeHistory", "earningsTrend", "earningsHistory", "majorHoldersBreakdown",
                     "institutionOwnership", "fundOwnership", "insiderHolders", "insiderTransactions",
                     "netSharePurchaseActivity");
@@ -35,7 +35,8 @@ public final class DetailSpecs {
             case ETF -> EtfDetailSpecs.DETAIL;
             case MUTUAL_FUND -> MutualFundDetailSpecs.DETAIL;
             case EQUITY -> EquityDetailSpecs.DETAIL;
-            case CRYPTO, INDEX, FX, FUTURE, UNCLASSIFIED -> List.of();
+            case CRYPTO -> CryptoDetailSpecs.DETAIL;
+            case INDEX, FX, FUTURE, UNCLASSIFIED -> List.of();
         };
     }
 }
