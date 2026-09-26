@@ -3,6 +3,7 @@ package io.github.dimazigel.yfinance.service;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.spi.ILoggingEvent;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -17,6 +18,7 @@ import io.github.dimazigel.yfinance.instrument.Crypto;
 import io.github.dimazigel.yfinance.instrument.Equity;
 import io.github.dimazigel.yfinance.instrument.Etf;
 import io.github.dimazigel.yfinance.instrument.Instrument;
+import io.github.dimazigel.yfinance.logging.LogContext;
 import io.github.dimazigel.yfinance.testsupport.Fixtures;
 import io.github.dimazigel.yfinance.testsupport.InstrumentFixtures;
 import io.github.dimazigel.yfinance.testsupport.LogCapture;
@@ -140,6 +142,14 @@ class DetailServiceTest {
                 assertThat(log.messages(Level.INFO)).containsExactly("details: 1 symbols: 0 ok, 1 skipped, 0 failed");
                 assertThat(log.messages(Level.DEBUG))
                         .anySatisfy(m -> assertThat(m).contains("AAPL detail skipped: missing").contains("financials.totalRevenue"));
+
+                // The DEBUG skip line runs on the fanOut worker thread; its MDC must still carry
+                // the per-instrument scope opened inside one(...), not just the batch-level one.
+                ILoggingEvent debugEvent =
+                        log.events().stream().filter(e -> e.getLevel() == Level.DEBUG).findFirst().orElseThrow();
+                assertThat(debugEvent.getMDCPropertyMap())
+                        .containsEntry(LogContext.OP, "details")
+                        .containsEntry(LogContext.SYMBOL, "AAPL");
             }
         } finally {
             stripped.shutdown();

@@ -37,7 +37,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.Semaphore;
-import java.util.function.BiFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,6 +58,7 @@ public final class DetailService {
     private final Clock clock;
     private final int concurrency;
 
+    /** {@code concurrency} bounds how many quoteSummary requests are in flight at once. */
     public DetailService(RawQuoteClient client, Clock clock, int concurrency) {
         if (concurrency < 1) {
             throw new IllegalArgumentException("concurrency must be >= 1");
@@ -68,35 +68,43 @@ public final class DetailService {
         this.concurrency = concurrency;
     }
 
+    /** Fetches detail for a single equity; see {@link #equities(List)}. */
     public Outcome<EquityDetail> equity(Equity equity) {
         return equities(List.of(equity)).outcomes().getFirst();
     }
 
+    /** One quoteSummary request per equity, each resolved against the equity detail module set. */
     public Batch<EquityDetail> equities(List<Equity> equities) {
         return fanOut(equities, AssetClass.EQUITY, EquityDetailBuilder::build);
     }
 
+    /** Fetches detail for a single ETF; see {@link #etfs(List)}. */
     public Outcome<EtfDetail> etf(Etf etf) {
         return etfs(List.of(etf)).outcomes().getFirst();
     }
 
+    /** One quoteSummary request per ETF, each resolved against the fund detail module set. */
     public Batch<EtfDetail> etfs(List<Etf> etfs) {
         return fanOut(etfs, AssetClass.ETF, (r, modules, symbol, fetchedAt) -> FundDetailBuilder.etf(r, symbol, fetchedAt));
     }
 
+    /** Fetches detail for a single mutual fund; see {@link #mutualFunds(List)}. */
     public Outcome<MutualFundDetail> mutualFund(MutualFund fund) {
         return mutualFunds(List.of(fund)).outcomes().getFirst();
     }
 
+    /** One quoteSummary request per mutual fund, each resolved against the fund detail module set. */
     public Batch<MutualFundDetail> mutualFunds(List<MutualFund> funds) {
         return fanOut(funds, AssetClass.MUTUAL_FUND,
                 (r, modules, symbol, fetchedAt) -> FundDetailBuilder.mutualFund(r, symbol, fetchedAt));
     }
 
+    /** Fetches detail for a single cryptocurrency; see {@link #cryptos(List)}. */
     public Outcome<CryptoDetail> crypto(Crypto crypto) {
         return cryptos(List.of(crypto)).outcomes().getFirst();
     }
 
+    /** One quoteSummary request per cryptocurrency, each resolved against the crypto detail module set. */
     public Batch<CryptoDetail> cryptos(List<Crypto> cryptos) {
         return fanOut(cryptos, AssetClass.CRYPTO, (r, modules, symbol, fetchedAt) -> CryptoDetailBuilder.build(r, symbol, fetchedAt));
     }
@@ -112,12 +120,10 @@ public final class DetailService {
             try (ExecutorService pool = Executors.newVirtualThreadPerTaskExecutor()) {
                 var futures = new ArrayList<Future<Outcome<D>>>(instruments.size());
                 for (Instrument instrument : instruments) {
-                    BiFunction<Resolved, Map<String, JsonNode>, D> build =
-                            (r, modules) -> assemble.build(r, modules, instrument.symbol(), fetchedAt);
                     futures.add(pool.submit(() -> {
                         permits.acquire();
                         try {
-                            return one(instrument, expected, build);
+                            return one(instrument, expected, fetchedAt, assemble);
                         } finally {
                             permits.release();
                         }
@@ -132,9 +138,14 @@ public final class DetailService {
         }
     }
 
-    private <D> Outcome<D> one(Instrument instrument, AssetClass expected, BiFunction<Resolved, Map<String, JsonNode>, D> build) {
+    /**
+     * Runs on the worker thread {@code fanOut} submitted it to, so the per-instrument
+     * {@link LogContext} scope is opened here (not just around the batch on the calling thread):
+     * MDC is thread-local, and this instrument's HTTP calls and skip logging happen on this thread.
+     */
+    private <D> Outcome<D> one(Instrument instrument, AssetClass expected, Instant fetchedAt, Assembler<D> assemble) {
         Symbol symbol = instrument.symbol();
-        try {
+        try (var ignored = LogContext.scope("details", symbol)) {
             Optional<Map<String, JsonNode>> modules = client.modules(symbol, DetailSpecs.modules(expected));
             if (modules.isEmpty()) {
                 return Outcome.skipped(symbol, SkipReason.UNKNOWN_SYMBOL, "quoteSummary 404");
@@ -145,7 +156,7 @@ public final class DetailService {
                         .log("{} detail skipped: missing {}", symbol, r.missingRequired());
                 return Outcome.skipped(symbol, SkipReason.MODULE_ABSENT, String.join(",", r.missingRequired()));
             }
-            return Outcome.ok(symbol, build.apply(r, modules.get()));
+            return Outcome.ok(symbol, assemble.build(r, modules.get(), symbol, fetchedAt));
         } catch (YFinanceException e) {
             return Outcome.failed(symbol, e);
         } catch (RuntimeException e) {
