@@ -147,6 +147,17 @@ classes under `io.github.dimazigel.yfinance`. At `INFO` you see the rate limiter
 degraded mode; at `WARN`, degraded authentication (cookie or crumb unavailable); at `DEBUG`,
 individual waits, crumb refreshes, 5xx retries and the quote-endpoint fallback.
 
+What you get at each level — a healthy production log from this library is **empty at `WARN`**:
+
+| level | when | examples |
+|---|---|---|
+| `WARN` | degraded, or gave up | cookie/crumb unavailable; still 429 or 5xx after all retries |
+| `INFO` | once per client, once per batch | effective config at `create()`; rate limiter entering/leaving degraded mode; `Fetched 500 symbols: 497 ok, 3 failed in 12 s` |
+| `DEBUG` | once per request or per dropped datum | `GET /v8/finance/chart/AAPL?range=1mo&interval=1d -> 200 (23 KB) in 412 ms`; `Dropped 4 of 390 bars without a close`; `Unknown currency "GBp"; left null`; each retry; each failed symbol in a batch |
+
+The library never logs an error it also throws: the exception message carries Yahoo's reason and
+the request path, and the caller decides what to do with it.
+
 Every call runs inside an MDC scope so log lines can be correlated without parsing messages:
 `yf.op` (`history`, `info`, `quote`, `quotes`, `financials`, `options`, `holders`, `analysis`,
 `search`, `lookup`), `yf.symbol` (comma-joined for batch quotes) and, while an HTTP request is in

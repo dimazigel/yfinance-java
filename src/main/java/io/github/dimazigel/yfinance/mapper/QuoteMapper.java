@@ -6,11 +6,14 @@ import io.github.dimazigel.yfinance.exception.YFDataException;
 import io.github.dimazigel.yfinance.model.Quote;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import org.jspecify.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Maps the raw {@code /v7/finance/quote} response into {@link Quote}s. The same model as
@@ -18,6 +21,8 @@ import org.jspecify.annotations.Nullable;
  * not serve (beta, price targets, revenue, margins) are {@code null}.
  */
 public final class QuoteMapper {
+
+    private static final Logger LOG = LoggerFactory.getLogger(QuoteMapper.class);
 
     private QuoteMapper() {}
 
@@ -42,11 +47,18 @@ public final class QuoteMapper {
             }
         }
         var ordered = new LinkedHashMap<Symbol, Quote>();
+        var missing = new ArrayList<Symbol>();
         for (Symbol symbol : requested) {
             Quote quote = bySymbol.get(symbol);
             if (quote != null) {
                 ordered.put(symbol, quote);
+            } else {
+                missing.add(symbol);
             }
+        }
+        if (!missing.isEmpty()) {
+            LOG.atDebug().addKeyValue("missing", missing.size()).addKeyValue("requested", requested.size())
+                    .log("Yahoo returned no quote for {} of {} symbols: {}", missing.size(), requested.size(), missing);
         }
         return ordered;
     }

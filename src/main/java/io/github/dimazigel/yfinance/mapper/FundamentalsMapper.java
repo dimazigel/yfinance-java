@@ -13,9 +13,13 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /** Maps the raw timeseries response into a {@link FinancialStatement}. */
 public final class FundamentalsMapper {
+
+    private static final Logger LOG = LoggerFactory.getLogger(FundamentalsMapper.class);
 
     private FundamentalsMapper() {}
 
@@ -32,6 +36,7 @@ public final class FundamentalsMapper {
         var lineItems = new LinkedHashMap<String, Map<LocalDate, BigDecimal>>();
         var periods = new TreeSet<LocalDate>();
         String prefix = frequency.wireValue();
+        int skipped = 0;
 
         if (ts.result() != null) {
             for (Result result : ts.result()) {
@@ -44,7 +49,8 @@ public final class FundamentalsMapper {
                         }
                         LocalDate date = MapperSupport.localDate(point.asOfDate());
                         if (date == null) {
-                            continue; // absent or malformed period: skip the point, keep the statement
+                            skipped++; // absent or malformed period: skip the point, keep the statement
+                            continue;
                         }
                         periods.add(date);
                         if (point.reportedValue().raw() != null) {
@@ -53,6 +59,10 @@ public final class FundamentalsMapper {
                     }
                 }
             }
+        }
+        if (skipped > 0) {
+            LOG.atDebug().addKeyValue("skipped", skipped)
+                    .log("Skipped {} fundamentals {} without a usable date", skipped, skipped == 1 ? "point" : "points");
         }
         return new FinancialStatement(type, frequency, List.copyOf(periods), lineItems);
     }

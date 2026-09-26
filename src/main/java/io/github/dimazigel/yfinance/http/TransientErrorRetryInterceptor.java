@@ -42,12 +42,25 @@ public final class TransientErrorRetryInterceptor implements Interceptor {
 
     @Override
     public Response intercept(Chain chain) throws IOException {
+        Duration waited = Duration.ZERO;
         for (int attempt = 1; ; attempt++) {
             Response response = chain.proceed(chain.request());
-            if (!isTransient(response.code()) || attempt >= config.maxAttempts()) {
+            if (!isTransient(response.code())) {
+                return response;
+            }
+            if (attempt >= config.maxAttempts()) {
+                if (config.maxAttempts() > 1) { // an opted-out caller gets the exception, not a lecture
+                    LOG.atWarn()
+                            .addKeyValue("status", response.code())
+                            .addKeyValue("attempts", attempt)
+                            .addKeyValue("waitedMs", waited.toMillis())
+                            .log("Giving up on {} after {} attempts (last HTTP {}, waited {} ms in total)",
+                                    response.request().url().encodedPath(), attempt, response.code(), waited.toMillis());
+                }
                 return response;
             }
             Duration delay = delayBefore(attempt + 1, response.header("Retry-After"));
+            waited = waited.plus(delay);
             LOG.atDebug()
                     .addKeyValue("status", response.code())
                     .addKeyValue("attempt", attempt + 1)

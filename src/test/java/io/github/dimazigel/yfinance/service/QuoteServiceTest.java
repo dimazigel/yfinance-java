@@ -239,4 +239,16 @@ class QuoteServiceTest {
 
         assertThat(seen).containsEntry("yf.op", "quotes").containsEntry("yf.symbol", "^GSPC,BTC-USD");
     }
+
+    @Test
+    void omittedBatchSymbolsAreLoggedAtDebug() {
+        server.enqueue(Fixtures.jsonResponse("quote_gspc_btc.json"));
+
+        try (var log = io.github.dimazigel.yfinance.testsupport.LogCapture.ofLibrary()) {
+            service.getQuotes(List.of(Symbol.of("^GSPC"), Symbol.of("NOPE"), Symbol.of("BTC-USD")));
+
+            assertThat(log.messages(ch.qos.logback.classic.Level.DEBUG))
+                    .anySatisfy(m -> assertThat(m).isEqualTo("Yahoo returned no quote for 1 of 3 symbols: [NOPE]"));
+        }
+    }
 }

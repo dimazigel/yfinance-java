@@ -74,7 +74,9 @@ class YahooClientFactoryTest {
         assertThat(order.indexOf("TransientErrorRetryInterceptor"))
                 .isLessThan(order.indexOf("AdaptiveRateLimitInterceptor")); // 5xx retries are paced too
         assertThat(order.indexOf("AdaptiveRateLimitInterceptor"))
-                .isLessThan(order.indexOf("CrumbInterceptor"));
+                .isLessThan(order.indexOf("RequestLogInterceptor")); // logs every physical attempt...
+        assertThat(order.indexOf("RequestLogInterceptor"))
+                .isLessThan(order.indexOf("CrumbInterceptor"));      // ...before the crumb is attached
     }
 
     @Test

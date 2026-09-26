@@ -17,9 +17,13 @@ import java.util.Currency;
 import java.util.List;
 import java.util.function.Function;
 import org.jspecify.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /** Small conversion helpers shared across DTO -> model mappers. */
 final class MapperSupport {
+
+    private static final Logger LOG = LoggerFactory.getLogger(MapperSupport.class);
 
     private MapperSupport() {}
 
@@ -34,6 +38,7 @@ final class MapperSupport {
         try {
             return new URI(value);
         } catch (URISyntaxException e) {
+            LOG.atDebug().log("Malformed URI \"{}\"; left null", value);
             return null;
         }
     }
@@ -45,6 +50,7 @@ final class MapperSupport {
         try {
             return Currency.getInstance(code);
         } catch (IllegalArgumentException e) {
+            LOG.atDebug().log("Unknown currency \"{}\"; left null", code);
             return null;
         }
     }
@@ -56,6 +62,7 @@ final class MapperSupport {
         try {
             return ZoneId.of(value);
         } catch (DateTimeException e) {
+            LOG.atDebug().log("Unknown timezone \"{}\"; left null", value);
             return null;
         }
     }
@@ -68,6 +75,7 @@ final class MapperSupport {
         try {
             return LocalDate.parse(value.strip());
         } catch (DateTimeParseException e) {
+            LOG.atDebug().log("Unparseable date \"{}\"; left null", value);
             return null;
         }
     }
@@ -85,6 +93,7 @@ final class MapperSupport {
         try {
             return Interval.fromWire(wire);
         } catch (IllegalArgumentException e) {
+            LOG.atDebug().log("Unknown interval \"{}\"; left null", wire);
             return null;
         }
     }
@@ -99,7 +108,7 @@ final class MapperSupport {
             try {
                 ranges.add(Range.fromWire(wire));
             } catch (IllegalArgumentException e) {
-                // Yahoo added a range this version does not know; ignore it.
+                LOG.atDebug().log("Unknown range \"{}\"; ignored", wire); // Yahoo added one this version lacks
             }
         }
         return List.copyOf(ranges);

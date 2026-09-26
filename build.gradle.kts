@@ -159,7 +159,7 @@ dependencies {
     testImplementation(libs.assertj.core)
     testImplementation(libs.mockito.core)
     testImplementation(libs.okhttp.mockwebserver)
-    testRuntimeOnly(libs.logback.classic) // real MDC (slf4j-simple has a no-op one); WARN+ only, see logback-test.xml
+    testImplementation(libs.logback.classic) // real MDC (slf4j-simple has a no-op one) and ListAppender for log assertions
 }
 
 nullaway {

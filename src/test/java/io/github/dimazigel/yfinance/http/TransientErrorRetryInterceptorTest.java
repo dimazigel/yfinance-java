@@ -110,4 +110,27 @@ class TransientErrorRetryInterceptorTest {
         assertThat(RetryConfig.defaults().maxAttempts()).isEqualTo(3);
         assertThat(RetryConfig.disabled().maxAttempts()).isEqualTo(1);
     }
+
+    @Test
+    void warnsOnceWhenGivingUp() throws Exception {
+        for (int i = 0; i < 3; i++) {
+            server.enqueue(new MockResponse().setResponseCode(503));
+        }
+        try (var log = io.github.dimazigel.yfinance.testsupport.LogCapture.of(TransientErrorRetryInterceptor.class)) {
+            call(client(new RetryConfig(3, Duration.ofMillis(10), Duration.ofSeconds(1))));
+
+            assertThat(log.messages(ch.qos.logback.classic.Level.WARN)).singleElement().satisfies(m -> assertThat(m)
+                    .isEqualTo("Giving up on /v1/finance/lookup after 3 attempts (last HTTP 503, waited 30 ms in total)"));
+            assertThat(log.messages(ch.qos.logback.classic.Level.DEBUG)).hasSize(2); // one per retry
+        }
+    }
+
+    @Test
+    void noWarningWhenRetriesAreDisabled() throws Exception {
+        server.enqueue(new MockResponse().setResponseCode(500));
+        try (var log = io.github.dimazigel.yfinance.testsupport.LogCapture.of(TransientErrorRetryInterceptor.class)) {
+            call(client(RetryConfig.disabled()));
+            assertThat(log.events()).isEmpty(); // the user opted out; the exception says what happened
+        }
+    }
 }

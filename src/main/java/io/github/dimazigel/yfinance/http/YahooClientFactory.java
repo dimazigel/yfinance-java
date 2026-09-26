@@ -25,6 +25,7 @@ public final class YahooClientFactory {
                 .cookieJar(cookieJar)
                 .addInterceptor(new UserAgentInterceptor(config.userAgent()))
                 .addInterceptor(new LogContextInterceptor())
+                .addInterceptor(new RequestLogInterceptor())
                 .callTimeout(config.callTimeout());
         config.clientCustomizer().accept(builder);
         return builder.build();
@@ -38,7 +39,9 @@ public final class YahooClientFactory {
      * carries the endpoint; {@link AuthRetryInterceptor} and
      * {@link TransientErrorRetryInterceptor} sit upstream of {@link AdaptiveRateLimitInterceptor}
      * so every request they re-issue is paced and 429-handled like any other, and all three sit
-     * upstream of {@link CrumbInterceptor} so every (re)issued request gets the current crumb. {@code crumb} may return {@code null} to send a request
+     * upstream of {@link CrumbInterceptor} so every (re)issued request gets the current crumb.
+     * {@link RequestLogInterceptor} sits just above the crumb so it logs every physical attempt
+     * without ever seeing the credential. {@code crumb} may return {@code null} to send a request
      * without a crumb (e.g. while the crumb endpoint is rate-limited).
      */
     public static OkHttpClient apiClient(
@@ -50,6 +53,7 @@ public final class YahooClientFactory {
                 .addInterceptor(new AuthRetryInterceptor(onAuthFailure))
                 .addInterceptor(new TransientErrorRetryInterceptor(config.transientRetry()))
                 .addInterceptor(new AdaptiveRateLimitInterceptor(config.adaptiveRateLimit()))
+                .addInterceptor(new RequestLogInterceptor())
                 .addInterceptor(new CrumbInterceptor(crumb))
                 .callTimeout(config.callTimeout());
         config.clientCustomizer().accept(builder);

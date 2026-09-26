@@ -22,9 +22,13 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import org.jspecify.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /** Maps the raw {@link ChartResponse} into the clean {@link PriceHistory} model. */
 public final class ChartMapper {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ChartMapper.class);
 
     private ChartMapper() {}
 
@@ -100,10 +104,12 @@ public final class ChartMapper {
                 : null;
 
         var bars = new ArrayList<PriceBar>(timestamps.size());
+        int dropped = 0;
         for (int i = 0; i < timestamps.size(); i++) {
             BigDecimal close = at(quote.close(), i);
             if (close == null) {
                 // Yahoo pads intraday series with all-null rows (halts, pre-open); skip them.
+                dropped++;
                 continue;
             }
             bars.add(new PriceBar(
@@ -114,6 +120,10 @@ public final class ChartMapper {
                     close,
                     at(adjClose, i),
                     at(quote.volume(), i)));
+        }
+        if (dropped > 0) {
+            LOG.atDebug().addKeyValue("dropped", dropped).addKeyValue("total", timestamps.size())
+                    .log("Dropped {} of {} bars without a close", dropped, timestamps.size());
         }
         return bars;
     }

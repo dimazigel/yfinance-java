@@ -125,4 +125,21 @@ class FundamentalsServiceTest {
         assertThat(stmt.periods()).containsExactly(LocalDate.parse("2023-09-30"));
         assertThat(stmt.value("TotalRevenue", LocalDate.parse("2023-09-30"))).isEqualByComparingTo("2");
     }
+
+    @Test
+    void skippedPointsAreLoggedAtDebug() {
+        server.enqueue(new okhttp3.mockwebserver.MockResponse().setResponseCode(200).setBody(
+                "{\"timeseries\":{\"result\":[{\"meta\":{\"symbol\":[\"AAPL\"],\"type\":[\"annualTotalRevenue\"]},"
+                        + "\"annualTotalRevenue\":["
+                        + "{\"asOfDate\":\"not-a-date\",\"reportedValue\":{\"raw\":1}},"
+                        + "{\"asOfDate\":\"2023-09-30\",\"reportedValue\":{\"raw\":2}}]}],\"error\":null}}"));
+
+        try (var log = io.github.dimazigel.yfinance.testsupport.LogCapture.ofLibrary()) {
+            service.getStatement(Symbol.of("AAPL"), StatementType.INCOME, Frequency.ANNUAL);
+
+            assertThat(log.messages(ch.qos.logback.classic.Level.DEBUG))
+                    .anySatisfy(m -> assertThat(m).isEqualTo("Unparseable date \"not-a-date\"; left null"))
+                    .anySatisfy(m -> assertThat(m).isEqualTo("Skipped 1 fundamentals point without a usable date"));
+        }
+    }
 }

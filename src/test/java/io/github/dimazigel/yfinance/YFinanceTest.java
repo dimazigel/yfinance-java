@@ -163,4 +163,24 @@ class YFinanceTest {
                 .hasMessageContaining("AAPL");
         assertThat(server.getRequestCount()).isZero();
     }
+
+    @Test
+    void createLogsEffectiveConfigAndCloseLogsOnce() {
+        var config = io.github.dimazigel.yfinance.http.EndpointConfig.production()
+                .withHosts(server.url("/"))
+                .withCallTimeout(java.time.Duration.ofSeconds(7));
+
+        try (var log = io.github.dimazigel.yfinance.testsupport.LogCapture.of(YFinance.class)) {
+            YFinance created = YFinance.create(config); // no request yet: the crumb handshake is lazy
+            created.close();
+
+            assertThat(log.messages(ch.qos.logback.classic.Level.INFO)).singleElement().satisfies(m -> assertThat(m)
+                    .startsWith("yfinance-java client created:")
+                    .contains("callTimeout=PT7S")
+                    .contains("rateLimit=on/3 attempts")
+                    .contains("retry5xx=3 attempts")
+                    .contains("customizer=no"));
+            assertThat(log.messages(ch.qos.logback.classic.Level.DEBUG)).containsExactly("yfinance-java client closed");
+        }
+    }
 }

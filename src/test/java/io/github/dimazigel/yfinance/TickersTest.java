@@ -153,4 +153,27 @@ class TickersTest {
         org.assertj.core.api.Assertions.assertThatThrownBy(bad::orElseThrow)
                 .isInstanceOf(YFDataException.class);
     }
+
+    @Test
+    void fanOutLogsASummaryAndEachFailure() {
+        server.setDispatcher(new Dispatcher() {
+            @Override
+            public MockResponse dispatch(RecordedRequest request) {
+                if (request.getPath() != null && request.getPath().contains("MSFT")) {
+                    return new MockResponse().setResponseCode(200).setBody(
+                            "{\"quoteSummary\":{\"result\":null,\"error\":{\"code\":\"Not Found\",\"description\":\"boom\"}}}");
+                }
+                return Fixtures.jsonResponse("quotesummary_aapl.json");
+            }
+        });
+
+        try (var log = io.github.dimazigel.yfinance.testsupport.LogCapture.of(Tickers.class)) {
+            yf.tickers("AAPL", "MSFT").infos();
+
+            assertThat(log.messages(ch.qos.logback.classic.Level.INFO)).singleElement().satisfies(m ->
+                    assertThat(m).matches("Fetched 2 symbols: 1 ok, 1 failed in \\d+ ms"));
+            assertThat(log.messages(ch.qos.logback.classic.Level.DEBUG)).singleElement().satisfies(m ->
+                    assertThat(m).startsWith("MSFT failed: YFDataException: ").contains("boom"));
+        }
+    }
 }

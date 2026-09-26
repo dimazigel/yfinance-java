@@ -70,4 +70,11 @@ class EndpointConfigTest {
         assertThat(none.transientRetry().maxAttempts()).isEqualTo(1);
         assertThat(none.withCallTimeout(Duration.ofSeconds(1)).transientRetry()).isEqualTo(RetryConfig.disabled());
     }
+
+    @Test
+    void reportsWhetherACustomizerIsConfigured() {
+        assertThat(EndpointConfig.production().hasClientCustomizer()).isFalse();
+        assertThat(EndpointConfig.production().withHosts(URL).hasClientCustomizer()).isFalse(); // default survives copies
+        assertThat(EndpointConfig.production().withClientCustomizer(b -> {}).hasClientCustomizer()).isTrue();
+    }
 }
