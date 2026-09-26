@@ -12,17 +12,14 @@ import io.github.dimazigel.yfinance.exception.YFDataException;
 import io.github.dimazigel.yfinance.http.RawQuoteClient;
 import io.github.dimazigel.yfinance.instrument.*;
 import io.github.dimazigel.yfinance.testsupport.Fixtures;
-import io.github.dimazigel.yfinance.testsupport.InstrumentFixtures;
 import io.github.dimazigel.yfinance.testsupport.LogCapture;
+import io.github.dimazigel.yfinance.testsupport.YahooDispatcher;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.List;
-import okhttp3.mockwebserver.Dispatcher;
-import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
-import okhttp3.mockwebserver.RecordedRequest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,24 +34,7 @@ class InstrumentServiceTest {
     void setUp() throws Exception {
         server = new MockWebServer();
         server.start();
-        // v7: answer with the captured rows for whatever symbols were asked; quoteSummary: the captured file per symbol
-        server.setDispatcher(new Dispatcher() {
-            @Override
-            public MockResponse dispatch(RecordedRequest request) {
-                var url = request.getRequestUrl();
-                if (url.encodedPath().equals("/v7/finance/quote")) {
-                    String[] symbols = url.queryParameter("symbols").split(",");
-                    return new MockResponse().setResponseCode(200).setBody(InstrumentFixtures.v7Response(symbols));
-                }
-                String symbol = url.pathSegments().getLast();
-                try {
-                    String body = Fixtures.load("instruments/qs_" + InstrumentFixtures.safe(symbol) + ".json");
-                    return new MockResponse().setResponseCode(body.contains("\"result\":null") ? 404 : 200).setBody(body);
-                } catch (IllegalArgumentException noFixture) {
-                    return new MockResponse().setResponseCode(404).setBody("{\"quoteSummary\":{\"result\":null,\"error\":{\"code\":\"Not Found\",\"description\":\"Quote not found for symbol: " + symbol + "\"}}}");
-                }
-            }
-        });
+        server.setDispatcher(new YahooDispatcher());
         var client = new RawQuoteClient(Fixtures.api(server, QuoteApi.class), Fixtures.api(server, QuoteSummaryApi.class));
         service = new InstrumentService(client, Clock.fixed(NOW, ZoneOffset.UTC));
     }

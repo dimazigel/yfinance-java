@@ -22,6 +22,7 @@ import io.github.dimazigel.yfinance.testsupport.Fixtures;
 import io.github.dimazigel.yfinance.testsupport.InstrumentFixtures;
 import io.github.dimazigel.yfinance.testsupport.Instruments;
 import io.github.dimazigel.yfinance.testsupport.LogCapture;
+import io.github.dimazigel.yfinance.testsupport.YahooDispatcher;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -169,27 +170,8 @@ class DetailServiceTest {
         }
     }
 
-    // v7: answer with the captured rows for whatever symbols were asked; quoteSummary: the captured file per symbol
     private static Dispatcher defaultDispatcher() {
-        return new Dispatcher() {
-            @Override
-            public MockResponse dispatch(RecordedRequest request) {
-                var url = request.getRequestUrl();
-                if (url.encodedPath().equals("/v7/finance/quote")) {
-                    String[] symbols = url.queryParameter("symbols").split(",");
-                    return new MockResponse().setResponseCode(200).setBody(InstrumentFixtures.v7Response(symbols));
-                }
-                String symbol = url.pathSegments().getLast();
-                try {
-                    String body = Fixtures.load("instruments/qs_" + InstrumentFixtures.safe(symbol) + ".json");
-                    return new MockResponse().setResponseCode(body.contains("\"result\":null") ? 404 : 200).setBody(body);
-                } catch (IllegalArgumentException noFixture) {
-                    return new MockResponse().setResponseCode(404).setBody(
-                            "{\"quoteSummary\":{\"result\":null,\"error\":{\"code\":\"Not Found\",\"description\":\"Quote not found for symbol: "
-                                    + symbol + "\"}}}");
-                }
-            }
-        };
+        return new YahooDispatcher();
     }
 
     /** As {@link #defaultDispatcher()}, but {@code moduleToDrop} is stripped from {@code symbol}'s captured response. */

@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import io.github.dimazigel.yfinance.exception.YFDataException;
+import io.github.dimazigel.yfinance.exception.YFMissingDataException;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -47,6 +48,20 @@ class BatchTest {
         var boom = new YFDataException("boom");
         Outcome<Integer> failed = Outcome.failed(NOPE, boom);
         assertThatThrownBy(failed::orElseThrow).isSameAs(boom);
+    }
+
+    @Test
+    void skippedOrElseThrowNamesTheMissingFieldAndTheSymbol() {
+        Outcome<Integer> skipped = Outcome.skipped(MSFT, SkipReason.MODULE_ABSENT, "financials.totalRevenue");
+
+        assertThatThrownBy(skipped::orElseThrow)
+                .isInstanceOf(YFMissingDataException.class)
+                .hasMessage("MSFT skipped: MODULE_ABSENT (financials.totalRevenue)")
+                .satisfies(e -> {
+                    var missing = (YFMissingDataException) e;
+                    assertThat(missing.field()).isEqualTo("financials.totalRevenue");
+                    assertThat(missing.subject()).isEqualTo("MSFT");
+                });
     }
 
     @Test

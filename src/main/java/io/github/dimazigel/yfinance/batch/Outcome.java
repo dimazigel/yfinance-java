@@ -1,6 +1,6 @@
 package io.github.dimazigel.yfinance.batch;
 
-import io.github.dimazigel.yfinance.exception.YFDataException;
+import io.github.dimazigel.yfinance.exception.YFMissingDataException;
 import io.github.dimazigel.yfinance.exception.YFinanceException;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
 import java.util.Objects;
@@ -19,7 +19,10 @@ public sealed interface Outcome<T> permits Outcome.Ok, Outcome.Skipped, Outcome.
         return this instanceof Ok<T> ok ? Optional.of(ok.value()) : Optional.empty();
     }
 
-    /** The value, or the failure rethrown, or a {@link YFDataException} describing the skip. */
+    /**
+     * The value, or the failure rethrown, or — for a skip — a {@link YFMissingDataException} whose
+     * {@code field()} is the skip detail and {@code subject()} the symbol.
+     */
     T orElseThrow();
 
     static <T> Outcome<T> ok(Symbol symbol, T value) {
@@ -47,7 +50,12 @@ public sealed interface Outcome<T> permits Outcome.Ok, Outcome.Skipped, Outcome.
         }
     }
 
-    /** A symbol the library chose not to answer for; {@link #reason()} says why (never a transport failure). */
+    /**
+     * A symbol the library chose not to answer for; {@link #reason()} says why (never a transport
+     * failure) and {@link #detail()} what exactly was missing or wrong. {@link #orElseThrow()} turns
+     * it into a {@link YFMissingDataException} with {@code detail} as the field and the symbol as
+     * the subject — what {@code Ticker.instrument()} and {@code Ticker.detail(...)} throw.
+     */
     record Skipped<T>(Symbol symbol, SkipReason reason, String detail) implements Outcome<T> {
         public Skipped {
             Objects.requireNonNull(symbol, "symbol");
@@ -57,7 +65,7 @@ public sealed interface Outcome<T> permits Outcome.Ok, Outcome.Skipped, Outcome.
 
         @Override
         public T orElseThrow() {
-            throw new YFDataException(symbol + " skipped: " + reason + " (" + detail + ")");
+            throw new YFMissingDataException(detail, symbol.value(), symbol + " skipped: " + reason + " (" + detail + ")");
         }
     }
 

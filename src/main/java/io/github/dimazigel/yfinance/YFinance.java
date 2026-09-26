@@ -189,7 +189,12 @@ public final class YFinance implements AutoCloseable {
         return tickers(List.copyOf(symbols)).histories(range, interval);
     }
 
-    /** One financial statement per equity; each equity is its own proof token (see {@link Ticker#statements}). */
+    /**
+     * One financial statement per equity, in input order; each equity is its own proof token (see
+     * {@link Ticker#statements}). The fan-out is keyed by symbol, so when two {@link Equity}
+     * instances for one symbol are passed both outcomes are fetched with the first as proof — the
+     * statement is the symbol's either way.
+     */
     public Batch<FinancialStatement> statements(Collection<Equity> equities, StatementType type, Frequency frequency) {
         Map<Symbol, Equity> bySymbol = new HashMap<>();
         for (Equity equity : equities) {

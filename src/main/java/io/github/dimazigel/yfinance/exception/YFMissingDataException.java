@@ -1,9 +1,11 @@
 package io.github.dimazigel.yfinance.exception;
 
 /**
- * Raised when a value the caller insists on is one Yahoo did not report for this instrument (for
- * example {@code marketCap} on an index). A {@link YFDataException}, so existing handlers keep
- * working; {@link #field()} and {@link #subject()} say what was missing and for what.
+ * What {@link io.github.dimazigel.yfinance.batch.Outcome.Skipped#orElseThrow()} throws — and
+ * therefore what {@code Ticker.instrument()} and {@code Ticker.detail(...)} throw for a symbol
+ * Yahoo does not know or a module it omits. {@link #field()} is the skip detail (the missing-field
+ * list, or e.g. {@code "quoteSummary 404"}) and {@link #subject()} the symbol. A
+ * {@link YFDataException}, so existing handlers keep working.
  */
 public class YFMissingDataException extends YFDataException {
 
