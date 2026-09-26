@@ -68,6 +68,7 @@ class YahooClientFactoryTest {
         var client = YahooClientFactory.apiClient(config, new InMemoryCookieJar(), () -> Crumb.of("c"), () -> {});
 
         var order = client.interceptors().stream().map(i -> i.getClass().getSimpleName()).toList();
+        assertThat(order.indexOf("LogContextInterceptor")).isEqualTo(1); // right after User-Agent: every line below sees yf.endpoint
         assertThat(order.indexOf("AuthRetryInterceptor"))
                 .isLessThan(order.indexOf("TransientErrorRetryInterceptor"));
         assertThat(order.indexOf("TransientErrorRetryInterceptor"))

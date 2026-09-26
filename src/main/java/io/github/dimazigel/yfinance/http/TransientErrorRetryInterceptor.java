@@ -48,9 +48,13 @@ public final class TransientErrorRetryInterceptor implements Interceptor {
                 return response;
             }
             Duration delay = delayBefore(attempt + 1, response.header("Retry-After"));
-            LOG.debug("HTTP {} from {}; retrying in {} ms (attempt {} of {})",
-                    response.code(), response.request().url().encodedPath(), delay.toMillis(),
-                    attempt + 1, config.maxAttempts());
+            LOG.atDebug()
+                    .addKeyValue("status", response.code())
+                    .addKeyValue("attempt", attempt + 1)
+                    .addKeyValue("maxAttempts", config.maxAttempts())
+                    .addKeyValue("delayMs", delay.toMillis())
+                    .log("HTTP {} from Yahoo; retrying in {} ms (attempt {} of {})",
+                            response.code(), delay.toMillis(), attempt + 1, config.maxAttempts());
             response.close();
             try {
                 sleeper.sleep(delay);

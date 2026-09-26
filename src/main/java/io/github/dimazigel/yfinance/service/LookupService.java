@@ -2,6 +2,7 @@ package io.github.dimazigel.yfinance.service;
 
 import io.github.dimazigel.yfinance.api.LookupApi;
 import io.github.dimazigel.yfinance.enums.LookupType;
+import io.github.dimazigel.yfinance.logging.LogContext;
 import io.github.dimazigel.yfinance.mapper.LookupMapper;
 import io.github.dimazigel.yfinance.model.LookupQuote;
 import java.util.List;
@@ -23,7 +24,9 @@ public final class LookupService {
     }
 
     public List<LookupQuote> lookup(String query, LookupType type, int count) {
-        var response = api.lookup(query, type.wireValue(), 0, count, false, true);
-        return LookupMapper.toQuotes(response);
+        try (var ignored = LogContext.scope("lookup")) {
+            var response = api.lookup(query, type.wireValue(), 0, count, false, true);
+            return LookupMapper.toQuotes(response);
+        }
     }
 }

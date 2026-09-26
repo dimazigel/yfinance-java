@@ -1,6 +1,7 @@
 package io.github.dimazigel.yfinance.service;
 
 import io.github.dimazigel.yfinance.api.SearchApi;
+import io.github.dimazigel.yfinance.logging.LogContext;
 import io.github.dimazigel.yfinance.mapper.SearchMapper;
 import io.github.dimazigel.yfinance.model.SearchResult;
 import java.util.Objects;
@@ -22,7 +23,9 @@ public final class SearchService {
     }
 
     public SearchResult search(String query, int quotesCount, int newsCount, boolean fuzzy) {
-        var response = api.search(query, quotesCount, newsCount, fuzzy);
-        return SearchMapper.toSearchResult(response);
+        try (var ignored = LogContext.scope("search")) {
+            var response = api.search(query, quotesCount, newsCount, fuzzy);
+            return SearchMapper.toSearchResult(response);
+        }
     }
 }

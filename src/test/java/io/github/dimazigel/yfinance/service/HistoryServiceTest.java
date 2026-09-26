@@ -266,4 +266,19 @@ class HistoryServiceTest {
         assertThat(periods.pre().end()).isEqualTo(periods.regular().start());
         assertThat(periods.post().start()).isEqualTo(periods.regular().end());
     }
+
+    @Test
+    void requestsRunInsideALogContextScope() throws Exception {
+        var seen = new java.util.HashMap<String, String>();
+        var api = Fixtures.retrofit(server.url("/"), chain -> {
+            seen.putAll(org.slf4j.MDC.getCopyOfContextMap());
+            return chain.proceed(chain.request());
+        }).create(ChartApi.class);
+        server.enqueue(Fixtures.jsonResponse("chart_aapl_1d.json"));
+
+        new HistoryService(api).getHistory(HistoryRequest.builder(Symbol.of("AAPL")).range(Range.ONE_MONTH).build());
+
+        assertThat(seen).containsEntry("yf.op", "history").containsEntry("yf.symbol", "AAPL");
+        assertThat(org.slf4j.MDC.get("yf.op")).isNull(); // cleared once the call returns
+    }
 }

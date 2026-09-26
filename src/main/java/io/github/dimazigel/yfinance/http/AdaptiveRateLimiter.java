@@ -12,6 +12,7 @@ import java.util.function.Supplier;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 
 /**
  * Shared adaptive throttle for a Yahoo client. It reacts quickly to HTTP 429 and recovers
@@ -79,7 +80,7 @@ final class AdaptiveRateLimiter {
                 }
                 wait = Duration.ofNanos(remainingNanos);
             }
-            LOG.debug("Rate limited; waiting {} ms before next request", wait.toMillis());
+            LOG.atDebug().addKeyValue("delayMs", wait.toMillis()).log("Rate limited; waiting {} ms before next request", wait.toMillis());
             sleeper.sleep(wait);
         }
     }
@@ -112,11 +113,10 @@ final class AdaptiveRateLimiter {
         long retryAfterNanos = retryAfterDelayNanos(retryAfter);
         currentDelayNanos = Math.min(maxDelayNanos, Math.max(calculated, retryAfterNanos));
         // INFO on entering degraded mode (rare, actionable); subsequent adjustments at DEBUG.
-        if (wasHealthy) {
-            LOG.info("Yahoo Finance returned HTTP 429; pacing requests by {} ms", Duration.ofNanos(currentDelayNanos).toMillis());
-        } else {
-            LOG.debug("Yahoo Finance returned HTTP 429; pacing requests by {} ms", Duration.ofNanos(currentDelayNanos).toMillis());
-        }
+        long paceMs = Duration.ofNanos(currentDelayNanos).toMillis();
+        LOG.atLevel(wasHealthy ? Level.INFO : Level.DEBUG)
+                .addKeyValue("delayMs", paceMs)
+                .log("Yahoo Finance returned HTTP 429; pacing requests by {} ms", paceMs);
         long scheduledDelayNanos = jittered(currentDelayNanos);
         long candidateNextAllowed = nanoTime.getAsLong() + scheduledDelayNanos;
         nextAllowedAtNanos = Math.max(nextAllowedAtNanos, candidateNextAllowed);
@@ -130,7 +130,7 @@ final class AdaptiveRateLimiter {
         currentDelayNanos = reduced <= initialDelayNanos ? 0L : reduced;
         if (currentDelayNanos == 0L) {
             nextAllowedAtNanos = 0L;
-            LOG.info("Yahoo Finance rate limit recovered; pacing disabled");
+            LOG.atInfo().log("Yahoo Finance rate limit recovered; pacing disabled");
         }
     }
 

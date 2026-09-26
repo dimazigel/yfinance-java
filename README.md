@@ -147,6 +147,17 @@ classes under `io.github.dimazigel.yfinance`. At `INFO` you see the rate limiter
 degraded mode; at `WARN`, degraded authentication (cookie or crumb unavailable); at `DEBUG`,
 individual waits, crumb refreshes, 5xx retries and the quote-endpoint fallback.
 
+Every call runs inside an MDC scope so log lines can be correlated without parsing messages:
+`yf.op` (`history`, `info`, `quote`, `quotes`, `financials`, `options`, `holders`, `analysis`,
+`search`, `lookup`), `yf.symbol` (comma-joined for batch quotes) and, while an HTTP request is in
+flight, `yf.endpoint` (e.g. `/v8/finance/chart/AAPL`). Event-specific facts such as `status`,
+`attempt` and `delayMs` are attached as SLF4J key-value pairs. (Note: `slf4j-simple` has a no-op MDC, so use Logback, Log4j 2 or another full backend to see
+them.) A Logback pattern that shows them:
+
+```
+%d %-5level [%X{yf.op}] %X{yf.symbol} %X{yf.endpoint} %logger{0} - %msg %kvp%n
+```
+
 ## What's covered
 
 | Area | Endpoint | API |

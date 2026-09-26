@@ -5,6 +5,7 @@ import io.github.dimazigel.yfinance.enums.EventType;
 import io.github.dimazigel.yfinance.enums.Interval;
 import io.github.dimazigel.yfinance.enums.Range;
 import io.github.dimazigel.yfinance.exception.YFDataException;
+import io.github.dimazigel.yfinance.logging.LogContext;
 import io.github.dimazigel.yfinance.mapper.ChartMapper;
 import io.github.dimazigel.yfinance.mapper.PriceBarResampler;
 import io.github.dimazigel.yfinance.model.PriceHistory;
@@ -35,22 +36,24 @@ public final class HistoryService {
     }
 
     public PriceHistory getHistory(HistoryRequest request) {
-        if (request.interval() != Interval.THIRTY_MINUTES) {
-            return fetch(request, request.interval());
+        try (var ignored = LogContext.scope("history", request.symbol())) {
+            if (request.interval() != Interval.THIRTY_MINUTES) {
+                return fetch(request, request.interval());
+            }
+            PriceHistory fine;
+            try {
+                fine = fetch(request, Interval.FIFTEEN_MINUTES);
+            } catch (YFDataException e) {
+                // Yahoo's message names the interval actually fetched, which the caller never asked for.
+                throw new YFDataException(e.getMessage() + " (30m resampled from 15m)", e);
+            }
+            return new PriceHistory(
+                    fine.metadata(),
+                    PriceBarResampler.resample(fine.bars(), Duration.ofMinutes(30)),
+                    fine.dividends(),
+                    fine.splits(),
+                    fine.capitalGains());
         }
-        PriceHistory fine;
-        try {
-            fine = fetch(request, Interval.FIFTEEN_MINUTES);
-        } catch (YFDataException e) {
-            // Yahoo's message names the interval actually fetched, which the caller never asked for.
-            throw new YFDataException(e.getMessage() + " (30m resampled from 15m)", e);
-        }
-        return new PriceHistory(
-                fine.metadata(),
-                PriceBarResampler.resample(fine.bars(), Duration.ofMinutes(30)),
-                fine.dividends(),
-                fine.splits(),
-                fine.capitalGains());
     }
 
     private PriceHistory fetch(HistoryRequest request, Interval interval) {

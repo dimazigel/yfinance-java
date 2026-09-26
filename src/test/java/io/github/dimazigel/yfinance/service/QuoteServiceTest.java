@@ -224,4 +224,19 @@ class QuoteServiceTest {
         assertThat(service.getQuotes(List.of())).isEmpty();
         assertThat(server.getRequestCount()).isZero();
     }
+
+    @Test
+    void batchQuotesScopeJoinsSymbols() throws Exception {
+        var seen = new java.util.HashMap<String, String>();
+        var quoteApi = Fixtures.retrofit(server.url("/"), chain -> {
+            seen.putAll(org.slf4j.MDC.getCopyOfContextMap());
+            return chain.proceed(chain.request());
+        }).create(QuoteApi.class);
+        server.enqueue(Fixtures.jsonResponse("quote_gspc_btc.json"));
+
+        new QuoteService(Fixtures.api(server, QuoteSummaryApi.class), quoteApi)
+                .getQuotes(List.of(Symbol.of("^GSPC"), Symbol.of("BTC-USD")));
+
+        assertThat(seen).containsEntry("yf.op", "quotes").containsEntry("yf.symbol", "^GSPC,BTC-USD");
+    }
 }

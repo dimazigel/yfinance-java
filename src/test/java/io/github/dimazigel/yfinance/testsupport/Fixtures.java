@@ -38,9 +38,14 @@ public final class Fixtures {
         return retrofit(server.url("/")).create(apiClass);
     }
 
-    public static Retrofit retrofit(HttpUrl baseUrl) {
+    public static Retrofit retrofit(HttpUrl baseUrl, okhttp3.Interceptor... interceptors) {
+        var client = new okhttp3.OkHttpClient.Builder();
+        for (var interceptor : interceptors) {
+            client.addInterceptor(interceptor);
+        }
         return new Retrofit.Builder()
                 .baseUrl(baseUrl)
+                .client(client.build())
                 .addCallAdapterFactory(SyncCallAdapterFactory.create())
                 .addConverterFactory(JacksonConverterFactory.create(YahooObjectMapper.create()))
                 .build();

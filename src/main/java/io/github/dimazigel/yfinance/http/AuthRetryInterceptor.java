@@ -29,8 +29,9 @@ public final class AuthRetryInterceptor implements Interceptor {
         var request = chain.request();
         Response response = chain.proceed(request);
         if (response.code() == 401 || response.code() == 403) {
-            LOG.debug("HTTP {} from {}; refreshing crumb and retrying once",
-                    response.code(), request.url().encodedPath());
+            LOG.atDebug()
+                    .addKeyValue("status", response.code())
+                    .log("HTTP {} from Yahoo; refreshing crumb and retrying once", response.code());
             response.close();
             onAuthFailure.run();
             return chain.proceed(request);

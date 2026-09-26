@@ -62,7 +62,7 @@ public final class CrumbStore {
         try {
             return Optional.of(getCrumb());
         } catch (TransientCrumbFailure e) {
-            LOG.warn("{}; continuing without a crumb", e.getMessage());
+            LOG.atWarn().log("{}; continuing without a crumb", e.getMessage());
             return Optional.empty();
         }
     }
@@ -74,7 +74,7 @@ public final class CrumbStore {
     public void invalidate() {
         synchronized (this) {
             if (cached != null) {
-                LOG.debug("Crumb invalidated; next request will repeat the handshake");
+                LOG.atDebug().log("Crumb invalidated; next request will repeat the handshake");
             }
             cached = null;
         }
@@ -96,7 +96,7 @@ public final class CrumbStore {
             if (crumb == null || crumb.isBlank() || crumb.contains("<html")) {
                 throw new YFAuthException("Yahoo returned an empty or invalid crumb");
             }
-            LOG.debug("Obtained Yahoo crumb");
+            LOG.atDebug().log("Obtained Yahoo crumb");
             return Crumb.of(crumb.strip());
         } catch (IOException e) {
             throw new TransientCrumbFailure("I/O error while obtaining crumb", e);
@@ -110,8 +110,9 @@ public final class CrumbStore {
             response.body(); // drain; status (often 404) is irrelevant, the Set-Cookie matters
         } catch (IOException e) {
             // Non-critical: the crumb (and chart API) can still work without this cookie.
-            LOG.warn("Cookie fetch from {} failed ({}); continuing without it",
-                    config.cookieUrl(), e.toString());
+            LOG.atWarn()
+                    .addKeyValue("cause", e.toString())
+                    .log("Cookie fetch from {} failed; continuing without it", config.cookieUrl());
         }
     }
 

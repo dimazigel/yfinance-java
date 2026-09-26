@@ -24,6 +24,7 @@ public final class YahooClientFactory {
         var builder = new OkHttpClient.Builder()
                 .cookieJar(cookieJar)
                 .addInterceptor(new UserAgentInterceptor(config.userAgent()))
+                .addInterceptor(new LogContextInterceptor())
                 .callTimeout(config.callTimeout());
         config.clientCustomizer().accept(builder);
         return builder.build();
@@ -33,7 +34,8 @@ public final class YahooClientFactory {
      * Client used for authenticated data requests: shares the cookie jar with the auth client and
      * appends the crumb to every request.
      *
-     * <p>Interceptor order matters: {@link AuthRetryInterceptor} and
+     * <p>Interceptor order matters: {@link LogContextInterceptor} comes first so every line below
+     * carries the endpoint; {@link AuthRetryInterceptor} and
      * {@link TransientErrorRetryInterceptor} sit upstream of {@link AdaptiveRateLimitInterceptor}
      * so every request they re-issue is paced and 429-handled like any other, and all three sit
      * upstream of {@link CrumbInterceptor} so every (re)issued request gets the current crumb. {@code crumb} may return {@code null} to send a request
@@ -44,6 +46,7 @@ public final class YahooClientFactory {
         var builder = new OkHttpClient.Builder()
                 .cookieJar(cookieJar)
                 .addInterceptor(new UserAgentInterceptor(config.userAgent()))
+                .addInterceptor(new LogContextInterceptor())
                 .addInterceptor(new AuthRetryInterceptor(onAuthFailure))
                 .addInterceptor(new TransientErrorRetryInterceptor(config.transientRetry()))
                 .addInterceptor(new AdaptiveRateLimitInterceptor(config.adaptiveRateLimit()))

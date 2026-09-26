@@ -159,7 +159,7 @@ dependencies {
     testImplementation(libs.assertj.core)
     testImplementation(libs.mockito.core)
     testImplementation(libs.okhttp.mockwebserver)
-    testRuntimeOnly(libs.slf4j.simple) // WARN and above to stderr during tests (simplelogger.properties)
+    testRuntimeOnly(libs.logback.classic) // real MDC (slf4j-simple has a no-op one); WARN+ only, see logback-test.xml
 }
 
 nullaway {

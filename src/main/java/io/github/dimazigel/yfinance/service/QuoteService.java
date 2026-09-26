@@ -5,6 +5,7 @@ import io.github.dimazigel.yfinance.api.QuoteSummaryApi;
 import io.github.dimazigel.yfinance.dto.quotesummary.QuoteSummaryResponse;
 import io.github.dimazigel.yfinance.enums.QuoteSummaryModule;
 import io.github.dimazigel.yfinance.exception.YFDataException;
+import io.github.dimazigel.yfinance.logging.LogContext;
 import io.github.dimazigel.yfinance.mapper.QuoteMapper;
 import io.github.dimazigel.yfinance.mapper.QuoteSummaryMapper;
 import io.github.dimazigel.yfinance.model.Info;
@@ -62,6 +63,13 @@ public final class QuoteService {
      *     what is thrown, with any fallback failure attached as a suppressed exception)
      */
     public Info getInfo(Symbol symbol) {
+        // The scope must outlive the catch block below (a try-with-resources closes before catch runs).
+        try (var ignored = LogContext.scope("info", symbol)) {
+            return fetchInfo(symbol);
+        }
+    }
+
+    private Info fetchInfo(Symbol symbol) {
         try {
             return QuoteSummaryMapper.toInfo(fetch(symbol, INFO_MODULES), symbol);
         } catch (YFDataException summaryFailure) {
@@ -75,8 +83,9 @@ public final class QuoteService {
             if (quote == null) {
                 throw summaryFailure;
             }
-            LOG.debug("quoteSummary has no data for {} ({}); built Info from /v7/finance/quote",
-                    symbol, summaryFailure.getMessage());
+            LOG.atDebug()
+                    .addKeyValue("reason", summaryFailure.getMessage())
+                    .log("quoteSummary has no data for {}; built Info from /v7/finance/quote", symbol);
             return new Info(null, quote, List.of(), List.of(), List.of(), List.of());
         }
     }
@@ -87,11 +96,13 @@ public final class QuoteService {
      * @throws YFDataException when Yahoo does not know the symbol
      */
     public Quote getQuote(Symbol symbol) {
-        Quote quote = getQuotes(List.of(symbol)).get(symbol);
-        if (quote == null) {
-            throw new YFDataException("No quote returned for " + symbol);
+        try (var ignored = LogContext.scope("quote", symbol)) {
+            Quote quote = getQuotes(List.of(symbol)).get(symbol);
+            if (quote == null) {
+                throw new YFDataException("No quote returned for " + symbol);
+            }
+            return quote;
         }
-        return quote;
     }
 
     /**
@@ -102,8 +113,10 @@ public final class QuoteService {
         if (symbols.isEmpty()) {
             return Map.of();
         }
-        String joined = symbols.stream().map(Symbol::value).collect(Collectors.joining(","));
-        return QuoteMapper.toQuotes(quoteApi.quote(joined, false), symbols);
+        try (var ignored = LogContext.scope("quotes", symbols)) {
+            String joined = symbols.stream().map(Symbol::value).collect(Collectors.joining(","));
+            return QuoteMapper.toQuotes(quoteApi.quote(joined, false), symbols);
+        }
     }
 
     /** Fetches an arbitrary set of modules; used by holders/analysis services. */
