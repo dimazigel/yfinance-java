@@ -8,7 +8,7 @@ import java.time.Instant;
  * exhaustive. Every class carries the universal {@link Core}; class records add what their class
  * guarantees (non-null) or sometimes has ({@code Optional}); see the design's Appendix A.
  */
-public sealed interface Instrument permits Equity, Etf, MutualFund, Unclassified {
+public sealed interface Instrument permits Equity, Etf, MutualFund, Index, Crypto, FxPair, Future, Unclassified {
 
     Core core();
 
