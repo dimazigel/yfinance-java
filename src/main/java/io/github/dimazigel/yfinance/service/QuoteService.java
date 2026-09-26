@@ -10,12 +10,12 @@ import io.github.dimazigel.yfinance.mapper.QuoteSummaryMapper;
 import io.github.dimazigel.yfinance.model.Info;
 import io.github.dimazigel.yfinance.model.Quote;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
-import java.lang.System.Logger;
-import java.lang.System.Logger.Level;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Retrieves consolidated company info via the quoteSummary endpoint, and lightweight quotes via
@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
  */
 public final class QuoteService {
 
-    private static final Logger LOG = System.getLogger(QuoteService.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(QuoteService.class);
 
     /** Modules fetched to assemble {@link Info}. */
     public static final List<QuoteSummaryModule> INFO_MODULES = List.of(
@@ -75,7 +75,7 @@ public final class QuoteService {
             if (quote == null) {
                 throw summaryFailure;
             }
-            LOG.log(Level.DEBUG, "quoteSummary has no data for {0} ({1}); built Info from /v7/finance/quote",
+            LOG.debug("quoteSummary has no data for {} ({}); built Info from /v7/finance/quote",
                     symbol, summaryFailure.getMessage());
             return new Info(null, quote, List.of(), List.of(), List.of(), List.of());
         }

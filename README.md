@@ -141,11 +141,11 @@ NullAway pick this up automatically. The annotations are verified by NullAway on
 
 ### Logging
 
-The library logs through `java.lang.System.Logger`, so it needs no logging dependency and routes to
-SLF4J, Log4j or `java.util.logging` automatically when one is present. Loggers are named after the
-classes under `io.github.dimazigel.yfinance`. At `INFO` you see the rate limiter entering and leaving degraded
-mode; at `WARNING`, degraded authentication (cookie or crumb unavailable); at `DEBUG`, individual
-waits, crumb refreshes and auth retries.
+The library logs through **SLF4J** (`slf4j-api` is its only logging dependency); bind whichever
+backend your application uses (Logback, Log4j 2, `slf4j-simple`, …). Loggers are named after the
+classes under `io.github.dimazigel.yfinance`. At `INFO` you see the rate limiter entering and leaving
+degraded mode; at `WARN`, degraded authentication (cookie or crumb unavailable); at `DEBUG`,
+individual waits, crumb refreshes, 5xx retries and the quote-endpoint fallback.
 
 ## What's covered
 

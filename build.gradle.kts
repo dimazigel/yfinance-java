@@ -143,6 +143,7 @@ dependencies {
     api(libs.okhttp)
     api(libs.retrofit)
     api(libs.jspecify)
+    api(libs.slf4j.api) // consumers bind their own backend; only the API is a dependency
 
     implementation(platform(libs.jackson.bom))
     implementation(libs.retrofit.converter.jackson)
@@ -158,6 +159,7 @@ dependencies {
     testImplementation(libs.assertj.core)
     testImplementation(libs.mockito.core)
     testImplementation(libs.okhttp.mockwebserver)
+    testRuntimeOnly(libs.slf4j.simple) // WARN and above to stderr during tests (simplelogger.properties)
 }
 
 nullaway {

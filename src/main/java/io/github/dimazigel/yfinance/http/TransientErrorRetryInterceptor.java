@@ -2,12 +2,12 @@ package io.github.dimazigel.yfinance.http;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;
-import java.lang.System.Logger;
-import java.lang.System.Logger.Level;
 import java.time.Duration;
 import okhttp3.Interceptor;
 import okhttp3.Response;
 import org.jspecify.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Retries transient server errors (HTTP 500, 502, 503, 504) up to {@link RetryConfig#maxAttempts()}
@@ -26,7 +26,7 @@ public final class TransientErrorRetryInterceptor implements Interceptor {
         void sleep(Duration delay) throws InterruptedException;
     }
 
-    private static final Logger LOG = System.getLogger(TransientErrorRetryInterceptor.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(TransientErrorRetryInterceptor.class);
 
     private final RetryConfig config;
     private final Sleeper sleeper;
@@ -48,7 +48,7 @@ public final class TransientErrorRetryInterceptor implements Interceptor {
                 return response;
             }
             Duration delay = delayBefore(attempt + 1, response.header("Retry-After"));
-            LOG.log(Level.DEBUG, "HTTP {0} from {1}; retrying in {2} ms (attempt {3} of {4})",
+            LOG.debug("HTTP {} from {}; retrying in {} ms (attempt {} of {})",
                     response.code(), response.request().url().encodedPath(), delay.toMillis(),
                     attempt + 1, config.maxAttempts());
             response.close();
