@@ -13,6 +13,7 @@ import io.github.dimazigel.yfinance.instrument.IntradayTraded;
 import io.github.dimazigel.yfinance.instrument.MutualFund;
 import io.github.dimazigel.yfinance.testsupport.InstrumentFixtures;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
@@ -32,7 +33,10 @@ class FundBuildersTest {
         assertThat(spy.netAssets()).isPresent();
         assertThat(spy.session().volume()).isPositive();
         assertThat(spy.book()).isPresent();
-        assertThat(spy.ytdReturn()).isNotNull();
+        assertThat(spy.ytdReturn()).isEqualByComparingTo("0.1307293");            // v7 13.07293 |PERCENT -> fraction
+        assertThat(spy.threeMonthReturn()).isEqualByComparingTo("0.0165706");     // v7 1.65706 |PERCENT -> fraction
+        assertThat(spy.trailingThreeMonthNavReturns()).isPresent();
+        assertThat(spy.trailingThreeMonthNavReturns().get()).isEqualByComparingTo("0.0165706");
         assertThat(spy).isInstanceOf(Fund.class).isInstanceOf(IntradayTraded.class);
     }
 
@@ -46,7 +50,9 @@ class FundBuildersTest {
         Etf cspx = EtfBuilder.build(withModules, NOW);
         assertThat(cspx.expenseRatio()).isPresent();
         assertThat(cspx.expenseRatio().get()).isEqualByComparingTo("0.0007");   // v7 netExpenseRatio 0.07 |PERCENT -> fraction
-        assertThat(cspx.ytdReturn()).isNotNull();
+        // CSPX.L has no v7 return values; both come from fundPerformance.trailingReturns as-is (0.0 in the capture, RAW, unaffected by the v7 |PERCENT override)
+        assertThat(cspx.ytdReturn()).isEqualByComparingTo(BigDecimal.ZERO);
+        assertThat(cspx.threeMonthReturn()).isEqualByComparingTo(BigDecimal.ZERO);
 
         ObjectNode row = InstrumentFixtures.v7Row("CSPX.L").deepCopy();
         row.remove("netExpenseRatio");
@@ -69,6 +75,7 @@ class FundBuildersTest {
         assertThat(gld.equityLikeStats()).isPresent();
         assertThat(gld.equityLikeStats().get().bookValue()).isEqualByComparingTo("170.017");
         assertThat(gld.equityLikeStats().get().sharesOutstanding()).isEqualTo(260300000L);
+        assertThat(gld.trailingPE()).isEmpty();
 
         ObjectNode row = InstrumentFixtures.v7Row("GLD").deepCopy();
         row.remove("bookValue");   // 3 of 4 present
@@ -84,7 +91,8 @@ class FundBuildersTest {
         assertThat(vfiax).isNotInstanceOf(IntradayTraded.class);
         assertThat(vfiax.expenseRatio()).isPositive();
         assertThat(vfiax.netAssets()).isPositive();
-        assertThat(vfiax.yield()).isLessThan(java.math.BigDecimal.ONE);   // a fraction
-        assertThat(vfiax.threeMonthReturn()).isNotNull();
+        assertThat(vfiax.yield()).isLessThan(BigDecimal.ONE);   // a fraction
+        assertThat(vfiax.ytdReturn()).isEqualByComparingTo("0.1310594");          // v7 13.10594 |PERCENT -> fraction
+        assertThat(vfiax.threeMonthReturn()).isEqualByComparingTo("0.0167011");   // v7 1.67011 |PERCENT -> fraction
     }
 }

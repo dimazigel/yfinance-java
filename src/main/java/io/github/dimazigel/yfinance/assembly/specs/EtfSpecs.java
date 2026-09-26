@@ -14,14 +14,14 @@ public final class EtfSpecs {
     private EtfSpecs() {}
 
     private static final List<FieldSpec> OWN = List.of(
-            required("ytdReturn", RAW, "v7:ytdReturn", "qs:defaultKeyStatistics.ytdReturn", "qs:fundPerformance.trailingReturns.ytd"),
-            required("threeMonthReturn", RAW, "v7:trailingThreeMonthReturns", "qs:fundPerformance.trailingReturns.threeMonth"),
+            required("ytdReturn", RAW, "v7:ytdReturn|PERCENT", "qs:defaultKeyStatistics.ytdReturn", "qs:fundPerformance.trailingReturns.ytd"),
+            required("threeMonthReturn", RAW, "v7:trailingThreeMonthReturns|PERCENT", "qs:fundPerformance.trailingReturns.threeMonth"),
             optional("netAssets", RAW, "v7:netAssets", "qs:defaultKeyStatistics.totalAssets", "qs:summaryDetail.totalAssets"),
             optional("expenseRatio", RAW, "v7:netExpenseRatio|PERCENT", "qs:fundProfile.feesExpensesInvestment.annualReportExpenseRatio"),
             optional("yield", RAW, "v7:dividendYield|PERCENT", "qs:summaryDetail.yield", "qs:defaultKeyStatistics.yield"),
             optional("navPrice", RAW, "qs:summaryDetail.navPrice"),
             optional("beta3Year", RAW, "qs:defaultKeyStatistics.beta3Year"),
-            optional("trailingThreeMonthNavReturns", RAW, "v7:trailingThreeMonthNavReturns"),
+            optional("trailingThreeMonthNavReturns", RAW, "v7:trailingThreeMonthNavReturns|PERCENT"),
             optional("trailingPE", RAW, "v7:trailingPE", "qs:summaryDetail.trailingPE"),
             clustered("equityLikeStats", "equityLikeStats.bookValue", RAW, "v7:bookValue"),
             clustered("equityLikeStats", "equityLikeStats.priceToBook", RAW, "v7:priceToBook"),
