@@ -38,11 +38,18 @@ public final class Resolved {
         return values.containsKey(name);
     }
 
-    /** True when every field declared in {@code cluster} resolved. */
+    /**
+     * True when every field declared in {@code cluster} resolved. Throws {@link IllegalArgumentException} for
+     * a cluster no spec declares, so a typo cannot pass as "present".
+     */
     public boolean clusterPresent(String cluster) {
-        return specs.values().stream()
+        List<FieldSpec> members = specs.values().stream()
                 .filter(s -> s.cluster().filter(cluster::equals).isPresent())
-                .allMatch(s -> values.containsKey(s.name()));
+                .toList();
+        if (members.isEmpty()) {
+            throw new IllegalArgumentException("no field declares cluster " + cluster);
+        }
+        return members.stream().allMatch(s -> values.containsKey(s.name()));
     }
 
     // ---- required accessors: absent -> IllegalStateException (check missingRequired() first)

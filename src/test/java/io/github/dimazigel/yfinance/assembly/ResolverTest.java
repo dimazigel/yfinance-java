@@ -129,6 +129,7 @@ class ResolverTest {
         var r = Resolver.resolve(payload, specs);
         assertThat(r.clusterPresent("full")).isTrue();
         assertThat(r.clusterPresent("partial")).isFalse();
+        assertThatThrownBy(() -> r.clusterPresent("typo")).isInstanceOf(IllegalArgumentException.class);
         assertThat(r.missingRequired()).isEmpty();   // clustered fields are optional
     }
 
