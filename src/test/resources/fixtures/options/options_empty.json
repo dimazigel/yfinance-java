@@ -1,0 +1,14 @@
+{
+  "optionChain": {
+    "result": [
+      {
+        "underlyingSymbol": "SAP.DE",
+        "expirationDates": [],
+        "strikes": [],
+        "hasMiniOptions": false,
+        "options": []
+      }
+    ],
+    "error": null
+  }
+}

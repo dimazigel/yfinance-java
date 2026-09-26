@@ -386,7 +386,7 @@ class LiveYahooIntegrationTest {
 
         @Test
         void nearestChainAndExpirations() {
-            var chain = aapl.optionChain();
+            var chain = aapl.options().orElseThrow();
             assertThat(chain.underlyingSymbol()).isEqualTo(Symbol.of("AAPL"));
             assertThat(chain.expirationDates()).hasSizeGreaterThan(2).isSorted();
             assertThat(chain.expiration()).isEqualTo(chain.expirationDates().getFirst());
@@ -399,7 +399,7 @@ class LiveYahooIntegrationTest {
         @Test
         void chainForASpecificExpiration() {
             Instant second = aapl.optionExpirations().get(1);
-            var chain = aapl.optionChain(second);
+            var chain = aapl.options(second).orElseThrow();
 
             assertThat(chain.expiration()).isEqualTo(second);
             assertThat(chain.calls()).allSatisfy(c -> {

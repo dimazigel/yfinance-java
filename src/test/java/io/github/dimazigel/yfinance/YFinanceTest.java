@@ -89,8 +89,8 @@ class YFinanceTest {
         assertThat(income.value("TotalRevenue", LocalDate.parse("2023-09-30")))
                 .isEqualByComparingTo("383285000000");
 
-        server.enqueue(Fixtures.jsonResponse("options_aapl.json"));
-        assertThat(ticker.optionChain().calls()).hasSize(1);
+        server.enqueue(Fixtures.jsonResponse("options/options_AAPL.json"));
+        assertThat(ticker.options().orElseThrow().calls()).hasSize(36);
     }
 
     @Test

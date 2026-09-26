@@ -4,12 +4,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import io.github.dimazigel.yfinance.api.YahooApis;
 import io.github.dimazigel.yfinance.exception.YFDataException;
+import io.github.dimazigel.yfinance.market.OptionChain;
 import io.github.dimazigel.yfinance.model.Info;
-import io.github.dimazigel.yfinance.model.OptionChain;
 import io.github.dimazigel.yfinance.testsupport.Fixtures;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -101,14 +102,15 @@ class TickersTest {
         server.setDispatcher(new Dispatcher() {
             @Override
             public MockResponse dispatch(RecordedRequest request) {
-                return Fixtures.jsonResponse("options_aapl.json");
+                return Fixtures.jsonResponse("options/options_AAPL.json");
             }
         });
 
-        Map<Symbol, Tickers.Result<OptionChain>> chains = yf.tickers("AAPL", "MSFT").fetch(Ticker::optionChain);
+        Map<Symbol, Tickers.Result<Optional<OptionChain>>> chains = yf.tickers("AAPL", "MSFT").fetch(Ticker::options);
 
         assertThat(chains.keySet()).extracting(Symbol::value).containsExactly("AAPL", "MSFT");
-        assertThat(chains.values()).allSatisfy(r -> assertThat(r.orElseThrow().calls()).hasSize(1));
+        assertThat(chains.values()).allSatisfy(r -> assertThat(r.orElseThrow()).isPresent()
+                .hasValueSatisfying(chain -> assertThat(chain.calls()).hasSize(36)));
         assertThat(server.getRequestCount()).isEqualTo(2);
     }
 

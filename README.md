@@ -26,7 +26,7 @@ try (var yf = YFinance.create()) { // cookie+crumb handshake; close() releases t
     Info info           = aapl.info();               // info.quote().price() / .keyStats() / .analyst()
     Quote quote         = aapl.quote();              // lightweight, one request, any asset class
     FinancialStatement income = aapl.financials(StatementType.INCOME, Frequency.ANNUAL);
-    OptionChain chain   = aapl.optionChain();
+    Optional<OptionChain> chain = aapl.options();
     Holders holders     = aapl.holders();            // incl. insiderRoster(), netSharePurchaseActivity()
     AnalystPriceTarget target = aapl.analystPriceTargets();
     List<EarningsHistoryEntry> beats = aapl.earningsHistory();
@@ -71,7 +71,7 @@ infos.forEach((symbol, result) -> {
         case Tickers.Result.Failure<Info> failed -> log.warn("skip {}: {}", symbol, failed.error().getMessage());
     }
 });
-Map<Symbol, Tickers.Result<OptionChain>> chains = yf.tickers("AAPL", "MSFT").fetch(Ticker::optionChain);
+Map<Symbol, Tickers.Result<Optional<OptionChain>>> chains = yf.tickers("AAPL", "MSFT").fetch(Ticker::options);
 ```
 
 `PriceHistory.metadata()` also carries what Yahoo says about the instrument: the interval it
@@ -193,7 +193,7 @@ them.) A Logback pattern that shows them:
 | Income / balance sheet / cash flow (annual + quarterly) | `/ws/fundamentals-timeseries` | `Ticker.financials(...)` |
 | Holders, insider transactions, insider roster, net purchase activity | `/v10/finance/quoteSummary` | `Ticker.holders()` |
 | Analyst price targets, earnings/revenue estimates, earnings history, EPS trend/revisions, growth | `/v10/finance/quoteSummary` | `Ticker.analystPriceTargets()`, `earningsEstimate()`, `earningsHistory()`, `epsTrend()`, ... |
-| Options chain | `/v7/finance/options` | `Ticker.optionChain(...)` |
+| Options chain | `/v7/finance/options` | `Ticker.options(...)` |
 | Search & per-symbol news | `/v1/finance/search` | `YFinance.search(...)`, `Ticker.news()` |
 | Lookup | `/v1/finance/lookup` | `YFinance.lookup(...)` |
 

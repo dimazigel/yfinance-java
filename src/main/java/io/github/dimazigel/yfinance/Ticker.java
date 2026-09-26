@@ -5,6 +5,7 @@ import io.github.dimazigel.yfinance.enums.Interval;
 import io.github.dimazigel.yfinance.enums.Range;
 import io.github.dimazigel.yfinance.enums.StatementType;
 import io.github.dimazigel.yfinance.market.Dividend;
+import io.github.dimazigel.yfinance.market.OptionChain;
 import io.github.dimazigel.yfinance.market.PriceHistory;
 import io.github.dimazigel.yfinance.market.Split;
 import io.github.dimazigel.yfinance.model.AnalystPriceTarget;
@@ -15,7 +16,6 @@ import io.github.dimazigel.yfinance.model.FinancialStatement;
 import io.github.dimazigel.yfinance.model.GrowthEstimate;
 import io.github.dimazigel.yfinance.model.Holders;
 import io.github.dimazigel.yfinance.model.Info;
-import io.github.dimazigel.yfinance.model.OptionChain;
 import io.github.dimazigel.yfinance.model.PeriodEstimate;
 import io.github.dimazigel.yfinance.model.Quote;
 import io.github.dimazigel.yfinance.model.SearchResult.NewsArticle;
@@ -24,6 +24,7 @@ import io.github.dimazigel.yfinance.valueobject.Symbol;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 
 /** A handle to a single instrument, exposing all per-symbol data. */
@@ -101,11 +102,13 @@ public final class Ticker {
         return yf.fundamentals.getStatement(symbol, type, frequency);
     }
 
-    public OptionChain optionChain() {
+    /** The nearest expiration's option chain, or empty when this instrument has no listed options. */
+    public Optional<OptionChain> options() {
         return yf.options.getOptionChain(symbol);
     }
 
-    public OptionChain optionChain(Instant expiration) {
+    /** The option chain for a specific expiration, or empty when this instrument has no listed options. */
+    public Optional<OptionChain> options(Instant expiration) {
         return yf.options.getOptionChain(symbol, expiration);
     }
 
