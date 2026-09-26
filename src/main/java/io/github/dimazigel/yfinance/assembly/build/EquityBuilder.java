@@ -3,7 +3,6 @@ package io.github.dimazigel.yfinance.assembly.build;
 import io.github.dimazigel.yfinance.assembly.Resolved;
 import io.github.dimazigel.yfinance.instrument.Equity;
 import io.github.dimazigel.yfinance.instrument.QuoteCurrency;
-import io.github.dimazigel.yfinance.instrument.TrailingDividend;
 import java.time.Instant;
 import java.util.Optional;
 
@@ -27,9 +26,7 @@ public final class EquityBuilder {
                 r.optDecimal("forwardEps"),
                 r.optDecimal("forwardPE"),
                 r.optDecimal("trailingPE"),
-                r.clusterPresent("trailingDividend")
-                        ? Optional.of(new TrailingDividend(r.decimal("trailingDividend.rate"), r.decimal("trailingDividend.yield")))
-                        : Optional.empty(),
+                TierBuilders.trailingDividend(r),
                 r.clusterPresent("currentDividend")
                         ? Optional.of(new Equity.CurrentDividend(r.decimal("currentDividend.rate"), r.decimal("currentDividend.yield")))
                         : Optional.empty(),
