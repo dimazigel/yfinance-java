@@ -124,7 +124,7 @@ public final class InstrumentService {
         var payload = new Payload(symbol, Optional.of(row), Map.of());
         Resolved resolved = Resolver.resolve(payload, specs);
         if (!resolved.missingRequired().isEmpty()) {
-            Optional<Map<String, JsonNode>> modules = client.modules(symbol, SnapshotSpecs.FALLBACK_MODULES);
+            Optional<Map<String, JsonNode>> modules = client.modules(symbol, SnapshotSpecs.fallbackModules(target));
             if (modules.isPresent()) {
                 payload = payload.withModules(modules.get());
                 resolved = Resolver.resolve(payload, specs);

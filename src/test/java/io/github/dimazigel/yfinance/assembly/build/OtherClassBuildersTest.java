@@ -62,6 +62,24 @@ class OtherClassBuildersTest {
             assertThat(SnapshotSpecs.forClass(c)).as(c.name()).isNotEmpty();
         }
         assertThat(SnapshotSpecs.forClass(AssetClass.MUTUAL_FUND)).extracting(s -> s.name()).doesNotContain("open");
-        assertThat(SnapshotSpecs.FALLBACK_MODULES).containsExactly("price", "summaryDetail", "quoteType");
+        assertThat(SnapshotSpecs.BASE_FALLBACK_MODULES).containsExactly("price", "summaryDetail", "quoteType");
+    }
+
+    @Test
+    void fallbackModulesReachEveryModuleAClasssFieldsReference() {
+        // ETF/MutualFund ytdReturn and threeMonthReturn live in fundPerformance, not the base three
+        // modules; a fallback that stopped at the base would always downgrade a symbol that needed
+        // them, even after "trying" the fallback (this was a real bug: see the 282-symbol live
+        // survey, where every UCITS ETF downgraded on exactly these two fields).
+        assertThat(SnapshotSpecs.fallbackModules(AssetClass.ETF)).contains("fundPerformance", "defaultKeyStatistics")
+                .startsWith("price", "summaryDetail", "quoteType");
+        assertThat(SnapshotSpecs.fallbackModules(AssetClass.MUTUAL_FUND)).contains("fundPerformance", "defaultKeyStatistics", "fundProfile");
+        assertThat(SnapshotSpecs.fallbackModules(AssetClass.EQUITY)).contains("financialData", "calendarEvents", "defaultKeyStatistics");
+        // Classes whose own fields never leave the base three modules get exactly the base list.
+        assertThat(SnapshotSpecs.fallbackModules(AssetClass.INDEX)).isEqualTo(SnapshotSpecs.BASE_FALLBACK_MODULES);
+        assertThat(SnapshotSpecs.fallbackModules(AssetClass.FX)).isEqualTo(SnapshotSpecs.BASE_FALLBACK_MODULES);
+        assertThat(SnapshotSpecs.fallbackModules(AssetClass.CRYPTO)).isEqualTo(SnapshotSpecs.BASE_FALLBACK_MODULES);
+        assertThat(SnapshotSpecs.fallbackModules(AssetClass.FUTURE)).isEqualTo(SnapshotSpecs.BASE_FALLBACK_MODULES);
+        assertThat(SnapshotSpecs.fallbackModules(AssetClass.UNCLASSIFIED)).isEqualTo(SnapshotSpecs.BASE_FALLBACK_MODULES);
     }
 }

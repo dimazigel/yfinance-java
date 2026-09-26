@@ -155,19 +155,17 @@ class LiveYahooIntegrationTest {
         }
 
         @Test
-        void ucitsEtfDowngradesWhenYtdReturnIsMissingEvenAfterTheFallback() {
-            // CSPX.L (iShares Core S&P 500 UCITS ETF, LSE) has no ytdReturn/threeMonthReturn on v7,
-            // and — as of 2026-09 — Yahoo does not supply them for this or any other UCITS-domiciled
-            // ETF in the wide survey through the single-symbol fallback either (design §6.3), so the
-            // guarantee correctly downgrades rather than fabricating a value (design D2). This is
-            // confirmed live: every one of the 7 European-listed ETFs in the 282-symbol survey
-            // downgrades the same way (see GuaranteeDriftTest, which is what tracks whether that
-            // ever changes).
-            var outcome = classified.get(Symbol.of("CSPX.L")).orElseThrow().orElseThrow();
-            assertThat(outcome).isInstanceOf(Unclassified.class);
-            var unclassified = (Unclassified) outcome;
-            assertThat(unclassified.attempted()).contains(AssetClass.ETF);
-            assertThat(unclassified.missing()).contains("ytdReturn", "threeMonthReturn");
+        void ucitsEtfClassifiesViaTheSingleSymbolFallback() {
+            // CSPX.L (iShares Core S&P 500 UCITS ETF, LSE) has no ytdReturn/threeMonthReturn on v7;
+            // both come from fundPerformance.trailingReturns, so classification only succeeds once
+            // the assembly's per-symbol quoteSummary fallback runs and actually requests that module
+            // (design §6.3; SnapshotSpecs.fallbackModules derives the per-class fallback module set
+            // from the specs themselves rather than a fixed three-module list, precisely so this
+            // works) — already exercised with captured fixtures in InstrumentServiceTest; here the
+            // real Yahoo response is checked.
+            var cspx = (Etf) classified.get(Symbol.of("CSPX.L")).orElseThrow().orElseThrow();
+            assertThat(cspx.ytdReturn()).isNotNull();
+            assertThat(cspx.threeMonthReturn()).isNotNull();
         }
 
         @Test

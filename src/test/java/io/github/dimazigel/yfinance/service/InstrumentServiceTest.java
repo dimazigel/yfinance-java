@@ -65,10 +65,18 @@ class InstrumentServiceTest {
     }
 
     @Test
-    void ucitsEtfTriggersExactlyOneFallbackRequestAndClassifies() {
+    void ucitsEtfTriggersExactlyOneFallbackRequestAndClassifies() throws Exception {
+        // CSPX.L's v7 row has neither ytdReturn nor trailingThreeMonthReturns; both live only in
+        // fundPerformance.trailingReturns (qs_CSPX_L.json), so the fallback must actually request
+        // that module — not just the base price/summaryDetail/quoteType trio — or this always
+        // downgrades, as the 282-symbol live survey found for every UCITS ETF before this fix.
         var batch = service.instruments(List.of(Symbol.of("CSPX.L"), Symbol.of("SPY")));
         assertThat(batch.values()).allSatisfy(i -> assertThat(i).isInstanceOf(Etf.class));
         assertThat(server.getRequestCount()).as("v7 + one quoteSummary for CSPX.L only").isEqualTo(2);
+
+        server.takeRequest(); // the v7 batch call
+        String modules = server.takeRequest().getRequestUrl().queryParameter("modules");
+        assertThat(modules).contains("fundPerformance");
     }
 
     @Test
