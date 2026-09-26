@@ -6,8 +6,8 @@ import java.util.Optional;
 
 /**
  * An exchange-traded fund (Yahoo {@code quoteType} ETF). {@code expenseRatio} is present for the
- * large majority of surveyed ETFs (89 %); UCITS listings mostly lack it, hence {@code Optional}
- * rather than the guarantee {@link MutualFund} gives the same field.
+ * large majority of surveyed ETFs (89 %); some listings lack it, hence {@code Optional} rather
+ * than the guarantee {@link MutualFund} gives the same field.
  */
 public record Etf(
         Core core,
