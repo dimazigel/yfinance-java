@@ -322,8 +322,10 @@ class LiveYahooIntegrationTest {
 
         @Test
         void oneMinuteAndHourlyIntraday() {
-            var minute = aapl.history(Range.ONE_DAY, Interval.ONE_MINUTE).bars();
-            assertThat(minute).hasSizeGreaterThan(50);
+            // Five sessions, not one: a one-day window holds only the bars of the current session, so the
+            // weekly run (minutes after the open) or a run before the open sees too few to judge the interval.
+            var minute = aapl.history(Range.FIVE_DAYS, Interval.ONE_MINUTE).bars();
+            assertThat(minute).hasSizeGreaterThan(300);
             assertThat(countSteps(minute, Duration.ofMinutes(1))).isGreaterThan(minute.size() / 2);
 
             var hourly = aapl.history(Range.FIVE_DAYS, Interval.ONE_HOUR).bars();
