@@ -52,7 +52,7 @@ public final class EquityDetailBuilder {
                 r.optString("profile.phone"),
                 r.optString("profile.state"),
                 r.optString("profile.irWebsite").flatMap(Nodes::uri),
-                r.clusterPresent("governance") ? Optional.of(governance(r)) : Optional.empty());
+                r.optCluster("governance", EquityDetailBuilder::governance));
     }
 
     /** {@code profile.website} is required but "lenient URI" per the appendix: tolerate unencoded spaces. */
@@ -95,14 +95,14 @@ public final class EquityDetailBuilder {
                 r.optDecimal("statistics.enterpriseValue"),
                 r.optDecimal("statistics.enterpriseToRevenue"),
                 r.optDecimal("statistics.enterpriseToEbitda"),
-                r.clusterPresent("fiscal") ? Optional.of(fiscal(r)) : Optional.empty(),
+                r.optCluster("fiscal", EquityDetailBuilder::fiscal),
                 r.optDecimal("statistics.pegRatio"),
                 r.optDecimal("statistics.payoutRatio"),
                 r.optDecimal("statistics.priceToSales"),
                 r.optDecimal("statistics.earningsQuarterlyGrowth"),
-                r.clusterPresent("shortInterest") ? Optional.of(shortInterest(r)) : Optional.empty(),
-                r.clusterPresent("lastSplit") ? Optional.of(lastSplit(r)) : Optional.empty(),
-                r.clusterPresent("lastDividend") ? Optional.of(lastDividend(r)) : Optional.empty(),
+                r.optCluster("shortInterest", EquityDetailBuilder::shortInterest),
+                r.optCluster("lastSplit", EquityDetailBuilder::lastSplit),
+                r.optCluster("lastDividend", EquityDetailBuilder::lastDividend),
                 r.optDate("statistics.exDividendDate"),
                 r.optDecimal("statistics.fiveYearAvgDividendYield"));
     }
@@ -154,10 +154,8 @@ public final class EquityDetailBuilder {
                 r.optDecimal("financials.operatingCashflow"),
                 r.optDecimal("financials.returnOnEquity"),
                 r.optDecimal("financials.returnOnAssets"),
-                r.clusterPresent("liquidity")
-                        ? Optional.of(new Liquidity(
-                                r.decimal("financials.liquidity.currentRatio"), r.decimal("financials.liquidity.quickRatio")))
-                        : Optional.empty(),
+                r.optCluster("liquidity", r2 -> new Liquidity(
+                        r2.decimal("financials.liquidity.currentRatio"), r2.decimal("financials.liquidity.quickRatio"))),
                 r.optDecimal("financials.earningsGrowth"));
     }
 
@@ -166,8 +164,8 @@ public final class EquityDetailBuilder {
     private static AnalystView analysts(Resolved r) {
         return new AnalystView(
                 r.string("analysts.recommendationKey"),
-                r.clusterPresent("targets") ? Optional.of(targets(r)) : Optional.empty(),
-                r.clusterPresent("rating") ? Optional.of(rating(r)) : Optional.empty(),
+                r.optCluster("targets", EquityDetailBuilder::targets),
+                r.optCluster("rating", EquityDetailBuilder::rating),
                 RowMappers.recommendationTrend(r.list("analysts.recommendationTrend")),
                 RowMappers.earningsHistory(r.list("analysts.earningsHistory")),
                 RowMappers.estimates(r.list("analysts.earningsEstimates"), "earningsEstimate"),

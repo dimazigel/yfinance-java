@@ -145,6 +145,20 @@ class ResolverTest {
     }
 
     @Test
+    void optClusterAppliesBuildOnlyWhenTheClusterIsPresent() throws Exception {
+        var payload = new Payload(AAPL, Optional.of(json("{\"a\": 1, \"b\": 2, \"c\": 3}")), Map.of());
+        var specs = List.of(
+                FieldSpec.clustered("full", "a", Unit.RAW, "v7:a"),
+                FieldSpec.clustered("full", "b", Unit.RAW, "v7:b"),
+                FieldSpec.clustered("partial", "c", Unit.RAW, "v7:c"),
+                FieldSpec.clustered("partial", "d", Unit.RAW, "v7:d"));
+        var r = Resolver.resolve(payload, specs);
+
+        assertThat(r.optCluster("full", res -> res.intValue("a") + res.intValue("b"))).contains(3);
+        assertThat(r.optCluster("partial", res -> res.intValue("c"))).isEmpty();
+    }
+
+    @Test
     void listsAndArrayIndexes() throws Exception {
         var payload = new Payload(AAPL, Optional.empty(), Map.of(
                 "calendarEvents", json("{\"earnings\": {\"earningsDate\": [1793304000, 1793400000]}}"),

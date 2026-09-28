@@ -52,6 +52,17 @@ public final class Resolved {
         return members.stream().allMatch(s -> values.containsKey(s.name()));
     }
 
+    /**
+     * {@code build} applied to {@code this} when every member of {@code cluster} resolved, empty
+     * otherwise. {@code build} may read the cluster's members with the plain (non-{@code opt})
+     * accessors, since {@link #clusterPresent(String)} being true guarantees they are all present.
+     * Replaces the repeated {@code clusterPresent(x) ? Optional.of(build(this)) : Optional.empty()}
+     * ternary the builders otherwise write by hand for every optional cluster.
+     */
+    public <T> Optional<T> optCluster(String cluster, Function<Resolved, T> build) {
+        return clusterPresent(cluster) ? Optional.of(build.apply(this)) : Optional.empty();
+    }
+
     // ---- required accessors: absent -> IllegalStateException (check missingRequired() first)
 
     public JsonNode node(String name) {

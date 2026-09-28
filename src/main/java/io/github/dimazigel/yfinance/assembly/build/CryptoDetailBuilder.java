@@ -5,7 +5,6 @@ import io.github.dimazigel.yfinance.detail.CryptoDetail;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
 import java.net.URI;
 import java.time.Instant;
-import java.util.Optional;
 
 /** {@link Resolved} → {@link CryptoDetail}. Callers must have checked {@code missingRequired()} first. */
 public final class CryptoDetailBuilder {
@@ -22,7 +21,7 @@ public final class CryptoDetailBuilder {
                 r.decimal("fullyDilutedValue"),
                 r.optString("whitepaper").flatMap(Nodes::uri),   // optional URL: lenient, logged when dropped
                 r.optString("twitter"),
-                r.clusterPresent("proofOfWork") ? Optional.of(proofOfWork(r)) : Optional.empty(),
+                r.optCluster("proofOfWork", CryptoDetailBuilder::proofOfWork),
                 fetchedAt);
     }
 
