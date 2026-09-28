@@ -17,7 +17,10 @@ import okhttp3.OkHttpClient;
  *     fundamentals timeseries
  * @param cookieUrl   URL hit purely to seed session cookies ({@code https://fc.yahoo.com/})
  * @param userAgent   the {@code User-Agent} header sent on every request
- * @param callTimeout overall per-call timeout applied to the OkHttp clients
+ * @param callTimeout overall per-call timeout applied to the OkHttp clients; it bounds the whole
+ *     call, rate-limit pacing and retry backoffs included (a wait that would not fit in what is
+ *     left of it fails at once), so {@code adaptiveRateLimit.maxDelay()} must be shorter than it
+ *     while throttling is enabled; {@link Duration#ZERO} means no call timeout
  * @param adaptiveRateLimit adaptive client-side throttling after HTTP 429 responses
  * @param transientRetry retry policy for transient server errors (HTTP 500/502/503/504)
  * @param clientCustomizer hook applied to every OkHttp client builder <em>after</em> the library's
@@ -59,6 +62,12 @@ public record EndpointConfig(
         if (fanOutConcurrency < 1) {
             throw new IllegalArgumentException("fanOutConcurrency must be >= 1, was " + fanOutConcurrency);
         }
+        if (adaptiveRateLimit.enabled() && !callTimeout.isZero()
+                && adaptiveRateLimit.maxDelay().compareTo(callTimeout) >= 0) {
+            throw new IllegalArgumentException("adaptiveRateLimit.maxDelay (" + adaptiveRateLimit.maxDelay()
+                    + ") must be shorter than callTimeout (" + callTimeout
+                    + "): the call timeout bounds the whole call, paced waits included");
+        }
     }
 
     /** The production Yahoo Finance configuration. */
@@ -97,7 +106,11 @@ public record EndpointConfig(
                 clientCustomizer, fanOutConcurrency);
     }
 
-    /** Returns a copy with a different call timeout. */
+    /**
+     * Returns a copy with a different call timeout. It bounds the whole call, paced waits included,
+     * so it must stay longer than {@code adaptiveRateLimit().maxDelay()} (10 s by default): to go
+     * shorter, lower or disable the limiter first.
+     */
     public EndpointConfig withCallTimeout(Duration timeout) {
         return new EndpointConfig(
                 query1Base, query2Base, cookieUrl, userAgent, timeout, adaptiveRateLimit, transientRetry,

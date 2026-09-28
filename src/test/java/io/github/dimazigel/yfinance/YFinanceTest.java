@@ -182,7 +182,7 @@ class YFinanceTest {
     void createLogsEffectiveConfigAndCloseLogsOnce() {
         var config = EndpointConfig.production()
                 .withHosts(server.url("/"))
-                .withCallTimeout(Duration.ofSeconds(7));
+                .withCallTimeout(Duration.ofSeconds(12));
 
         try (var log = LogCapture.of(YFinance.class)) {
             YFinance created = YFinance.create(config); // no request yet: the crumb handshake is lazy
@@ -190,7 +190,7 @@ class YFinanceTest {
 
             assertThat(log.messages(Level.INFO)).singleElement().satisfies(m -> assertThat(m)
                     .startsWith("yfinance-java client created:")
-                    .contains("callTimeout=PT7S")
+                    .contains("callTimeout=PT12S")
                     .contains("rateLimit=on/3 attempts")
                     .contains("retry5xx=3 attempts")
                     .contains("customizer=no"));

@@ -150,6 +150,41 @@ class AdaptiveRateLimiterTest {
         assertThat(limiter.currentDelay()).isZero();
     }
 
+    @Test
+    void a429ForARequestSentBeforeTheLastIncreaseDoesNotDoubleAgain() throws Exception {
+        var limiter = limiter(0.0, 0.0);
+        nowNanos.set(Duration.ofSeconds(1).toNanos());
+
+        limiter.onResponse(429, null, 0L);   // first of the burst: raises the pace, records the increase at t=1s
+        limiter.onResponse(429, null, 0L);   // sent at t=0, before that increase: same burst, no second doubling
+        assertThat(limiter.currentDelay()).isEqualTo(Duration.ofMillis(500));
+
+        limiter.beforeRequest();             // ...but the next request is still paced
+        assertThat(sleeps).containsExactly(Duration.ofMillis(500));
+
+        nowNanos.set(Duration.ofSeconds(3).toNanos());
+        limiter.onResponse(429, null, Duration.ofSeconds(2).toNanos());   // sent after the increase: a new event
+        assertThat(limiter.currentDelay()).isEqualTo(Duration.ofSeconds(1));
+    }
+
+    @Test
+    void pendingWaitReportsTheWaitInsteadOfSleeping() {
+        var limiter = limiter(0.0, 0.0);
+        assertThat(limiter.pendingWait()).isZero();
+
+        limiter.onResponse(429, null);
+        assertThat(limiter.pendingWait()).isEqualTo(Duration.ofMillis(500));
+        assertThat(sleeps).isEmpty();
+
+        nowNanos.addAndGet(Duration.ofMillis(200).toNanos());
+        assertThat(limiter.pendingWait()).isEqualTo(Duration.ofMillis(300));
+
+        nowNanos.addAndGet(Duration.ofMillis(300).toNanos());
+        assertThat(limiter.pendingWait()).as("may send now; the next slot is reserved").isZero();
+        assertThat(limiter.pendingWait()).as("still degraded, so the slot just reserved paces the next caller")
+                .isEqualTo(Duration.ofMillis(500));
+    }
+
     private AdaptiveRateLimiter limiter(double jitter, double random) {
         return new AdaptiveRateLimiter(
                 new AdaptiveRateLimitConfig(

@@ -126,6 +126,22 @@ class TransientErrorRetryInterceptorTest {
     }
 
     @Test
+    void failsFastWhenTheBackoffExceedsTheRemainingCallTimeout() {
+        server.enqueue(new MockResponse().setResponseCode(503).setHeader("Retry-After", "5"));
+        var client = new OkHttpClient.Builder()
+                .addInterceptor(new TransientErrorRetryInterceptor(new RetryConfig(3, Duration.ofMillis(100), Duration.ofSeconds(10)), sleeps::add))
+                .callTimeout(Duration.ofSeconds(1))
+                .build();
+
+        assertThatThrownBy(() -> client.newCall(new Request.Builder().url(server.url("/v1/finance/lookup")).build()).execute())
+                .isInstanceOf(java.io.InterruptedIOException.class)
+                .hasMessage("retry wait of 5000 ms exceeds the remaining call timeout");
+
+        assertThat(sleeps).as("no point sleeping into a certain timeout").isEmpty();
+        assertThat(server.getRequestCount()).isEqualTo(1);
+    }
+
+    @Test
     void noWarningWhenRetriesAreDisabled() throws Exception {
         server.enqueue(new MockResponse().setResponseCode(500));
         try (var log = io.github.dimazigel.yfinance.testsupport.LogCapture.of(TransientErrorRetryInterceptor.class)) {

@@ -3,6 +3,7 @@ package io.github.dimazigel.yfinance.http;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.time.Duration;
+import java.util.function.LongSupplier;
 import okhttp3.Interceptor;
 import okhttp3.Response;
 import org.jspecify.annotations.Nullable;
@@ -13,7 +14,8 @@ import org.slf4j.LoggerFactory;
  * Retries transient server errors (HTTP 500, 502, 503, 504) up to {@link RetryConfig#maxAttempts()}
  * times with exponential backoff, honouring a {@code Retry-After} header when present. Yahoo's
  * lookup endpoint in particular answers an HTML 500 page now and then; one retry is nearly always
- * enough. The final response, whatever it is, goes back to the caller.
+ * enough. The final response, whatever it is, goes back to the caller. A backoff that would not fit
+ * in what is left of the call's {@code callTimeout} fails immediately instead (see {@link CallBudget}).
  *
  * <p>Rate limiting (429) is deliberately not handled here: that belongs to
  * {@link AdaptiveRateLimitInterceptor}, which must sit <em>downstream</em> of this interceptor so
@@ -30,18 +32,25 @@ public final class TransientErrorRetryInterceptor implements Interceptor {
 
     private final RetryConfig config;
     private final Sleeper sleeper;
+    private final LongSupplier nanoTime;
 
     public TransientErrorRetryInterceptor(RetryConfig config) {
         this(config, delay -> Thread.sleep(delay.toMillis()));
     }
 
     TransientErrorRetryInterceptor(RetryConfig config, Sleeper sleeper) {
+        this(config, sleeper, System::nanoTime);
+    }
+
+    TransientErrorRetryInterceptor(RetryConfig config, Sleeper sleeper, LongSupplier nanoTime) {
         this.config = config;
         this.sleeper = sleeper;
+        this.nanoTime = nanoTime;
     }
 
     @Override
     public Response intercept(Chain chain) throws IOException {
+        long enteredNanos = nanoTime.getAsLong();
         Duration waited = Duration.ZERO;
         for (int attempt = 1; ; attempt++) {
             Response response = chain.proceed(chain.request());
@@ -69,6 +78,7 @@ public final class TransientErrorRetryInterceptor implements Interceptor {
                     .log("HTTP {} from Yahoo; retrying in {} ms (attempt {} of {})",
                             response.code(), delay.toMillis(), attempt + 1, config.maxAttempts());
             response.close();
+            CallBudget.ensureFits(chain, enteredNanos, nanoTime.getAsLong(), delay, "retry");
             try {
                 sleeper.sleep(delay);
             } catch (InterruptedException e) {

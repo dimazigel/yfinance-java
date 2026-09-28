@@ -36,8 +36,8 @@ class CrumbStoreTest {
         server.start();
         HttpUrl base = server.url("/");
         config = EndpointConfig.production().withHosts(base).withUserAgent("test-agent/1.0")
-                .withCallTimeout(Duration.ofSeconds(2))
-                .withAdaptiveRateLimit(AdaptiveRateLimitConfig.disabled());   // the store, not the limiter, is under test
+                .withAdaptiveRateLimit(AdaptiveRateLimitConfig.disabled())   // the store, not the limiter, is under test
+                .withCallTimeout(Duration.ofSeconds(2));
         client = YahooClientFactory.baseClient(config);
         crumbStore = new CrumbStore(client, config);
     }
