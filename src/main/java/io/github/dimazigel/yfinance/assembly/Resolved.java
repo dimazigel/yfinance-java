@@ -67,11 +67,11 @@ public final class Resolved {
     }
 
     public long longValue(String name) {
-        return node(name).isNumber() ? node(name).longValue() : Long.parseLong(node(name).asString().strip());
+        return JsonValues.toLong(node(name));
     }
 
     public int intValue(String name) {
-        return node(name).isNumber() ? node(name).intValue() : Integer.parseInt(node(name).asString().strip());
+        return JsonValues.toInt(node(name));
     }
 
     public String string(String name) {
@@ -108,11 +108,11 @@ public final class Resolved {
     }
 
     public Optional<Long> optLong(String name) {
-        return opt(name, n -> n.isNumber() ? n.longValue() : Long.parseLong(n.asString().strip()));
+        return opt(name, JsonValues::toLong);
     }
 
     public Optional<Integer> optInt(String name) {
-        return opt(name, n -> n.isNumber() ? n.intValue() : Integer.parseInt(n.asString().strip()));
+        return opt(name, JsonValues::toInt);
     }
 
     public Optional<String> optString(String name) {
@@ -135,7 +135,7 @@ public final class Resolved {
     // ---- unit conversion
 
     private BigDecimal convertDecimal(String name, JsonNode node) {
-        BigDecimal value = node.isNumber() ? node.decimalValue() : new BigDecimal(node.asString().strip());
+        BigDecimal value = JsonValues.toDecimal(node);
         return unit(name) == Unit.PERCENT ? value.divide(HUNDRED, MathContext.DECIMAL64) : value;
     }
 

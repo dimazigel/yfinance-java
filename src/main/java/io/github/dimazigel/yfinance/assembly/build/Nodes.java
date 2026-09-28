@@ -1,5 +1,6 @@
 package io.github.dimazigel.yfinance.assembly.build;
 
+import io.github.dimazigel.yfinance.assembly.JsonValues;
 import java.math.BigDecimal;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -34,19 +35,19 @@ final class Nodes {
     }
 
     static BigDecimal decimal(JsonNode node, String key) {
-        return get(node, key).map(Nodes::toDecimal).orElseThrow(() -> new IllegalStateException("missing " + key));
+        return get(node, key).map(JsonValues::toDecimal).orElseThrow(() -> new IllegalStateException("missing " + key));
     }
 
     static Optional<BigDecimal> optDecimal(JsonNode node, String key) {
-        return get(node, key).map(Nodes::toDecimal);
+        return get(node, key).map(JsonValues::toDecimal);
     }
 
     static Optional<Long> optLong(JsonNode node, String key) {
-        return get(node, key).map(v -> v.isNumber() ? v.longValue() : Long.parseLong(v.asString().strip()));
+        return get(node, key).map(JsonValues::toLong);
     }
 
     static Optional<Integer> optInt(JsonNode node, String key) {
-        return get(node, key).map(v -> v.isNumber() ? v.intValue() : Integer.parseInt(v.asString().strip()));
+        return get(node, key).map(JsonValues::toInt);
     }
 
     static String string(JsonNode node, String key) {
@@ -58,7 +59,7 @@ final class Nodes {
     }
 
     static Optional<Instant> optInstantSeconds(JsonNode node, String key) {
-        return get(node, key).map(v -> Instant.ofEpochSecond(v.isNumber() ? v.longValue() : Long.parseLong(v.asString().strip())));
+        return get(node, key).map(v -> Instant.ofEpochSecond(JsonValues.toLong(v)));
     }
 
     static Optional<LocalDate> optDateSeconds(JsonNode node, String key) {
@@ -95,10 +96,6 @@ final class Nodes {
         }
     }
 
-    private static BigDecimal toDecimal(JsonNode v) {
-        return v.isNumber() ? v.decimalValue() : new BigDecimal(v.asString().strip());
-    }
-
     /** Yahoo's "[{key: value}, ...]" lists: one map entry per element. */
     static List<Map.Entry<String, BigDecimal>> singleKeyList(List<JsonNode> nodes) {
         var out = new ArrayList<Map.Entry<String, BigDecimal>>();
@@ -106,7 +103,7 @@ final class Nodes {
             var it = n.properties().iterator();
             if (it.hasNext()) {
                 var e = it.next();
-                get(n, e.getKey()).ifPresent(v -> out.add(Map.entry(e.getKey(), toDecimal(v))));
+                get(n, e.getKey()).ifPresent(v -> out.add(Map.entry(e.getKey(), JsonValues.toDecimal(v))));
             }
         }
         return List.copyOf(out);
