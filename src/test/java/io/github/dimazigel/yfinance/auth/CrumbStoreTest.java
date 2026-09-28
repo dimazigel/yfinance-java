@@ -36,8 +36,8 @@ class CrumbStoreTest {
         server.start();
         HttpUrl base = server.url("/");
         config = EndpointConfig.production().withHosts(base).withUserAgent("test-agent/1.0")
-                .withAdaptiveRateLimit(AdaptiveRateLimitConfig.disabled())   // the store, not the limiter, is under test
-                .withCallTimeout(Duration.ofSeconds(2));
+                .withCallTimeout(Duration.ofSeconds(2))
+                .withAdaptiveRateLimit(AdaptiveRateLimitConfig.disabled());   // the store, not the limiter, is under test
         client = YahooClientFactory.baseClient(config);
         crumbStore = new CrumbStore(client, config);
     }
@@ -206,6 +206,28 @@ class CrumbStoreTest {
         enqueueHandshake("fresher");
         assertThat(store.tryGetCrumb()).contains(Crumb.of("fresher"));
         assertThat(server.getRequestCount()).isEqualTo(10);
+    }
+
+    @Test
+    void aRejectedHandshakeAlsoStartsACooldown() {   // review recommendation: a blocked IP must not re-run the handshake per request
+        var store = timedStore();
+        server.enqueue(new MockResponse().setResponseCode(404));
+        server.enqueue(new MockResponse().setResponseCode(403).setBody("Forbidden"));
+
+        try (var log = LogCapture.of(CrumbStore.class)) {
+            assertThatThrownBy(store::tryGetCrumb).isInstanceOf(YFAuthException.class).hasMessageContaining("HTTP 403");
+            assertThat(log.messages(Level.WARN)).singleElement().satisfies(m -> assertThat(m).contains("30000 ms"));
+
+            advance(Duration.ofSeconds(29));
+            assertThat(store.tryGetCrumb()).as("empty, no network, no throw while cooling down").isEmpty();
+            assertThat(server.getRequestCount()).isEqualTo(2);
+            assertThat(log.messages(Level.WARN)).hasSize(1);
+        }
+
+        advance(Duration.ofSeconds(2));
+        enqueueHandshake("fresh");
+        assertThat(store.tryGetCrumb()).contains(Crumb.of("fresh"));
+        assertThat(server.getRequestCount()).isEqualTo(4);
     }
 
     @Test

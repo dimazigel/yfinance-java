@@ -18,6 +18,7 @@ class TransientErrorRetryInterceptorTest {
 
     private MockWebServer server;
     private final List<Duration> sleeps = new ArrayList<>();
+    private Runnable onSleep = () -> { };
 
     @BeforeEach
     void setUp() throws Exception {
@@ -32,7 +33,7 @@ class TransientErrorRetryInterceptorTest {
 
     private OkHttpClient client(RetryConfig config) {
         return new OkHttpClient.Builder()
-                .addInterceptor(new TransientErrorRetryInterceptor(config, sleeps::add))
+                .addInterceptor(new TransientErrorRetryInterceptor(config, d -> { sleeps.add(d); onSleep.run(); }))
                 .build();
     }
 
@@ -88,8 +89,10 @@ class TransientErrorRetryInterceptorTest {
 
         call(client(new RetryConfig(3, Duration.ofSeconds(2), Duration.ofSeconds(3))));
 
-        // attempt 2 honours Retry-After (2 s, under the cap); attempt 3 would back off 4 s, capped to 3 s
-        assertThat(sleeps).containsExactly(Duration.ofSeconds(2), Duration.ofSeconds(3));
+        // attempt 2 honours Retry-After (2 s, under the cap); attempt 3 would back off 4 s, capped to 3 s;
+        // both waits run in 1 s slices so a cancelled call is noticed promptly
+        assertThat(sleeps).containsExactly(Duration.ofSeconds(1), Duration.ofSeconds(1),
+                Duration.ofSeconds(1), Duration.ofSeconds(1), Duration.ofSeconds(1));
     }
 
     @Test
@@ -123,6 +126,19 @@ class TransientErrorRetryInterceptorTest {
                     .isEqualTo("Giving up on /v1/finance/lookup after 3 attempts (last HTTP 503, waited 30 ms in total)"));
             assertThat(log.messages(ch.qos.logback.classic.Level.DEBUG)).hasSize(2); // one per retry
         }
+    }
+
+    @Test
+    void backoffSleepsInSlicesAndStopsWhenTheCallIsCanceled() {   // review, minor 6
+        server.enqueue(new MockResponse().setResponseCode(503).setHeader("Retry-After", "3"));
+        var client = client(new RetryConfig(3, Duration.ofMillis(100), Duration.ofSeconds(10)));
+        okhttp3.Call call = client.newCall(new Request.Builder().url(server.url("/v1/finance/lookup")).build());
+        onSleep = call::cancel;   // the caller gives up during the first slice
+
+        assertThatThrownBy(call::execute).isInstanceOf(java.io.InterruptedIOException.class).hasMessage("Canceled");
+
+        assertThat(sleeps).as("one 1 s slice, then the cancel is noticed").containsExactly(Duration.ofSeconds(1));
+        assertThat(server.getRequestCount()).isEqualTo(1);
     }
 
     @Test

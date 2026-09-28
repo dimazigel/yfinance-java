@@ -15,11 +15,20 @@ class AdaptiveRateLimiterTest {
     private Instant now = Instant.parse("2026-05-30T10:00:00Z");
     private final List<Duration> sleeps = new ArrayList<>();
 
+    /** What the interceptor does: wait (through the sleeper, which advances the fake clock) until the limiter yields a slot. */
+    private static void awaitPermission(AdaptiveRateLimiter limiter) throws Exception {
+        Duration wait = limiter.pendingWait();
+        while (!wait.isZero()) {
+            limiter.sleep(wait);
+            wait = limiter.pendingWait();
+        }
+    }
+
     @Test
     void startsWithNoDelay() throws Exception {
         var limiter = limiter(0.0, 0.0);
 
-        limiter.beforeRequest();
+        awaitPermission(limiter);
 
         assertThat(sleeps).isEmpty();
         assertThat(limiter.currentDelay()).isZero();
@@ -30,7 +39,7 @@ class AdaptiveRateLimiterTest {
         var limiter = limiter(0.0, 0.0);
 
         limiter.onResponse(429, null);
-        limiter.beforeRequest();
+        awaitPermission(limiter);
 
         assertThat(limiter.currentDelay()).isEqualTo(Duration.ofMillis(500));
         assertThat(sleeps).containsExactly(Duration.ofMillis(500));
@@ -54,7 +63,7 @@ class AdaptiveRateLimiterTest {
         var limiter = limiter(0.0, 0.0);
 
         limiter.onResponse(429, "3");
-        limiter.beforeRequest();
+        awaitPermission(limiter);
 
         assertThat(limiter.currentDelay()).isEqualTo(Duration.ofSeconds(3));
         assertThat(sleeps).containsExactly(Duration.ofSeconds(3));
@@ -65,7 +74,7 @@ class AdaptiveRateLimiterTest {
         var limiter = limiter(0.0, 0.0);
 
         limiter.onResponse(429, "Sat, 30 May 2026 10:00:04 GMT");
-        limiter.beforeRequest();
+        awaitPermission(limiter);
 
         assertThat(limiter.currentDelay()).isEqualTo(Duration.ofSeconds(4));
         assertThat(sleeps).containsExactly(Duration.ofSeconds(4));
@@ -110,7 +119,7 @@ class AdaptiveRateLimiterTest {
         var limiter = limiter(0.5, 0.0);
 
         limiter.onResponse(429, null);
-        limiter.beforeRequest();
+        awaitPermission(limiter);
 
         assertThat(limiter.currentDelay()).isEqualTo(Duration.ofMillis(500));
         assertThat(sleeps).containsExactly(Duration.ofMillis(250));
@@ -130,9 +139,9 @@ class AdaptiveRateLimiterTest {
         var limiter = limiter(0.0, 0.0);
 
         limiter.onResponse(429, null);   // delay 500ms
-        limiter.beforeRequest();         // waits 500ms
+        awaitPermission(limiter);         // waits 500ms
         limiter.onResponse(500, null);   // server error: delay unchanged, still degraded
-        limiter.beforeRequest();         // must wait ~500ms again, not burst
+        awaitPermission(limiter);         // must wait ~500ms again, not burst
 
         assertThat(sleeps).containsExactly(Duration.ofMillis(500), Duration.ofMillis(500));
     }
@@ -142,9 +151,9 @@ class AdaptiveRateLimiterTest {
         var limiter = limiter(0.0, 0.0);
 
         limiter.onResponse(429, null);   // delay 500ms
-        limiter.beforeRequest();         // waits 500ms
+        awaitPermission(limiter);         // waits 500ms
         limiter.onResponse(200, null);   // recovery: 500 * 0.5 <= initial -> delay 0
-        limiter.beforeRequest();         // no wait
+        awaitPermission(limiter);         // no wait
 
         assertThat(sleeps).containsExactly(Duration.ofMillis(500));
         assertThat(limiter.currentDelay()).isZero();
@@ -159,12 +168,26 @@ class AdaptiveRateLimiterTest {
         limiter.onResponse(429, null, 0L);   // sent at t=0, before that increase: same burst, no second doubling
         assertThat(limiter.currentDelay()).isEqualTo(Duration.ofMillis(500));
 
-        limiter.beforeRequest();             // ...but the next request is still paced
+        awaitPermission(limiter);             // ...but the next request is still paced
         assertThat(sleeps).containsExactly(Duration.ofMillis(500));
 
         nowNanos.set(Duration.ofSeconds(3).toNanos());
         limiter.onResponse(429, null, Duration.ofSeconds(2).toNanos());   // sent after the increase: a new event
         assertThat(limiter.currentDelay()).isEqualTo(Duration.ofSeconds(1));
+    }
+
+    @Test
+    void aPreIncrease429ArrivingAfterARecoveryCountsAsANewEvent() {   // review, minor 5
+        var limiter = limiter(0.0, 0.0);
+        nowNanos.set(Duration.ofSeconds(1).toNanos());
+        limiter.onResponse(429, null, 0L);   // pace 500 ms, increase recorded at t=1s
+        limiter.onResponse(200, null);       // an interleaved success recovers: 250 ms <= initial -> pace 0
+        assertThat(limiter.currentDelay()).isZero();
+
+        limiter.onResponse(429, null, 0L);   // the burst's straggler: there is no pace to keep, so it is a new event
+
+        assertThat(limiter.currentDelay()).isEqualTo(Duration.ofMillis(500));
+        assertThat(limiter.pendingWait()).isEqualTo(Duration.ofMillis(500));
     }
 
     @Test

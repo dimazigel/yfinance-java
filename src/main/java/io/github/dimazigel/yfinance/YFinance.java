@@ -13,7 +13,6 @@ import io.github.dimazigel.yfinance.enums.LookupType;
 import io.github.dimazigel.yfinance.enums.Range;
 import io.github.dimazigel.yfinance.enums.StatementType;
 import io.github.dimazigel.yfinance.fundamentals.FinancialStatement;
-import io.github.dimazigel.yfinance.http.AdaptiveRateLimitInterceptor;
 import io.github.dimazigel.yfinance.http.EndpointConfig;
 import io.github.dimazigel.yfinance.http.InMemoryCookieJar;
 import io.github.dimazigel.yfinance.http.RawQuoteClient;
@@ -109,7 +108,7 @@ public final class YFinance implements AutoCloseable {
      */
     public static YFinance create(EndpointConfig config) {
         var cookieJar = new InMemoryCookieJar();
-        var limiter = new AdaptiveRateLimitInterceptor(config.adaptiveRateLimit());
+        var limiter = YahooClientFactory.newRateLimiter(config);
         var dispatcher = YahooClientFactory.newDispatcher(config);
         var pool = new ConnectionPool();
         var authClient = YahooClientFactory.baseClient(config, cookieJar, limiter, dispatcher, pool);

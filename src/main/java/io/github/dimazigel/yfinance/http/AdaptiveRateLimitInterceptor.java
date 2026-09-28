@@ -14,16 +14,21 @@ import org.slf4j.LoggerFactory;
  * adapted delay between attempts. The final response (429 or not) is returned to the caller.
  *
  * <p>Every wait is bounded by the call's {@code callTimeout} (see {@link CallBudget}): a wait that
- * cannot fit in what is left of the budget fails immediately instead of sleeping into a certain
- * timeout. Waits run in slices of at most {@value #SLICE_SECONDS} s so a cancelled call is noticed
- * promptly. Each attempt reports when it was <em>sent</em> to the limiter, which is how a burst of
- * 429s for requests already in flight raises the pace once rather than once per response.
+ * cannot fit in what is left of the budget fails immediately with {@link RateLimitBudgetExceeded}
+ * instead of sleeping into a certain timeout. Waits run in slices of at most {@link CallBudget#SLICE}
+ * so a cancelled call is noticed promptly. Each attempt reports when it was <em>sent</em> to the
+ * limiter, which is how a burst of 429s for requests already in flight raises the pace once rather
+ * than once per response.
+ *
+ * <p>One instance is shared by the api client and the handshake client. A handshake triggered from
+ * inside an api request (the {@link CrumbInterceptor} below this one finds no crumb) runs on the
+ * same thread, so it is recognised through a thread-local flag and sent without waiting for another
+ * slot: the api request already paid for this one. Its responses still feed the limiter.
  */
 public final class AdaptiveRateLimitInterceptor implements Interceptor {
 
     private static final Logger LOG = LoggerFactory.getLogger(AdaptiveRateLimitInterceptor.class);
-    private static final long SLICE_SECONDS = 1;
-    private static final Duration SLICE = Duration.ofSeconds(SLICE_SECONDS);
+    private static final ThreadLocal<Boolean> INSIDE_PACED_CALL = ThreadLocal.withInitial(() -> Boolean.FALSE);
 
     private final AdaptiveRateLimiter limiter;
 
@@ -35,14 +40,22 @@ public final class AdaptiveRateLimitInterceptor implements Interceptor {
         this.limiter = limiter;
     }
 
+    /** The shared limiter state (tests and diagnostics). */
+    AdaptiveRateLimiter limiter() {
+        return limiter;
+    }
+
     @Override
     public Response intercept(Chain chain) throws IOException {
         long enteredNanos = limiter.nanoTime();
         int maxAttempts = limiter.maxAttemptsPerRequest();
+        boolean nested = INSIDE_PACED_CALL.get();
         for (int attempt = 1; ; attempt++) {
-            awaitPermission(chain, enteredNanos);
+            if (!nested) {
+                awaitPermission(chain, enteredNanos);
+            }
             long sentNanos = limiter.nanoTime();
-            Response response = chain.proceed(chain.request());
+            Response response = proceedPaced(chain, nested);
             limiter.onResponse(response.code(), response.header("Retry-After"), sentNanos);
             if (response.code() != 429) {
                 return response;
@@ -62,6 +75,20 @@ public final class AdaptiveRateLimitInterceptor implements Interceptor {
         }
     }
 
+    /** Sends the request with the "inside a paced call" flag raised for anything nested on this thread. */
+    private static Response proceedPaced(Chain chain, boolean alreadyNested) throws IOException {
+        INSIDE_PACED_CALL.set(Boolean.TRUE);
+        try {
+            return chain.proceed(chain.request());
+        } finally {
+            if (alreadyNested) {
+                INSIDE_PACED_CALL.set(Boolean.TRUE);
+            } else {
+                INSIDE_PACED_CALL.remove();
+            }
+        }
+    }
+
     /** Waits until the limiter lets this request through, in slices, within the call's budget. */
     private void awaitPermission(Chain chain, long enteredNanos) throws InterruptedIOException {
         Duration wait = limiter.pendingWait();
@@ -70,12 +97,12 @@ public final class AdaptiveRateLimitInterceptor implements Interceptor {
         }
         LOG.atDebug().addKeyValue("delayMs", wait.toMillis()).log("Rate limited; waiting {} ms before next request", wait.toMillis());
         while (!wait.isZero()) {
-            if (chain.call().isCanceled()) {
-                throw new InterruptedIOException("Canceled");
+            CallBudget.checkNotCanceled(chain);
+            if (!CallBudget.fits(chain, enteredNanos, limiter.nanoTime(), wait)) {
+                throw new RateLimitBudgetExceeded(wait);
             }
-            CallBudget.ensureFits(chain, enteredNanos, limiter.nanoTime(), wait, "rate-limit");
             try {
-                limiter.sleep(wait.compareTo(SLICE) > 0 ? SLICE : wait);
+                limiter.sleep(CallBudget.slice(wait));
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 throw new InterruptedIOException("Interrupted while waiting for adaptive rate limit");

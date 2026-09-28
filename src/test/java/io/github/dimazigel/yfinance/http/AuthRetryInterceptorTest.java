@@ -11,6 +11,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -96,7 +97,7 @@ class AuthRetryInterceptorTest {
             crumb.set("fresh");
         };
         OkHttpClient client = new OkHttpClient.Builder()
-                .addInterceptor(new AuthRetryInterceptor(onAuthFailure))
+                .addInterceptor(AuthRetryInterceptor.onRejectedCrumb(onAuthFailure))
                 .addInterceptor(new CrumbInterceptor(() -> Crumb.of(crumb.get())))
                 .build();
 
@@ -110,7 +111,48 @@ class AuthRetryInterceptorTest {
     }
 
     @Test
+    void doesNotRetryWhenTheRequestHadNoCrumbAndNoneIsAvailable() throws Exception {   // review, minor 9
+        // During a crumb cooldown every request goes out crumbless; a 401 then must not cost a second
+        // crumbless round trip that can only 401 again.
+        server.enqueue(new MockResponse().setResponseCode(401));
+        var rejected = new AtomicReference<@Nullable String>("unset");
+        OkHttpClient client = new OkHttpClient.Builder()
+                .addInterceptor(AuthRetryInterceptor.onRejectedCrumb(rejected::set, () -> null))
+                .addInterceptor(new CrumbInterceptor(() -> null))
+                .build();
+
+        try (Response response = client.newCall(new Request.Builder().url(server.url("/data")).build()).execute()) {
+            assertThat(response.code()).isEqualTo(401);
+        }
+
+        assertThat(rejected.get()).as("the hook still runs (a no-op for a null crumb)").isNull();
+        assertThat(server.getRequestCount()).isEqualTo(1);
+    }
+
+    @Test
+    void retriesACrumblessRequestOnceACrumbIsAvailable() throws Exception {   // review, minor 9
+        server.enqueue(new MockResponse().setResponseCode(401));
+        server.enqueue(new MockResponse().setResponseCode(200).setBody("{}"));
+        var crumb = new AtomicReference<@Nullable String>(null);
+        Supplier<@Nullable Crumb> supplier = () -> crumb.get() == null ? null : Crumb.of(crumb.get());
+        OkHttpClient client = new OkHttpClient.Builder()
+                .addInterceptor(AuthRetryInterceptor.onRejectedCrumb(r -> crumb.set("fresh"), supplier))
+                .addInterceptor(new CrumbInterceptor(supplier))
+                .build();
+
+        try (Response response = client.newCall(new Request.Builder().url(server.url("/data")).build()).execute()) {
+            assertThat(response.code()).isEqualTo(200);
+        }
+
+        assertThat(server.getRequestCount()).isEqualTo(2);
+        assertThat(server.takeRequest().getRequestUrl().queryParameter("crumb")).isNull();
+        assertThat(server.takeRequest().getRequestUrl().queryParameter("crumb")).isEqualTo("fresh");
+    }
+
+    @Test
     void concurrent401sRefreshTheCrumbOnce() throws Exception {
+        // Scenario test, not a guaranteed RED for unconditional invalidation (that interleaving yields 2 or
+        // 3 handshakes); CrumbStoreTest.invalidateWithTheRejectedCrumbClearsOnlyThatCrumb is the deterministic proof.
         var handshakes = new AtomicInteger();
         var bothRejected = new CountDownLatch(2);
         server.setDispatcher(new Dispatcher() {
@@ -134,9 +176,12 @@ class AuthRetryInterceptorTest {
         var config = EndpointConfig.production().withHosts(server.url("/"));
         var crumbStore = new CrumbStore(new OkHttpClient(), config);
         crumbStore.getCrumb();   // seeded with crumb-1
+        var unconditional = new AuthRetryInterceptor(crumbStore::invalidate);   // the 1.1.0 call shape must still compile (review, important 2)
+        assertThat(unconditional).isNotNull();
+        Supplier<@Nullable Crumb> supplier = () -> crumbStore.tryGetCrumb().orElse(null);
         OkHttpClient client = new OkHttpClient.Builder()
-                .addInterceptor(new AuthRetryInterceptor(rejected -> crumbStore.invalidate(rejected)))
-                .addInterceptor(new CrumbInterceptor(() -> crumbStore.tryGetCrumb().orElse(null)))
+                .addInterceptor(AuthRetryInterceptor.onRejectedCrumb(crumbStore::invalidate, supplier))
+                .addInterceptor(new CrumbInterceptor(supplier))
                 .build();
         var request = new Request.Builder().url(server.url("/data")).build();
 

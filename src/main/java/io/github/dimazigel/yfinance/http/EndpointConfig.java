@@ -19,8 +19,9 @@ import okhttp3.OkHttpClient;
  * @param userAgent   the {@code User-Agent} header sent on every request
  * @param callTimeout overall per-call timeout applied to the OkHttp clients; it bounds the whole
  *     call, rate-limit pacing and retry backoffs included (a wait that would not fit in what is
- *     left of it fails at once), so {@code adaptiveRateLimit.maxDelay()} must be shorter than it
- *     while throttling is enabled; {@link Duration#ZERO} means no call timeout
+ *     left of it fails at once). A {@code adaptiveRateLimit.maxDelay()} longer than it is clamped
+ *     to it when the client is built ({@code YahooClientFactory.newRateLimiter}, one WARN);
+ *     {@link Duration#ZERO} means no call timeout
  * @param adaptiveRateLimit adaptive client-side throttling after HTTP 429 responses
  * @param transientRetry retry policy for transient server errors (HTTP 500/502/503/504)
  * @param clientCustomizer hook applied to every OkHttp client builder <em>after</em> the library's
@@ -30,10 +31,10 @@ import okhttp3.OkHttpClient;
  *     created
  * @param fanOutConcurrency how many per-symbol requests a fan-out keeps in flight at once: the
  *     bound for {@code equityDetails(...)} and the other detail batches, and the default for
- *     {@code Tickers} (overridable per instance with {@code withConcurrency(n)}); it also sizes the
- *     OkHttp dispatcher ({@code maxRequestsPerHost}, never below OkHttp's default of 5) so the
- *     configured width is actually reached; at least 1, {@link Tickers#DEFAULT_CONCURRENCY} by
- *     default
+ *     {@code Tickers} (overridable per instance with {@code withConcurrency(n)}); at least 1,
+ *     {@link Tickers#DEFAULT_CONCURRENCY} by default. The library's own calls are synchronous, so
+ *     this semaphore is their only bound; the shared OkHttp dispatcher is sized to the same value
+ *     for callers who {@code enqueue} through the customizer's client
  */
 public record EndpointConfig(
         HttpUrl query1Base,
@@ -65,12 +66,6 @@ public record EndpointConfig(
         Objects.requireNonNull(clientCustomizer, "clientCustomizer");
         if (fanOutConcurrency < 1) {
             throw new IllegalArgumentException("fanOutConcurrency must be >= 1, was " + fanOutConcurrency);
-        }
-        if (adaptiveRateLimit.enabled() && !callTimeout.isZero()
-                && adaptiveRateLimit.maxDelay().compareTo(callTimeout) >= 0) {
-            throw new IllegalArgumentException("adaptiveRateLimit.maxDelay (" + adaptiveRateLimit.maxDelay()
-                    + ") must be shorter than callTimeout (" + callTimeout
-                    + "): the call timeout bounds the whole call, paced waits included");
         }
     }
 
@@ -111,9 +106,9 @@ public record EndpointConfig(
     }
 
     /**
-     * Returns a copy with a different call timeout. It bounds the whole call, paced waits included,
-     * so it must stay longer than {@code adaptiveRateLimit().maxDelay()} (10 s by default): to go
-     * shorter, lower or disable the limiter first.
+     * Returns a copy with a different call timeout. It bounds the whole call, paced waits included;
+     * a {@code adaptiveRateLimit().maxDelay()} longer than it (10 s by default) is clamped to it
+     * when the client is built, with one WARN — lower {@code maxDelay} explicitly to silence that.
      */
     public EndpointConfig withCallTimeout(Duration timeout) {
         return new EndpointConfig(
@@ -150,8 +145,6 @@ public record EndpointConfig(
      * batches keep in flight at once, and the default {@code Tickers} concurrency. Raising it
      * makes a batch of 500 equity details faster at the cost of more simultaneous requests
      * against Yahoo's rate limit; the adaptive limiter still paces every request while degraded.
-     * The OkHttp dispatcher is sized to match, so the width is real rather than capped at OkHttp's
-     * default of 5 per host.
      */
     public EndpointConfig withFanOutConcurrency(int concurrency) {
         return new EndpointConfig(

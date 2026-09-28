@@ -6,9 +6,9 @@ import java.util.Objects;
 /**
  * Configuration for adaptive client-side throttling after Yahoo returns HTTP 429.
  *
- * @param maxDelay cap on the pace (and on a {@code Retry-After} Yahoo sends); it must be shorter
- *     than {@link EndpointConfig#callTimeout()}, which bounds the whole call including the paced
- *     waits — 10 s by default against a 30 s call timeout
+ * @param maxDelay cap on the pace (and on a {@code Retry-After} Yahoo sends), 10 s by default;
+ *     {@link EndpointConfig#callTimeout()} bounds the whole call including the paced waits, so a
+ *     cap longer than the call timeout is clamped to it when the client is built
  * @param maxAttempts total attempts per request (1 = never retry a 429; N > 1 = wait the adapted
  *     delay and retry up to N-1 times before surfacing the 429)
  */

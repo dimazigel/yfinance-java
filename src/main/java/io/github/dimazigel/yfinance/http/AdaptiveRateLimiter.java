@@ -65,6 +65,11 @@ final class AdaptiveRateLimiter {
         this.maxDelayNanos = config.maxDelay().toNanos();
     }
 
+    /** The effective tuning (after any clamping by the client factory). */
+    AdaptiveRateLimitConfig config() {
+        return config;
+    }
+
     /** The limiter's monotonic clock, so callers measure elapsed time on the same clock (injectable in tests). */
     long nanoTime() {
         return nanoTime.getAsLong();
@@ -90,16 +95,6 @@ final class AdaptiveRateLimiter {
         return Duration.ofNanos(remainingNanos);
     }
 
-    /** Waits (through the sleeper) until {@link #pendingWait()} is zero. No call budget: see the interceptor for that. */
-    void beforeRequest() throws InterruptedException {
-        Duration wait = pendingWait();
-        while (!wait.isZero()) {
-            LOG.atDebug().addKeyValue("delayMs", wait.toMillis()).log("Rate limited; waiting {} ms before next request", wait.toMillis());
-            sleeper.sleep(wait);
-            wait = pendingWait();
-        }
-    }
-
     /** Sleeps through the injected sleeper, so the interceptor's slices are testable with a fake clock. */
     void sleep(Duration delay) throws InterruptedException {
         sleeper.sleep(delay);
@@ -118,14 +113,16 @@ final class AdaptiveRateLimiter {
     /**
      * Feeds back a response for a request sent at {@code sentNanos}. A 429 for a request that was
      * already in flight when the pace was last raised is part of the same burst: it defers the next
-     * slot but does not raise the pace again, so N concurrent 429s cost one doubling, not N.
+     * slot but does not raise the pace again, so N concurrent 429s cost one doubling, not N. If an
+     * interleaved success has since recovered the pace to zero there is nothing to keep, and such a
+     * straggler counts as a new event instead of going unpaced.
      */
     synchronized void onResponse(int code, @Nullable String retryAfter, long sentNanos) {
         if (!config.enabled()) {
             return;
         }
         if (code == 429) {
-            if (sentNanos < lastIncreaseNanos) {
+            if (sentNanos < lastIncreaseNanos && currentDelayNanos > 0L) {
                 deferWithoutIncrease();
             } else {
                 increaseDelay(retryAfter);

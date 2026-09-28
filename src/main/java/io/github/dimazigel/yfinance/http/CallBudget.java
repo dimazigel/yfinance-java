@@ -9,26 +9,39 @@ import okhttp3.Interceptor;
  * {@code callTimeout}. OkHttp's call timeout only <em>cancels</em> the call when it fires; a thread
  * asleep in an interceptor is not woken, so a wait longer than what is left of the budget would run
  * its full length and then fail with "timeout" anyway, having sent nothing. Failing before the wait
- * gives the same outcome sooner and keeps the budget the caller configured honest.
+ * gives the same outcome sooner and keeps the budget the caller configured honest. Waits are also
+ * sliced (at most {@link #SLICE}) with a cancellation check between slices, so a cancelled call
+ * stops promptly.
  */
 final class CallBudget {
+
+    /** Longest single sleep an interceptor takes before re-checking cancellation. */
+    static final Duration SLICE = Duration.ofSeconds(1);
 
     private CallBudget() {}
 
     /**
-     * Throws when {@code wait} does not fit in what remains of the call's timeout. {@code
-     * enteredNanos} is when the interceptor was entered and {@code nowNanos} the current time, both
-     * on the same clock; a call without a timeout ({@code timeoutNanos() == 0}) always fits.
+     * Whether {@code wait} fits in what remains of the call's timeout. {@code enteredNanos} is when
+     * the interceptor was entered and {@code nowNanos} the current time, both on the same clock; a
+     * call without a timeout ({@code timeoutNanos() == 0}) always fits.
      */
-    static void ensureFits(Interceptor.Chain chain, long enteredNanos, long nowNanos, Duration wait, String what)
-            throws InterruptedIOException {
+    static boolean fits(Interceptor.Chain chain, long enteredNanos, long nowNanos, Duration wait) {
         long budgetNanos = chain.call().timeout().timeoutNanos();
         if (budgetNanos == 0L) {
-            return;
+            return true;
         }
-        long remainingNanos = budgetNanos - (nowNanos - enteredNanos);
-        if (wait.toNanos() > remainingNanos) {
-            throw new InterruptedIOException(what + " wait of " + wait.toMillis() + " ms exceeds the remaining call timeout");
+        return wait.toNanos() <= budgetNanos - (nowNanos - enteredNanos);
+    }
+
+    /** Throws {@code InterruptedIOException("Canceled")} once the call has been cancelled (by the caller or the call timeout). */
+    static void checkNotCanceled(Interceptor.Chain chain) throws InterruptedIOException {
+        if (chain.call().isCanceled()) {
+            throw new InterruptedIOException("Canceled");
         }
+    }
+
+    /** {@code wait} capped to one {@link #SLICE}. */
+    static Duration slice(Duration wait) {
+        return wait.compareTo(SLICE) > 0 ? SLICE : wait;
     }
 }

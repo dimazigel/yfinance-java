@@ -48,8 +48,8 @@ class EndpointConfigTest {
     void withMethodsEachChangeOneFieldAndKeepTheRest() {
         var custom = EndpointConfig.production()
                 .withUserAgent("ua/1")
-                .withAdaptiveRateLimit(AdaptiveRateLimitConfig.disabled())
                 .withCallTimeout(Duration.ofSeconds(5))
+                .withAdaptiveRateLimit(AdaptiveRateLimitConfig.disabled())
                 .withClientCustomizer(b -> b.followRedirects(false));
 
         assertThat(custom.userAgent()).isEqualTo("ua/1");
@@ -70,7 +70,7 @@ class EndpointConfigTest {
 
         var none = config.withTransientRetry(RetryConfig.disabled());
         assertThat(none.transientRetry().maxAttempts()).isEqualTo(1);
-        assertThat(none.withCallTimeout(Duration.ofSeconds(15)).transientRetry()).isEqualTo(RetryConfig.disabled());
+        assertThat(none.withCallTimeout(Duration.ofSeconds(1)).transientRetry()).isEqualTo(RetryConfig.disabled());
     }
 
     @Test
@@ -81,7 +81,7 @@ class EndpointConfigTest {
         var eight = production.withFanOutConcurrency(8);
         assertThat(eight.fanOutConcurrency()).isEqualTo(8);
         assertThat(eight.callTimeout()).isEqualTo(production.callTimeout());
-        assertThat(eight.withCallTimeout(Duration.ofSeconds(15)).fanOutConcurrency()).as("copies keep it").isEqualTo(8);
+        assertThat(eight.withCallTimeout(Duration.ofSeconds(1)).fanOutConcurrency()).as("copies keep it").isEqualTo(8);
         assertThat(eight.withHosts(URL).fanOutConcurrency()).isEqualTo(8);
         assertThat(eight).isEqualTo(production.withFanOutConcurrency(8));
 
@@ -96,23 +96,12 @@ class EndpointConfigTest {
     }
 
     @Test
-    void maxDelayMustBeShorterThanTheCallTimeout() {
-        // callTimeout bounds the whole call, pacing included: a maxDelay that does not fit could
-        // never be waited out, so the combination is rejected up front.
+    void anyCallTimeoutIsAcceptedInAnyWitherOrder() {   // review, important 1: the record never rejects a tuning
         var production = EndpointConfig.production();
-
-        assertThatThrownBy(() -> production.withCallTimeout(Duration.ofSeconds(10)))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("maxDelay").hasMessageContaining("PT10S")
-                .hasMessageContaining("callTimeout").hasMessageContaining("PT10S");
-        assertThatThrownBy(() -> production.withAdaptiveRateLimit(
-                new AdaptiveRateLimitConfig(true, Duration.ofSeconds(1), Duration.ofSeconds(30), 2.0, 0.5, 0.0, 3)))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("PT30S").hasMessageContaining("PT30S");
-
-        assertThat(production.withCallTimeout(Duration.ofSeconds(11)).callTimeout()).isEqualTo(Duration.ofSeconds(11));
-        assertThat(production.withAdaptiveRateLimit(AdaptiveRateLimitConfig.disabled()).withCallTimeout(Duration.ofSeconds(1))
-                .callTimeout()).as("a disabled limiter never paces").isEqualTo(Duration.ofSeconds(1));
-        assertThat(production.withCallTimeout(Duration.ZERO).callTimeout()).as("zero = no call timeout in OkHttp").isZero();
+        assertThat(production.withCallTimeout(Duration.ofSeconds(10)).callTimeout()).isEqualTo(Duration.ofSeconds(10));
+        assertThat(production.withCallTimeout(Duration.ofSeconds(1)).adaptiveRateLimit().maxDelay())
+                .as("a maxDelay longer than the call timeout is clamped when the client is built, not rejected here")
+                .isEqualTo(Duration.ofSeconds(10));
+        assertThat(production.withCallTimeout(Duration.ZERO).callTimeout()).isZero();
     }
 }

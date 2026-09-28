@@ -9,9 +9,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Type;
 import java.net.URI;
-import java.util.Collection;
-import java.util.Locale;
-import java.util.Map;
 import org.jspecify.annotations.Nullable;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.json.JsonMapper;
@@ -22,7 +19,8 @@ import tools.jackson.databind.json.JsonMapper;
  * never sees it) are all {@link YFDataException}s, and an HTML page in place of JSON — Yahoo's EU
  * consent redirect or a block page, both served as 200 — is a {@link YFAuthException} that says so,
  * rather than a "malformed JSON" that sends the operator after Jackson. The body is read once into
- * memory for that check (Feign's OkHttp body is not repeatable) and handed to Jackson as bytes.
+ * memory for that check (Feign's OkHttp body is not repeatable), sniffed for a leading {@code <},
+ * and handed to Jackson as bytes.
  * Feign wraps exceptions thrown here in a {@code DecodeException}; {@link YahooInvocationHandlerFactory}
  * unwraps them again at the proxy boundary.
  */
@@ -37,7 +35,7 @@ final class YahooDecoder implements Decoder {
     @Override
     public Object decode(Response response, Type type) {
         byte[] bytes = readBody(response);
-        if (bytes != null && looksLikeHtml(response, bytes)) {
+        if (bytes != null && looksLikeHtml(bytes)) {
             throw new YFAuthException("Yahoo returned an HTML page instead of JSON for " + path(response)
                     + " (consent required or access blocked)");
         }
@@ -71,17 +69,12 @@ final class YahooDecoder implements Decoder {
         }
     }
 
-    /** {@code Content-Type: text/html}, or a body whose first non-whitespace character opens a tag. */
-    private static boolean looksLikeHtml(Response response, byte[] bytes) {
-        Map<String, Collection<String>> headers = response.headers();
-        Collection<String> contentTypes = headers.get("Content-Type");
-        if (contentTypes != null) {
-            for (String contentType : contentTypes) {
-                if (contentType.toLowerCase(Locale.ROOT).startsWith("text/html")) {
-                    return true;
-                }
-            }
-        }
+    /**
+     * A body whose first non-whitespace character opens a tag. The body decides, not the
+     * {@code Content-Type}: JSON cannot start with {@code <}, whereas a mislabelled header in either
+     * direction has been seen.
+     */
+    private static boolean looksLikeHtml(byte[] bytes) {
         for (byte b : bytes) {
             if (!Character.isWhitespace(b)) {
                 return b == '<';

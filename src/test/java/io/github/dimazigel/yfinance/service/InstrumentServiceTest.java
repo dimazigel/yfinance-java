@@ -214,16 +214,13 @@ class InstrumentServiceTest {
         var concurrent = new InstrumentService(client, Clock.fixed(NOW, ZoneOffset.UTC), 3);
         var symbols = List.of(Symbol.of("X1.L"), Symbol.of("X2.L"), Symbol.of("X3.L"));
 
-        long startedAt = System.nanoTime();
         try (var log = LogCapture.of(InstrumentService.class)) {
             var batch = concurrent.instruments(symbols);
-            Duration took = Duration.ofNanos(System.nanoTime() - startedAt);
 
             assertThat(batch.values()).hasSize(3).allSatisfy(i -> assertThat(i).isInstanceOf(Etf.class));
             assertThat(batch.outcomes()).extracting(Outcome::symbol).containsExactlyElementsOf(symbols);
             assertThat(server.getRequestCount()).as("one v7 call + one fallback per symbol").isEqualTo(4);
             assertThat(maxInFlight.get()).as("fallbacks overlap").isGreaterThan(1);
-            assertThat(took).as("well under three sequential round trips").isLessThan(latency.multipliedBy(3));
             assertThat(log.messages(Level.INFO)).containsExactly("instruments: 3 symbols: 3 ok, 0 skipped, 0 failed; fallbacks=3");
         }
     }

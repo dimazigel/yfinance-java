@@ -2,6 +2,7 @@ package io.github.dimazigel.yfinance.http;
 
 import io.github.dimazigel.yfinance.auth.CrumbStore;
 import io.github.dimazigel.yfinance.valueobject.Crumb;
+import java.time.Duration;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import okhttp3.ConnectionPool;
@@ -9,6 +10,8 @@ import okhttp3.CookieJar;
 import okhttp3.Dispatcher;
 import okhttp3.OkHttpClient;
 import org.jspecify.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Builds the OkHttp clients used to talk to Yahoo Finance. A {@code YFinance} instance owns two: the
@@ -21,17 +24,41 @@ import org.jspecify.annotations.Nullable;
  */
 public final class YahooClientFactory {
 
+    private static final Logger LOG = LoggerFactory.getLogger(YahooClientFactory.class);
+
     /** OkHttp's own default for {@code maxRequestsPerHost}; the dispatcher is never sized below it. */
     static final int MIN_REQUESTS_PER_HOST = 5;
 
     private YahooClientFactory() {}
 
     /**
-     * A dispatcher sized for {@link EndpointConfig#fanOutConcurrency()}: OkHttp's default caps
-     * requests per host at {@value #MIN_REQUESTS_PER_HOST}, and all of Yahoo's traffic goes to one
-     * or two hosts, so without this a fan-out wider than that would silently queue in OkHttp.
-     * {@code maxRequests} is set to the same value, since the two hosts never both carry a full
-     * fan-out. A customizer may replace it (it runs last); the caller then owns that dispatcher.
+     * The adaptive rate limiter shared by both clients. The pace cap is clamped to
+     * {@link EndpointConfig#callTimeout()} when it is longer (a paced wait must fit inside the call
+     * budget, so a longer cap could never be waited out); that clamp is logged once, at WARN,
+     * because it means the configuration says one thing and the client does another.
+     */
+    public static AdaptiveRateLimitInterceptor newRateLimiter(EndpointConfig config) {
+        AdaptiveRateLimitConfig tuning = config.adaptiveRateLimit();
+        Duration callTimeout = config.callTimeout();
+        if (tuning.enabled() && !callTimeout.isZero() && tuning.maxDelay().compareTo(callTimeout) > 0) {
+            LOG.atWarn()
+                    .addKeyValue("maxDelay", tuning.maxDelay())
+                    .addKeyValue("callTimeout", callTimeout)
+                    .log("rate-limit maxDelay {} clamped to callTimeout {}", tuning.maxDelay(), callTimeout);
+            Duration initialDelay = tuning.initialDelay().compareTo(callTimeout) > 0 ? callTimeout : tuning.initialDelay();
+            tuning = new AdaptiveRateLimitConfig(true, initialDelay, callTimeout, tuning.backoffMultiplier(),
+                    tuning.recoveryFactor(), tuning.jitterFactor(), tuning.maxAttempts());
+        }
+        return new AdaptiveRateLimitInterceptor(tuning);
+    }
+
+    /**
+     * The dispatcher shared by both clients, with {@code maxRequests} and {@code maxRequestsPerHost}
+     * set to {@link EndpointConfig#fanOutConcurrency()} (never below OkHttp's default of
+     * {@value #MIN_REQUESTS_PER_HOST}). OkHttp applies those limits only to {@code enqueue}d calls;
+     * every call this library makes is synchronous and bounded by the fan-out semaphore alone, so
+     * the sizing is for callers who {@code enqueue} through the customizer's client. A customizer
+     * may replace the dispatcher (it runs last); the caller then owns that dispatcher.
      */
     public static Dispatcher newDispatcher(EndpointConfig config) {
         int inFlight = Math.max(config.fanOutConcurrency(), MIN_REQUESTS_PER_HOST);
@@ -50,14 +77,15 @@ public final class YahooClientFactory {
     }
 
     public static OkHttpClient baseClient(EndpointConfig config, CookieJar cookieJar) {
-        return baseClient(config, cookieJar, new AdaptiveRateLimitInterceptor(config.adaptiveRateLimit()),
-                newDispatcher(config), new ConnectionPool());
+        return baseClient(config, cookieJar, newRateLimiter(config), newDispatcher(config), new ConnectionPool());
     }
 
     /**
      * The handshake client sharing {@code limiter}, {@code dispatcher} and {@code pool} with the api
      * client built from the same pieces. Chain: User-Agent → log context → adaptive rate limit →
-     * request log; no crumb, no auth retry.
+     * request log; no crumb, no auth retry. When the handshake runs inside an api request that has
+     * already waited for its slot, the shared limiter lets it through without a second wait (see
+     * {@link AdaptiveRateLimitInterceptor}).
      */
     public static OkHttpClient baseClient(
             EndpointConfig config,
@@ -86,14 +114,14 @@ public final class YahooClientFactory {
     public static OkHttpClient apiClient(
             EndpointConfig config, CookieJar cookieJar, Supplier<@Nullable Crumb> crumb, Runnable onAuthFailure) {
         return apiClient(config, cookieJar, crumb, rejected -> onAuthFailure.run(),
-                new AdaptiveRateLimitInterceptor(config.adaptiveRateLimit()), newDispatcher(config), new ConnectionPool());
+                newRateLimiter(config), newDispatcher(config), new ConnectionPool());
     }
 
     /**
      * Client used for authenticated data requests: shares the cookie jar, {@code limiter},
      * {@code dispatcher} and {@code pool} with the handshake client and appends the crumb to every
      * request. {@code onAuthFailure} receives the crumb Yahoo rejected with 401/403 ({@code null}
-     * when the request carried none); see {@link AuthRetryInterceptor}.
+     * when the request carried none); see {@link AuthRetryInterceptor#onRejectedCrumb(Consumer, Supplier)}.
      *
      * <p>Interceptor order matters: {@link LogContextInterceptor} comes first so every line below
      * carries the endpoint; {@link AuthRetryInterceptor} and
@@ -118,7 +146,7 @@ public final class YahooClientFactory {
                 .cookieJar(cookieJar)
                 .addInterceptor(new UserAgentInterceptor(config.userAgent()))
                 .addInterceptor(new LogContextInterceptor())
-                .addInterceptor(new AuthRetryInterceptor(onAuthFailure))
+                .addInterceptor(AuthRetryInterceptor.onRejectedCrumb(onAuthFailure, crumb))
                 .addInterceptor(new TransientErrorRetryInterceptor(config.transientRetry()))
                 .addInterceptor(limiter)
                 .addInterceptor(new RequestLogInterceptor())
@@ -131,7 +159,7 @@ public final class YahooClientFactory {
     /** Convenience builder wiring a fresh cookie jar, crumb store and api client together. */
     public static OkHttpClient apiClient(EndpointConfig config) {
         var cookieJar = new InMemoryCookieJar();
-        var limiter = new AdaptiveRateLimitInterceptor(config.adaptiveRateLimit());
+        var limiter = newRateLimiter(config);
         var dispatcher = newDispatcher(config);
         var pool = new ConnectionPool();
         var crumbStore = new CrumbStore(baseClient(config, cookieJar, limiter, dispatcher, pool), config);

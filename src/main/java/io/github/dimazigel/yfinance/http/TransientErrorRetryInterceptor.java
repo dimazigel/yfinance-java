@@ -15,7 +15,8 @@ import org.slf4j.LoggerFactory;
  * times with exponential backoff, honouring a {@code Retry-After} header when present. Yahoo's
  * lookup endpoint in particular answers an HTML 500 page now and then; one retry is nearly always
  * enough. The final response, whatever it is, goes back to the caller. A backoff that would not fit
- * in what is left of the call's {@code callTimeout} fails immediately instead (see {@link CallBudget}).
+ * in what is left of the call's {@code callTimeout} fails immediately instead, and one that does is
+ * slept in slices with a cancellation check between them (see {@link CallBudget}).
  *
  * <p>Rate limiting (429) is deliberately not handled here: that belongs to
  * {@link AdaptiveRateLimitInterceptor}, which must sit <em>downstream</em> of this interceptor so
@@ -78,13 +79,26 @@ public final class TransientErrorRetryInterceptor implements Interceptor {
                     .log("HTTP {} from Yahoo; retrying in {} ms (attempt {} of {})",
                             response.code(), delay.toMillis(), attempt + 1, config.maxAttempts());
             response.close();
-            CallBudget.ensureFits(chain, enteredNanos, nanoTime.getAsLong(), delay, "retry");
+            sleepWithinBudget(chain, enteredNanos, delay);
+        }
+    }
+
+    /** The backoff, in {@link CallBudget#SLICE}s: cancel-aware, and never started when it cannot fit the call's budget. */
+    private void sleepWithinBudget(Chain chain, long enteredNanos, Duration delay) throws InterruptedIOException {
+        Duration remaining = delay;
+        while (remaining.compareTo(Duration.ZERO) > 0) {
+            CallBudget.checkNotCanceled(chain);
+            if (!CallBudget.fits(chain, enteredNanos, nanoTime.getAsLong(), remaining)) {
+                throw new InterruptedIOException("retry wait of " + remaining.toMillis() + " ms exceeds the remaining call timeout");
+            }
+            Duration slice = CallBudget.slice(remaining);
             try {
-                sleeper.sleep(delay);
+                sleeper.sleep(slice);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 throw new InterruptedIOException("Interrupted while waiting to retry a server error");
             }
+            remaining = remaining.minus(slice);
         }
     }
 

@@ -1,7 +1,9 @@
 package io.github.dimazigel.yfinance.http;
 
+import io.github.dimazigel.yfinance.valueobject.Crumb;
 import java.io.IOException;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import okhttp3.Interceptor;
 import okhttp3.Response;
 import org.jspecify.annotations.Nullable;
@@ -10,12 +12,15 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Recovers from an expired/rotated crumb. When Yahoo answers an authenticated request with HTTP 401
- * or 403, this hands the rejected crumb (the {@code crumb} query parameter of the request that was
- * actually sent, {@code null} when it carried none) to {@code onAuthFailure} — which should
- * invalidate the cached crumb <em>if it is still that one</em> — and retries the request exactly
- * once, letting the downstream {@link CrumbInterceptor} attach a fresh crumb. Passing the rejected
- * crumb is what keeps a burst of concurrent 401s down to one handshake: the workers after the
- * first find the cache already refreshed and leave it alone.
+ * or 403, this runs the auth-failure hook (which should invalidate the cached crumb) and retries the
+ * request exactly once, letting the downstream {@link CrumbInterceptor} attach a fresh crumb.
+ *
+ * <p>{@link #onRejectedCrumb} hands the hook the crumb Yahoo rejected — the {@code crumb} query
+ * parameter of the request that was actually sent, {@code null} when it carried none — so the hook
+ * can invalidate <em>only if the cache still holds that crumb</em>. That is what keeps a burst of
+ * concurrent 401s down to one handshake: the workers after the first find the cache already
+ * refreshed and leave it alone. The {@link #AuthRetryInterceptor(Runnable)} constructor is the
+ * unconditional form.
  *
  * <p>Must be installed <em>before</em> {@link CrumbInterceptor} so the retry re-runs crumb injection,
  * and before {@link AdaptiveRateLimitInterceptor} so the retry is paced and 429-handled as well.
@@ -25,15 +30,30 @@ public final class AuthRetryInterceptor implements Interceptor {
     private static final Logger LOG = LoggerFactory.getLogger(AuthRetryInterceptor.class);
 
     private final Consumer<@Nullable String> onAuthFailure;
+    private final @Nullable Supplier<@Nullable Crumb> crumb;
 
-    /** {@code onAuthFailure} receives the rejected crumb; see the class comment. */
-    public AuthRetryInterceptor(Consumer<@Nullable String> onAuthFailure) {
-        this.onAuthFailure = onAuthFailure;
+    /** Unconditional hook: runs on every 401/403, without the rejected crumb, and always retries once. */
+    public AuthRetryInterceptor(Runnable onAuthFailure) {
+        this(rejected -> onAuthFailure.run(), null);
     }
 
-    /** Hook without the rejected crumb (unconditional invalidation); kept for existing callers. */
-    public AuthRetryInterceptor(Runnable onAuthFailure) {
-        this(rejected -> onAuthFailure.run());
+    private AuthRetryInterceptor(Consumer<@Nullable String> onAuthFailure, @Nullable Supplier<@Nullable Crumb> crumb) {
+        this.onAuthFailure = onAuthFailure;
+        this.crumb = crumb;
+    }
+
+    /** Identity-aware hook: receives the rejected crumb ({@code null} when the request carried none); always retries once. */
+    public static AuthRetryInterceptor onRejectedCrumb(Consumer<@Nullable String> onAuthFailure) {
+        return new AuthRetryInterceptor(onAuthFailure, null);
+    }
+
+    /**
+     * As {@link #onRejectedCrumb(Consumer)}, and skips the retry when the rejected request carried no
+     * crumb and {@code crumb} still yields none: a second crumbless round trip could only be rejected
+     * again (the case for every request made during a crumb cooldown).
+     */
+    public static AuthRetryInterceptor onRejectedCrumb(Consumer<@Nullable String> onAuthFailure, Supplier<@Nullable Crumb> crumb) {
+        return new AuthRetryInterceptor(onAuthFailure, crumb);
     }
 
     @Override
@@ -46,8 +66,12 @@ public final class AuthRetryInterceptor implements Interceptor {
                     .log("HTTP {} from Yahoo; refreshing crumb and retrying once", response.code());
             // response.request() is the request as sent, i.e. after CrumbInterceptor appended the crumb.
             String rejected = response.request().url().queryParameter("crumb");
-            response.close();
             onAuthFailure.accept(rejected);
+            if (rejected == null && crumb != null && crumb.get() == null) {
+                LOG.atDebug().log("Request carried no crumb and none is available; not retrying");
+                return response;
+            }
+            response.close();
             return chain.proceed(request);
         }
         return response;
