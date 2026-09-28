@@ -43,8 +43,10 @@ java {
 // The published Javadoc covers the API only: the plumbing packages (assembly, dto, mapper, api,
 // auth), the service classes, the http plumbing (interceptors, client factory, Feign/Jackson
 // glue, RawQuoteClient) and batch.FanOut are internal (see their package-info) and are left out;
-// HistoryRequest stays, being the one API type in `service`, as do the http configuration
-// records and InMemoryCookieJar. Doclint runs on what remains at
+// HistoryRequest stays — deprecated since 1.2, for removal in 2.0 — as the one adapter type left
+// in `service`, as do the http configuration records and InMemoryCookieJar. The current
+// price-history query type, HistoryQuery, lives in `market` and is covered like the rest of that
+// package. Doclint runs on what remains at
 // `all,-missing`: malformed HTML, bad references and wrong @param names fail the build; a member
 // without a comment does not.
 tasks.javadoc {
