@@ -10,24 +10,36 @@ import io.github.dimazigel.yfinance.batch.Outcome;
 import io.github.dimazigel.yfinance.batch.SkipReason;
 import io.github.dimazigel.yfinance.exception.YFDataException;
 import io.github.dimazigel.yfinance.http.RawQuoteClient;
+import io.github.dimazigel.yfinance.http.YahooJsonMapper;
 import io.github.dimazigel.yfinance.instrument.*;
 import io.github.dimazigel.yfinance.testsupport.Fixtures;
+import io.github.dimazigel.yfinance.testsupport.InstrumentFixtures;
 import io.github.dimazigel.yfinance.testsupport.LogCapture;
 import io.github.dimazigel.yfinance.testsupport.YahooDispatcher;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
 import java.time.Clock;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.IntStream;
+import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
+import okhttp3.mockwebserver.RecordedRequest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.node.ObjectNode;
 
 class InstrumentServiceTest {
 
     private static final Instant NOW = Instant.parse("2026-09-26T12:00:00Z");
+    private static final JsonMapper JSON = YahooJsonMapper.create();
     private MockWebServer server;
+    private RawQuoteClient client;
     private InstrumentService service;
 
     @BeforeEach
@@ -35,7 +47,7 @@ class InstrumentServiceTest {
         server = new MockWebServer();
         server.start();
         server.setDispatcher(new YahooDispatcher());
-        var client = new RawQuoteClient(Fixtures.api(server, QuoteApi.class), Fixtures.api(server, QuoteSummaryApi.class));
+        client = new RawQuoteClient(Fixtures.api(server, QuoteApi.class), Fixtures.api(server, QuoteSummaryApi.class));
         service = new InstrumentService(client, Clock.fixed(NOW, ZoneOffset.UTC));
     }
 
@@ -131,11 +143,99 @@ class InstrumentServiceTest {
     }
 
     @Test
+    void aFailedChunkFailsOnlyItsOwnSymbols() throws Exception {   // robustness review, item 5
+        var v7Calls = new AtomicInteger();
+        server.setDispatcher(new YahooDispatcher() {
+            @Override
+            public MockResponse dispatch(RecordedRequest request) {
+                if (request.getRequestUrl().encodedPath().equals("/v7/finance/quote") && v7Calls.incrementAndGet() == 2) {
+                    return new MockResponse().setResponseCode(500).setBody("<html>Yahoo! - Error report</html>");
+                }
+                return super.dispatch(request);
+            }
+        });
+        var symbols = new ArrayList<Symbol>();
+        symbols.add(Symbol.of("AAPL"));                                              // chunk 1: AAPL + 99 unknown
+        IntStream.range(1, 249).forEach(i -> symbols.add(Symbol.of("S" + i)));       // chunk 2: 100 unknown (500s)
+        symbols.add(Symbol.of("SPY"));                                               // chunk 3: 49 unknown + SPY
+
+        var batch = service.instruments(symbols);
+
+        assertThat(batch.size()).isEqualTo(250);
+        assertThat(batch.outcomes()).extracting(Outcome::symbol).containsExactlyElementsOf(symbols);
+        assertThat(batch.values()).extracting(Instrument::symbol).containsExactly(Symbol.of("AAPL"), Symbol.of("SPY"));
+        assertThat(batch.failed()).hasSize(100).allSatisfy(f -> {
+            assertThat(Integer.parseInt(f.symbol().value().substring(1))).isBetween(100, 199);
+            assertThat(f.error().getMessage()).contains("500");
+        });
+        assertThat(batch.skipped()).hasSize(148).allSatisfy(s -> assertThat(s.reason()).isEqualTo(SkipReason.UNKNOWN_SYMBOL));
+        assertThat(server.getRequestCount()).as("three chunks, no fallbacks").isEqualTo(3);
+        assertThat(server.takeRequest().getRequestUrl().queryParameter("symbols").split(",")).hasSize(100);
+        assertThat(server.takeRequest().getRequestUrl().queryParameter("symbols").split(",")).hasSize(100);
+        assertThat(server.takeRequest().getRequestUrl().queryParameter("symbols").split(",")).hasSize(50);
+    }
+
+    @Test
+    void fallbacksRunConcurrentlyAndAreCounted() {   // robustness review, item 5
+        // Three UCITS-style ETFs (CSPX.L's row under three symbols), each needing the quoteSummary
+        // fallback; the fallbacks are fanned out with the configured concurrency, not run one after
+        // another on the calling thread.
+        Duration latency = Duration.ofMillis(300);
+        var inFlight = new AtomicInteger();
+        var maxInFlight = new AtomicInteger();
+        server.setDispatcher(new YahooDispatcher() {
+            @Override
+            public MockResponse dispatch(RecordedRequest request) {
+                String path = request.getRequestUrl().encodedPath();
+                if (path.equals("/v7/finance/quote")) {
+                    var rows = JSON.createArrayNode();
+                    for (String symbol : request.getRequestUrl().queryParameter("symbols").split(",")) {
+                        ObjectNode row = (ObjectNode) InstrumentFixtures.v7Row("CSPX.L").deepCopy();
+                        rows.add(row.put("symbol", symbol));
+                    }
+                    var body = JSON.createObjectNode();
+                    body.putObject("quoteResponse").set("result", rows);
+                    return new MockResponse().setResponseCode(200).setHeader("Content-Type", "application/json").setBody(body.toString());
+                }
+                if (path.startsWith("/v10/finance/quoteSummary/")) {
+                    maxInFlight.accumulateAndGet(inFlight.incrementAndGet(), Math::max);
+                    try {
+                        Thread.sleep(latency.toMillis());
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    } finally {
+                        inFlight.decrementAndGet();
+                    }
+                    return Fixtures.jsonResponse("instruments/qs_CSPX_L.json");
+                }
+                return super.dispatch(request);
+            }
+        });
+        var concurrent = new InstrumentService(client, Clock.fixed(NOW, ZoneOffset.UTC), 3);
+        var symbols = List.of(Symbol.of("X1.L"), Symbol.of("X2.L"), Symbol.of("X3.L"));
+
+        long startedAt = System.nanoTime();
+        try (var log = LogCapture.of(InstrumentService.class)) {
+            var batch = concurrent.instruments(symbols);
+            Duration took = Duration.ofNanos(System.nanoTime() - startedAt);
+
+            assertThat(batch.values()).hasSize(3).allSatisfy(i -> assertThat(i).isInstanceOf(Etf.class));
+            assertThat(batch.outcomes()).extracting(Outcome::symbol).containsExactlyElementsOf(symbols);
+            assertThat(server.getRequestCount()).as("one v7 call + one fallback per symbol").isEqualTo(4);
+            assertThat(maxInFlight.get()).as("fallbacks overlap").isGreaterThan(1);
+            assertThat(took).as("well under three sequential round trips").isLessThan(latency.multipliedBy(3));
+            assertThat(log.messages(Level.INFO)).containsExactly("instruments: 3 symbols: 3 ok, 0 skipped, 0 failed; fallbacks=3");
+        }
+    }
+
+    @Test
     void logsOneSummaryPerBatchAndDowngradesAtDebug() {
         try (var log = LogCapture.of(InstrumentService.class)) {
             service.instruments(List.of(Symbol.of("AAPL"), Symbol.of("BAC-PL"), Symbol.of("RIDE")));
 
-            assertThat(log.messages(Level.INFO)).containsExactly("instruments: 3 symbols: 2 ok, 1 skipped, 0 failed");
+            // BAC-PL (preferred share) and RIDE (quoteType NONE, no price) each cost a fallback request
+            assertThat(server.getRequestCount()).isEqualTo(3);
+            assertThat(log.messages(Level.INFO)).containsExactly("instruments: 3 symbols: 2 ok, 1 skipped, 0 failed; fallbacks=2");
             assertThat(log.messages(Level.DEBUG)).anySatisfy(m -> assertThat(m).startsWith("BAC-PL downgraded from EQUITY: missing [marketCap"));
             assertThat(log.messages(Level.WARN)).isEmpty();
         }
@@ -147,7 +247,7 @@ class InstrumentServiceTest {
             service.instrument(Symbol.of("AAPL"));
 
             assertThat(log.messages(Level.INFO)).as("INFO is per batch, never per symbol").isEmpty();
-            assertThat(log.messages(Level.DEBUG)).contains("instruments: 1 symbols: 1 ok, 0 skipped, 0 failed");
+            assertThat(log.messages(Level.DEBUG)).contains("instruments: 1 symbols: 1 ok, 0 skipped, 0 failed; fallbacks=0");
         }
     }
 
@@ -156,7 +256,7 @@ class InstrumentServiceTest {
         server.shutdown();
         try (var log = LogCapture.of(InstrumentService.class)) {
             service.instruments(List.of(Symbol.of("AAPL"), Symbol.of("SPY")));
-            assertThat(log.messages(Level.INFO)).containsExactly("instruments: 2 symbols: 0 ok, 0 skipped, 2 failed");
+            assertThat(log.messages(Level.INFO)).containsExactly("instruments: 2 symbols: 0 ok, 0 skipped, 2 failed; fallbacks=0");
         }
     }
 }

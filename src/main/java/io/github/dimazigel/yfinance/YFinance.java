@@ -87,7 +87,7 @@ public final class YFinance implements AutoCloseable {
         var rawQuotes = new RawQuoteClient(apis.quote(), apis.quoteSummary());
         Clock clock = Clock.systemUTC();
         this.fanOutConcurrency = fanOutConcurrency;
-        this.instruments = new InstrumentService(rawQuotes, clock);
+        this.instruments = new InstrumentService(rawQuotes, clock, fanOutConcurrency);
         this.details = new DetailService(rawQuotes, clock, fanOutConcurrency);
         this.history = new HistoryService(apis.chart());
         this.fundamentals = new FundamentalsService(apis.fundamentals());

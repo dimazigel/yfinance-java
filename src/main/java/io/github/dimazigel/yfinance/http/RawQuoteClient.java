@@ -20,8 +20,8 @@ import tools.jackson.databind.JsonNode;
  */
 public final class RawQuoteClient {
 
-    /** Verified in the field survey: Yahoo accepts 100 symbols per v7 request. */
-    static final int CHUNK = 100;
+    /** Verified in the field survey: Yahoo accepts 100 symbols per v7 request; {@link #quoteRows} takes at most this many. */
+    public static final int CHUNK = 100;
     private static final String CORS_DOMAIN = "finance.yahoo.com";
 
     private final QuoteApi quoteApi;
@@ -33,23 +33,30 @@ public final class RawQuoteClient {
     }
 
     /**
-     * One row per known symbol, keyed by the requested {@link Symbol}; unknown symbols are simply
-     * absent. Rows are matched by the symbol Yahoo echoes, upper-cased, so a request for {@code aapl}
-     * finds the {@code AAPL} row; a symbol Yahoo would answer under a different spelling (an alias)
-     * is not matched and comes back as unknown.
+     * One v7 request for up to {@link #CHUNK} distinct symbols: one row per known symbol, keyed by
+     * the requested {@link Symbol}; unknown symbols are simply absent. Rows are matched by the
+     * symbol Yahoo echoes, upper-cased, so a request for {@code aapl} finds the {@code AAPL} row; a
+     * symbol Yahoo would answer under a different spelling (an alias) is not matched and comes back
+     * as unknown. Chunking a longer list — and isolating a failed chunk — is the caller's job (see
+     * {@code InstrumentService}).
+     *
+     * @throws IllegalArgumentException for more than {@link #CHUNK} distinct symbols
      */
     public Map<Symbol, JsonNode> quoteRows(List<Symbol> symbols) {
-        var rows = new LinkedHashMap<Symbol, JsonNode>();
         List<Symbol> distinct = symbols.stream().distinct().toList();
-        for (int i = 0; i < distinct.size(); i += CHUNK) {
-            List<Symbol> chunk = distinct.subList(i, Math.min(i + CHUNK, distinct.size()));
-            String joined = chunk.stream().map(Symbol::value).collect(Collectors.joining(","));
-            JsonNode result = quoteApi.quoteRows(joined, false).path("quoteResponse").path("result");
-            for (JsonNode row : result) {
-                String reported = row.path("symbol").asString("");
-                if (!reported.isBlank()) {
-                    rows.put(Symbol.of(reported), row); // Symbol.of upper-cases, matching the requested key
-                }
+        if (distinct.size() > CHUNK) {
+            throw new IllegalArgumentException("at most " + CHUNK + " symbols per v7 request, got " + distinct.size());
+        }
+        var rows = new LinkedHashMap<Symbol, JsonNode>();
+        if (distinct.isEmpty()) {
+            return rows;
+        }
+        String joined = distinct.stream().map(Symbol::value).collect(Collectors.joining(","));
+        JsonNode result = quoteApi.quoteRows(joined, false).path("quoteResponse").path("result");
+        for (JsonNode row : result) {
+            String reported = row.path("symbol").asString("");
+            if (!reported.isBlank()) {
+                rows.put(Symbol.of(reported), row); // Symbol.of upper-cases, matching the requested key
             }
         }
         return rows;
