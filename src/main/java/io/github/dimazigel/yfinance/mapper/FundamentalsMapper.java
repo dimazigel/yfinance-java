@@ -9,10 +9,13 @@ import io.github.dimazigel.yfinance.exception.YFDataException;
 import io.github.dimazigel.yfinance.fundamentals.FinancialStatement;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeSet;
+import java.util.function.Predicate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,8 +26,32 @@ public final class FundamentalsMapper {
 
     private FundamentalsMapper() {}
 
+    /**
+     * Every series in {@code response} as one statement: each key is stripped of {@code frequency}'s
+     * prefix (a key with no such prefix is kept as is). For a response that answered a
+     * single-statement request.
+     */
     public static FinancialStatement toStatement(
             TimeseriesResponse response, StatementType type, Frequency frequency) {
+        return toStatement(response, type, frequency, key -> true);
+    }
+
+    /**
+     * The {@code (type, frequency)} slice of a response that answered a request for several
+     * statements at once: only series whose key is {@code frequency.wireValue() + k} with
+     * {@code k} in {@code keys} are included, so the periods and line items of one slice never
+     * leak into another.
+     */
+    public static FinancialStatement toStatement(
+            TimeseriesResponse response, StatementType type, Frequency frequency, Collection<String> keys) {
+        String prefix = frequency.wireValue();
+        Set<String> wanted = Set.copyOf(keys);
+        return toStatement(response, type, frequency,
+                key -> key.startsWith(prefix) && wanted.contains(key.substring(prefix.length())));
+    }
+
+    private static FinancialStatement toStatement(
+            TimeseriesResponse response, StatementType type, Frequency frequency, Predicate<String> includeKey) {
         var ts = response.timeseries();
         if (ts == null) {
             throw new YFDataException("Malformed timeseries response");
@@ -41,6 +68,9 @@ public final class FundamentalsMapper {
         if (ts.result() != null) {
             for (Result result : ts.result()) {
                 for (var entry : result.series().entrySet()) {
+                    if (!includeKey.test(entry.getKey())) {
+                        continue;
+                    }
                     String lineItem = stripPrefix(entry.getKey(), prefix);
                     var row = lineItems.computeIfAbsent(lineItem, k -> new LinkedHashMap<>());
                     for (DataPoint point : entry.getValue()) {

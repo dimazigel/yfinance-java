@@ -530,6 +530,41 @@ class LiveYahooIntegrationTest {
         }
 
         @Test
+        void severalStatementsInOneRequest() {   // batch B, item 3: the multi-statement request shape
+            var byType = aapl.statements(aaplEquity,
+                    Set.of(StatementType.INCOME, StatementType.CASH_FLOW), Set.of(Frequency.ANNUAL, Frequency.QUARTERLY));
+
+            assertThat(byType.keySet()).containsExactlyInAnyOrder(StatementType.INCOME, StatementType.CASH_FLOW);
+            for (StatementType type : byType.keySet()) {
+                assertThat(byType.get(type).keySet()).as("%s frequencies", type).containsExactlyInAnyOrder(Frequency.ANNUAL, Frequency.QUARTERLY);
+                for (Frequency frequency : byType.get(type).keySet()) {
+                    FinancialStatement statement = byType.get(type).get(frequency);
+                    assertThat(statement.type()).isEqualTo(type);
+                    assertThat(statement.frequency()).isEqualTo(frequency);
+                    assertThat(statement.periods()).as("%s %s periods", type, frequency).isNotEmpty();
+                    assertThat(statement.lineItems()).as("%s %s line items", type, frequency).isNotEmpty();
+                }
+            }
+            FinancialStatement incomeAnnual = byType.get(StatementType.INCOME).get(Frequency.ANNUAL);
+            FinancialStatement incomeQuarterly = byType.get(StatementType.INCOME).get(Frequency.QUARTERLY);
+            assertThat(incomeAnnual.value(LineItem.TOTAL_REVENUE, incomeAnnual.periods().getLast()).orElseThrow()).isPositive();
+            // The split is by frequency prefix: quarterly periods are ~3 months apart, annual ones ~12.
+            // (Yahoo serves the same number of periods for both — five — so counts don't tell them apart.)
+            assertThat(daysBetweenLastTwo(incomeQuarterly)).as("quarterly period spacing").isLessThan(150);
+            assertThat(daysBetweenLastTwo(incomeAnnual)).as("annual period spacing").isGreaterThan(300);
+            assertThat(incomeAnnual.lineItems()).doesNotContainKey(LineItem.OPERATING_CASH_FLOW.key());
+            FinancialStatement cashQuarterly = byType.get(StatementType.CASH_FLOW).get(Frequency.QUARTERLY);
+            assertThat(cashQuarterly.value(LineItem.OPERATING_CASH_FLOW, cashQuarterly.periods().getLast())).isPresent();
+            assertThat(cashQuarterly.lineItems()).doesNotContainKey(LineItem.TOTAL_REVENUE.key());
+        }
+
+        private long daysBetweenLastTwo(FinancialStatement statement) {
+            List<LocalDate> periods = statement.periods();
+            assertThat(periods.size()).isGreaterThanOrEqualTo(2);
+            return java.time.temporal.ChronoUnit.DAYS.between(periods.get(periods.size() - 2), periods.getLast());
+        }
+
+        @Test
         void unknownLineItemOrPeriodIsEmpty() {
             FinancialStatement income = aapl.statements(aaplEquity, StatementType.INCOME, Frequency.ANNUAL);
             assertThat(income.value("NoSuchLineItem", income.periods().getLast())).isEmpty();

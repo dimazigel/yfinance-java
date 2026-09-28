@@ -40,7 +40,9 @@ try (var yf = YFinance.create()) { // cookie+crumb handshake; close() releases t
     PriceHistory history = aapl.history(Range.ONE_MONTH, Interval.ONE_DAY);
     List<Dividend> dividends = aapl.dividends();          // full-history corporate actions
     Optional<OptionChain> chain = aapl.options();          // empty when the instrument has no listed options
-    FinancialStatement income = aapl.statements(equity, StatementType.INCOME, Frequency.ANNUAL);
+    FinancialStatement income = yf.statements(equity, StatementType.INCOME, Frequency.ANNUAL);
+    Map<StatementType, Map<Frequency, FinancialStatement>> statements = yf.statements(equity,   // one request
+            Set.of(StatementType.INCOME, StatementType.BALANCE_SHEET, StatementType.CASH_FLOW), Set.of(Frequency.ANNUAL, Frequency.QUARTERLY));
     Optional<BigDecimal> revenue = income.value(LineItem.TOTAL_REVENUE, income.periods().getFirst());
     List<NewsArticle> news = aapl.news();
 
@@ -88,6 +90,9 @@ Batch<EquityDetail> details = yf.equityDetails(equities.values()); // one quoteS
 Batch<PriceHistory> histories = yf.histories(symbols, Range.ONE_YEAR, Interval.ONE_DAY);
 Batch<Optional<OptionChain>> chains = yf.options(symbols);
 Batch<FinancialStatement> statements = yf.statements(equities.values(), StatementType.INCOME, Frequency.ANNUAL);
+// Several statements per equity in ONE timeseries request each (type → frequency → statement):
+Batch<Map<StatementType, Map<Frequency, FinancialStatement>>> all = yf.statements(equities.values(),
+        Set.of(StatementType.INCOME, StatementType.CASH_FLOW), Set.of(Frequency.ANNUAL, Frequency.QUARTERLY));
 
 // Fan out any Ticker call with bounded concurrency (virtual threads); a Ticker's non-answer
 // (unknown symbol, wrong class for as(...), absent module) comes back as Skipped, not Failed:
@@ -220,7 +225,11 @@ price data for them. Detail records are fetched with the instrument as proof, so
   any other field is dropped.
 - **Financial statements** exist for equities only (the timeseries endpoint returns empty series
   for every other class), hence the `Equity` proof. `FinancialStatement.value(...)` is
-  `Optional<BigDecimal>`; line items are the `LineItem` enum or a raw key.
+  `Optional<BigDecimal>`; line items are the `LineItem` enum or a raw key. `statements(equity,
+  Set<StatementType>, Set<Frequency>)` fetches every requested pair in **one** request and returns
+  `type → frequency → FinancialStatement`; the trailing balance sheet (which Yahoo does not
+  publish) is skipped when other pairs remain and an `IllegalArgumentException` when it is the
+  only one, as it is for the single form.
 - **`HistoryMetadata`** is fully non-null except `dataGranularity` (`Optional<Interval>`, in case
   Yahoo reports an interval this version does not know); an incomplete chart response throws
   rather than returning a half-filled record.
@@ -262,7 +271,7 @@ Twitter and proof-of-work stats.
 | Snapshot, every asset class | `/v7/finance/quote` + `/v10/finance/quoteSummary` fallback | `Ticker.instrument()`, `as(...)`, `YFinance.instruments(...)` |
 | Detail per class | `/v10/finance/quoteSummary` | `Ticker.detail(...)`, `YFinance.equityDetails(...)`, `etfDetails`, `mutualFundDetails`, `cryptoDetails` |
 | Price history, dividends, splits, capital gains, metadata | `/v8/finance/chart` | `Ticker.history(...)`, `dividends()`, `splits()`, `YFinance.histories(...)` |
-| Income / balance sheet / cash flow (annual + quarterly) | `/ws/fundamentals-timeseries` | `Ticker.statements(...)`, `YFinance.statements(...)` |
+| Income / balance sheet / cash flow (annual, quarterly, trailing) | `/ws/fundamentals-timeseries` | `Ticker.statements(...)`, `YFinance.statements(...)` (single, several-in-one-request, and batch forms) |
 | Options chain | `/v7/finance/options` | `Ticker.options(...)`, `YFinance.options(...)` |
 | Search & per-symbol news | `/v1/finance/search` | `YFinance.search(...)`, `Ticker.news()` |
 | Lookup | `/v1/finance/lookup` | `YFinance.lookup(...)` |

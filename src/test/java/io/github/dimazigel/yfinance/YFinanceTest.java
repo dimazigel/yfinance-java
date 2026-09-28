@@ -185,12 +185,39 @@ class YFinanceTest {
     }
 
     @Test
+    void multiStatementsBatchIsOneRequestPerEquity() {   // batch B, item 3
+        Equity aapl = yf.ticker("AAPL").as(Equity.class);
+        Equity msft = Instruments.withSymbol(aapl, "MSFT");
+        int before = server.getRequestCount();
+        var types = java.util.Set.of(StatementType.INCOME, StatementType.CASH_FLOW);
+        var frequencies = java.util.Set.of(Frequency.ANNUAL, Frequency.QUARTERLY);
+
+        var batch = yf.statements(List.of(aapl, msft), types, frequencies);
+
+        assertThat(batch.outcomes()).extracting(Outcome::symbol).containsExactly(Symbol.of("AAPL"), Symbol.of("MSFT"));
+        assertThat(server.getRequestCount()).isEqualTo(before + 2);
+        assertThat(batch.values()).hasSize(2).allSatisfy(byType -> {
+            assertThat(byType.keySet()).containsExactlyInAnyOrder(StatementType.INCOME, StatementType.CASH_FLOW);
+            assertThat(byType.get(StatementType.INCOME).keySet()).containsExactlyInAnyOrder(Frequency.ANNUAL, Frequency.QUARTERLY);
+            assertThat(byType.get(StatementType.INCOME).get(Frequency.ANNUAL).value("TotalRevenue", LocalDate.parse("2023-09-30")).orElseThrow())
+                    .isEqualByComparingTo("383285000000");
+            assertThat(byType.get(StatementType.CASH_FLOW).get(Frequency.QUARTERLY).value("OperatingCashFlow", LocalDate.parse("2024-06-30")).orElseThrow())
+                    .isEqualByComparingTo("28858000000");
+        });
+
+        var single = yf.statements(aapl, types, frequencies);
+        assertThat(server.getRequestCount()).as("the single form is one request too").isEqualTo(before + 3);
+        assertThat(single.get(StatementType.CASH_FLOW).get(Frequency.ANNUAL).type()).isEqualTo(StatementType.CASH_FLOW);
+    }
+
+    @Test
     void emptyInputsMakeNoRequest() {
         assertThat(yf.instruments(List.of()).size()).isZero();
         assertThat(yf.instruments(List.of(), Equity.class).size()).isZero();
         assertThat(yf.equityDetails(List.of()).size()).isZero();
         assertThat(yf.histories(List.of(), Range.ONE_MONTH, Interval.ONE_DAY).size()).isZero();
         assertThat(yf.statements(List.of(), StatementType.INCOME, Frequency.ANNUAL).size()).isZero();
+        assertThat(yf.statements(List.of(), java.util.Set.of(StatementType.INCOME), java.util.Set.of(Frequency.ANNUAL)).size()).isZero();
         assertThat(yf.options(List.of()).size()).isZero();
         assertThat(server.getRequestCount()).isZero();
     }

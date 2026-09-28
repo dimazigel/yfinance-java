@@ -11,7 +11,13 @@ import io.github.dimazigel.yfinance.valueobject.Symbol;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.EnumSet;
+import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /** Retrieves income, balance-sheet and cash-flow statements via the timeseries endpoint. */
@@ -60,5 +66,76 @@ public final class FundamentalsService {
             var response = api.timeseries(symbol.value(), typeParam, PERIOD_START, now);
             return FundamentalsMapper.toStatement(response, type, frequency);
         }
+    }
+
+    /**
+     * Several statements for {@code equity} in <em>one</em> timeseries request: every requested
+     * {@link StatementType} at every requested {@link Frequency}, split client-side by frequency
+     * prefix and statement key set. {@link Frequency#TRAILING} × {@link StatementType#BALANCE_SHEET}
+     * (which Yahoo does not publish) is skipped, not an error, when other pairs remain.
+     *
+     * @param equity the equity, the compile-time proof (see {@link #getStatement(Equity, StatementType, Frequency)})
+     * @param types the statements wanted; not empty
+     * @param frequencies the frequencies wanted; not empty
+     * @return statement type → frequency → statement, unmodifiable, one entry per requested pair
+     *     that Yahoo can serve (so no {@code BALANCE_SHEET → TRAILING} entry)
+     * @throws IllegalArgumentException when either set is empty, or when the only pair is the
+     *     trailing balance sheet
+     */
+    public Map<StatementType, Map<Frequency, FinancialStatement>> getStatements(
+            Equity equity, Set<StatementType> types, Set<Frequency> frequencies) {
+        return getStatements(equity.symbol(), types, frequencies);
+    }
+
+    /** Package-private: reused by tests and the live drift check, which don't hold an {@link Equity}. */
+    Map<StatementType, Map<Frequency, FinancialStatement>> getStatements(
+            Symbol symbol, Set<StatementType> types, Set<Frequency> frequencies) {
+        if (types.isEmpty()) {
+            throw new IllegalArgumentException("types must not be empty for " + symbol);
+        }
+        if (frequencies.isEmpty()) {
+            throw new IllegalArgumentException("frequencies must not be empty for " + symbol);
+        }
+        var orderedTypes = EnumSet.copyOf(types);
+        var orderedFrequencies = EnumSet.copyOf(frequencies);
+        var wireKeys = new LinkedHashSet<String>();
+        int pairs = 0;
+        for (StatementType type : orderedTypes) {
+            for (Frequency frequency : orderedFrequencies) {
+                if (servable(type, frequency)) {
+                    pairs++;
+                    for (String key : FundamentalKeys.forStatement(type)) {
+                        wireKeys.add(frequency.wireValue() + key);
+                    }
+                }
+            }
+        }
+        if (pairs == 0) {
+            throw new IllegalArgumentException(
+                    "Yahoo has no trailing balance sheet; use ANNUAL or QUARTERLY for " + symbol);
+        }
+        try (var ignored = LogContext.scope("statements", symbol)) {
+            long now = clock.instant().getEpochSecond();
+            var response = api.timeseries(symbol.value(), String.join(",", wireKeys), PERIOD_START, now);
+            var byType = new EnumMap<StatementType, Map<Frequency, FinancialStatement>>(StatementType.class);
+            for (StatementType type : orderedTypes) {
+                var byFrequency = new EnumMap<Frequency, FinancialStatement>(Frequency.class);
+                for (Frequency frequency : orderedFrequencies) {
+                    if (servable(type, frequency)) {
+                        byFrequency.put(frequency,
+                                FundamentalsMapper.toStatement(response, type, frequency, FundamentalKeys.forStatement(type)));
+                    }
+                }
+                if (!byFrequency.isEmpty()) {
+                    byType.put(type, Collections.unmodifiableMap(byFrequency));
+                }
+            }
+            return Collections.unmodifiableMap(byType);
+        }
+    }
+
+    /** Yahoo publishes trailing-twelve-month figures for flow statements only, never a balance sheet. */
+    private static boolean servable(StatementType type, Frequency frequency) {
+        return !(frequency == Frequency.TRAILING && type == StatementType.BALANCE_SHEET);
     }
 }

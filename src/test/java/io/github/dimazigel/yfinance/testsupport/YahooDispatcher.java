@@ -46,7 +46,7 @@ public class YahooDispatcher extends Dispatcher {
             return new MockResponse().setResponseCode(200).setBody("mock-crumb");
         }
         if (path.startsWith("/ws/fundamentals-timeseries/")) {
-            return Fixtures.jsonResponse("timeseries_income_annual.json");
+            return timeseries(url.queryParameter("type"));
         }
         String symbol = url.pathSegments().getLast();
         if (path.startsWith("/v10/finance/quoteSummary/")) {
@@ -59,6 +59,20 @@ public class YahooDispatcher extends Dispatcher {
             return options(symbol, url.queryParameter("date"));
         }
         return new MockResponse().setResponseCode(404).setBody("{}");
+    }
+
+    /**
+     * The annual income capture for a single-statement request; the combined capture (annual,
+     * quarterly and trailing series of all three statements) when the {@code type} parameter spans
+     * more than one frequency prefix or asks for a non-income key.
+     */
+    private static MockResponse timeseries(String type) {
+        if (type == null) {
+            return Fixtures.jsonResponse("timeseries_income_annual.json");
+        }
+        boolean multi = type.contains("quarterly") || type.contains("trailing")
+                || type.contains("TotalAssets") || type.contains("OperatingCashFlow");
+        return Fixtures.jsonResponse(multi ? "timeseries_multi.json" : "timeseries_income_annual.json");
     }
 
     private static MockResponse quoteSummary(String symbol) {

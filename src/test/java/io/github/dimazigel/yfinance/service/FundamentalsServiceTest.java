@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import io.github.dimazigel.yfinance.api.FundamentalsApi;
 import io.github.dimazigel.yfinance.enums.Frequency;
+import io.github.dimazigel.yfinance.enums.LineItem;
 import io.github.dimazigel.yfinance.enums.StatementType;
 import io.github.dimazigel.yfinance.fundamentals.FinancialStatement;
 import io.github.dimazigel.yfinance.instrument.Equity;
@@ -12,7 +13,9 @@ import io.github.dimazigel.yfinance.testsupport.Fixtures;
 import io.github.dimazigel.yfinance.testsupport.Instruments;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
 import org.junit.jupiter.api.AfterEach;
@@ -175,5 +178,104 @@ class FundamentalsServiceTest {
                     .anySatisfy(m -> assertThat(m).isEqualTo("Unparseable date \"not-a-date\"; left null"))
                     .anySatisfy(m -> assertThat(m).isEqualTo("Skipped 1 fundamentals point without a usable date"));
         }
+    }
+
+    // --- batch B, item 3: several statements in one request ---
+
+    @Test
+    void multiStatementRequestJoinsEveryPairAndSkipsTrailingBalanceSheet() throws Exception {
+        server.enqueue(Fixtures.jsonResponse("timeseries_multi.json"));
+
+        var result = service.getStatements(Symbol.of("AAPL"),
+                Set.of(StatementType.INCOME, StatementType.BALANCE_SHEET, StatementType.CASH_FLOW),
+                Set.of(Frequency.ANNUAL, Frequency.QUARTERLY, Frequency.TRAILING));
+
+        assertThat(server.getRequestCount()).as("one timeseries request for all pairs").isEqualTo(1);
+        RecordedRequest req = server.takeRequest();
+        assertThat(req.getRequestUrl().encodedPath()).isEqualTo("/ws/fundamentals-timeseries/v1/finance/timeseries/AAPL");
+        List<String> keys = List.of(req.getRequestUrl().queryParameter("type").split(","));
+        assertThat(keys).contains(
+                "annualTotalRevenue", "quarterlyTotalRevenue", "trailingTotalRevenue",
+                "annualTotalAssets", "quarterlyTotalAssets",
+                "annualOperatingCashFlow", "quarterlyOperatingCashFlow", "trailingOperatingCashFlow");
+        assertThat(keys).as("Yahoo has no trailing balance sheet").noneMatch(k -> k.startsWith("trailing")
+                && LineItem.forStatement(StatementType.BALANCE_SHEET).stream().anyMatch(li -> k.equals("trailing" + li.key())));
+        assertThat(keys).doesNotHaveDuplicates();
+        int expected = LineItem.forStatement(StatementType.INCOME).size() * 3
+                + LineItem.forStatement(StatementType.BALANCE_SHEET).size() * 2
+                + LineItem.forStatement(StatementType.CASH_FLOW).size() * 3;
+        assertThat(keys).hasSize(expected);
+
+        assertThat(result.keySet()).containsExactlyInAnyOrder(StatementType.INCOME, StatementType.BALANCE_SHEET, StatementType.CASH_FLOW);
+        assertThat(result.get(StatementType.INCOME).keySet()).containsExactlyInAnyOrder(Frequency.ANNUAL, Frequency.QUARTERLY, Frequency.TRAILING);
+        assertThat(result.get(StatementType.BALANCE_SHEET).keySet()).containsExactlyInAnyOrder(Frequency.ANNUAL, Frequency.QUARTERLY);
+        assertThat(result.get(StatementType.CASH_FLOW).keySet()).containsExactlyInAnyOrder(Frequency.ANNUAL, Frequency.QUARTERLY, Frequency.TRAILING);
+    }
+
+    @Test
+    void multiStatementResponseIsSplitByFrequencyPrefixAndStatementKeys() {
+        server.enqueue(Fixtures.jsonResponse("timeseries_multi.json"));
+
+        var result = service.getStatements(Symbol.of("AAPL"),
+                Set.of(StatementType.INCOME, StatementType.BALANCE_SHEET, StatementType.CASH_FLOW),
+                Set.of(Frequency.ANNUAL, Frequency.QUARTERLY, Frequency.TRAILING));
+
+        FinancialStatement incomeAnnual = result.get(StatementType.INCOME).get(Frequency.ANNUAL);
+        assertThat(incomeAnnual.type()).isEqualTo(StatementType.INCOME);
+        assertThat(incomeAnnual.frequency()).isEqualTo(Frequency.ANNUAL);
+        assertThat(incomeAnnual.periods()).containsExactly(LocalDate.parse("2022-09-30"), LocalDate.parse("2023-09-30"));
+        assertThat(incomeAnnual.value("TotalRevenue", LocalDate.parse("2023-09-30")).orElseThrow()).isEqualByComparingTo("383285000000");
+        assertThat(incomeAnnual.value("NetIncome", LocalDate.parse("2023-09-30")).orElseThrow()).isEqualByComparingTo("96995000000");
+        assertThat(incomeAnnual.lineItems()).as("balance-sheet and cash-flow keys stay out of the income statement")
+                .doesNotContainKeys("TotalAssets", "OperatingCashFlow");
+
+        FinancialStatement incomeQuarterly = result.get(StatementType.INCOME).get(Frequency.QUARTERLY);
+        assertThat(incomeQuarterly.frequency()).isEqualTo(Frequency.QUARTERLY);
+        assertThat(incomeQuarterly.periods()).containsExactly(LocalDate.parse("2024-03-31"), LocalDate.parse("2024-06-30"));
+        assertThat(incomeQuarterly.value("TotalRevenue", LocalDate.parse("2024-06-30")).orElseThrow()).isEqualByComparingTo("85777000000");
+        assertThat(incomeQuarterly.value("TotalRevenue", LocalDate.parse("2023-09-30"))).as("annual periods stay out of the quarterly statement").isEmpty();
+
+        FinancialStatement incomeTrailing = result.get(StatementType.INCOME).get(Frequency.TRAILING);
+        assertThat(incomeTrailing.periods()).containsExactly(LocalDate.parse("2024-06-30"));
+        assertThat(incomeTrailing.value("TotalRevenue", LocalDate.parse("2024-06-30")).orElseThrow()).isEqualByComparingTo("385603000000");
+
+        FinancialStatement balanceAnnual = result.get(StatementType.BALANCE_SHEET).get(Frequency.ANNUAL);
+        assertThat(balanceAnnual.type()).isEqualTo(StatementType.BALANCE_SHEET);
+        assertThat(balanceAnnual.value("TotalAssets", LocalDate.parse("2023-09-30")).orElseThrow()).isEqualByComparingTo("352583000000");
+        assertThat(balanceAnnual.lineItems()).doesNotContainKeys("TotalRevenue", "NetIncome");
+        assertThat(result.get(StatementType.BALANCE_SHEET).get(Frequency.QUARTERLY).periods()).containsExactly(LocalDate.parse("2024-06-30"));
+
+        FinancialStatement cashTrailing = result.get(StatementType.CASH_FLOW).get(Frequency.TRAILING);
+        assertThat(cashTrailing.type()).isEqualTo(StatementType.CASH_FLOW);
+        assertThat(cashTrailing.value("OperatingCashFlow", LocalDate.parse("2024-06-30")).orElseThrow()).isEqualByComparingTo("113041000000");
+        assertThat(result.get(StatementType.CASH_FLOW).get(Frequency.ANNUAL).value("OperatingCashFlow", LocalDate.parse("2023-09-30")).orElseThrow())
+                .isEqualByComparingTo("110543000000");
+    }
+
+    @Test
+    void multiStatementSubsetOnlyRequestsWhatWasAsked() throws Exception {
+        server.enqueue(Fixtures.jsonResponse("timeseries_multi.json"));
+
+        var result = service.getStatements(Instruments.equity("AAPL"), Set.of(StatementType.CASH_FLOW), Set.of(Frequency.QUARTERLY));
+
+        List<String> keys = List.of(server.takeRequest().getRequestUrl().queryParameter("type").split(","));
+        assertThat(keys).allMatch(k -> k.startsWith("quarterly"));
+        assertThat(keys).contains("quarterlyOperatingCashFlow").doesNotContain("quarterlyTotalRevenue", "quarterlyTotalAssets");
+        assertThat(result.keySet()).containsExactly(StatementType.CASH_FLOW);
+        assertThat(result.get(StatementType.CASH_FLOW).keySet()).containsExactly(Frequency.QUARTERLY);
+        assertThatThrownBy(() -> result.put(StatementType.INCOME, Map.of())).isInstanceOf(UnsupportedOperationException.class);
+        assertThatThrownBy(() -> result.get(StatementType.CASH_FLOW).put(Frequency.ANNUAL, null)).isInstanceOf(UnsupportedOperationException.class);
+    }
+
+    @Test
+    void multiStatementRejectsEmptySetsAndTrailingBalanceSheetAloneWithoutARequest() {
+        Equity equity = Instruments.equity("AAPL");
+        assertThatThrownBy(() -> service.getStatements(equity, Set.of(), Set.of(Frequency.ANNUAL)))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("types");
+        assertThatThrownBy(() -> service.getStatements(equity, Set.of(StatementType.INCOME), Set.of()))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("frequencies");
+        assertThatThrownBy(() -> service.getStatements(equity, Set.of(StatementType.BALANCE_SHEET), Set.of(Frequency.TRAILING)))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("trailing").hasMessageContaining("balance sheet");
+        assertThat(server.getRequestCount()).isZero();
     }
 }

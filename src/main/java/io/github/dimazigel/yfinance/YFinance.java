@@ -42,6 +42,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import okhttp3.ConnectionPool;
 import okhttp3.Dispatcher;
@@ -273,6 +274,44 @@ public final class YFinance implements AutoCloseable {
      */
     public FinancialStatement statements(Equity equity, StatementType type, Frequency frequency) {
         return fundamentals.getStatement(equity, type, frequency);
+    }
+
+    /**
+     * Several statements for one equity in <em>one</em> timeseries request: every requested type at
+     * every requested frequency (the trailing balance sheet, which Yahoo does not publish, is
+     * skipped rather than an error when other pairs remain). Four statements this way cost one
+     * request instead of four.
+     *
+     * @param equity the equity whose statements to fetch
+     * @param types the statements wanted; not empty
+     * @param frequencies the frequencies wanted; not empty
+     * @return statement type → frequency → statement, unmodifiable, one entry per servable pair
+     * @throws IllegalArgumentException when either set is empty, or when the only pair is the
+     *     trailing balance sheet
+     */
+    public Map<StatementType, Map<Frequency, FinancialStatement>> statements(
+            Equity equity, Set<StatementType> types, Set<Frequency> frequencies) {
+        return fundamentals.getStatements(equity, types, frequencies);
+    }
+
+    /**
+     * {@link #statements(Equity, Set, Set)} for each equity: one timeseries request per equity,
+     * fanned out with the configured concurrency, in input order (duplicates preserved; see
+     * {@link #statements(Collection, StatementType, Frequency)} for the proof handling).
+     *
+     * @param equities the equities
+     * @param types the statements wanted; not empty
+     * @param frequencies the frequencies wanted; not empty
+     * @return one outcome per equity, whose value is statement type → frequency → statement
+     */
+    public Batch<Map<StatementType, Map<Frequency, FinancialStatement>>> statements(
+            Collection<Equity> equities, Set<StatementType> types, Set<Frequency> frequencies) {
+        Map<Symbol, Equity> bySymbol = new HashMap<>();
+        for (Equity equity : equities) {
+            bySymbol.putIfAbsent(equity.symbol(), equity);
+        }
+        return tickers(equities.stream().map(Equity::symbol).toList())
+                .fetch(ticker -> ticker.statements(Objects.requireNonNull(bySymbol.get(ticker.symbol())), types, frequencies));
     }
 
     /**

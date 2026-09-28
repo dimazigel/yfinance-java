@@ -24,8 +24,10 @@ import io.github.dimazigel.yfinance.service.HistoryRequest;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * A handle to a single instrument: every call returns a value or throws. Batch work goes through
@@ -151,6 +153,23 @@ public final class Ticker {
      */
     public FinancialStatement statements(Equity proof, StatementType type, Frequency frequency) {
         return yf.statements(proof(proof), type, frequency);
+    }
+
+    /**
+     * Several statements for this ticker's symbol in one request — every requested statement type
+     * at every requested frequency; see {@link YFinance#statements(Equity, Set, Set)}. {@code proof} is the
+     * {@link Equity} evidence, as for {@link #statements(Equity, StatementType, Frequency)}.
+     *
+     * @param proof this ticker's equity
+     * @param types the statements wanted; not empty
+     * @param frequencies the frequencies wanted; not empty
+     * @return statement type → frequency → statement, unmodifiable
+     * @throws IllegalArgumentException if {@code proof} is for a different symbol, either set is
+     *     empty, or the only pair is the trailing balance sheet
+     */
+    public Map<StatementType, Map<Frequency, FinancialStatement>> statements(
+            Equity proof, Set<StatementType> types, Set<Frequency> frequencies) {
+        return yf.statements(proof(proof), types, frequencies);
     }
 
     /** Recent news articles related to this symbol. */

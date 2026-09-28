@@ -179,6 +179,25 @@ class TickerTest {
     }
 
     @Test
+    void multiStatementsUseTheEquityProofAndRejectAMismatch() {   // batch B, item 3
+        var ticker = yf.ticker("AAPL");
+        var equity = Instruments.equity("AAPL");
+        var types = java.util.Set.of(StatementType.INCOME, StatementType.BALANCE_SHEET);
+        var frequencies = java.util.Set.of(Frequency.ANNUAL, Frequency.QUARTERLY);
+
+        var result = ticker.statements(equity, types, frequencies);
+
+        assertThat(result.get(StatementType.INCOME).get(Frequency.ANNUAL).value("TotalRevenue", LocalDate.parse("2023-09-30")).orElseThrow())
+                .isEqualByComparingTo("383285000000");
+        assertThat(result.get(StatementType.BALANCE_SHEET).get(Frequency.QUARTERLY).value("TotalAssets", LocalDate.parse("2024-06-30")).orElseThrow())
+                .isEqualByComparingTo("331612000000");
+        assertThat(server.getRequestCount()).isEqualTo(1);
+        assertThatThrownBy(() -> ticker.statements(Instruments.equity("MSFT"), types, frequencies))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("MSFT");
+        assertThat(server.getRequestCount()).isEqualTo(1);
+    }
+
+    @Test
     void statementsRejectsMismatchedEquityProof() {
         var ticker = yf.ticker("AAPL");
 
