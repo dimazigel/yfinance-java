@@ -3,10 +3,12 @@ package io.github.dimazigel.yfinance.service;
 import io.github.dimazigel.yfinance.enums.EventType;
 import io.github.dimazigel.yfinance.enums.Interval;
 import io.github.dimazigel.yfinance.enums.Range;
+import io.github.dimazigel.yfinance.market.HistoryQuery;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
 import java.time.Instant;
 import java.util.EnumSet;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import org.jspecify.annotations.Nullable;
 
@@ -41,6 +43,13 @@ public record HistoryRequest(
 
     public boolean hasPeriod() {
         return start != null;
+    }
+
+    /** This request as a symbol-less {@link HistoryQuery}. */
+    public HistoryQuery toQuery() {
+        return new HistoryQuery(
+                interval, Optional.ofNullable(range), Optional.ofNullable(start),
+                Optional.ofNullable(end), includePrePost, events);
     }
 
     public static Builder builder(Symbol symbol) {
