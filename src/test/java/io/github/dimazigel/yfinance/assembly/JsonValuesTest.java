@@ -7,6 +7,7 @@ import io.github.dimazigel.yfinance.http.YahooJsonMapper;
 import java.math.BigDecimal;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.exc.JsonNodeException;
 import tools.jackson.databind.json.JsonMapper;
 
 /** Pins {@link JsonValues}' "number or numeric string" decoding, shared by {@code Resolved} and {@code Nodes}. */
@@ -40,6 +41,29 @@ class JsonValuesTest {
                 .as("a fractional string is not a valid int")
                 .isInstanceOf(NumberFormatException.class);
         assertThatThrownBy(() -> JsonValues.toInt(node.get("junk"))).isInstanceOf(NumberFormatException.class);
+    }
+
+    @Test
+    void toLongAndToIntThrowOnOtherNodeKinds() throws Exception {
+        var node = json("{\"obj\": {\"x\": 1}, \"arr\": [1, 2], \"frac\": 1.5, \"flag\": true, \"nil\": null}");
+
+        // Not a number, so the else branch calls asString(); Jackson 3 refuses to coerce an object or
+        // array to a string at all, rather than returning e.g. its JSON text.
+        assertThatThrownBy(() -> JsonValues.toLong(node.get("obj"))).isInstanceOf(JsonNodeException.class);
+        assertThatThrownBy(() -> JsonValues.toLong(node.get("arr"))).isInstanceOf(JsonNodeException.class);
+        assertThatThrownBy(() -> JsonValues.toInt(node.get("obj"))).isInstanceOf(JsonNodeException.class);
+        assertThatThrownBy(() -> JsonValues.toInt(node.get("arr"))).isInstanceOf(JsonNodeException.class);
+
+        // A fractional JSON *number* (not a string) takes the isNumber() branch; longValue()/intValue()
+        // themselves reject the fractional part, same as Resolved.longValue does for a required field.
+        assertThatThrownBy(() -> JsonValues.toLong(node.get("frac"))).isInstanceOf(JsonNodeException.class);
+        assertThatThrownBy(() -> JsonValues.toInt(node.get("frac"))).isInstanceOf(JsonNodeException.class);
+
+        // A boolean or null node coerces via asString() to "true"/"", neither of which parses as a number.
+        assertThatThrownBy(() -> JsonValues.toLong(node.get("flag"))).isInstanceOf(NumberFormatException.class);
+        assertThatThrownBy(() -> JsonValues.toInt(node.get("flag"))).isInstanceOf(NumberFormatException.class);
+        assertThatThrownBy(() -> JsonValues.toLong(node.get("nil"))).isInstanceOf(NumberFormatException.class);
+        assertThatThrownBy(() -> JsonValues.toInt(node.get("nil"))).isInstanceOf(NumberFormatException.class);
     }
 
     @Test
