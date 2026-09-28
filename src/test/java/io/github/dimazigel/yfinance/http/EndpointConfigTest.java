@@ -21,7 +21,7 @@ class EndpointConfigTest {
         assertThat(config.cookieUrl().host()).isEqualTo("fc.yahoo.com");
         assertThat(config.userAgent()).startsWith("Mozilla/5.0");
         assertThat(config.adaptiveRateLimit().enabled()).isTrue();
-        assertThat(config.adaptiveRateLimit().maxDelay()).isEqualTo(Duration.ofSeconds(30));
+        assertThat(config.adaptiveRateLimit().maxDelay()).as("well under the 30 s call timeout").isEqualTo(Duration.ofSeconds(10));
         assertThat(config.clientCustomizer()).isNotNull();
     }
 
@@ -93,5 +93,15 @@ class EndpointConfigTest {
         assertThat(EndpointConfig.production().hasClientCustomizer()).isFalse();
         assertThat(EndpointConfig.production().withHosts(URL).hasClientCustomizer()).isFalse(); // default survives copies
         assertThat(EndpointConfig.production().withClientCustomizer(b -> {}).hasClientCustomizer()).isTrue();
+    }
+
+    @Test
+    void anyCallTimeoutIsAcceptedInAnyWitherOrder() {   // review, important 1: the record never rejects a tuning
+        var production = EndpointConfig.production();
+        assertThat(production.withCallTimeout(Duration.ofSeconds(10)).callTimeout()).isEqualTo(Duration.ofSeconds(10));
+        assertThat(production.withCallTimeout(Duration.ofSeconds(1)).adaptiveRateLimit().maxDelay())
+                .as("a maxDelay longer than the call timeout is clamped when the client is built, not rejected here")
+                .isEqualTo(Duration.ofSeconds(10));
+        assertThat(production.withCallTimeout(Duration.ZERO).callTimeout()).isZero();
     }
 }

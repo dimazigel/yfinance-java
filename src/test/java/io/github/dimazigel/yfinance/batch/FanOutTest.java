@@ -5,10 +5,13 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import io.github.dimazigel.yfinance.exception.YFDataException;
 import io.github.dimazigel.yfinance.exception.YFRateLimitException;
+import io.github.dimazigel.yfinance.testsupport.LogCapture;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 class FanOutTest {
 
@@ -60,6 +63,37 @@ class FanOutTest {
 
         assertThat(batch.values()).hasSize(5);
         assertThat(maxInFlight.get()).isLessThanOrEqualTo(2);
+    }
+
+    @Test
+    void workersInheritTheCallersMdc() {   // robustness review, item 6
+        // A service's traceId/requestId must reach the lines logged on the worker threads.
+        MDC.put("traceId", "t-1");
+        var log = LoggerFactory.getLogger(FanOutTest.class);
+        try (var capture = LogCapture.of(FanOutTest.class)) {
+            var batch = FanOut.run(List.of(AAPL, MSFT), 2, s -> {
+                log.atDebug().log("working on {}", s);
+                return Outcome.ok(s, String.valueOf(MDC.get("traceId")));
+            });
+
+            assertThat(batch.values()).containsExactly("t-1", "t-1");
+            assertThat(capture.events()).hasSize(2)
+                    .allSatisfy(e -> assertThat(e.getMDCPropertyMap()).containsEntry("traceId", "t-1"));
+        } finally {
+            MDC.clear();
+        }
+    }
+
+    @Test
+    void anErrorOnAWorkerPropagatesInsteadOfBecomingAFailedOutcome() {   // robustness review, item 11
+        var oom = new OutOfMemoryError("simulated");
+
+        assertThatThrownBy(() -> FanOut.<String>run(List.of(AAPL, MSFT), 2, s -> {
+            if (s.equals(AAPL)) {
+                throw oom;
+            }
+            return Outcome.ok(s, "fine");
+        })).isSameAs(oom);
     }
 
     @Test

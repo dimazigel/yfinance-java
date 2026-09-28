@@ -17,16 +17,24 @@ import okhttp3.OkHttpClient;
  *     fundamentals timeseries
  * @param cookieUrl   URL hit purely to seed session cookies ({@code https://fc.yahoo.com/})
  * @param userAgent   the {@code User-Agent} header sent on every request
- * @param callTimeout overall per-call timeout applied to the OkHttp clients
+ * @param callTimeout overall per-call timeout applied to the OkHttp clients; it bounds the whole
+ *     call, rate-limit pacing and retry backoffs included (a wait that would not fit in what is
+ *     left of it fails at once). A {@code adaptiveRateLimit.maxDelay()} longer than it is clamped
+ *     to it when the client is built ({@code YahooClientFactory.newRateLimiter}, one WARN);
+ *     {@link Duration#ZERO} means no call timeout
  * @param adaptiveRateLimit adaptive client-side throttling after HTTP 429 responses
  * @param transientRetry retry policy for transient server errors (HTTP 500/502/503/504)
  * @param clientCustomizer hook applied to every OkHttp client builder <em>after</em> the library's
  *     own interceptors and timeouts, so it can add a proxy, extra interceptors (logging, metrics), a
- *     custom dispatcher or connection pool, or override a timeout
+ *     custom dispatcher or connection pool, or override a timeout; a dispatcher or pool it installs
+ *     is the caller's to shut down — {@code YFinance.close()} releases only the ones the library
+ *     created
  * @param fanOutConcurrency how many per-symbol requests a fan-out keeps in flight at once: the
  *     bound for {@code equityDetails(...)} and the other detail batches, and the default for
  *     {@code Tickers} (overridable per instance with {@code withConcurrency(n)}); at least 1,
- *     {@link Tickers#DEFAULT_CONCURRENCY} by default
+ *     {@link Tickers#DEFAULT_CONCURRENCY} by default. The library's own calls are synchronous, so
+ *     this semaphore is their only bound; the shared OkHttp dispatcher is sized to the same value
+ *     for callers who {@code enqueue} through the customizer's client
  */
 public record EndpointConfig(
         HttpUrl query1Base,
@@ -97,7 +105,11 @@ public record EndpointConfig(
                 clientCustomizer, fanOutConcurrency);
     }
 
-    /** Returns a copy with a different call timeout. */
+    /**
+     * Returns a copy with a different call timeout. It bounds the whole call, paced waits included;
+     * a {@code adaptiveRateLimit().maxDelay()} longer than it (10 s by default) is clamped to it
+     * when the client is built, with one WARN — lower {@code maxDelay} explicitly to silence that.
+     */
     public EndpointConfig withCallTimeout(Duration timeout) {
         return new EndpointConfig(
                 query1Base, query2Base, cookieUrl, userAgent, timeout, adaptiveRateLimit, transientRetry,

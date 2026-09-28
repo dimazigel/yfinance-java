@@ -16,7 +16,8 @@ import org.slf4j.MDC;
  *   <li>{@value #OP} — the operation: {@code instruments}, {@code details}, {@code history},
  *       {@code statements}, {@code options}, {@code search}, {@code lookup}, and {@code fetch}
  *       for a {@code Tickers} fan-out (each worker then nests the operation it fetches)
- *   <li>{@value #SYMBOL} — the ticker symbol (comma-joined for a batch)
+ *   <li>{@value #SYMBOL} — the ticker symbol (for a batch: the first five comma-joined, then
+ *       {@code ,…+N})
  *   <li>{@value #ENDPOINT} — the request path, e.g. {@code /v8/finance/chart/AAPL}, present while an
  *       HTTP call is in flight
  * </ul>
@@ -29,6 +30,7 @@ public final class LogContext {
     public static final String OP = "yf.op";
     public static final String SYMBOL = "yf.symbol";
     public static final String ENDPOINT = "yf.endpoint";
+    private static final int MAX_LISTED_SYMBOLS = 5;
 
     private LogContext() {}
 
@@ -42,9 +44,15 @@ public final class LogContext {
         return new Scope(Map.of(OP, op, SYMBOL, symbol.value()));
     }
 
-    /** Batch variant: {@link #SYMBOL} holds the symbols comma-joined. */
+    /**
+     * Batch variant: {@link #SYMBOL} holds the first {@value #MAX_LISTED_SYMBOLS} symbols
+     * comma-joined, then {@code ,…+N} for the rest — a 5 000-symbol batch must not attach a 40 KB
+     * value to every line it logs.
+     */
     public static Scope scope(String op, List<Symbol> symbols) {
-        return new Scope(Map.of(OP, op, SYMBOL, symbols.stream().map(Symbol::value).collect(Collectors.joining(","))));
+        String listed = symbols.stream().limit(MAX_LISTED_SYMBOLS).map(Symbol::value).collect(Collectors.joining(","));
+        int more = symbols.size() - MAX_LISTED_SYMBOLS;
+        return new Scope(Map.of(OP, op, SYMBOL, more > 0 ? listed + ",…+" + more : listed));
     }
 
     /** Marks the current thread as calling {@code path} (e.g. {@code /v8/finance/chart/AAPL}). */

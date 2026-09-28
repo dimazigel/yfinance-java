@@ -46,6 +46,17 @@ class LogContextTest {
     }
 
     @Test
+    void batchScopeListsAtMostFiveSymbols() {   // robustness review, item 6
+        var seven = java.util.stream.Stream.of("A", "B", "C", "D", "E", "F", "G").map(Symbol::of).toList();
+        try (var ignored = LogContext.scope("instruments", seven)) {
+            assertThat(MDC.get(LogContext.SYMBOL)).isEqualTo("A,B,C,D,E,…+2");
+        }
+        try (var ignored = LogContext.scope("instruments", seven.subList(0, 5))) {
+            assertThat(MDC.get(LogContext.SYMBOL)).as("exactly five: no suffix").isEqualTo("A,B,C,D,E");
+        }
+    }
+
+    @Test
     void scopeWithoutSymbolLeavesSymbolUntouched() {
         MDC.put(LogContext.SYMBOL, "outer");
         try (var ignored = LogContext.scope("search")) {

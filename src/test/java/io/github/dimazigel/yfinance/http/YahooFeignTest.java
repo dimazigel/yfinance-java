@@ -5,12 +5,15 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import feign.Param;
 import feign.RequestLine;
+import io.github.dimazigel.yfinance.exception.YFAuthException;
 import io.github.dimazigel.yfinance.exception.YFDataException;
 import io.github.dimazigel.yfinance.exception.YFHttpException;
 import io.github.dimazigel.yfinance.exception.YFRateLimitException;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.mockwebserver.MockResponse;
@@ -177,11 +180,53 @@ class YahooFeignTest {
 
     @Test
     void malformedJsonIsADataException() {   // Review Focus 4
-        server.enqueue(new MockResponse().setHeader("Content-Type", "text/html").setBody("<html>consent page</html>"));
+        server.enqueue(new MockResponse().setHeader("Content-Type", "application/json").setBody("{\"a\":"));
         assertThatThrownBy(() -> api(new OkHttpClient()).probe("AAPL", null, null, null, true))
                 .isExactlyInstanceOf(YFDataException.class)
                 .hasMessage("Yahoo Finance returned malformed JSON for /probe/AAPL")
                 .hasCauseInstanceOf(tools.jackson.core.JacksonException.class);
+    }
+
+    @Test
+    void htmlPageInsteadOfJsonIsAnAuthException() {   // robustness review, item 10
+        // The EU consent redirect and WAF block pages answer 200 text/html; naming that beats "malformed JSON".
+        server.enqueue(new MockResponse().setHeader("Content-Type", "text/html; charset=utf-8").setBody("<html>consent page</html>"));
+        assertThatThrownBy(() -> api(new OkHttpClient()).probe("AAPL", null, null, null, true))
+                .isExactlyInstanceOf(YFAuthException.class)
+                .hasMessage("Yahoo returned an HTML page instead of JSON for /probe/AAPL (consent required or access blocked)");
+
+        // ...and a page mislabelled as JSON is recognised by its first character
+        server.enqueue(new MockResponse().setHeader("Content-Type", "application/json").setBody("\n  <!DOCTYPE html><html></html>"));
+        assertThatThrownBy(() -> api(new OkHttpClient()).probe("AAPL", null, null, null, true))
+                .isExactlyInstanceOf(YFAuthException.class)
+                .hasMessageStartingWith("Yahoo returned an HTML page instead of JSON for /probe/AAPL");
+    }
+
+    @Test
+    void aTextHtmlHeaderOnAJsonBodyStillDecodes() {   // review, minor 8: the body sniff decides, never the header alone
+        server.enqueue(new MockResponse().setHeader("Content-Type", "text/html").setBody("{\"ok\":true}"));
+        assertThat(api(new OkHttpClient()).probe("AAPL", null, null, null, true).path("ok").asBoolean()).isTrue();
+    }
+
+    @Test
+    void pacingThatCannotFitTheCallTimeoutIsARateLimitException() {   // review recommendation
+        // The limiter is degraded and the next slot is 12 s away; the call has 5 s. Failing fast is a
+        // rate-limit condition, so callers' 429 handling (and retryAfter()) applies.
+        var nowNanos = new AtomicLong();
+        var limiter = new AdaptiveRateLimiter(
+                new AdaptiveRateLimitConfig(true, Duration.ofMillis(500), Duration.ofSeconds(20), 2.0, 0.5, 0.0, 3),
+                nowNanos::get, Instant::now, d -> nowNanos.addAndGet(d.toNanos()), () -> 0.0);
+        limiter.onResponse(429, "12");
+        var client = new OkHttpClient.Builder()
+                .addInterceptor(new AdaptiveRateLimitInterceptor(limiter))
+                .callTimeout(Duration.ofSeconds(5))
+                .build();
+
+        assertThatThrownBy(() -> api(client).probe("AAPL", null, null, null, true))
+                .isExactlyInstanceOf(YFRateLimitException.class)
+                .hasMessage("Rate-limit pacing of 12000 ms exceeds the remaining call timeout for /probe/AAPL")
+                .satisfies(e -> assertThat(((YFRateLimitException) e).retryAfter()).contains(Duration.ofSeconds(12)));
+        assertThat(server.getRequestCount()).isZero();
     }
 
     @Test

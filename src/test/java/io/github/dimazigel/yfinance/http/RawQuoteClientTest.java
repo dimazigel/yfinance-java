@@ -43,16 +43,21 @@ class RawQuoteClientTest {
     }
 
     @Test
-    void quoteRowsChunkAtOneHundred() throws Exception {
+    void quoteRowsIsOneRequestForUpToOneChunkOfDistinctSymbols() throws Exception {
+        // Chunking (and per-chunk failure isolation) lives in InstrumentService; this is the one-request primitive.
         server.enqueue(new MockResponse().setResponseCode(200).setBody("{\"quoteResponse\":{\"result\":[],\"error\":null}}"));
-        server.enqueue(new MockResponse().setResponseCode(200).setBody("{\"quoteResponse\":{\"result\":[],\"error\":null}}"));
-        var symbols = IntStream.range(0, 150).mapToObj(i -> Symbol.of("S" + i)).toList();
+        var symbols = new java.util.ArrayList<>(IntStream.range(0, RawQuoteClient.CHUNK).mapToObj(i -> Symbol.of("S" + i)).toList());
+        symbols.add(Symbol.of("S0"));   // a duplicate does not count against the chunk
 
         client.quoteRows(symbols);
 
-        assertThat(server.getRequestCount()).isEqualTo(2);
+        assertThat(server.getRequestCount()).isEqualTo(1);
         assertThat(server.takeRequest().getRequestUrl().queryParameter("symbols").split(",")).hasSize(100);
-        assertThat(server.takeRequest().getRequestUrl().queryParameter("symbols").split(",")).hasSize(50);
+
+        var tooMany = IntStream.range(0, RawQuoteClient.CHUNK + 1).mapToObj(i -> Symbol.of("S" + i)).toList();
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> client.quoteRows(tooMany))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("100");
+        assertThat(server.getRequestCount()).isEqualTo(1);
     }
 
     @Test

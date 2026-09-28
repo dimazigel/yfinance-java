@@ -3,11 +3,16 @@ package io.github.dimazigel.yfinance.auth;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import ch.qos.logback.classic.Level;
 import io.github.dimazigel.yfinance.exception.YFAuthException;
+import io.github.dimazigel.yfinance.http.AdaptiveRateLimitConfig;
 import io.github.dimazigel.yfinance.http.EndpointConfig;
 import io.github.dimazigel.yfinance.http.YahooClientFactory;
+import io.github.dimazigel.yfinance.testsupport.LogCapture;
 import io.github.dimazigel.yfinance.valueobject.Crumb;
 import java.io.IOException;
+import java.time.Duration;
+import java.util.concurrent.atomic.AtomicLong;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.mockwebserver.MockResponse;
@@ -20,16 +25,44 @@ import org.junit.jupiter.api.Test;
 class CrumbStoreTest {
 
     private MockWebServer server;
+    private EndpointConfig config;
+    private OkHttpClient client;
     private CrumbStore crumbStore;
+    private final AtomicLong nowNanos = new AtomicLong();
 
     @BeforeEach
     void setUp() throws Exception {
         server = new MockWebServer();
         server.start();
         HttpUrl base = server.url("/");
-        EndpointConfig config = EndpointConfig.production().withHosts(base).withUserAgent("test-agent/1.0");
-        OkHttpClient client = YahooClientFactory.baseClient(config);
+        config = EndpointConfig.production().withHosts(base).withUserAgent("test-agent/1.0")
+                .withCallTimeout(Duration.ofSeconds(2))
+                .withAdaptiveRateLimit(AdaptiveRateLimitConfig.disabled());   // the store, not the limiter, is under test
+        client = YahooClientFactory.baseClient(config);
         crumbStore = new CrumbStore(client, config);
+    }
+
+    /** A store whose clock the test drives, for the cooldown after a transient handshake failure. */
+    private CrumbStore timedStore() {
+        return new CrumbStore(client, config, nowNanos::get);
+    }
+
+    private void enqueueRateLimitedHandshake(String retryAfter) {
+        server.enqueue(new MockResponse().setResponseCode(404));
+        var limited = new MockResponse().setResponseCode(429).setBody("Too Many Requests");
+        if (retryAfter != null) {
+            limited.setHeader("Retry-After", retryAfter);
+        }
+        server.enqueue(limited);
+    }
+
+    private void enqueueHandshake(String crumb) {
+        server.enqueue(new MockResponse().setResponseCode(404));
+        server.enqueue(new MockResponse().setResponseCode(200).setBody(crumb));
+    }
+
+    private void advance(Duration by) {
+        nowNanos.addAndGet(by.toNanos());
     }
 
     @AfterEach
@@ -77,6 +110,136 @@ class CrumbStoreTest {
         assertThat(first).isEqualTo(Crumb.of("first-crumb"));
         assertThat(second).isEqualTo(Crumb.of("second-crumb"));
         assertThat(server.getRequestCount()).isEqualTo(4);
+    }
+
+    @Test
+    void invalidateWithTheRejectedCrumbClearsOnlyThatCrumb() {
+        enqueueHandshake("first-crumb");
+        crumbStore.getCrumb();
+
+        crumbStore.invalidate("some-older-crumb");   // another worker already refreshed: keep the current one
+        assertThat(crumbStore.getCrumb()).isEqualTo(Crumb.of("first-crumb"));
+        assertThat(server.getRequestCount()).as("no handshake for a stale rejection").isEqualTo(2);
+
+        enqueueHandshake("second-crumb");
+        crumbStore.invalidate("first-crumb");
+        assertThat(crumbStore.getCrumb()).isEqualTo(Crumb.of("second-crumb"));
+        assertThat(server.getRequestCount()).isEqualTo(4);
+    }
+
+    @Test
+    void invalidateWithoutARejectedCrumbKeepsTheCachedOne() {
+        // The rejected request went out without a crumb (e.g. during a cooldown); whatever is cached
+        // now was fetched since and is not the one Yahoo rejected.
+        enqueueHandshake("first-crumb");
+        crumbStore.getCrumb();
+
+        crumbStore.invalidate(null);
+
+        assertThat(crumbStore.getCrumb()).isEqualTo(Crumb.of("first-crumb"));
+        assertThat(server.getRequestCount()).isEqualTo(2);
+    }
+
+    @Test
+    void rateLimitedHandshakeEntersACooldownWithNoNetworkCallsAndOneWarning() {
+        var store = timedStore();
+        enqueueRateLimitedHandshake(null);
+
+        try (var log = LogCapture.of(CrumbStore.class)) {
+            assertThat(store.tryGetCrumb()).isEmpty();
+            assertThat(server.getRequestCount()).isEqualTo(2);
+            assertThat(log.messages(Level.WARN)).singleElement().satisfies(m -> assertThat(m)
+                    .contains("HTTP 429").contains("continuing without a crumb").contains("30000 ms"));
+
+            advance(Duration.ofSeconds(29));
+            assertThat(store.tryGetCrumb()).isEmpty();
+            assertThat(server.getRequestCount()).as("no network call while cooling down").isEqualTo(2);
+            assertThat(log.messages(Level.WARN)).as("WARN once, on entering the cooldown").hasSize(1);
+            assertThat(log.messages(Level.DEBUG)).anySatisfy(m -> assertThat(m).contains("cooling down"));
+        }
+
+        advance(Duration.ofSeconds(2));   // 31 s: cooldown over
+        enqueueHandshake("fresh");
+        assertThat(store.tryGetCrumb()).contains(Crumb.of("fresh"));
+        assertThat(server.getRequestCount()).isEqualTo(4);
+    }
+
+    @Test
+    void retryAfterExtendsTheCooldown() {
+        var store = timedStore();
+        enqueueRateLimitedHandshake("120");
+
+        assertThat(store.tryGetCrumb()).isEmpty();
+        advance(Duration.ofSeconds(100));
+        assertThat(store.tryGetCrumb()).isEmpty();
+        assertThat(server.getRequestCount()).as("Retry-After: 120 outlasts the 30 s backoff").isEqualTo(2);
+
+        advance(Duration.ofSeconds(21));
+        enqueueHandshake("fresh");
+        assertThat(store.tryGetCrumb()).contains(Crumb.of("fresh"));
+        assertThat(server.getRequestCount()).isEqualTo(4);
+    }
+
+    @Test
+    void consecutiveFailuresDoubleTheCooldownAndSuccessResetsIt() {
+        var store = timedStore();
+        enqueueRateLimitedHandshake(null);                  // failure 1: 30 s
+        assertThat(store.tryGetCrumb()).isEmpty();
+
+        advance(Duration.ofSeconds(31));
+        enqueueRateLimitedHandshake(null);                  // failure 2: 60 s
+        assertThat(store.tryGetCrumb()).isEmpty();
+        assertThat(server.getRequestCount()).isEqualTo(4);
+
+        advance(Duration.ofSeconds(59));
+        assertThat(store.tryGetCrumb()).isEmpty();
+        assertThat(server.getRequestCount()).as("still inside the doubled cooldown").isEqualTo(4);
+
+        advance(Duration.ofSeconds(2));
+        enqueueHandshake("fresh");                          // success resets the backoff
+        assertThat(store.tryGetCrumb()).contains(Crumb.of("fresh"));
+
+        store.invalidate("fresh");
+        enqueueRateLimitedHandshake(null);                  // failure after a success: back to 30 s
+        assertThat(store.tryGetCrumb()).isEmpty();
+        advance(Duration.ofSeconds(31));
+        enqueueHandshake("fresher");
+        assertThat(store.tryGetCrumb()).contains(Crumb.of("fresher"));
+        assertThat(server.getRequestCount()).isEqualTo(10);
+    }
+
+    @Test
+    void aRejectedHandshakeAlsoStartsACooldown() {   // review recommendation: a blocked IP must not re-run the handshake per request
+        var store = timedStore();
+        server.enqueue(new MockResponse().setResponseCode(404));
+        server.enqueue(new MockResponse().setResponseCode(403).setBody("Forbidden"));
+
+        try (var log = LogCapture.of(CrumbStore.class)) {
+            assertThatThrownBy(store::tryGetCrumb).isInstanceOf(YFAuthException.class).hasMessageContaining("HTTP 403");
+            assertThat(log.messages(Level.WARN)).singleElement().satisfies(m -> assertThat(m).contains("30000 ms"));
+
+            advance(Duration.ofSeconds(29));
+            assertThat(store.tryGetCrumb()).as("empty, no network, no throw while cooling down").isEmpty();
+            assertThat(server.getRequestCount()).isEqualTo(2);
+            assertThat(log.messages(Level.WARN)).hasSize(1);
+        }
+
+        advance(Duration.ofSeconds(2));
+        enqueueHandshake("fresh");
+        assertThat(store.tryGetCrumb()).contains(Crumb.of("fresh"));
+        assertThat(server.getRequestCount()).isEqualTo(4);
+    }
+
+    @Test
+    void getCrumbStillAttemptsDuringTheCooldown() {
+        var store = timedStore();
+        enqueueRateLimitedHandshake(null);
+        assertThat(store.tryGetCrumb()).isEmpty();
+
+        enqueueHandshake("ok-crumb");
+        assertThat(store.getCrumb()).isEqualTo(Crumb.of("ok-crumb"));
+        assertThat(server.getRequestCount()).isEqualTo(4);
+        assertThat(store.tryGetCrumb()).contains(Crumb.of("ok-crumb"));
     }
 
     @Test

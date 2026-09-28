@@ -16,7 +16,8 @@ import org.slf4j.event.Level;
 
 /**
  * Shared adaptive throttle for a Yahoo client. It reacts quickly to HTTP 429 and recovers
- * conservatively after successful responses.
+ * conservatively after successful responses. One instance is shared by every interceptor chain of a
+ * client (the handshake client included), so all of them pace against the same state.
  */
 final class AdaptiveRateLimiter {
 
@@ -37,6 +38,8 @@ final class AdaptiveRateLimiter {
 
     private long currentDelayNanos;
     private long nextAllowedAtNanos;
+    /** When the pace was last raised; a 429 for a request sent before then belongs to the same burst. */
+    private long lastIncreaseNanos = Long.MIN_VALUE;
 
     AdaptiveRateLimiter(AdaptiveRateLimitConfig config) {
         this(
@@ -62,27 +65,39 @@ final class AdaptiveRateLimiter {
         this.maxDelayNanos = config.maxDelay().toNanos();
     }
 
-    void beforeRequest() throws InterruptedException {
+    /** The effective tuning (after any clamping by the client factory). */
+    AdaptiveRateLimitConfig config() {
+        return config;
+    }
+
+    /** The limiter's monotonic clock, so callers measure elapsed time on the same clock (injectable in tests). */
+    long nanoTime() {
+        return nanoTime.getAsLong();
+    }
+
+    /**
+     * How long the caller must still wait before sending, or zero when it may send now — in which
+     * case the next slot has been reserved: while degraded, every request is paced by the current
+     * delay, not just the first one after a 429, so traffic does not burst straight back into the
+     * limit. Ask again after waiting; another thread may have taken the slot meanwhile.
+     */
+    synchronized Duration pendingWait() {
         if (!config.enabled()) {
-            return;
+            return Duration.ZERO;
         }
-        while (true) {
-            Duration wait;
-            synchronized (this) {
-                long remainingNanos = nextAllowedAtNanos - nanoTime.getAsLong();
-                if (remainingNanos <= 0L) {
-                    // While degraded, pace every request by the current delay — not just the first
-                    // one after a 429 — so traffic does not burst straight back into the limit.
-                    if (currentDelayNanos > 0L) {
-                        nextAllowedAtNanos = nanoTime.getAsLong() + jittered(currentDelayNanos);
-                    }
-                    return;
-                }
-                wait = Duration.ofNanos(remainingNanos);
+        long remainingNanos = nextAllowedAtNanos - nanoTime.getAsLong();
+        if (remainingNanos <= 0L) {
+            if (currentDelayNanos > 0L) {
+                nextAllowedAtNanos = nanoTime.getAsLong() + jittered(currentDelayNanos);
             }
-            LOG.atDebug().addKeyValue("delayMs", wait.toMillis()).log("Rate limited; waiting {} ms before next request", wait.toMillis());
-            sleeper.sleep(wait);
+            return Duration.ZERO;
         }
+        return Duration.ofNanos(remainingNanos);
+    }
+
+    /** Sleeps through the injected sleeper, so the interceptor's slices are testable with a fake clock. */
+    void sleep(Duration delay) throws InterruptedException {
+        sleeper.sleep(delay);
     }
 
     /** Total attempts the interceptor may make per request (1 when throttling is disabled). */
@@ -90,12 +105,29 @@ final class AdaptiveRateLimiter {
         return config.enabled() ? config.maxAttempts() : 1;
     }
 
+    /** As {@link #onResponse(int, String, long)} for a request sent just now. */
     synchronized void onResponse(int code, @Nullable String retryAfter) {
+        onResponse(code, retryAfter, nanoTime.getAsLong());
+    }
+
+    /**
+     * Feeds back a response for a request sent at {@code sentNanos}. A 429 for a request that was
+     * already in flight when the pace was last raised is part of the same burst: it defers the next
+     * slot but does not raise the pace again, so N concurrent 429s cost one doubling, not N. If an
+     * interleaved success has since recovered the pace to zero there is nothing to keep, and such a
+     * straggler counts as a new event instead of going unpaced.
+     */
+    synchronized void onResponse(int code, @Nullable String retryAfter, long sentNanos) {
         if (!config.enabled()) {
             return;
         }
         if (code == 429) {
-            increaseDelay(retryAfter);
+            if (sentNanos < lastIncreaseNanos && currentDelayNanos > 0L) {
+                deferWithoutIncrease();
+            } else {
+                increaseDelay(retryAfter);
+                lastIncreaseNanos = nanoTime.getAsLong();
+            }
         } else if (code >= 200 && code < 400) {
             decreaseDelay();
         }
@@ -103,6 +135,14 @@ final class AdaptiveRateLimiter {
 
     synchronized Duration currentDelay() {
         return Duration.ofNanos(currentDelayNanos);
+    }
+
+    private void deferWithoutIncrease() {
+        long paceMs = Duration.ofNanos(currentDelayNanos).toMillis();
+        LOG.atDebug()
+                .addKeyValue("delayMs", paceMs)
+                .log("HTTP 429 for a request sent before the pace was last raised; keeping {} ms", paceMs);
+        nextAllowedAtNanos = Math.max(nextAllowedAtNanos, nanoTime.getAsLong() + jittered(currentDelayNanos));
     }
 
     private void increaseDelay(@Nullable String retryAfter) {
