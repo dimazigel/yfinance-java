@@ -18,11 +18,13 @@ import io.github.dimazigel.yfinance.instrument.Etf;
 import io.github.dimazigel.yfinance.instrument.Instrument;
 import io.github.dimazigel.yfinance.logging.LogContext;
 import io.github.dimazigel.yfinance.market.Dividend;
+import io.github.dimazigel.yfinance.market.HistoryQuery;
 import io.github.dimazigel.yfinance.testsupport.Fixtures;
 import io.github.dimazigel.yfinance.testsupport.Instruments;
 import io.github.dimazigel.yfinance.testsupport.LogCapture;
 import io.github.dimazigel.yfinance.testsupport.YahooDispatcher;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
+import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import okhttp3.mockwebserver.MockResponse;
@@ -141,6 +143,19 @@ class TickersTest {
         assertThat(batch.values()).singleElement().satisfies(h -> assertThat(h.bars()).hasSize(3));
         assertThat(batch.failed()).singleElement().satisfies(f -> assertThat(f.error()).isInstanceOf(YFDataException.class));
         assertThatThrownBy(() -> batch.outcomes().getLast().orElseThrow()).isInstanceOf(YFDataException.class);
+    }
+
+    @Test
+    void historiesWithQueryUsesAnExplicitWindowAndKeepsOrder() {
+        var query = HistoryQuery.of(Interval.ONE_DAY)
+                .period(Instant.ofEpochSecond(1000), Instant.ofEpochSecond(2000))
+                .build();
+
+        var batch = yf.tickers("AAPL", YahooDispatcher.UNKNOWN).histories(query);
+
+        assertThat(batch.outcomes()).extracting(Outcome::symbol).containsExactly(Symbol.of("AAPL"), Symbol.of(YahooDispatcher.UNKNOWN));
+        assertThat(batch.values()).singleElement().satisfies(h -> assertThat(h.bars()).hasSize(3));
+        assertThat(batch.failed()).singleElement().satisfies(f -> assertThat(f.error()).isInstanceOf(YFDataException.class));
     }
 
     @Test

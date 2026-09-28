@@ -7,6 +7,7 @@ import io.github.dimazigel.yfinance.valueobject.Symbol;
 import java.time.Instant;
 import org.junit.jupiter.api.Test;
 
+@SuppressWarnings({"deprecation", "removal"}) // exercises the deprecated HistoryRequest itself
 class HistoryRequestTest {
 
     private static final Symbol AAPL = Symbol.of("AAPL");

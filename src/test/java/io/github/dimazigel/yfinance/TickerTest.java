@@ -3,6 +3,7 @@ package io.github.dimazigel.yfinance;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import io.github.dimazigel.yfinance.enums.EventType;
 import io.github.dimazigel.yfinance.enums.Frequency;
 import io.github.dimazigel.yfinance.enums.Interval;
 import io.github.dimazigel.yfinance.enums.Range;
@@ -17,6 +18,7 @@ import io.github.dimazigel.yfinance.instrument.FxPair;
 import io.github.dimazigel.yfinance.instrument.Instrument;
 import io.github.dimazigel.yfinance.instrument.MutualFund;
 import io.github.dimazigel.yfinance.instrument.Unclassified;
+import io.github.dimazigel.yfinance.market.HistoryQuery;
 import io.github.dimazigel.yfinance.service.HistoryRequest;
 import io.github.dimazigel.yfinance.testsupport.Fixtures;
 import io.github.dimazigel.yfinance.testsupport.Instruments;
@@ -228,6 +230,24 @@ class TickerTest {
     }
 
     @Test
+    void historyQueryWithPrePostAndEventsReachesTheWire() throws Exception {
+        var ticker = yf.ticker("AAPL");
+
+        ticker.history(HistoryQuery.of(Interval.ONE_HOUR)
+                .range(Range.FIVE_DAYS)
+                .includePrePost(true)
+                .events(EventType.DIVIDENDS)
+                .build());
+
+        var url = server.takeRequest().getRequestUrl();
+        assertThat(url.queryParameter("interval")).isEqualTo("1h");
+        assertThat(url.queryParameter("range")).isEqualTo("5d");
+        assertThat(url.queryParameter("includePrePost")).isEqualTo("true");
+        assertThat(url.queryParameter("events")).isEqualTo("div");
+    }
+
+    @Test
+    @SuppressWarnings({"deprecation", "removal"}) // proves the deprecated path still guards the symbol
     void historyRejectsARequestBuiltForAnotherSymbol() {
         var request = HistoryRequest.builder(Symbol.of("MSFT")).range(Range.ONE_MONTH).build();
 

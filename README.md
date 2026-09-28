@@ -123,12 +123,44 @@ through), `get(symbol)` (first occurrence, a linear scan) and `summary()`; each 
 `YFClassMismatchException` thrown inside the fetcher back into `Skipped`, so `fetch(t -> t.as(Equity.class))`
 skips for the same reasons as `instruments(symbols, Equity.class)`.
 
+### Price history
+
+`HistoryQuery` is the general price-history request: a `Range` **or** an explicit `[start, end)`
+period, plus `includePrePost` and `events`. `Ticker.history(Range, Interval)` and
+`Ticker.history(start, end, Interval)` are shorthand for the common cases and build one under the
+hood; reach for `HistoryQuery` directly for pre/post bars, a subset of corporate-action events, or
+an open-ended period.
+
+```java
+// Range form — same as ticker.history(Range.ONE_MONTH, Interval.ONE_DAY).
+PriceHistory month = aapl.history(HistoryQuery.range(Range.ONE_MONTH, Interval.ONE_DAY));
+
+// Explicit window, pre/post-market bars, dividends only (no splits/capital gains).
+PriceHistory extended = aapl.history(HistoryQuery.of(Interval.ONE_HOUR)
+        .period(Instant.now().minus(Duration.ofDays(5)), Instant.now())
+        .includePrePost(true)
+        .events(EventType.DIVIDENDS)
+        .build());
+
+// Batch backfill: the same explicit window for every symbol, one Outcome each.
+Batch<PriceHistory> backfill = yf.histories(symbols,
+        HistoryQuery.period(Instant.now().minus(Duration.ofDays(30)), Instant.now(), Interval.ONE_DAY));
+```
+
+`HistoryQuery.of(interval)` starts a builder; `range(...)` and `period(...)` are mutually exclusive
+(each clears the other) and one of them is required before `build()`. An open-ended
+`period(start)` (no `end`) resolves to "now" at request time, not at build time.
+
+`HistoryRequest` — the old, symbol-carrying request type `Ticker.history(HistoryRequest)` took — is
+`@Deprecated(since = "1.2", forRemoval = true)`; `HistoryRequest.toQuery()` converts an existing
+request. It will be removed in 2.0.
+
 ### Coming from Python yfinance
 
 | Python `yfinance` | `yfinance-java` |
 |---|---|
 | `Ticker("AAPL").info` | `ticker.instrument()` (snapshot, typed by class) + `yf.detail(equity)` / `ticker.detail(equity)` (profile, statistics, analysts, ownership); two requests, because Yahoo's v7 quote and quoteSummary are two endpoints |
-| `history(period="1mo", interval="1d")` | `ticker.history(Range.ONE_MONTH, Interval.ONE_DAY)`; `history(start, end, interval)` for a window; `history(HistoryRequest.builder(symbol)....build())` for `includePrePost`/`events` |
+| `history(period="1mo", interval="1d")` | `ticker.history(Range.ONE_MONTH, Interval.ONE_DAY)`; `history(start, end, interval)` for a window; `history(HistoryQuery.of(interval)....build())` for `includePrePost`/`events` (see [Price history](#price-history)) |
 | `history(auto_adjust=True)` (the Python default) | `ticker.history(...).adjusted()` — bars are raw OHLC + `adjClose` until you ask |
 | `dividends` / `splits` / `actions` / `capital_gains` | `ticker.dividends()` / `ticker.splits()`; `history(...).dividends()` / `.splits()` / `.capitalGains()` on any fetched window |
 | `options` / `option_chain(date)` | `ticker.options()` → `Optional<OptionChain>` (nearest expiration; `expirationDates()` lists the rest), `ticker.options(expiration)` for one of them |
@@ -441,7 +473,7 @@ proof to `Ticker.detail(...)`/`statements(...)` is a programming error and throw
 
 ```
 YFinance / Ticker / Tickers — the facade; batch calls return Batch<T> (one Outcome<T> per symbol)
-service/     one service per concern (InstrumentService, DetailService, HistoryService, ...)   [internal, except HistoryRequest]
+service/     one service per concern (InstrumentService, DetailService, HistoryService, ...)   [internal, except HistoryRequest, deprecated for removal in 2.0]
 http/        client factory, interceptors (UA, crumb, auth-retry, adaptive rate limit),
              RawQuoteClient (batched v7 rows + per-symbol quoteSummary modules), YahooJsonMapper
 api/         Feign interfaces (one per endpoint) + YahooApis bundle                            [internal]
@@ -449,7 +481,7 @@ assembly/    FieldSpec tables per class (specs/, mirrored from Appendix A), Reso
 instrument/  the sealed snapshot hierarchy and its value records
 detail/      EquityDetail, EtfDetail, MutualFundDetail, CryptoDetail (+ rows/)
 batch/       Batch, Outcome, SkipReason, FanOut
-market/      PriceHistory, PriceBar, HistoryMetadata, OptionChain, corporate actions
+market/      HistoryQuery, PriceHistory, PriceBar, HistoryMetadata, OptionChain, corporate actions
 fundamentals/ FinancialStatement;  search/ SearchResult, LookupQuote
 dto/ + mapper/ raw records and mappers for chart, options, timeseries, search, lookup          [internal]
 auth/        CrumbStore — cookie (fc.yahoo.com) then crumb handshake, invalidate-on-401/403 (by identity), cooldown after a transient failure   [internal]
@@ -462,7 +494,8 @@ their `package-info` says so, they are left out of the published Javadoc, and th
 any release. The API is the facade, `instrument`, `detail`, `market`, `fundamentals`, `search`,
 `batch` (not `FanOut`), `enums`, `valueobject`, `exception`, `logging`, the `http` configuration
 records (`EndpointConfig`, `AdaptiveRateLimitConfig`, `RetryConfig`) plus `InMemoryCookieJar`,
-and `service.HistoryRequest`; the interceptors, client factory, Feign/Jackson glue and
+and `service.HistoryRequest` (deprecated since 1.2, for removal in 2.0 — use
+`market.HistoryQuery` instead); the interceptors, client factory, Feign/Jackson glue and
 `RawQuoteClient` in `http` are internal too.
 
 ## Building, testing, consuming

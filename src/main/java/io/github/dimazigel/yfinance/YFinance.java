@@ -21,6 +21,7 @@ import io.github.dimazigel.yfinance.instrument.Equity;
 import io.github.dimazigel.yfinance.instrument.Etf;
 import io.github.dimazigel.yfinance.instrument.Instrument;
 import io.github.dimazigel.yfinance.instrument.MutualFund;
+import io.github.dimazigel.yfinance.market.HistoryQuery;
 import io.github.dimazigel.yfinance.market.OptionChain;
 import io.github.dimazigel.yfinance.market.PriceHistory;
 import io.github.dimazigel.yfinance.search.LookupQuote;
@@ -256,8 +257,13 @@ public final class YFinance implements AutoCloseable {
     }
 
     /** Price history per symbol, fanned out with the configured concurrency. */
+    public Batch<PriceHistory> histories(Collection<Symbol> symbols, HistoryQuery query) {
+        return tickers(List.copyOf(symbols)).histories(query);
+    }
+
+    /** Price history per symbol, fanned out with the configured concurrency. */
     public Batch<PriceHistory> histories(Collection<Symbol> symbols, Range range, Interval interval) {
-        return tickers(List.copyOf(symbols)).histories(range, interval);
+        return histories(symbols, HistoryQuery.range(range, interval));
     }
 
     /**

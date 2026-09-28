@@ -8,6 +8,7 @@ import io.github.dimazigel.yfinance.api.ChartApi;
 import io.github.dimazigel.yfinance.enums.Interval;
 import io.github.dimazigel.yfinance.enums.Range;
 import io.github.dimazigel.yfinance.exception.YFDataException;
+import io.github.dimazigel.yfinance.market.HistoryQuery;
 import io.github.dimazigel.yfinance.market.PriceHistory;
 import io.github.dimazigel.yfinance.testsupport.Fixtures;
 import io.github.dimazigel.yfinance.testsupport.LogCapture;
@@ -29,6 +30,8 @@ import org.slf4j.MDC;
 
 class HistoryServiceTest {
 
+    private static final Symbol AAPL = Symbol.of("AAPL");
+
     private MockWebServer server;
     private HistoryService service;
 
@@ -48,8 +51,7 @@ class HistoryServiceTest {
     void parsesBarsDividendsSplitsAndMetadata() throws Exception {
         server.enqueue(Fixtures.jsonResponse("chart_aapl_1d.json"));
 
-        PriceHistory history = service.getHistory(
-                HistoryRequest.builder(Symbol.of("AAPL")).range(Range.ONE_MONTH).interval(Interval.ONE_DAY).build());
+        PriceHistory history = service.getHistory(AAPL, HistoryQuery.of(Interval.ONE_DAY).range(Range.ONE_MONTH).build());
 
         assertThat(history.bars()).hasSize(3);
         var first = history.bars().getFirst();
@@ -72,7 +74,7 @@ class HistoryServiceTest {
         var meta = history.metadata();
         assertThat(meta.currency().code()).isEqualTo("USD");
         assertThat(meta.timezone()).isEqualTo(ZoneId.of("America/New_York"));
-        assertThat(meta.symbol()).isEqualTo(Symbol.of("AAPL"));
+        assertThat(meta.symbol()).isEqualTo(AAPL);
         assertThat(meta.regularMarketPrice()).isEqualByComparingTo("190.5");
     }
 
@@ -80,8 +82,7 @@ class HistoryServiceTest {
     void metadataIsNonNull() {
         server.enqueue(Fixtures.jsonResponse("chart_aapl_1d.json"));
 
-        var meta = service.getHistory(
-                HistoryRequest.builder(Symbol.of("AAPL")).range(Range.ONE_MONTH).build()).metadata();
+        var meta = service.getHistory(AAPL, HistoryQuery.of(Interval.ONE_DAY).range(Range.ONE_MONTH).build()).metadata();
 
         assertThat(meta.currency().code()).isEqualTo("USD");
         assertThat(meta.regularMarketTime()).isEqualTo(Instant.ofEpochSecond(1700172800));
@@ -105,8 +106,7 @@ class HistoryServiceTest {
                         + "\"indicators\":{\"quote\":[{\"open\":[1.0],\"high\":[1.2],\"low\":[0.9],\"close\":[1.1]}]}}],"
                         + "\"error\":null}}"));
 
-        assertThatThrownBy(() -> service.getHistory(
-                        HistoryRequest.builder(Symbol.of("AAPL")).range(Range.ONE_DAY).build()))
+        assertThatThrownBy(() -> service.getHistory(AAPL, HistoryQuery.of(Interval.ONE_DAY).range(Range.ONE_DAY).build()))
                 .isInstanceOf(YFDataException.class)
                 .hasMessageContaining("currency");
     }
@@ -119,8 +119,7 @@ class HistoryServiceTest {
                         + "\"indicators\":{\"quote\":[{\"open\":[1.0],\"high\":[1.2],\"low\":[0.9],\"close\":[1.1]}]}}],"
                         + "\"error\":null}}"));
 
-        var history = service.getHistory(
-                HistoryRequest.builder(Symbol.of("AAPL")).range(Range.ONE_DAY).build());
+        var history = service.getHistory(AAPL, HistoryQuery.of(Interval.ONE_DAY).range(Range.ONE_DAY).build());
 
         assertThat(history.metadata().currency().code()).isEqualTo("XYZ");
         assertThat(history.metadata().currency().iso()).isEmpty();
@@ -134,8 +133,7 @@ class HistoryServiceTest {
                         + "\"indicators\":{\"quote\":[{\"open\":[1.0],\"high\":[1.2],\"low\":[0.9],\"close\":[1.1]}]}}],"
                         + "\"error\":null}}"));
 
-        assertThatThrownBy(() -> service.getHistory(
-                        HistoryRequest.builder(Symbol.of("AAPL")).range(Range.ONE_DAY).build()))
+        assertThatThrownBy(() -> service.getHistory(AAPL, HistoryQuery.of(Interval.ONE_DAY).range(Range.ONE_DAY).build()))
                 .isInstanceOf(YFDataException.class)
                 .hasMessageContaining("timezone");
     }
@@ -144,10 +142,7 @@ class HistoryServiceTest {
     void sendsRangeIntervalAndEventParams() throws Exception {
         server.enqueue(Fixtures.jsonResponse("chart_aapl_1d.json"));
 
-        service.getHistory(HistoryRequest.builder(Symbol.of("AAPL"))
-                .range(Range.ONE_MONTH)
-                .interval(Interval.ONE_DAY)
-                .build());
+        service.getHistory(AAPL, HistoryQuery.of(Interval.ONE_DAY).range(Range.ONE_MONTH).build());
 
         RecordedRequest req = server.takeRequest();
         var url = req.getRequestUrl();
@@ -161,10 +156,8 @@ class HistoryServiceTest {
     void sendsPeriodParamsWhenStartEndGiven() throws Exception {
         server.enqueue(Fixtures.jsonResponse("chart_aapl_1d.json"));
 
-        service.getHistory(HistoryRequest.builder(Symbol.of("AAPL"))
-                .interval(Interval.ONE_DAY)
-                .period(Instant.ofEpochSecond(1000), Instant.ofEpochSecond(2000))
-                .build());
+        service.getHistory(AAPL, HistoryQuery.of(Interval.ONE_DAY)
+                .period(Instant.ofEpochSecond(1000), Instant.ofEpochSecond(2000)).build());
 
         var url = server.takeRequest().getRequestUrl();
         assertThat(url.queryParameter("period1")).isEqualTo("1000");
@@ -180,10 +173,7 @@ class HistoryServiceTest {
         var clocked = new HistoryService(Fixtures.api(server, ChartApi.class), Clock.fixed(fixedNow, ZoneOffset.UTC));
         server.enqueue(Fixtures.jsonResponse("chart_aapl_1d.json"));
 
-        clocked.getHistory(HistoryRequest.builder(Symbol.of("AAPL"))
-                .interval(Interval.ONE_DAY)
-                .period(Instant.ofEpochSecond(1000), null)
-                .build());
+        clocked.getHistory(AAPL, HistoryQuery.of(Interval.ONE_DAY).period(Instant.ofEpochSecond(1000)).build());
 
         var url = server.takeRequest().getRequestUrl();
         assertThat(url.queryParameter("period1")).isEqualTo("1000");
@@ -194,10 +184,7 @@ class HistoryServiceTest {
     void emptyEventsSetOmitsEventsParam() throws Exception {
         server.enqueue(Fixtures.jsonResponse("chart_aapl_1d.json"));
 
-        service.getHistory(HistoryRequest.builder(Symbol.of("AAPL"))
-                .range(Range.ONE_MONTH)
-                .events(Set.of())
-                .build());
+        service.getHistory(AAPL, HistoryQuery.of(Interval.ONE_DAY).range(Range.ONE_MONTH).events(Set.of()).build());
 
         assertThat(server.takeRequest().getRequestUrl().queryParameter("events")).isNull();
     }
@@ -212,8 +199,7 @@ class HistoryServiceTest {
                         + "\"indicators\":{\"quote\":[{\"open\":[187.0],\"high\":[189.0],\"low\":[186.5],\"close\":[188.0],\"volume\":[1]}]}}],\"error\":null}}"));
 
         try (var log = LogCapture.ofLibrary()) {
-            var history = service.getHistory(
-                    HistoryRequest.builder(Symbol.of("AAPL")).range(Range.ONE_DAY).build());
+            var history = service.getHistory(AAPL, HistoryQuery.of(Interval.ONE_DAY).range(Range.ONE_DAY).build());
 
             assertThat(history.dividends()).hasSize(1);
             assertThat(log.messages(Level.DEBUG)).anySatisfy(m -> assertThat(m)
@@ -235,8 +221,7 @@ class HistoryServiceTest {
                         + "\"volume\":[50000000,48000000,52000000]}]}}],\"error\":null}}"));
 
         try (var log = LogCapture.ofLibrary()) {
-            var history = service.getHistory(
-                    HistoryRequest.builder(Symbol.of("AAPL")).range(Range.ONE_DAY).build());
+            var history = service.getHistory(AAPL, HistoryQuery.of(Interval.ONE_DAY).range(Range.ONE_DAY).build());
 
             assertThat(history.bars()).hasSize(2);
             assertThat(log.messages(Level.DEBUG))
@@ -258,8 +243,7 @@ class HistoryServiceTest {
                         + "\"close\":[188.0,null,190.5],"
                         + "\"volume\":[50000000,null,null]}]}}],\"error\":null}}"));
 
-        var history = service.getHistory(
-                HistoryRequest.builder(Symbol.of("AAPL")).range(Range.ONE_DAY).build());
+        var history = service.getHistory(AAPL, HistoryQuery.of(Interval.ONE_DAY).range(Range.ONE_DAY).build());
 
         assertThat(history.bars()).hasSize(2); // all-null row dropped
         assertThat(history.bars().getFirst().volume()).contains(50_000_000L);
@@ -272,8 +256,7 @@ class HistoryServiceTest {
         server.enqueue(new MockResponse().setResponseCode(200).setBody(
                 "{\"chart\":{\"result\":null,\"error\":{\"code\":\"Not Found\",\"description\":\"No data found, symbol may be delisted\"}}}"));
 
-        assertThatThrownBy(() -> service.getHistory(
-                        HistoryRequest.builder(Symbol.of("NOPE")).range(Range.ONE_MONTH).build()))
+        assertThatThrownBy(() -> service.getHistory(Symbol.of("NOPE"), HistoryQuery.of(Interval.ONE_DAY).range(Range.ONE_MONTH).build()))
                 .isInstanceOf(YFDataException.class)
                 .hasMessageContaining("delisted");
     }
@@ -284,8 +267,7 @@ class HistoryServiceTest {
                 "{\"chart\":{\"result\":null,\"error\":{\"code\":\"Unprocessable Entity\","
                         + "\"description\":\"1m data not available for startTime=1 and endTime=2.\"}}}"));
 
-        assertThatThrownBy(() -> service.getHistory(
-                        HistoryRequest.builder(Symbol.of("AAPL")).range(Range.ONE_MONTH).build()))
+        assertThatThrownBy(() -> service.getHistory(AAPL, HistoryQuery.of(Interval.ONE_DAY).range(Range.ONE_MONTH).build()))
                 .isInstanceOf(YFDataException.class)
                 .hasMessage("Yahoo error for AAPL: 1m data not available for startTime=1 and endTime=2.");
     }
@@ -301,8 +283,7 @@ class HistoryServiceTest {
                         + "\"open\":[10,11,12],\"high\":[12,13,12.5],\"low\":[9,10,11.5],"
                         + "\"close\":[11,12,12.2],\"volume\":[100,50,70]}]}}],\"error\":null}}"));
 
-        var history = service.getHistory(HistoryRequest.builder(Symbol.of("AAPL"))
-                .range(Range.ONE_DAY).interval(Interval.THIRTY_MINUTES).build());
+        var history = service.getHistory(AAPL, HistoryQuery.of(Interval.THIRTY_MINUTES).range(Range.ONE_DAY).build());
 
         assertThat(server.takeRequest().getRequestUrl().queryParameter("interval")).isEqualTo("15m");
         assertThat(history.bars()).hasSize(2);
@@ -318,8 +299,7 @@ class HistoryServiceTest {
                 "{\"chart\":{\"result\":null,\"error\":{\"code\":\"Unprocessable Entity\","
                         + "\"description\":\"15m data not available for startTime=1 and endTime=2.\"}}}"));
 
-        assertThatThrownBy(() -> service.getHistory(HistoryRequest.builder(Symbol.of("AAPL"))
-                        .range(Range.ONE_DAY).interval(Interval.THIRTY_MINUTES).build()))
+        assertThatThrownBy(() -> service.getHistory(AAPL, HistoryQuery.of(Interval.THIRTY_MINUTES).range(Range.ONE_DAY).build()))
                 .isInstanceOf(YFDataException.class)
                 .hasMessage("Yahoo error for AAPL: 15m data not available for startTime=1 and endTime=2."
                         + " (30m resampled from 15m)");
@@ -333,17 +313,16 @@ class HistoryServiceTest {
                         + "\"indicators\":{\"quote\":[{\"open\":[1.0],\"high\":[2.0],\"low\":[0.5],\"close\":[1.5]}]}}],"
                         + "\"error\":null}}"));
 
-        var history = service.getHistory(HistoryRequest.builder(Symbol.of("AAPL")).range(Range.ONE_DAY).build());
+        var history = service.getHistory(AAPL, HistoryQuery.of(Interval.ONE_DAY).range(Range.ONE_DAY).build());
 
-        assertThat(history.metadata().symbol()).isEqualTo(Symbol.of("AAPL"));
+        assertThat(history.metadata().symbol()).isEqualTo(AAPL);
     }
 
     @Test
     void metadataCarriesGranularityRangesAndTradingPeriods() {
         server.enqueue(Fixtures.jsonResponse("chart_aapl_1d.json"));
 
-        var meta = service.getHistory(
-                HistoryRequest.builder(Symbol.of("AAPL")).range(Range.ONE_MONTH).build()).metadata();
+        var meta = service.getHistory(AAPL, HistoryQuery.of(Interval.ONE_DAY).range(Range.ONE_MONTH).build()).metadata();
 
         assertThat(meta.regularMarketTime()).isEqualTo(Instant.ofEpochSecond(1700172800));
         assertThat(meta.priceHint()).isEqualTo(2);
@@ -367,7 +346,7 @@ class HistoryServiceTest {
                         + "\"error\":null}}"));
 
         try (var log = LogCapture.ofLibrary()) {
-            var history = service.getHistory(HistoryRequest.builder(Symbol.of("BP.L")).range(Range.ONE_DAY).build());
+            var history = service.getHistory(Symbol.of("BP.L"), HistoryQuery.of(Interval.ONE_DAY).range(Range.ONE_DAY).build());
 
             assertThat(history.metadata().validRanges()).containsExactly(Range.ONE_DAY);
             assertThat(log.messages(Level.DEBUG))
@@ -384,10 +363,24 @@ class HistoryServiceTest {
         }).chart();
         server.enqueue(Fixtures.jsonResponse("chart_aapl_1d.json"));
 
-        new HistoryService(api).getHistory(HistoryRequest.builder(Symbol.of("AAPL")).range(Range.ONE_MONTH).build());
+        new HistoryService(api).getHistory(AAPL, HistoryQuery.of(Interval.ONE_DAY).range(Range.ONE_MONTH).build());
 
         assertThat(seen).containsEntry("yf.op", "history").containsEntry("yf.symbol", "AAPL");
         assertThat(MDC.get("yf.op")).isNull(); // cleared once the call returns
+    }
+
+    @Test
+    @SuppressWarnings({"deprecation", "removal"}) // proves the deprecated adapter still works
+    void deprecatedGetHistoryRequestStillDelegatesToTheQueryForm() throws Exception {
+        server.enqueue(Fixtures.jsonResponse("chart_aapl_1d.json"));
+
+        var history = service.getHistory(HistoryRequest.builder(AAPL).range(Range.ONE_MONTH).interval(Interval.ONE_DAY).build());
+
+        assertThat(history.bars()).hasSize(3);
+        var url = server.takeRequest().getRequestUrl();
+        assertThat(url.encodedPath()).isEqualTo("/v8/finance/chart/AAPL");
+        assertThat(url.queryParameter("range")).isEqualTo("1mo");
+        assertThat(url.queryParameter("interval")).isEqualTo("1d");
     }
 
     /** A complete, valid chart {@code meta} object with an empty {@code validRanges}. */

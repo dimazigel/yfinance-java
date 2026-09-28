@@ -20,12 +20,14 @@ import io.github.dimazigel.yfinance.instrument.Equity;
 import io.github.dimazigel.yfinance.instrument.Etf;
 import io.github.dimazigel.yfinance.instrument.Instrument;
 import io.github.dimazigel.yfinance.instrument.MutualFund;
+import io.github.dimazigel.yfinance.market.HistoryQuery;
 import io.github.dimazigel.yfinance.testsupport.Fixtures;
 import io.github.dimazigel.yfinance.testsupport.Instruments;
 import io.github.dimazigel.yfinance.testsupport.LogCapture;
 import io.github.dimazigel.yfinance.testsupport.YahooDispatcher;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -170,6 +172,20 @@ class YFinanceTest {
             assertThat(f.error()).isInstanceOf(YFDataException.class);
         });
         assertThat(batch.skipped()).isEmpty();
+    }
+
+    @Test
+    void historiesWithQueryUsesAnExplicitWindowAndPreservesOrder() {
+        var query = HistoryQuery.of(Interval.ONE_DAY)
+                .period(Instant.ofEpochSecond(1000), Instant.ofEpochSecond(2000))
+                .build();
+
+        var batch = yf.histories(symbols("MSFT", YahooDispatcher.UNKNOWN, "AAPL"), query);
+
+        assertThat(batch.outcomes()).extracting(Outcome::symbol)
+                .containsExactly(Symbol.of("MSFT"), Symbol.of(YahooDispatcher.UNKNOWN), Symbol.of("AAPL"));
+        assertThat(batch.values()).hasSize(2).allSatisfy(h -> assertThat(h.bars()).hasSize(3));
+        assertThat(batch.failed()).singleElement().satisfies(f -> assertThat(f.symbol()).isEqualTo(Symbol.of(YahooDispatcher.UNKNOWN)));
     }
 
     @Test

@@ -3,10 +3,12 @@ package io.github.dimazigel.yfinance.service;
 import io.github.dimazigel.yfinance.enums.EventType;
 import io.github.dimazigel.yfinance.enums.Interval;
 import io.github.dimazigel.yfinance.enums.Range;
+import io.github.dimazigel.yfinance.market.HistoryQuery;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
 import java.time.Instant;
 import java.util.EnumSet;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import org.jspecify.annotations.Nullable;
 
@@ -15,7 +17,12 @@ import org.jspecify.annotations.Nullable;
  *
  * <p>{@code range} and the {@code (start, end)} period are mutually exclusive; if a period is
  * supplied it takes precedence over {@code range}.
+ *
+ * @deprecated use the symbol-less {@link HistoryQuery} instead, together with {@code
+ *     Ticker.history(HistoryQuery)}; this type is scheduled for removal in 2.0. {@link
+ *     #toQuery()} converts an existing request.
  */
+@Deprecated(since = "1.2", forRemoval = true)
 public record HistoryRequest(
         Symbol symbol,
         Interval interval,
@@ -43,11 +50,25 @@ public record HistoryRequest(
         return start != null;
     }
 
+    /** This request as a symbol-less {@link HistoryQuery}. */
+    public HistoryQuery toQuery() {
+        return new HistoryQuery(
+                interval, Optional.ofNullable(range), Optional.ofNullable(start),
+                Optional.ofNullable(end), includePrePost, events);
+    }
+
+    /** @deprecated use {@link HistoryQuery#of(Interval)} instead */
+    @Deprecated(since = "1.2", forRemoval = true)
     public static Builder builder(Symbol symbol) {
         return new Builder(symbol);
     }
 
-    /** Fluent builder with sensible defaults (1d interval, all corporate-action events). */
+    /**
+     * Fluent builder with sensible defaults (1d interval, all corporate-action events).
+     *
+     * @deprecated use {@link HistoryQuery#of(Interval)} instead
+     */
+    @Deprecated(since = "1.2", forRemoval = true)
     public static final class Builder {
         private final Symbol symbol;
         private Interval interval = Interval.ONE_DAY;
