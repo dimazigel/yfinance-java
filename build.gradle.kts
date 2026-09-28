@@ -40,8 +40,22 @@ java {
     withJavadocJar()
 }
 
+// The published Javadoc covers the API only: the plumbing packages (assembly, dto, mapper, api,
+// auth) and the service classes are internal (see their package-info) and are left out;
+// HistoryRequest stays, being the one API type in `service`. Doclint runs on what remains at
+// `all,-missing`: malformed HTML, bad references and wrong @param names fail the build; a member
+// without a comment does not.
 tasks.javadoc {
-    (options as StandardJavadocDocletOptions).addBooleanOption("Xdoclint:none", true)
+    exclude(
+        "**/assembly/**",
+        "**/dto/**",
+        "**/mapper/**",
+        "**/api/**",
+        "**/auth/**",
+        "**/service/*Service.java",
+        "**/service/FundamentalKeys.java",
+    )
+    (options as StandardJavadocDocletOptions).addBooleanOption("Xdoclint:all,-missing", true)
 }
 
 tasks.jar {
