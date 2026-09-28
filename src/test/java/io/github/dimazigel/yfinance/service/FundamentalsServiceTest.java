@@ -234,10 +234,14 @@ class FundamentalsServiceTest {
         assertThat(incomeQuarterly.periods()).containsExactly(LocalDate.parse("2024-03-31"), LocalDate.parse("2024-06-30"));
         assertThat(incomeQuarterly.value("TotalRevenue", LocalDate.parse("2024-06-30")).orElseThrow()).isEqualByComparingTo("85777000000");
         assertThat(incomeQuarterly.value("TotalRevenue", LocalDate.parse("2023-09-30"))).as("annual periods stay out of the quarterly statement").isEmpty();
+        // NetIncome is served for the annual frequency only: the row must not leak into the other slices
+        assertThat(incomeAnnual.lineItems()).containsKey("NetIncome");
+        assertThat(incomeQuarterly.lineItems()).as("one-frequency-only series stays out of the quarterly slice").doesNotContainKey("NetIncome");
 
         FinancialStatement incomeTrailing = result.get(StatementType.INCOME).get(Frequency.TRAILING);
         assertThat(incomeTrailing.periods()).containsExactly(LocalDate.parse("2024-06-30"));
         assertThat(incomeTrailing.value("TotalRevenue", LocalDate.parse("2024-06-30")).orElseThrow()).isEqualByComparingTo("385603000000");
+        assertThat(incomeTrailing.lineItems()).as("one-frequency-only series stays out of the trailing slice").doesNotContainKey("NetIncome");
 
         FinancialStatement balanceAnnual = result.get(StatementType.BALANCE_SHEET).get(Frequency.ANNUAL);
         assertThat(balanceAnnual.type()).isEqualTo(StatementType.BALANCE_SHEET);

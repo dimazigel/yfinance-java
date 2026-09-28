@@ -41,8 +41,10 @@ java {
 }
 
 // The published Javadoc covers the API only: the plumbing packages (assembly, dto, mapper, api,
-// auth) and the service classes are internal (see their package-info) and are left out;
-// HistoryRequest stays, being the one API type in `service`. Doclint runs on what remains at
+// auth), the service classes, the http plumbing (interceptors, client factory, Feign/Jackson
+// glue, RawQuoteClient) and batch.FanOut are internal (see their package-info) and are left out;
+// HistoryRequest stays, being the one API type in `service`, as do the http configuration
+// records and InMemoryCookieJar. Doclint runs on what remains at
 // `all,-missing`: malformed HTML, bad references and wrong @param names fail the build; a member
 // without a comment does not.
 tasks.javadoc {
@@ -54,6 +56,15 @@ tasks.javadoc {
         "**/auth/**",
         "**/service/*Service.java",
         "**/service/FundamentalKeys.java",
+        "**/http/*Interceptor.java",
+        "**/http/RawQuoteClient.java",
+        "**/http/YahooFeign*.java",
+        "**/http/YahooJsonMapper.java",
+        "**/http/RawAwareNumberModule.java",
+        "**/http/YahooClientFactory.java",
+        "**/http/CallBudget.java",
+        "**/http/RateLimitBudgetExceeded.java",
+        "**/batch/FanOut.java",
     )
     (options as StandardJavadocDocletOptions).addBooleanOption("Xdoclint:all,-missing", true)
 }

@@ -440,7 +440,7 @@ proof to `Ticker.detail(...)`/`statements(...)` is a programming error and throw
 ## Architecture
 
 ```
-YFinance / Ticker / Tickers — the facade; batch calls return Batch<Outcome<T>>
+YFinance / Ticker / Tickers — the facade; batch calls return Batch<T> (one Outcome<T> per symbol)
 service/     one service per concern (InstrumentService, DetailService, HistoryService, ...)   [internal, except HistoryRequest]
 http/        client factory, interceptors (UA, crumb, auth-retry, adaptive rate limit),
              RawQuoteClient (batched v7 rows + per-symbol quoteSummary modules), YahooJsonMapper
@@ -460,8 +460,10 @@ valueobject/ Symbol, Crumb
 The packages marked *internal* are `public` only because the layers live in separate packages;
 their `package-info` says so, they are left out of the published Javadoc, and they may change in
 any release. The API is the facade, `instrument`, `detail`, `market`, `fundamentals`, `search`,
-`batch`, `enums`, `valueobject`, `exception`, `logging`, the `http` configuration records and
-`service.HistoryRequest`.
+`batch` (not `FanOut`), `enums`, `valueobject`, `exception`, `logging`, the `http` configuration
+records (`EndpointConfig`, `AdaptiveRateLimitConfig`, `RetryConfig`) plus `InMemoryCookieJar`,
+and `service.HistoryRequest`; the interceptors, client factory, Feign/Jackson glue and
+`RawQuoteClient` in `http` are internal too.
 
 ## Building, testing, consuming
 

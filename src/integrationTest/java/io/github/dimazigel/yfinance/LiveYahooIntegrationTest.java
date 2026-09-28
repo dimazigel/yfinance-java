@@ -560,6 +560,26 @@ class LiveYahooIntegrationTest {
             assertThat(cashQuarterly.lineItems()).doesNotContainKey(LineItem.TOTAL_REVENUE.key());
         }
 
+        @Test
+        void allThreeStatementsAtAllThreeFrequenciesInOneRequest() {   // review of batch B, minor 4: the 168-key request
+            var byType = aapl.statements(aaplEquity, Set.of(StatementType.values()), Set.of(Frequency.values()));
+
+            assertThat(byType.keySet()).containsExactlyInAnyOrder(StatementType.values());
+            int entries = 0;
+            for (StatementType type : byType.keySet()) {
+                for (Frequency frequency : byType.get(type).keySet()) {
+                    entries++;
+                    FinancialStatement statement = byType.get(type).get(frequency);
+                    assertThat(statement.type()).isEqualTo(type);
+                    assertThat(statement.frequency()).isEqualTo(frequency);
+                    assertThat(statement.periods()).as("%s %s periods", type, frequency).isNotEmpty();
+                    assertThat(statement.lineItems()).as("%s %s line items", type, frequency).isNotEmpty();
+                }
+            }
+            assertThat(entries).as("every pair but the trailing balance sheet").isEqualTo(8);
+            assertThat(byType.get(StatementType.BALANCE_SHEET)).doesNotContainKey(Frequency.TRAILING);
+        }
+
         private long daysBetweenLastTwo(FinancialStatement statement) {
             List<LocalDate> periods = statement.periods();
             assertThat(periods.size()).isGreaterThanOrEqualTo(2);

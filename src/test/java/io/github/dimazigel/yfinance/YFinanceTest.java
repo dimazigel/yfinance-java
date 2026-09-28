@@ -1,6 +1,7 @@
 package io.github.dimazigel.yfinance;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import ch.qos.logback.classic.Level;
 import io.github.dimazigel.yfinance.batch.Outcome;
@@ -11,6 +12,7 @@ import io.github.dimazigel.yfinance.enums.LookupType;
 import io.github.dimazigel.yfinance.enums.Range;
 import io.github.dimazigel.yfinance.enums.StatementType;
 import io.github.dimazigel.yfinance.exception.YFDataException;
+import io.github.dimazigel.yfinance.exception.YFSkippedException;
 import io.github.dimazigel.yfinance.http.EndpointConfig;
 import io.github.dimazigel.yfinance.instrument.AssetClass;
 import io.github.dimazigel.yfinance.instrument.Crypto;
@@ -113,10 +115,9 @@ class YFinanceTest {
     void detailByInstrumentThrowsSkippedForAVanishedSymbol() {   // batch B, item 2
         Equity gone = Instruments.equity("GONE");
 
-        org.assertj.core.api.Assertions.assertThatThrownBy(() -> yf.detail(gone))
-                .isInstanceOf(io.github.dimazigel.yfinance.exception.YFSkippedException.class)
-                .satisfies(e -> assertThat(((io.github.dimazigel.yfinance.exception.YFSkippedException) e).reason())
-                        .isEqualTo(SkipReason.UNKNOWN_SYMBOL));
+        assertThatThrownBy(() -> yf.detail(gone))
+                .isInstanceOf(YFSkippedException.class)
+                .satisfies(e -> assertThat(((YFSkippedException) e).reason()).isEqualTo(SkipReason.UNKNOWN_SYMBOL));
     }
 
     @Test
@@ -208,6 +209,24 @@ class YFinanceTest {
         var single = yf.statements(aapl, types, frequencies);
         assertThat(server.getRequestCount()).as("the single form is one request too").isEqualTo(before + 3);
         assertThat(single.get(StatementType.CASH_FLOW).get(Frequency.ANNUAL).type()).isEqualTo(StatementType.CASH_FLOW);
+    }
+
+    @Test
+    void batchStatementsRejectInvalidArgumentsBeforeAnyRequest() {   // review of batch B, Important 1
+        Equity aapl = Instruments.equity("AAPL");
+        Equity msft = Instruments.withSymbol(aapl, "MSFT");
+        var equities = List.of(aapl, msft);
+
+        assertThatThrownBy(() -> yf.statements(equities, java.util.Set.of(), java.util.Set.of(Frequency.ANNUAL)))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("types");
+        assertThatThrownBy(() -> yf.statements(equities, java.util.Set.of(StatementType.INCOME), java.util.Set.of()))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("frequencies");
+        assertThatThrownBy(() -> yf.statements(equities, java.util.Set.of(StatementType.BALANCE_SHEET), java.util.Set.of(Frequency.TRAILING)))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("trailing").hasMessageContaining("balance sheet");
+        assertThatThrownBy(() -> yf.statements(equities, StatementType.BALANCE_SHEET, Frequency.TRAILING))
+                .as("the single-statement batch form shares the guard")
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("trailing").hasMessageContaining("balance sheet");
+        assertThat(server.getRequestCount()).as("a programming error never reaches the fan-out").isZero();
     }
 
     @Test

@@ -303,9 +303,13 @@ public final class YFinance implements AutoCloseable {
      * @param types the statements wanted; not empty
      * @param frequencies the frequencies wanted; not empty
      * @return one outcome per equity, whose value is statement type → frequency → statement
+     * @throws IllegalArgumentException before any request when either set is empty or the only
+     *     pair is the trailing balance sheet — a programming error is one exception, never N
+     *     {@code Failed} outcomes
      */
     public Batch<Map<StatementType, Map<Frequency, FinancialStatement>>> statements(
             Collection<Equity> equities, Set<StatementType> types, Set<Frequency> frequencies) {
+        FundamentalsService.requireServablePairs(types, frequencies);
         Map<Symbol, Equity> bySymbol = new HashMap<>();
         for (Equity equity : equities) {
             bySymbol.putIfAbsent(equity.symbol(), equity);
@@ -319,8 +323,12 @@ public final class YFinance implements AutoCloseable {
      * {@link Ticker#statements}). The fan-out is keyed by symbol, so when two {@link Equity}
      * instances for one symbol are passed both outcomes are fetched with the first as proof — the
      * statement is the symbol's either way.
+     *
+     * @throws IllegalArgumentException before any request for {@link Frequency#TRAILING} with
+     *     {@link StatementType#BALANCE_SHEET}, which Yahoo does not publish
      */
     public Batch<FinancialStatement> statements(Collection<Equity> equities, StatementType type, Frequency frequency) {
+        FundamentalsService.requireServablePairs(Set.of(type), Set.of(frequency));
         Map<Symbol, Equity> bySymbol = new HashMap<>();
         for (Equity equity : equities) {
             bySymbol.putIfAbsent(equity.symbol(), equity);

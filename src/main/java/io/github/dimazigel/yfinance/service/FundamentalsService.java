@@ -90,29 +90,18 @@ public final class FundamentalsService {
     /** Package-private: reused by tests and the live drift check, which don't hold an {@link Equity}. */
     Map<StatementType, Map<Frequency, FinancialStatement>> getStatements(
             Symbol symbol, Set<StatementType> types, Set<Frequency> frequencies) {
-        if (types.isEmpty()) {
-            throw new IllegalArgumentException("types must not be empty for " + symbol);
-        }
-        if (frequencies.isEmpty()) {
-            throw new IllegalArgumentException("frequencies must not be empty for " + symbol);
-        }
+        requireServablePairs(types, frequencies);
         var orderedTypes = EnumSet.copyOf(types);
         var orderedFrequencies = EnumSet.copyOf(frequencies);
         var wireKeys = new LinkedHashSet<String>();
-        int pairs = 0;
         for (StatementType type : orderedTypes) {
             for (Frequency frequency : orderedFrequencies) {
                 if (servable(type, frequency)) {
-                    pairs++;
                     for (String key : FundamentalKeys.forStatement(type)) {
                         wireKeys.add(frequency.wireValue() + key);
                     }
                 }
             }
-        }
-        if (pairs == 0) {
-            throw new IllegalArgumentException(
-                    "Yahoo has no trailing balance sheet; use ANNUAL or QUARTERLY for " + symbol);
         }
         try (var ignored = LogContext.scope("statements", symbol)) {
             long now = clock.instant().getEpochSecond();
@@ -132,6 +121,33 @@ public final class FundamentalsService {
             }
             return Collections.unmodifiableMap(byType);
         }
+    }
+
+    /**
+     * The argument check of {@link #getStatements(Equity, Set, Set)}, exposed so the facade's batch
+     * forms can fail fast before fanning out: a caller's programming error must be one exception,
+     * not one {@code Failed} outcome per equity.
+     *
+     * @param types the statements wanted
+     * @param frequencies the frequencies wanted
+     * @throws IllegalArgumentException when either set is empty, or when no pair is servable (the
+     *     only combination is the trailing balance sheet)
+     */
+    public static void requireServablePairs(Set<StatementType> types, Set<Frequency> frequencies) {
+        if (types.isEmpty()) {
+            throw new IllegalArgumentException("types must not be empty");
+        }
+        if (frequencies.isEmpty()) {
+            throw new IllegalArgumentException("frequencies must not be empty");
+        }
+        for (StatementType type : types) {
+            for (Frequency frequency : frequencies) {
+                if (servable(type, frequency)) {
+                    return;
+                }
+            }
+        }
+        throw new IllegalArgumentException("Yahoo has no trailing balance sheet; use ANNUAL or QUARTERLY");
     }
 
     /** Yahoo publishes trailing-twelve-month figures for flow statements only, never a balance sheet. */
