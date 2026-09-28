@@ -31,4 +31,10 @@ public class YFMissingDataException extends YFDataException {
     public String subject() {
         return subject;
     }
+
+    /** Never: Yahoo answered, it just has nothing for this request. */
+    @Override
+    public boolean isRetryable() {
+        return false;
+    }
 }

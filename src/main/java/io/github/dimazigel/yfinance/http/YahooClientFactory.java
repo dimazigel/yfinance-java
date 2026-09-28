@@ -69,13 +69,15 @@ public final class YahooClientFactory {
     }
 
     /**
-     * Client used for the auth handshake (cookie + crumb). Carries the cookie jar and User-Agent
-     * but <em>not</em> the crumb interceptor, to avoid recursion when fetching the crumb itself.
+     * Client used for the auth handshake (cookie + crumb) with {@link EndpointConfig#cookieJar()}.
+     * Carries the cookie jar and User-Agent but <em>not</em> the crumb interceptor, to avoid
+     * recursion when fetching the crumb itself.
      */
     public static OkHttpClient baseClient(EndpointConfig config) {
-        return baseClient(config, new InMemoryCookieJar());
+        return baseClient(config, config.cookieJar());
     }
 
+    /** The handshake client over an explicit {@code cookieJar}, with its own limiter, dispatcher and pool. */
     public static OkHttpClient baseClient(EndpointConfig config, CookieJar cookieJar) {
         return baseClient(config, cookieJar, newRateLimiter(config), newDispatcher(config), new ConnectionPool());
     }
@@ -156,9 +158,9 @@ public final class YahooClientFactory {
         return builder.build();
     }
 
-    /** Convenience builder wiring a fresh cookie jar, crumb store and api client together. */
+    /** Convenience builder wiring the config's cookie jar, a crumb store and an api client together. */
     public static OkHttpClient apiClient(EndpointConfig config) {
-        var cookieJar = new InMemoryCookieJar();
+        var cookieJar = config.cookieJar();
         var limiter = newRateLimiter(config);
         var dispatcher = newDispatcher(config);
         var pool = new ConnectionPool();

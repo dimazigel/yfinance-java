@@ -106,11 +106,13 @@ Batch<Equity> viaFetch = yf.tickers(symbols).fetch(t -> t.as(Equity.class));   /
 |---|---|---|
 | `Ok(symbol, value)` | the value | — |
 | `Skipped(symbol, reason, detail)` | Yahoo answered, but there is nothing to return for this symbol | no |
-| `Failed(symbol, error)` | transport, 429 after retries, 5xx after retries, malformed JSON — a `YFinanceException` | yes |
+| `Failed(symbol, error)` | transport, 429 after retries, 5xx after retries, malformed JSON — a `YFinanceException` | `isRetryable()`: yes for transport, 429 and 5xx; no for malformed data |
 
 `SkipReason` is `UNKNOWN_SYMBOL` (not in Yahoo's quote response), `WRONG_ASSET_CLASS`
 (`instruments(symbols, Equity.class)` met an ETF), `DOWNGRADED` (see below), `NOT_AVAILABLE_FOR_CLASS`
 and `MODULE_ABSENT` (a detail request lacked a guaranteed module; `detail` names the fields).
+`Outcome.Failed.isRetryable()` is `error().isRetryable()` (see the error table below), so a queue
+consumer can re-enqueue without an `instanceof` chain.
 `Batch` is `Iterable<Outcome<T>>` and offers `outcomes()`, `stream()`, `values()` (the `Ok` values
 only), `ok()`, `skipped()`, `failed()`, `allOk()`, `toMap()` (`Ok` values by symbol, input order,
 first wins on a duplicate; skipped and failed symbols are absent), `orElseThrowAll()` (every value,
@@ -288,15 +290,13 @@ Everything is tuned through `EndpointConfig` (an immutable record with `with...`
 ```java
 var config = EndpointConfig.production()
         .withCallTimeout(Duration.ofSeconds(10))    // bounds the whole call, paced waits and retries included
-        .withFanOutConcurrency(8)          // detail batches and the Tickers default; 4 if unset
-        .withAdaptiveRateLimit(new AdaptiveRateLimitConfig(
-                true,                      // enabled
-                Duration.ofMillis(500),    // initialDelay after the first 429
-                Duration.ofSeconds(5),     // maxDelay cap (10 s if unset; clamped to callTimeout when longer)
-                2.0,                       // backoffMultiplier per consecutive 429
-                0.5,                       // recoveryFactor per success while degraded
-                0.2,                       // jitterFactor (±20% on scheduled waits)
-                3));                       // maxAttempts per request (1 = never retry a 429)
+        .withFanOutConcurrency(8)                   // detail batches and the Tickers default; 4 if unset
+        .withAdaptiveRateLimit(AdaptiveRateLimitConfig.defaults()
+                .withMaxDelay(Duration.ofSeconds(5))   // pace cap (10 s if unset; clamped to callTimeout when longer)
+                .withMaxAttempts(3))                   // attempts per request (1 = never retry a 429)
+        .withTransientRetry(RetryConfig.defaults().withMaxAttempts(5))   // 5xx retries; 3 if unset
+        .withCookieJar(myPersistentCookieJar)       // keep Yahoo's session cookies across restarts; in-memory if unset
+        .withClock(Clock.systemUTC());              // the services' "now" (fetchedAt, period2); fix it in as-of tests
 
 try (var yf = YFinance.create(config)) {
     // ...
@@ -304,10 +304,17 @@ try (var yf = YFinance.create(config)) {
 ```
 
 Derive variants from `production()` with `withHosts(...)`, `withUserAgent(...)`, `withCallTimeout(...)`,
-`withAdaptiveRateLimit(...)`, `withTransientRetry(...)`, `withFanOutConcurrency(...)` and
-`withClientCustomizer(...)`.
-`AdaptiveRateLimitConfig.defaults()` is what `EndpointConfig.production()` uses;
+`withAdaptiveRateLimit(...)`, `withTransientRetry(...)`, `withFanOutConcurrency(...)`,
+`withClientCustomizer(...)`, `withCookieJar(...)` and `withClock(...)`.
+`AdaptiveRateLimitConfig.defaults()` is what `EndpointConfig.production()` uses (on, 500 ms → 10 s,
+×2 per 429, ×0.5 per success, ±20 % jitter, 3 attempts); each field has a wither
+(`withEnabled`, `withInitialDelay`, `withMaxDelay`, `withBackoffMultiplier`, `withRecoveryFactor`,
+`withJitterFactor`, `withMaxAttempts`), as do `RetryConfig`'s three (`withMaxAttempts`,
+`withInitialDelay`, `withMaxDelay`); validation runs on every copy.
 `AdaptiveRateLimitConfig.disabled()` turns throttling and 429-retries off entirely.
+A cookie jar you supply must be thread-safe (both clients write to it), and every `YFinance`
+created from the same `EndpointConfig` instance shares it; `production()` gives each config a
+fresh `InMemoryCookieJar`, which is also why two `production()` configs are never `equals`.
 `callTimeout` (30 s by default) bounds the **whole** call, rate-limit pacing and retry backoffs
 included. A `maxDelay` (10 s by default) longer than the call timeout could never be waited out,
 so `YFinance.create` clamps it to the call timeout and logs one `WARN`
@@ -395,18 +402,19 @@ Logback, Log4j 2 or another full backend to see them.) A Logback pattern that sh
 
 All failures surface as `YFinanceException` subtypes (unchecked):
 
-| Exception | Meaning |
-|---|---|
-| `YFDataException` | Yahoo error envelope, malformed or incomplete response, or I/O failure |
-| ↳ `YFHttpException` | unexpected HTTP status; carries `status()` and `path()`, body in the message |
-| ↳ `YFMissingDataException` | `Ticker` asked for something Yahoo has nothing for: unknown symbol, or a detail whose guaranteed module is absent; `field()` and `subject()` |
-| ↳↳ `YFSkippedException` | what `Outcome.Skipped.orElseThrow()` (and so every `Ticker` non-answer) actually throws; adds `reason()` (`SkipReason`) and `symbol()` |
-| ↳ `YFClassMismatchException` | `as(Equity.class)` on an instrument of another class; `actual()` and `requested()` |
-| `YFRateLimitException` | HTTP 429 after all adaptive retries (`retryAfter()` when Yahoo sent it), or a paced wait that cannot fit the call timeout (`retryAfter()` is that wait) |
-| `YFAuthException` | the cookie/crumb handshake failed, or Yahoo answered an HTML page instead of JSON (EU consent redirect or access blocked; the message names the path) |
+| Exception | Meaning | `isRetryable()` |
+|---|---|---|
+| `YFDataException` | Yahoo error envelope, malformed or incomplete response, or I/O failure | only when the cause is an `IOException` |
+| ↳ `YFHttpException` | unexpected HTTP status; carries `status()` and `path()`, body in the message | `status() >= 500` |
+| ↳ `YFMissingDataException` | `Ticker` asked for something Yahoo has nothing for: unknown symbol, or a detail whose guaranteed module is absent; `field()` and `subject()` | no |
+| ↳↳ `YFSkippedException` | what `Outcome.Skipped.orElseThrow()` (and so every `Ticker` non-answer) actually throws; adds `reason()` (`SkipReason`) and `symbol()` | no |
+| ↳ `YFClassMismatchException` | `as(Equity.class)` on an instrument of another class; `actual()` and `requested()` | no |
+| `YFRateLimitException` | HTTP 429 after all adaptive retries (`retryAfter()` when Yahoo sent it), or a paced wait that cannot fit the call timeout (`retryAfter()` is that wait) | yes |
+| `YFAuthException` | the cookie/crumb handshake failed, or Yahoo answered an HTML page instead of JSON (EU consent redirect or access blocked; the message names the path) | no |
 
-Batch calls never throw per symbol: a failure becomes `Outcome.Failed` (retryable) and a
-non-answer becomes `Outcome.Skipped` (not retryable). Passing an instrument of a different symbol as
+`YFinanceException.isRetryable()` says whether repeating the same call later may succeed;
+`Outcome.Failed.isRetryable()` delegates to it. Batch calls never throw per symbol: a failure
+becomes `Outcome.Failed` and a non-answer becomes `Outcome.Skipped` (never retryable). Passing an instrument of a different symbol as
 proof to `Ticker.detail(...)`/`statements(...)` is a programming error and throws
 `IllegalArgumentException`.
 

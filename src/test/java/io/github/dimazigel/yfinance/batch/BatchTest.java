@@ -178,4 +178,11 @@ class BatchTest {
     void getReturnsTheFirstOccurrenceOfADuplicateSymbol() {
         assertThat(mixed().get(AAPL)).contains(Outcome.ok(AAPL, 1));
     }
+
+    @Test
+    void failedIsRetryableWhenItsErrorIs() {   // batch B, item 5
+        assertThat(new Outcome.Failed<Integer>(NOPE, new io.github.dimazigel.yfinance.exception.YFRateLimitException("429")).isRetryable()).isTrue();
+        assertThat(new Outcome.Failed<Integer>(NOPE, new YFDataException("malformed")).isRetryable()).isFalse();
+        assertThat(new Outcome.Failed<Integer>(NOPE, new YFDataException("io", new java.io.IOException("reset"))).isRetryable()).isTrue();
+    }
 }

@@ -14,7 +14,6 @@ import io.github.dimazigel.yfinance.enums.Range;
 import io.github.dimazigel.yfinance.enums.StatementType;
 import io.github.dimazigel.yfinance.fundamentals.FinancialStatement;
 import io.github.dimazigel.yfinance.http.EndpointConfig;
-import io.github.dimazigel.yfinance.http.InMemoryCookieJar;
 import io.github.dimazigel.yfinance.http.RawQuoteClient;
 import io.github.dimazigel.yfinance.http.YahooClientFactory;
 import io.github.dimazigel.yfinance.instrument.Crypto;
@@ -83,14 +82,13 @@ public final class YFinance implements AutoCloseable {
     private final int fanOutConcurrency;
     private final AtomicBoolean closed = new AtomicBoolean();
 
-    private YFinance(YahooApis apis, int fanOutConcurrency, Runnable closer) {
+    private YFinance(YahooApis apis, int fanOutConcurrency, Clock clock, Runnable closer) {
         var rawQuotes = new RawQuoteClient(apis.quote(), apis.quoteSummary());
-        Clock clock = Clock.systemUTC();
         this.fanOutConcurrency = fanOutConcurrency;
         this.instruments = new InstrumentService(rawQuotes, clock, fanOutConcurrency);
         this.details = new DetailService(rawQuotes, clock, fanOutConcurrency);
-        this.history = new HistoryService(apis.chart());
-        this.fundamentals = new FundamentalsService(apis.fundamentals());
+        this.history = new HistoryService(apis.chart(), clock);
+        this.fundamentals = new FundamentalsService(apis.fundamentals(), clock);
         this.options = new OptionsService(apis.options());
         this.search = new SearchService(apis.search());
         this.lookup = new LookupService(apis.lookup());
@@ -105,10 +103,12 @@ public final class YFinance implements AutoCloseable {
     /**
      * Instance against the given configuration, performing the cookie/crumb handshake lazily on
      * the first request. {@link EndpointConfig#fanOutConcurrency()} bounds the detail batches and
-     * seeds every {@link Tickers} this instance hands out.
+     * seeds every {@link Tickers} this instance hands out; cookies live in
+     * {@link EndpointConfig#cookieJar()} (shared by every instance created from the same config)
+     * and {@link EndpointConfig#clock()} is the services' source of "now".
      */
     public static YFinance create(EndpointConfig config) {
-        var cookieJar = new InMemoryCookieJar();
+        var cookieJar = config.cookieJar();
         var limiter = YahooClientFactory.newRateLimiter(config);
         var dispatcher = YahooClientFactory.newDispatcher(config);
         var pool = new ConnectionPool();
@@ -123,7 +123,7 @@ public final class YFinance implements AutoCloseable {
                 config.transientRetry().maxAttempts(),
                 config.fanOutConcurrency(),
                 config.hasClientCustomizer() ? "yes" : "no");
-        return new YFinance(YahooApis.create(config, client), config.fanOutConcurrency(), () -> {
+        return new YFinance(YahooApis.create(config, client), config.fanOutConcurrency(), config.clock(), () -> {
             releaseOwned(client, dispatcher, pool);
             releaseOwned(authClient, dispatcher, pool);
             LOG.atDebug().log("yfinance-java client closed");
@@ -135,7 +135,7 @@ public final class YFinance implements AutoCloseable {
      * {@link Tickers#DEFAULT_CONCURRENCY}.
      */
     public static YFinance fromApis(YahooApis apis) {
-        return new YFinance(Objects.requireNonNull(apis, "apis"), Tickers.DEFAULT_CONCURRENCY, () -> {});
+        return new YFinance(Objects.requireNonNull(apis, "apis"), Tickers.DEFAULT_CONCURRENCY, Clock.systemUTC(), () -> {});
     }
 
     /**

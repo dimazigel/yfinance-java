@@ -342,6 +342,49 @@ class YFinanceTest {
         }
     }
 
+    @Test
+    void aCallerSuppliedCookieJarReceivesYahoosCookies() throws Exception {   // batch B, item 5
+        server.setDispatcher(new YahooDispatcher() {
+            @Override
+            public MockResponse dispatch(RecordedRequest request) {
+                return super.dispatch(request).addHeader("Set-Cookie", "A3=session-token; Path=/");
+            }
+        });
+        var jar = new io.github.dimazigel.yfinance.http.InMemoryCookieJar();
+        var config = EndpointConfig.production().withHosts(server.url("/")).withCookieJar(jar);
+
+        try (var created = YFinance.create(config)) {
+            created.ticker("AAPL").instrument();
+        }
+
+        assertThat(jar.loadForRequest(server.url("/"))).extracting(okhttp3.Cookie::name).contains("A3");
+        assertThat(jar.loadForRequest(server.url("/"))).filteredOn(c -> c.name().equals("A3"))
+                .singleElement().satisfies(c -> assertThat(c.value()).isEqualTo("session-token"));
+    }
+
+    @Test
+    void aConfiguredClockStampsFetchedAtAndTimeseriesPeriod2() throws Exception {   // batch B, item 5
+        var fixed = java.time.Clock.fixed(java.time.Instant.ofEpochSecond(1_750_000_000L), java.time.ZoneOffset.UTC);
+        var config = EndpointConfig.production().withHosts(server.url("/")).withClock(fixed);
+
+        try (var created = YFinance.create(config)) {
+            Equity aapl = created.ticker("AAPL").as(Equity.class);
+            assertThat(aapl.fetchedAt()).isEqualTo(fixed.instant());
+            assertThat(created.detail(aapl).fetchedAt()).isEqualTo(fixed.instant());
+            assertThat(created.statements(aapl, StatementType.INCOME, Frequency.ANNUAL).type()).isEqualTo(StatementType.INCOME);
+        }
+
+        RecordedRequest last = null;
+        for (int i = 0; i < server.getRequestCount(); i++) {
+            var req = server.takeRequest();
+            if (req.getRequestUrl().encodedPath().startsWith("/ws/fundamentals-timeseries/")) {
+                last = req;
+            }
+        }
+        assertThat(last).isNotNull();
+        assertThat(last.getRequestUrl().queryParameter("period2")).isEqualTo("1750000000");
+    }
+
     private static List<Symbol> symbols(String... values) {
         return java.util.Arrays.stream(values).map(Symbol::of).toList();
     }
