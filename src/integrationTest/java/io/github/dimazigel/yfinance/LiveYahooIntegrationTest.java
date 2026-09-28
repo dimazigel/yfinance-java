@@ -27,6 +27,7 @@ import io.github.dimazigel.yfinance.instrument.FxPair;
 import io.github.dimazigel.yfinance.instrument.Index;
 import io.github.dimazigel.yfinance.instrument.MutualFund;
 import io.github.dimazigel.yfinance.instrument.Unclassified;
+import io.github.dimazigel.yfinance.market.HistoryQuery;
 import io.github.dimazigel.yfinance.market.PriceBar;
 import io.github.dimazigel.yfinance.service.HistoryRequest;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
@@ -301,6 +302,7 @@ class LiveYahooIntegrationTest {
         }
 
         @Test
+        @SuppressWarnings({"deprecation", "removal"}) // proves the deprecated HistoryRequest path still works live
         void openEndedPeriodRunsToNow() {
             var start = Instant.now().minus(Duration.ofDays(10));
             var history = aapl.history(HistoryRequest.builder(aapl.symbol())
@@ -344,17 +346,17 @@ class LiveYahooIntegrationTest {
 
         @Test
         void includePrePostAddsExtendedHoursBars() {
-            var regular = aapl.history(HistoryRequest.builder(aapl.symbol())
-                    .range(Range.FIVE_DAYS).interval(Interval.ONE_HOUR).includePrePost(false).build());
-            var extended = aapl.history(HistoryRequest.builder(aapl.symbol())
-                    .range(Range.FIVE_DAYS).interval(Interval.ONE_HOUR).includePrePost(true).build());
+            var regular = aapl.history(HistoryQuery.of(Interval.ONE_HOUR)
+                    .range(Range.FIVE_DAYS).includePrePost(false).build());
+            var extended = aapl.history(HistoryQuery.of(Interval.ONE_HOUR)
+                    .range(Range.FIVE_DAYS).includePrePost(true).build());
             assertThat(extended.bars().size()).isGreaterThan(regular.bars().size());
         }
 
         @Test
         void eventsSubsetOnlyReturnsRequestedEvents() {
-            var history = aapl.history(HistoryRequest.builder(aapl.symbol())
-                    .range(Range.MAX).interval(Interval.THREE_MONTHS)
+            var history = aapl.history(HistoryQuery.of(Interval.THREE_MONTHS)
+                    .range(Range.MAX)
                     .events(Set.of(EventType.DIVIDENDS)).build());
             assertThat(history.dividends()).isNotEmpty();
             assertThat(history.splits()).isEmpty(); // AAPL has split; it was not requested
@@ -385,8 +387,8 @@ class LiveYahooIntegrationTest {
             // them (FCNTX, VFIAX, AGTHX all come back dividends-only), so only the request shape and
             // the mapping of whatever is present can be verified.
             var fund = yf.ticker("FCNTX");
-            var history = fund.history(HistoryRequest.builder(fund.symbol())
-                    .range(Range.MAX).interval(Interval.THREE_MONTHS)
+            var history = fund.history(HistoryQuery.of(Interval.THREE_MONTHS)
+                    .range(Range.MAX)
                     .events(Set.of(EventType.DIVIDENDS, EventType.CAPITAL_GAINS)).build());
             assertThat(history.metadata().instrumentType()).isEqualTo("MUTUALFUND");
             assertThat(history.dividends()).isNotEmpty();

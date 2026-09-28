@@ -132,7 +132,7 @@ class HistoryQueryTest {
     }
 
     @Test
-    @SuppressWarnings("deprecation") // HistoryRequest is the deprecated adapter under test here
+    @SuppressWarnings({"deprecation", "removal"}) // HistoryRequest is the deprecated adapter under test here
     void historyRequestToQueryEquivalenceForRangeForm() {
         var request = HistoryRequest.builder(Symbol.of("AAPL"))
                 .interval(Interval.ONE_WEEK)
@@ -151,7 +151,7 @@ class HistoryQueryTest {
     }
 
     @Test
-    @SuppressWarnings("deprecation") // HistoryRequest is the deprecated adapter under test here
+    @SuppressWarnings({"deprecation", "removal"}) // HistoryRequest is the deprecated adapter under test here
     void historyRequestToQueryEquivalenceForPeriodForm() {
         var request = HistoryRequest.builder(Symbol.of("AAPL"))
                 .interval(Interval.ONE_HOUR)
@@ -166,7 +166,7 @@ class HistoryQueryTest {
     }
 
     @Test
-    @SuppressWarnings("deprecation") // HistoryRequest is the deprecated adapter under test here
+    @SuppressWarnings({"deprecation", "removal"}) // HistoryRequest is the deprecated adapter under test here
     void historyRequestToQueryEquivalenceForOpenEndedPeriod() {
         var request = HistoryRequest.builder(Symbol.of("AAPL"))
                 .period(Instant.ofEpochSecond(1000), null)

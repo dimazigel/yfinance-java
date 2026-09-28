@@ -16,6 +16,7 @@ import io.github.dimazigel.yfinance.instrument.Etf;
 import io.github.dimazigel.yfinance.instrument.Instrument;
 import io.github.dimazigel.yfinance.instrument.MutualFund;
 import io.github.dimazigel.yfinance.market.Dividend;
+import io.github.dimazigel.yfinance.market.HistoryQuery;
 import io.github.dimazigel.yfinance.market.OptionChain;
 import io.github.dimazigel.yfinance.market.PriceHistory;
 import io.github.dimazigel.yfinance.market.Split;
@@ -100,27 +101,36 @@ public final class Ticker {
         return yf.detail(proof(crypto));
     }
 
+    /** Price history for this ticker's symbol. */
+    public PriceHistory history(HistoryQuery query) {
+        return yf.history.getHistory(symbol, query);
+    }
+
     /**
      * Price history for an arbitrary {@link HistoryRequest} built for this ticker's symbol.
      *
      * @throws IllegalArgumentException if {@code request} was built for a different symbol; a
      *     request for MSFT sent through the AAPL ticker would otherwise silently fetch MSFT
+     * @deprecated use {@link #history(HistoryQuery)}; {@link HistoryRequest} is scheduled for
+     *     removal in 2.0
      */
+    @Deprecated(since = "1.2", forRemoval = true)
+    @SuppressWarnings("removal") // HistoryRequest is the deprecated adapter this method exists to serve
     public PriceHistory history(HistoryRequest request) {
         if (!request.symbol().equals(symbol)) {
             throw new IllegalArgumentException(
                     "HistoryRequest is for " + request.symbol() + " but this ticker is " + symbol);
         }
-        return yf.history.getHistory(request);
+        return history(request.toQuery());
     }
 
     public PriceHistory history(Range range, Interval interval) {
-        return history(HistoryRequest.builder(symbol).range(range).interval(interval).build());
+        return history(HistoryQuery.range(range, interval));
     }
 
     /** Convenience for historical backfill over an explicit {@code [start, end)} window. */
     public PriceHistory history(Instant start, Instant end, Interval interval) {
-        return history(HistoryRequest.builder(symbol).period(start, end).interval(interval).build());
+        return history(HistoryQuery.period(start, end, interval));
     }
 
     /** All dividends over the instrument's full history. */
@@ -178,7 +188,7 @@ public final class Ticker {
     }
 
     private PriceHistory fullHistory() {
-        return history(HistoryRequest.builder(symbol).range(Range.MAX).interval(Interval.ONE_DAY).build());
+        return history(HistoryQuery.range(Range.MAX, Interval.ONE_DAY));
     }
 
     /** {@code instrument} itself, once it is confirmed to be this ticker's; the proof-token guard. */

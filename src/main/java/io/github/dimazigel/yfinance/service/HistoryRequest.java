@@ -17,7 +17,12 @@ import org.jspecify.annotations.Nullable;
  *
  * <p>{@code range} and the {@code (start, end)} period are mutually exclusive; if a period is
  * supplied it takes precedence over {@code range}.
+ *
+ * @deprecated use the symbol-less {@link HistoryQuery} instead, together with {@code
+ *     Ticker.history(HistoryQuery)}; this type is scheduled for removal in 2.0. {@link
+ *     #toQuery()} converts an existing request.
  */
+@Deprecated(since = "1.2", forRemoval = true)
 public record HistoryRequest(
         Symbol symbol,
         Interval interval,
@@ -52,11 +57,18 @@ public record HistoryRequest(
                 Optional.ofNullable(end), includePrePost, events);
     }
 
+    /** @deprecated use {@link HistoryQuery#of(Interval)} instead */
+    @Deprecated(since = "1.2", forRemoval = true)
     public static Builder builder(Symbol symbol) {
         return new Builder(symbol);
     }
 
-    /** Fluent builder with sensible defaults (1d interval, all corporate-action events). */
+    /**
+     * Fluent builder with sensible defaults (1d interval, all corporate-action events).
+     *
+     * @deprecated use {@link HistoryQuery#of(Interval)} instead
+     */
+    @Deprecated(since = "1.2", forRemoval = true)
     public static final class Builder {
         private final Symbol symbol;
         private Interval interval = Interval.ONE_DAY;

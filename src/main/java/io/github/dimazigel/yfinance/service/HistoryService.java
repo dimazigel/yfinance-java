@@ -7,8 +7,10 @@ import io.github.dimazigel.yfinance.enums.Range;
 import io.github.dimazigel.yfinance.exception.YFDataException;
 import io.github.dimazigel.yfinance.logging.LogContext;
 import io.github.dimazigel.yfinance.mapper.ChartMapper;
+import io.github.dimazigel.yfinance.market.HistoryQuery;
 import io.github.dimazigel.yfinance.market.PriceBarResampler;
 import io.github.dimazigel.yfinance.market.PriceHistory;
+import io.github.dimazigel.yfinance.valueobject.Symbol;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
@@ -35,14 +37,14 @@ public final class HistoryService {
         this.clock = Objects.requireNonNull(clock, "clock");
     }
 
-    public PriceHistory getHistory(HistoryRequest request) {
-        try (var ignored = LogContext.scope("history", request.symbol())) {
-            if (request.interval() != Interval.THIRTY_MINUTES) {
-                return fetch(request, request.interval());
+    public PriceHistory getHistory(Symbol symbol, HistoryQuery query) {
+        try (var ignored = LogContext.scope("history", symbol)) {
+            if (query.interval() != Interval.THIRTY_MINUTES) {
+                return fetch(symbol, query, query.interval());
             }
             PriceHistory fine;
             try {
-                fine = fetch(request, Interval.FIFTEEN_MINUTES);
+                fine = fetch(symbol, query, Interval.FIFTEEN_MINUTES);
             } catch (YFDataException e) {
                 // Yahoo's message names the interval actually fetched, which the caller never asked for.
                 throw new YFDataException(e.getMessage() + " (30m resampled from 15m)", e);
@@ -56,23 +58,35 @@ public final class HistoryService {
         }
     }
 
-    private PriceHistory fetch(HistoryRequest request, Interval interval) {
-        String events = request.events().stream()
+    /**
+     * As {@link #getHistory(Symbol, HistoryQuery)}, taking the symbol from {@code request}.
+     *
+     * @deprecated use {@link #getHistory(Symbol, HistoryQuery)}; {@link HistoryRequest} is
+     *     scheduled for removal in 2.0
+     */
+    @Deprecated(since = "1.2", forRemoval = true)
+    @SuppressWarnings("removal") // HistoryRequest is the deprecated adapter this method exists to serve
+    public PriceHistory getHistory(HistoryRequest request) {
+        return getHistory(request.symbol(), request.toQuery());
+    }
+
+    private PriceHistory fetch(Symbol symbol, HistoryQuery query, Interval interval) {
+        String events = query.events().stream()
                 .map(EventType::wireValue)
                 .collect(Collectors.joining(","));
-        // A request carries either an explicit period (start[, end]) or a range, never both. Yahoo
+        // A query carries either an explicit period (start[, end]) or a range, never both. Yahoo
         // rejects period1 without period2, so an open-ended window ends now.
-        Instant start = request.start();
-        Instant end = request.end() != null ? request.end() : clock.instant();
-        Range range = request.range();
+        Instant start = query.start().orElse(null);
+        Instant end = query.end().orElse(clock.instant());
+        Range range = query.range().orElse(null);
         var response = api.chart(
-                request.symbol().value(),
+                symbol.value(),
                 interval.wireValue(),
                 start == null && range != null ? range.wireValue() : null,
                 start != null ? start.getEpochSecond() : null,
                 start != null ? end.getEpochSecond() : null,
-                request.includePrePost(),
+                query.includePrePost(),
                 events.isEmpty() ? null : events);
-        return ChartMapper.toPriceHistory(response, request.symbol());
+        return ChartMapper.toPriceHistory(response, symbol);
     }
 }
