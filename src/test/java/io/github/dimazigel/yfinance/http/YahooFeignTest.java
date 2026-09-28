@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import feign.Param;
 import feign.RequestLine;
+import io.github.dimazigel.yfinance.exception.YFAuthException;
 import io.github.dimazigel.yfinance.exception.YFDataException;
 import io.github.dimazigel.yfinance.exception.YFHttpException;
 import io.github.dimazigel.yfinance.exception.YFRateLimitException;
@@ -177,11 +178,26 @@ class YahooFeignTest {
 
     @Test
     void malformedJsonIsADataException() {   // Review Focus 4
-        server.enqueue(new MockResponse().setHeader("Content-Type", "text/html").setBody("<html>consent page</html>"));
+        server.enqueue(new MockResponse().setHeader("Content-Type", "application/json").setBody("{\"a\":"));
         assertThatThrownBy(() -> api(new OkHttpClient()).probe("AAPL", null, null, null, true))
                 .isExactlyInstanceOf(YFDataException.class)
                 .hasMessage("Yahoo Finance returned malformed JSON for /probe/AAPL")
                 .hasCauseInstanceOf(tools.jackson.core.JacksonException.class);
+    }
+
+    @Test
+    void htmlPageInsteadOfJsonIsAnAuthException() {   // robustness review, item 10
+        // The EU consent redirect and WAF block pages answer 200 text/html; naming that beats "malformed JSON".
+        server.enqueue(new MockResponse().setHeader("Content-Type", "text/html; charset=utf-8").setBody("<html>consent page</html>"));
+        assertThatThrownBy(() -> api(new OkHttpClient()).probe("AAPL", null, null, null, true))
+                .isExactlyInstanceOf(YFAuthException.class)
+                .hasMessage("Yahoo returned an HTML page instead of JSON for /probe/AAPL (consent required or access blocked)");
+
+        // ...and a page mislabelled as JSON is recognised by its first character
+        server.enqueue(new MockResponse().setHeader("Content-Type", "application/json").setBody("\n  <!DOCTYPE html><html></html>"));
+        assertThatThrownBy(() -> api(new OkHttpClient()).probe("AAPL", null, null, null, true))
+                .isExactlyInstanceOf(YFAuthException.class)
+                .hasMessageStartingWith("Yahoo returned an HTML page instead of JSON for /probe/AAPL");
     }
 
     @Test
