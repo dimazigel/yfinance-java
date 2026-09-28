@@ -36,7 +36,7 @@ try (var yf = YFinance.create()) { // cookie+crumb handshake; close() releases t
     };
 
     Equity equity = aapl.as(Equity.class);      // YFClassMismatchException if AAPL were not an equity
-    EquityDetail detail = aapl.detail(equity);  // profile, statistics, financials, analysts, ownership
+    EquityDetail detail = yf.detail(equity);    // profile, statistics, financials, analysts, ownership
     PriceHistory history = aapl.history(Range.ONE_MONTH, Interval.ONE_DAY);
     List<Dividend> dividends = aapl.dividends();          // full-history corporate actions
     Optional<OptionChain> chain = aapl.options();          // empty when the instrument has no listed options
@@ -53,7 +53,10 @@ try (var yf = YFinance.create()) { // cookie+crumb handshake; close() releases t
 the actual `AssetClass`) when the symbol is something else, including `Unclassified`; `instrument()`
 throws `YFMissingDataException` for a symbol Yahoo does not know. `detail(...)` and
 `statements(...)` take the instrument itself as proof of its class, so the compiler stops you from
-asking for a company profile of an index or the income statement of an ETF.
+asking for a company profile of an index or the income statement of an ETF. The instrument in hand
+is the natural argument: `yf.detail(equity)`, `yf.detail(etf)`, `yf.detail(fund)`, `yf.detail(crypto)`
+and `yf.statements(equity, type, frequency)` take it directly (one request each). The `Ticker`
+forms do the same after checking that the proof is for the ticker's own symbol.
 
 ### Batches
 
@@ -79,6 +82,9 @@ Batch<BigDecimal> prices = batch.map(i -> i.core().price());   // Skipped/Failed
 
 Batch<Equity> equities = yf.instruments(symbols, Equity.class);   // others → Skipped(WRONG_ASSET_CLASS)
 Batch<EquityDetail> details = yf.equityDetails(equities.values()); // one quoteSummary request each
+// Classify once, then fetch details: 1 v7 request per 100 symbols + 1 quoteSummary per equity.
+// tickers(symbols).fetch(t -> t.detail(t.as(Equity.class))) gives the same outcomes but costs two
+// requests per symbol, because each as(...) classifies its symbol alone instead of in the batch.
 Batch<PriceHistory> histories = yf.histories(symbols, Range.ONE_YEAR, Interval.ONE_DAY);
 Batch<Optional<OptionChain>> chains = yf.options(symbols);
 Batch<FinancialStatement> statements = yf.statements(equities.values(), StatementType.INCOME, Frequency.ANNUAL);

@@ -188,6 +188,50 @@ public final class YFinance implements AutoCloseable {
     }
 
     /**
+     * Equity detail for one equity in one quoteSummary request: the instrument in hand is the
+     * proof of its class, so nothing has to be matched against a {@link Ticker}. This is the
+     * single-instrument form of {@link #equityDetails(Collection)}.
+     *
+     * @param equity the equity, e.g. from {@link #instruments(Collection, Class)} or {@link Ticker#as}
+     * @return the detail record
+     * @throws io.github.dimazigel.yfinance.exception.YFSkippedException when quoteSummary no longer
+     *     knows the symbol ({@code UNKNOWN_SYMBOL}) or lacks a guaranteed module ({@code MODULE_ABSENT})
+     */
+    public EquityDetail detail(Equity equity) {
+        return details.equity(equity).orElseThrow();
+    }
+
+    /**
+     * ETF detail for one ETF in one quoteSummary request; see {@link #detail(Equity)} for the contract.
+     *
+     * @param etf the ETF
+     * @return the detail record
+     */
+    public EtfDetail detail(Etf etf) {
+        return details.etf(etf).orElseThrow();
+    }
+
+    /**
+     * Mutual fund detail for one fund in one quoteSummary request; see {@link #detail(Equity)} for the contract.
+     *
+     * @param fund the mutual fund
+     * @return the detail record
+     */
+    public MutualFundDetail detail(MutualFund fund) {
+        return details.mutualFund(fund).orElseThrow();
+    }
+
+    /**
+     * Cryptocurrency detail for one coin in one quoteSummary request; see {@link #detail(Equity)} for the contract.
+     *
+     * @param crypto the cryptocurrency
+     * @return the detail record
+     */
+    public CryptoDetail detail(Crypto crypto) {
+        return details.crypto(crypto).orElseThrow();
+    }
+
+    /**
      * Equity detail for each equity: one quoteSummary request per symbol, at most
      * {@link EndpointConfig#fanOutConcurrency()} of them in flight at once.
      */
@@ -213,6 +257,22 @@ public final class YFinance implements AutoCloseable {
     /** Price history per symbol, fanned out with the configured concurrency. */
     public Batch<PriceHistory> histories(Collection<Symbol> symbols, Range range, Interval interval) {
         return tickers(List.copyOf(symbols)).histories(range, interval);
+    }
+
+    /**
+     * One financial statement for one equity in one timeseries request. Statements are
+     * equities-only (Yahoo's timeseries endpoint returns empty series for every other class), and
+     * the {@link Equity} in hand is the proof; see {@link Ticker#statements(Equity, StatementType, Frequency)}.
+     *
+     * @param equity the equity whose statement to fetch
+     * @param type income statement, balance sheet or cash flow
+     * @param frequency annual, quarterly or trailing twelve months
+     * @return the statement
+     * @throws IllegalArgumentException for {@link Frequency#TRAILING} with
+     *     {@link StatementType#BALANCE_SHEET}, which Yahoo does not publish
+     */
+    public FinancialStatement statements(Equity equity, StatementType type, Frequency frequency) {
+        return fundamentals.getStatement(equity, type, frequency);
     }
 
     /**

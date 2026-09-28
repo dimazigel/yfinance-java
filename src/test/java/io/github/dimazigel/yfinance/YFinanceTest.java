@@ -92,6 +92,48 @@ class YFinanceTest {
     }
 
     @Test
+    void detailByInstrumentIsOneRequestPerCall() {   // batch B, item 2
+        Equity aapl = Instruments.equity("AAPL");          // built from fixtures: no request
+        Etf spy = yf.ticker("SPY").as(Etf.class);
+        MutualFund vfiax = yf.ticker("VFIAX").as(MutualFund.class);
+        Crypto btc = yf.ticker("BTC-USD").as(Crypto.class);
+        int before = server.getRequestCount();
+
+        assertThat(yf.detail(aapl).profile().sector()).isEqualTo("Technology");
+        assertThat(server.getRequestCount()).as("detail(Equity): one quoteSummary request").isEqualTo(before + 1);
+        assertThat(yf.detail(spy).symbol()).isEqualTo(Symbol.of("SPY"));
+        assertThat(server.getRequestCount()).as("detail(Etf)").isEqualTo(before + 2);
+        assertThat(yf.detail(vfiax).symbol()).isEqualTo(Symbol.of("VFIAX"));
+        assertThat(server.getRequestCount()).as("detail(MutualFund)").isEqualTo(before + 3);
+        assertThat(yf.detail(btc).name()).isEqualTo("Bitcoin");
+        assertThat(server.getRequestCount()).as("detail(Crypto)").isEqualTo(before + 4);
+    }
+
+    @Test
+    void detailByInstrumentThrowsSkippedForAVanishedSymbol() {   // batch B, item 2
+        Equity gone = Instruments.equity("GONE");
+
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> yf.detail(gone))
+                .isInstanceOf(io.github.dimazigel.yfinance.exception.YFSkippedException.class)
+                .satisfies(e -> assertThat(((io.github.dimazigel.yfinance.exception.YFSkippedException) e).reason())
+                        .isEqualTo(SkipReason.UNKNOWN_SYMBOL));
+    }
+
+    @Test
+    void statementsByInstrumentIsOneRequest() throws Exception {   // batch B, item 2
+        Equity aapl = Instruments.equity("AAPL");
+
+        var income = yf.statements(aapl, StatementType.INCOME, Frequency.ANNUAL);
+
+        assertThat(income.type()).isEqualTo(StatementType.INCOME);
+        assertThat(income.value("TotalRevenue", LocalDate.parse("2023-09-30")).orElseThrow()).isEqualByComparingTo("383285000000");
+        assertThat(server.getRequestCount()).isEqualTo(1);
+        RecordedRequest req = server.takeRequest();
+        assertThat(req.getRequestUrl().encodedPath()).isEqualTo("/ws/fundamentals-timeseries/v1/finance/timeseries/AAPL");
+        assertThat(req.getRequestUrl().queryParameter("type")).contains("annualTotalRevenue");
+    }
+
+    @Test
     void detailsKeepOrderAndSkipVanishedSymbols() {
         Equity aapl = yf.ticker("AAPL").as(Equity.class);
         Equity gone = Instruments.withSymbol(aapl, "GONE");

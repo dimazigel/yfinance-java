@@ -72,29 +72,30 @@ public final class Ticker {
     }
 
     /**
-     * Equity detail (profile, statistics, financial health, analyst view, ownership).
+     * Equity detail (profile, statistics, financial health, analyst view, ownership). Sugar for
+     * {@link YFinance#detail(Equity)} that also checks the proof belongs to this ticker.
      *
      * @throws IllegalArgumentException if {@code equity} is for a different symbol
      * @throws io.github.dimazigel.yfinance.exception.YFSkippedException when quoteSummary no longer
      *     knows the symbol ({@code UNKNOWN_SYMBOL}) or lacks a guaranteed module ({@code MODULE_ABSENT})
      */
     public EquityDetail detail(Equity equity) {
-        return yf.details.equity(proof(equity)).orElseThrow();
+        return yf.detail(proof(equity));
     }
 
     /** ETF detail; see {@link #detail(Equity)} for the contract. */
     public EtfDetail detail(Etf etf) {
-        return yf.details.etf(proof(etf)).orElseThrow();
+        return yf.detail(proof(etf));
     }
 
     /** Mutual fund detail; see {@link #detail(Equity)} for the contract. */
     public MutualFundDetail detail(MutualFund fund) {
-        return yf.details.mutualFund(proof(fund)).orElseThrow();
+        return yf.detail(proof(fund));
     }
 
     /** Cryptocurrency detail; see {@link #detail(Equity)} for the contract. */
     public CryptoDetail detail(Crypto crypto) {
-        return yf.details.crypto(proof(crypto)).orElseThrow();
+        return yf.detail(proof(crypto));
     }
 
     /**
@@ -149,7 +150,7 @@ public final class Ticker {
      *     passed through the AAPL ticker would otherwise silently fetch MSFT's statement
      */
     public FinancialStatement statements(Equity proof, StatementType type, Frequency frequency) {
-        return yf.fundamentals.getStatement(proof(proof), type, frequency);
+        return yf.statements(proof(proof), type, frequency);
     }
 
     /** Recent news articles related to this symbol. */
