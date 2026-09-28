@@ -4,8 +4,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import io.github.dimazigel.yfinance.Tickers;
+import java.time.Clock;
 import java.time.Duration;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.util.function.Consumer;
 import okhttp3.HttpUrl;
+import okhttp3.OkHttpClient;
 import org.junit.jupiter.api.Test;
 
 class EndpointConfigTest {
@@ -103,5 +108,42 @@ class EndpointConfigTest {
                 .as("a maxDelay longer than the call timeout is clamped when the client is built, not rejected here")
                 .isEqualTo(Duration.ofSeconds(10));
         assertThat(production.withCallTimeout(Duration.ZERO).callTimeout()).isZero();
+    }
+
+    @Test
+    void cookieJarAndClockHaveDefaultsAndWithers() {   // batch B, item 5
+        var production = EndpointConfig.production();
+        assertThat(production.cookieJar()).isInstanceOf(InMemoryCookieJar.class);
+        assertThat(production.clock()).isEqualTo(Clock.systemUTC());
+        assertThat(EndpointConfig.production().cookieJar()).as("each production() has its own jar").isNotSameAs(production.cookieJar());
+
+        var jar = new InMemoryCookieJar();
+        var fixed = Clock.fixed(Instant.ofEpochSecond(1_750_000_000L), ZoneOffset.UTC);
+        var custom = production.withCookieJar(jar).withClock(fixed);
+        assertThat(custom.cookieJar()).isSameAs(jar);
+        assertThat(custom.clock()).isSameAs(fixed);
+        assertThat(custom.callTimeout()).isEqualTo(production.callTimeout());
+
+        assertThat(custom.withHosts(URL).cookieJar()).as("copies keep them").isSameAs(jar);
+        assertThat(custom.withCallTimeout(Duration.ofSeconds(1)).clock()).isSameAs(fixed);
+        assertThat(custom.withFanOutConcurrency(2).cookieJar()).isSameAs(jar);
+        assertThat(custom.withUserAgent("x").clock()).isSameAs(fixed);
+        assertThat(custom.withAdaptiveRateLimit(AdaptiveRateLimitConfig.disabled()).cookieJar()).isSameAs(jar);
+        assertThat(custom.withTransientRetry(RetryConfig.disabled()).clock()).isSameAs(fixed);
+        assertThat(custom.withClientCustomizer(b -> {}).cookieJar()).isSameAs(jar);
+        assertThat(production.withCookieJar(jar).clock()).isEqualTo(Clock.systemUTC());
+        assertThat(production.withClock(fixed).cookieJar()).isSameAs(production.cookieJar());
+    }
+
+    @Test
+    void previousCanonicalConstructorStillCompilesAndDefaultsTheNewComponents() {   // 1.1.0 signature
+        Consumer<OkHttpClient.Builder> none = b -> {};
+        var config = new EndpointConfig(URL, URL, URL, "ua", Duration.ofSeconds(3),
+                AdaptiveRateLimitConfig.defaults(), RetryConfig.defaults(), none, 2);
+
+        assertThat(config.cookieJar()).isInstanceOf(InMemoryCookieJar.class);
+        assertThat(config.clock()).isEqualTo(Clock.systemUTC());
+        assertThat(config.fanOutConcurrency()).isEqualTo(2);
+        assertThat(config.clientCustomizer()).isSameAs(none);
     }
 }

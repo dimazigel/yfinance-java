@@ -6,10 +6,12 @@ import io.github.dimazigel.yfinance.exception.YFinanceException;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
 
 /**
- * The result for one symbol in a batch: a value, a non-retryable skip with a reason, or a
- * retryable failure. Sealed, so a {@code switch} over it needs no default.
+ * The result for one symbol in a batch: a value, a non-retryable skip with a reason, or a failure
+ * whose {@link Failed#isRetryable()} says whether trying again later makes sense. Sealed, so a
+ * {@code switch} over it needs no default.
  */
 public sealed interface Outcome<T> permits Outcome.Ok, Outcome.Skipped, Outcome.Failed {
 
@@ -26,6 +28,23 @@ public sealed interface Outcome<T> permits Outcome.Ok, Outcome.Skipped, Outcome.
      * the symbol and {@code reason()} the {@link SkipReason}.
      */
     T orElseThrow();
+
+    /**
+     * This outcome with an {@link Ok} value transformed by {@code fn}; a {@link Skipped} or
+     * {@link Failed} is returned retyped and otherwise unchanged (same symbol, reason, error).
+     *
+     * @param fn applied to an {@code Ok} value; must not return {@code null}
+     * @param <R> the new value type
+     * @return the mapped outcome
+     */
+    default <R> Outcome<R> map(Function<? super T, ? extends R> fn) {
+        Objects.requireNonNull(fn, "fn");
+        return switch (this) {
+            case Ok<T> ok -> new Ok<>(ok.symbol(), fn.apply(ok.value()));
+            case Skipped<T> s -> new Skipped<>(s.symbol(), s.reason(), s.detail());
+            case Failed<T> f -> new Failed<>(f.symbol(), f.error());
+        };
+    }
 
     static <T> Outcome<T> ok(Symbol symbol, T value) {
         return new Ok<>(symbol, value);
@@ -72,7 +91,10 @@ public sealed interface Outcome<T> permits Outcome.Ok, Outcome.Skipped, Outcome.
         }
     }
 
-    /** A symbol whose fetch failed with an exception; the batch carried on without it. */
+    /**
+     * A symbol whose fetch failed with an exception; the batch carried on without it.
+     * {@link #isRetryable()} tells a transport failure or rate limit from a malformed answer.
+     */
     record Failed<T>(Symbol symbol, YFinanceException error) implements Outcome<T> {
         public Failed {
             Objects.requireNonNull(symbol, "symbol");
@@ -82,6 +104,11 @@ public sealed interface Outcome<T> permits Outcome.Ok, Outcome.Skipped, Outcome.
         @Override
         public T orElseThrow() {
             throw error;
+        }
+
+        /** {@link YFinanceException#isRetryable() error().isRetryable()}: whether re-fetching this symbol later may succeed. */
+        public boolean isRetryable() {
+            return error.isRetryable();
         }
     }
 }

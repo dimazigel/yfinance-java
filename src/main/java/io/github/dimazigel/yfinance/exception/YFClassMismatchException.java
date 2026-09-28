@@ -28,4 +28,10 @@ public class YFClassMismatchException extends YFDataException {
     public Class<?> requested() {
         return requested;
     }
+
+    /** Never: the symbol is simply another class. */
+    @Override
+    public boolean isRetryable() {
+        return false;
+    }
 }

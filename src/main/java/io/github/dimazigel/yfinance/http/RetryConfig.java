@@ -5,7 +5,8 @@ import java.util.Objects;
 
 /**
  * Retry policy for transient server errors (HTTP 500/502/503/504). Every Yahoo call is an
- * idempotent GET, so retrying is always safe; the question is only how long to keep trying.
+ * idempotent GET, so retrying is always safe; the question is only how long to keep trying. Start
+ * from {@link #defaults()} or {@link #disabled()} and derive variants with the {@code with...} methods.
  *
  * @param maxAttempts  total attempts per request (1 = never retry)
  * @param initialDelay wait before the second attempt; doubles on each further attempt
@@ -30,6 +31,21 @@ public record RetryConfig(int maxAttempts, Duration initialDelay, Duration maxDe
     /** Three attempts: waits of 500 ms and 1 s, never more than 5 s. */
     public static RetryConfig defaults() {
         return new RetryConfig(3, Duration.ofMillis(500), Duration.ofSeconds(5));
+    }
+
+    /** Returns a copy with a different total number of attempts; at least 1 (1 = never retry). */
+    public RetryConfig withMaxAttempts(int maxAttempts) {
+        return new RetryConfig(maxAttempts, initialDelay, maxDelay);
+    }
+
+    /** Returns a copy with a different wait before the second attempt; positive, at most {@link #maxDelay()}. */
+    public RetryConfig withInitialDelay(Duration initialDelay) {
+        return new RetryConfig(maxAttempts, initialDelay, maxDelay);
+    }
+
+    /** Returns a copy with a different cap on any single wait; at least {@link #initialDelay()}. */
+    public RetryConfig withMaxDelay(Duration maxDelay) {
+        return new RetryConfig(maxAttempts, initialDelay, maxDelay);
     }
 
     /** A single attempt; server errors surface immediately. */

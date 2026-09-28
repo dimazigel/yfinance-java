@@ -1,6 +1,7 @@
 package io.github.dimazigel.yfinance;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import ch.qos.logback.classic.Level;
 import io.github.dimazigel.yfinance.batch.Outcome;
@@ -11,6 +12,7 @@ import io.github.dimazigel.yfinance.enums.LookupType;
 import io.github.dimazigel.yfinance.enums.Range;
 import io.github.dimazigel.yfinance.enums.StatementType;
 import io.github.dimazigel.yfinance.exception.YFDataException;
+import io.github.dimazigel.yfinance.exception.YFSkippedException;
 import io.github.dimazigel.yfinance.http.EndpointConfig;
 import io.github.dimazigel.yfinance.instrument.AssetClass;
 import io.github.dimazigel.yfinance.instrument.Crypto;
@@ -18,12 +20,14 @@ import io.github.dimazigel.yfinance.instrument.Equity;
 import io.github.dimazigel.yfinance.instrument.Etf;
 import io.github.dimazigel.yfinance.instrument.Instrument;
 import io.github.dimazigel.yfinance.instrument.MutualFund;
+import io.github.dimazigel.yfinance.market.HistoryQuery;
 import io.github.dimazigel.yfinance.testsupport.Fixtures;
 import io.github.dimazigel.yfinance.testsupport.Instruments;
 import io.github.dimazigel.yfinance.testsupport.LogCapture;
 import io.github.dimazigel.yfinance.testsupport.YahooDispatcher;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -92,6 +96,47 @@ class YFinanceTest {
     }
 
     @Test
+    void detailByInstrumentIsOneRequestPerCall() {   // batch B, item 2
+        Equity aapl = Instruments.equity("AAPL");          // built from fixtures: no request
+        Etf spy = yf.ticker("SPY").as(Etf.class);
+        MutualFund vfiax = yf.ticker("VFIAX").as(MutualFund.class);
+        Crypto btc = yf.ticker("BTC-USD").as(Crypto.class);
+        int before = server.getRequestCount();
+
+        assertThat(yf.detail(aapl).profile().sector()).isEqualTo("Technology");
+        assertThat(server.getRequestCount()).as("detail(Equity): one quoteSummary request").isEqualTo(before + 1);
+        assertThat(yf.detail(spy).symbol()).isEqualTo(Symbol.of("SPY"));
+        assertThat(server.getRequestCount()).as("detail(Etf)").isEqualTo(before + 2);
+        assertThat(yf.detail(vfiax).symbol()).isEqualTo(Symbol.of("VFIAX"));
+        assertThat(server.getRequestCount()).as("detail(MutualFund)").isEqualTo(before + 3);
+        assertThat(yf.detail(btc).name()).isEqualTo("Bitcoin");
+        assertThat(server.getRequestCount()).as("detail(Crypto)").isEqualTo(before + 4);
+    }
+
+    @Test
+    void detailByInstrumentThrowsSkippedForAVanishedSymbol() {   // batch B, item 2
+        Equity gone = Instruments.equity("GONE");
+
+        assertThatThrownBy(() -> yf.detail(gone))
+                .isInstanceOf(YFSkippedException.class)
+                .satisfies(e -> assertThat(((YFSkippedException) e).reason()).isEqualTo(SkipReason.UNKNOWN_SYMBOL));
+    }
+
+    @Test
+    void statementsByInstrumentIsOneRequest() throws Exception {   // batch B, item 2
+        Equity aapl = Instruments.equity("AAPL");
+
+        var income = yf.statements(aapl, StatementType.INCOME, Frequency.ANNUAL);
+
+        assertThat(income.type()).isEqualTo(StatementType.INCOME);
+        assertThat(income.value("TotalRevenue", LocalDate.parse("2023-09-30")).orElseThrow()).isEqualByComparingTo("383285000000");
+        assertThat(server.getRequestCount()).isEqualTo(1);
+        RecordedRequest req = server.takeRequest();
+        assertThat(req.getRequestUrl().encodedPath()).isEqualTo("/ws/fundamentals-timeseries/v1/finance/timeseries/AAPL");
+        assertThat(req.getRequestUrl().queryParameter("type")).contains("annualTotalRevenue");
+    }
+
+    @Test
     void detailsKeepOrderAndSkipVanishedSymbols() {
         Equity aapl = yf.ticker("AAPL").as(Equity.class);
         Equity gone = Instruments.withSymbol(aapl, "GONE");
@@ -130,6 +175,20 @@ class YFinanceTest {
     }
 
     @Test
+    void historiesWithQueryUsesAnExplicitWindowAndPreservesOrder() {
+        var query = HistoryQuery.of(Interval.ONE_DAY)
+                .period(Instant.ofEpochSecond(1000), Instant.ofEpochSecond(2000))
+                .build();
+
+        var batch = yf.histories(symbols("MSFT", YahooDispatcher.UNKNOWN, "AAPL"), query);
+
+        assertThat(batch.outcomes()).extracting(Outcome::symbol)
+                .containsExactly(Symbol.of("MSFT"), Symbol.of(YahooDispatcher.UNKNOWN), Symbol.of("AAPL"));
+        assertThat(batch.values()).hasSize(2).allSatisfy(h -> assertThat(h.bars()).hasSize(3));
+        assertThat(batch.failed()).singleElement().satisfies(f -> assertThat(f.symbol()).isEqualTo(Symbol.of(YahooDispatcher.UNKNOWN)));
+    }
+
+    @Test
     void statementsBatchUsesEachEquityAsItsOwnProof() {
         Equity aapl = yf.ticker("AAPL").as(Equity.class);
         Equity msft = Instruments.withSymbol(aapl, "MSFT");
@@ -143,12 +202,57 @@ class YFinanceTest {
     }
 
     @Test
+    void multiStatementsBatchIsOneRequestPerEquity() {   // batch B, item 3
+        Equity aapl = yf.ticker("AAPL").as(Equity.class);
+        Equity msft = Instruments.withSymbol(aapl, "MSFT");
+        int before = server.getRequestCount();
+        var types = java.util.Set.of(StatementType.INCOME, StatementType.CASH_FLOW);
+        var frequencies = java.util.Set.of(Frequency.ANNUAL, Frequency.QUARTERLY);
+
+        var batch = yf.statements(List.of(aapl, msft), types, frequencies);
+
+        assertThat(batch.outcomes()).extracting(Outcome::symbol).containsExactly(Symbol.of("AAPL"), Symbol.of("MSFT"));
+        assertThat(server.getRequestCount()).isEqualTo(before + 2);
+        assertThat(batch.values()).hasSize(2).allSatisfy(byType -> {
+            assertThat(byType.keySet()).containsExactlyInAnyOrder(StatementType.INCOME, StatementType.CASH_FLOW);
+            assertThat(byType.get(StatementType.INCOME).keySet()).containsExactlyInAnyOrder(Frequency.ANNUAL, Frequency.QUARTERLY);
+            assertThat(byType.get(StatementType.INCOME).get(Frequency.ANNUAL).value("TotalRevenue", LocalDate.parse("2023-09-30")).orElseThrow())
+                    .isEqualByComparingTo("383285000000");
+            assertThat(byType.get(StatementType.CASH_FLOW).get(Frequency.QUARTERLY).value("OperatingCashFlow", LocalDate.parse("2024-06-30")).orElseThrow())
+                    .isEqualByComparingTo("28858000000");
+        });
+
+        var single = yf.statements(aapl, types, frequencies);
+        assertThat(server.getRequestCount()).as("the single form is one request too").isEqualTo(before + 3);
+        assertThat(single.get(StatementType.CASH_FLOW).get(Frequency.ANNUAL).type()).isEqualTo(StatementType.CASH_FLOW);
+    }
+
+    @Test
+    void batchStatementsRejectInvalidArgumentsBeforeAnyRequest() {   // review of batch B, Important 1
+        Equity aapl = Instruments.equity("AAPL");
+        Equity msft = Instruments.withSymbol(aapl, "MSFT");
+        var equities = List.of(aapl, msft);
+
+        assertThatThrownBy(() -> yf.statements(equities, java.util.Set.of(), java.util.Set.of(Frequency.ANNUAL)))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("types");
+        assertThatThrownBy(() -> yf.statements(equities, java.util.Set.of(StatementType.INCOME), java.util.Set.of()))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("frequencies");
+        assertThatThrownBy(() -> yf.statements(equities, java.util.Set.of(StatementType.BALANCE_SHEET), java.util.Set.of(Frequency.TRAILING)))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("trailing").hasMessageContaining("balance sheet");
+        assertThatThrownBy(() -> yf.statements(equities, StatementType.BALANCE_SHEET, Frequency.TRAILING))
+                .as("the single-statement batch form shares the guard")
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("trailing").hasMessageContaining("balance sheet");
+        assertThat(server.getRequestCount()).as("a programming error never reaches the fan-out").isZero();
+    }
+
+    @Test
     void emptyInputsMakeNoRequest() {
         assertThat(yf.instruments(List.of()).size()).isZero();
         assertThat(yf.instruments(List.of(), Equity.class).size()).isZero();
         assertThat(yf.equityDetails(List.of()).size()).isZero();
         assertThat(yf.histories(List.of(), Range.ONE_MONTH, Interval.ONE_DAY).size()).isZero();
         assertThat(yf.statements(List.of(), StatementType.INCOME, Frequency.ANNUAL).size()).isZero();
+        assertThat(yf.statements(List.of(), java.util.Set.of(StatementType.INCOME), java.util.Set.of(Frequency.ANNUAL)).size()).isZero();
         assertThat(yf.options(List.of()).size()).isZero();
         assertThat(server.getRequestCount()).isZero();
     }
@@ -271,6 +375,49 @@ class YFinanceTest {
             assertThat(maxInFlight.get()).as("four permits: the requests overlap").isGreaterThan(1);
             assertThat(parallel.tickers("AAPL").concurrency()).isEqualTo(4);
         }
+    }
+
+    @Test
+    void aCallerSuppliedCookieJarReceivesYahoosCookies() throws Exception {   // batch B, item 5
+        server.setDispatcher(new YahooDispatcher() {
+            @Override
+            public MockResponse dispatch(RecordedRequest request) {
+                return super.dispatch(request).addHeader("Set-Cookie", "A3=session-token; Path=/");
+            }
+        });
+        var jar = new io.github.dimazigel.yfinance.http.InMemoryCookieJar();
+        var config = EndpointConfig.production().withHosts(server.url("/")).withCookieJar(jar);
+
+        try (var created = YFinance.create(config)) {
+            created.ticker("AAPL").instrument();
+        }
+
+        assertThat(jar.loadForRequest(server.url("/"))).extracting(okhttp3.Cookie::name).contains("A3");
+        assertThat(jar.loadForRequest(server.url("/"))).filteredOn(c -> c.name().equals("A3"))
+                .singleElement().satisfies(c -> assertThat(c.value()).isEqualTo("session-token"));
+    }
+
+    @Test
+    void aConfiguredClockStampsFetchedAtAndTimeseriesPeriod2() throws Exception {   // batch B, item 5
+        var fixed = java.time.Clock.fixed(java.time.Instant.ofEpochSecond(1_750_000_000L), java.time.ZoneOffset.UTC);
+        var config = EndpointConfig.production().withHosts(server.url("/")).withClock(fixed);
+
+        try (var created = YFinance.create(config)) {
+            Equity aapl = created.ticker("AAPL").as(Equity.class);
+            assertThat(aapl.fetchedAt()).isEqualTo(fixed.instant());
+            assertThat(created.detail(aapl).fetchedAt()).isEqualTo(fixed.instant());
+            assertThat(created.statements(aapl, StatementType.INCOME, Frequency.ANNUAL).type()).isEqualTo(StatementType.INCOME);
+        }
+
+        RecordedRequest last = null;
+        for (int i = 0; i < server.getRequestCount(); i++) {
+            var req = server.takeRequest();
+            if (req.getRequestUrl().encodedPath().startsWith("/ws/fundamentals-timeseries/")) {
+                last = req;
+            }
+        }
+        assertThat(last).isNotNull();
+        assertThat(last.getRequestUrl().queryParameter("period2")).isEqualTo("1750000000");
     }
 
     private static List<Symbol> symbols(String... values) {

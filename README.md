@@ -36,12 +36,14 @@ try (var yf = YFinance.create()) { // cookie+crumb handshake; close() releases t
     };
 
     Equity equity = aapl.as(Equity.class);      // YFClassMismatchException if AAPL were not an equity
-    EquityDetail detail = aapl.detail(equity);  // profile, statistics, financials, analysts, ownership
+    EquityDetail detail = yf.detail(equity);    // profile, statistics, financials, analysts, ownership
     PriceHistory history = aapl.history(Range.ONE_MONTH, Interval.ONE_DAY);
     List<Dividend> dividends = aapl.dividends();          // full-history corporate actions
     Optional<OptionChain> chain = aapl.options();          // empty when the instrument has no listed options
-    FinancialStatement income = aapl.statements(equity, StatementType.INCOME, Frequency.ANNUAL);
-    Optional<BigDecimal> revenue = income.value(LineItem.TOTAL_REVENUE, income.periods().getFirst());
+    FinancialStatement income = yf.statements(equity, StatementType.INCOME, Frequency.ANNUAL);
+    Map<StatementType, Map<Frequency, FinancialStatement>> statements = yf.statements(equity,   // one request
+            Set.of(StatementType.INCOME, StatementType.BALANCE_SHEET, StatementType.CASH_FLOW), Set.of(Frequency.ANNUAL, Frequency.QUARTERLY));
+    Optional<BigDecimal> revenue = income.latest(LineItem.TOTAL_REVENUE);   // most recent period; row(...) for all periods
     List<NewsArticle> news = aapl.news();
 
     SearchResult results = yf.search("apple");
@@ -53,7 +55,10 @@ try (var yf = YFinance.create()) { // cookie+crumb handshake; close() releases t
 the actual `AssetClass`) when the symbol is something else, including `Unclassified`; `instrument()`
 throws `YFMissingDataException` for a symbol Yahoo does not know. `detail(...)` and
 `statements(...)` take the instrument itself as proof of its class, so the compiler stops you from
-asking for a company profile of an index or the income statement of an ETF.
+asking for a company profile of an index or the income statement of an ETF. The instrument in hand
+is the natural argument: `yf.detail(equity)`, `yf.detail(etf)`, `yf.detail(fund)`, `yf.detail(crypto)`
+and `yf.statements(equity, type, frequency)` take it directly (one request each). The `Ticker`
+forms do the same after checking that the proof is for the ticker's own symbol.
 
 ### Batches
 
@@ -65,7 +70,7 @@ makes no request.
 List<Symbol> symbols = Stream.of("AAPL", "SPY", "VFIAX", "BTC-USD", "NOSUCHSYMBOL").map(Symbol::of).toList();
 
 Batch<Instrument> batch = yf.instruments(symbols);   // one request per 100 symbols
-for (Outcome<Instrument> outcome : batch.outcomes()) {
+for (Outcome<Instrument> outcome : batch) {          // Batch is Iterable<Outcome<T>>
     switch (outcome) {
         case Outcome.Ok<Instrument> ok -> store(ok.value());
         case Outcome.Skipped<Instrument> s -> log.info("{} skipped: {} ({})", s.symbol(), s.reason(), s.detail());
@@ -73,12 +78,21 @@ for (Outcome<Instrument> outcome : batch.outcomes()) {
     }
 }
 log.info(batch.summary());                           // "5 symbols: 4 ok, 1 skipped, 0 failed"
+Map<Symbol, Instrument> bySymbol = batch.toMap();    // Ok values only, input order, first wins on a duplicate
+List<Instrument> all = batch.orElseThrowAll();        // all-or-nothing: throws the first skip/failure
+Batch<BigDecimal> prices = batch.map(i -> i.core().price());   // Skipped/Failed pass through retyped
 
 Batch<Equity> equities = yf.instruments(symbols, Equity.class);   // others → Skipped(WRONG_ASSET_CLASS)
 Batch<EquityDetail> details = yf.equityDetails(equities.values()); // one quoteSummary request each
+// Classify once, then fetch details: 1 v7 request per 100 symbols + 1 quoteSummary per equity.
+// tickers(symbols).fetch(t -> t.detail(t.as(Equity.class))) gives the same outcomes but costs two
+// requests per symbol, because each as(...) classifies its symbol alone instead of in the batch.
 Batch<PriceHistory> histories = yf.histories(symbols, Range.ONE_YEAR, Interval.ONE_DAY);
 Batch<Optional<OptionChain>> chains = yf.options(symbols);
 Batch<FinancialStatement> statements = yf.statements(equities.values(), StatementType.INCOME, Frequency.ANNUAL);
+// Several statements per equity in ONE timeseries request each (type → frequency → statement):
+Batch<Map<StatementType, Map<Frequency, FinancialStatement>>> multi = yf.statements(equities.values(),
+        Set.of(StatementType.INCOME, StatementType.CASH_FLOW), Set.of(Frequency.ANNUAL, Frequency.QUARTERLY));
 
 // Fan out any Ticker call with bounded concurrency (virtual threads); a Ticker's non-answer
 // (unknown symbol, wrong class for as(...), absent module) comes back as Skipped, not Failed:
@@ -92,17 +106,73 @@ Batch<Equity> viaFetch = yf.tickers(symbols).fetch(t -> t.as(Equity.class));   /
 |---|---|---|
 | `Ok(symbol, value)` | the value | — |
 | `Skipped(symbol, reason, detail)` | Yahoo answered, but there is nothing to return for this symbol | no |
-| `Failed(symbol, error)` | transport, 429 after retries, 5xx after retries, malformed JSON — a `YFinanceException` | yes |
+| `Failed(symbol, error)` | transport, 429 after retries, 5xx after retries, malformed JSON — a `YFinanceException` | `isRetryable()`: yes for transport, 429 and 5xx; no for malformed data |
 
 `SkipReason` is `UNKNOWN_SYMBOL` (not in Yahoo's quote response), `WRONG_ASSET_CLASS`
 (`instruments(symbols, Equity.class)` met an ETF), `DOWNGRADED` (see below), `NOT_AVAILABLE_FOR_CLASS`
 and `MODULE_ABSENT` (a detail request lacked a guaranteed module; `detail` names the fields).
-`Batch` offers `outcomes()`, `values()` (the `Ok` values only), `skipped()`, `failed()`, `get(symbol)`
-and `summary()`; each `Outcome` has `optional()` and `orElseThrow()` (`Skipped` throws
-`YFSkippedException`, a `YFMissingDataException` carrying the `SkipReason`; `Failed` rethrows its
-error). The mapping is symmetric: `Tickers.fetch` turns a `YFSkippedException` or a
+`Outcome.Failed.isRetryable()` is `error().isRetryable()` (see the error table below), so a queue
+consumer can re-enqueue without an `instanceof` chain.
+`Batch` is `Iterable<Outcome<T>>` and offers `outcomes()`, `stream()`, `values()` (the `Ok` values
+only), `ok()`, `skipped()`, `failed()`, `allOk()`, `toMap()` (`Ok` values by symbol, input order,
+first wins on a duplicate; skipped and failed symbols are absent), `orElseThrowAll()` (every value,
+or the first non-`Ok` outcome's exception), `map(fn)` (transforms the `Ok` values, passes the rest
+through), `get(symbol)` (first occurrence, a linear scan) and `summary()`; each `Outcome` has
+`optional()`, `map(fn)` and `orElseThrow()` (`Skipped` throws `YFSkippedException`, a
+`YFMissingDataException` carrying the `SkipReason`; `Failed` rethrows its error). The mapping is symmetric: `Tickers.fetch` turns a `YFSkippedException` or a
 `YFClassMismatchException` thrown inside the fetcher back into `Skipped`, so `fetch(t -> t.as(Equity.class))`
 skips for the same reasons as `instruments(symbols, Equity.class)`.
+
+### Price history
+
+`HistoryQuery` is the general price-history request: a `Range` **or** an explicit `[start, end)`
+period, plus `includePrePost` and `events`. `Ticker.history(Range, Interval)` and
+`Ticker.history(start, end, Interval)` are shorthand for the common cases and build one under the
+hood; reach for `HistoryQuery` directly for pre/post bars, a subset of corporate-action events, or
+an open-ended period.
+
+```java
+// Range form — same as ticker.history(Range.ONE_MONTH, Interval.ONE_DAY).
+PriceHistory month = aapl.history(HistoryQuery.range(Range.ONE_MONTH, Interval.ONE_DAY));
+
+// Explicit window, pre/post-market bars, dividends only (no splits/capital gains).
+PriceHistory extended = aapl.history(HistoryQuery.of(Interval.ONE_HOUR)
+        .period(Instant.now().minus(Duration.ofDays(5)), Instant.now())
+        .includePrePost(true)
+        .events(EventType.DIVIDENDS)
+        .build());
+
+// Batch backfill: the same explicit window for every symbol, one Outcome each.
+Batch<PriceHistory> backfill = yf.histories(symbols,
+        HistoryQuery.period(Instant.now().minus(Duration.ofDays(30)), Instant.now(), Interval.ONE_DAY));
+```
+
+`HistoryQuery.of(interval)` starts a builder; `range(...)` and `period(...)` are mutually exclusive
+(each clears the other) and one of them is required before `build()`. An open-ended
+`period(start)` (no `end`) resolves to "now" at request time, not at build time.
+
+`HistoryRequest` — the old, symbol-carrying request type `Ticker.history(HistoryRequest)` took — is
+`@Deprecated(since = "1.2", forRemoval = true)`; `HistoryRequest.toQuery()` converts an existing
+request. It will be removed in 2.0.
+
+### Coming from Python yfinance
+
+| Python `yfinance` | `yfinance-java` |
+|---|---|
+| `Ticker("AAPL").info` | `ticker.instrument()` (snapshot, typed by class) + `yf.detail(equity)` / `ticker.detail(equity)` (profile, statistics, analysts, ownership); two requests, because Yahoo's v7 quote and quoteSummary are two endpoints |
+| `history(period="1mo", interval="1d")` | `ticker.history(Range.ONE_MONTH, Interval.ONE_DAY)`; `history(start, end, interval)` for a window; `history(HistoryQuery.of(interval)....build())` for `includePrePost`/`events` (see [Price history](#price-history)) |
+| `history(auto_adjust=True)` (the Python default) | `ticker.history(...).adjusted()` — bars are raw OHLC + `adjClose` until you ask |
+| `dividends` / `splits` / `actions` / `capital_gains` | `ticker.dividends()` / `ticker.splits()`; `history(...).dividends()` / `.splits()` / `.capitalGains()` on any fetched window |
+| `options` / `option_chain(date)` | `ticker.options()` → `Optional<OptionChain>` (nearest expiration; `expirationDates()` lists the rest), `ticker.options(expiration)` for one of them |
+| `financials` / `balance_sheet` / `cashflow` (+ `quarterly_*`, `ttm_*`) | `yf.statements(equity, StatementType.INCOME \| BALANCE_SHEET \| CASH_FLOW, Frequency.ANNUAL \| QUARTERLY \| TRAILING)`; several at once in one request: `yf.statements(equity, Set.of(...types), Set.of(...frequencies))` |
+| `Tickers("AAPL MSFT")` / `download([...])` | `yf.instruments(symbols)` (one request per 100 symbols) / `yf.histories(symbols, range, interval)`; `yf.tickers(...).fetch(Ticker::...)` fans any call out |
+| `Search("apple")` / `Lookup("apple")` | `yf.search("apple")` (`quotes()` + `news()`) / `yf.lookup("apple", LookupType.EQUITY)` |
+| `Ticker.news` | `ticker.news()` |
+| `history(repair=True)`, `EquityQuery`/`Screener`, `WebSocket`, ISIN (`isin`, `Ticker("US0378331005")`) | not covered |
+
+Three defaults differ from Python: history is **not** auto-adjusted (call `adjusted()`), a symbol
+Yahoo does not know is an exception on `Ticker` and a `Skipped` outcome in a batch (never an empty
+frame), and percents are stored as fractions.
 
 ## The model
 
@@ -207,8 +277,15 @@ price data for them. Detail records are fetched with the instrument as proof, so
   hundreds). Within a chain, `bid`, `openInterest` and `volume` are `Optional`; a contract missing
   any other field is dropped.
 - **Financial statements** exist for equities only (the timeseries endpoint returns empty series
-  for every other class), hence the `Equity` proof. `FinancialStatement.value(...)` is
-  `Optional<BigDecimal>`; line items are the `LineItem` enum or a raw key.
+  for every other class), hence the `Equity` proof. `FinancialStatement.value(item, period)`,
+  `latest(item)` (at `latestPeriod()`, the last of the ascending `periods()`) and `row(item)`
+  (period → value, ascending, absent values omitted) return `Optional<BigDecimal>` / an immutable
+  map; the typed forms throw `IllegalArgumentException` for a `LineItem` of another statement
+  (`TOTAL_ASSETS` asked of an income statement); the raw-key `value(String, period)` stays lenient. `statements(equity,
+  Set<StatementType>, Set<Frequency>)` fetches every requested pair in **one** request and returns
+  `type → frequency → FinancialStatement`; the trailing balance sheet (which Yahoo does not
+  publish) is skipped when other pairs remain and an `IllegalArgumentException` when it is the
+  only one, as it is for the single form.
 - **`HistoryMetadata`** is fully non-null except `dataGranularity` (`Optional<Interval>`, in case
   Yahoo reports an interval this version does not know); an incomplete chart response throws
   rather than returning a half-filled record.
@@ -250,7 +327,7 @@ Twitter and proof-of-work stats.
 | Snapshot, every asset class | `/v7/finance/quote` + `/v10/finance/quoteSummary` fallback | `Ticker.instrument()`, `as(...)`, `YFinance.instruments(...)` |
 | Detail per class | `/v10/finance/quoteSummary` | `Ticker.detail(...)`, `YFinance.equityDetails(...)`, `etfDetails`, `mutualFundDetails`, `cryptoDetails` |
 | Price history, dividends, splits, capital gains, metadata | `/v8/finance/chart` | `Ticker.history(...)`, `dividends()`, `splits()`, `YFinance.histories(...)` |
-| Income / balance sheet / cash flow (annual + quarterly) | `/ws/fundamentals-timeseries` | `Ticker.statements(...)`, `YFinance.statements(...)` |
+| Income / balance sheet / cash flow (annual, quarterly, trailing) | `/ws/fundamentals-timeseries` | `Ticker.statements(...)`, `YFinance.statements(...)` (single, several-in-one-request, and batch forms) |
 | Options chain | `/v7/finance/options` | `Ticker.options(...)`, `YFinance.options(...)` |
 | Search & per-symbol news | `/v1/finance/search` | `YFinance.search(...)`, `Ticker.news()` |
 | Lookup | `/v1/finance/lookup` | `YFinance.lookup(...)` |
@@ -264,15 +341,13 @@ Everything is tuned through `EndpointConfig` (an immutable record with `with...`
 ```java
 var config = EndpointConfig.production()
         .withCallTimeout(Duration.ofSeconds(10))    // bounds the whole call, paced waits and retries included
-        .withFanOutConcurrency(8)          // detail batches and the Tickers default; 4 if unset
-        .withAdaptiveRateLimit(new AdaptiveRateLimitConfig(
-                true,                      // enabled
-                Duration.ofMillis(500),    // initialDelay after the first 429
-                Duration.ofSeconds(5),     // maxDelay cap (10 s if unset; clamped to callTimeout when longer)
-                2.0,                       // backoffMultiplier per consecutive 429
-                0.5,                       // recoveryFactor per success while degraded
-                0.2,                       // jitterFactor (±20% on scheduled waits)
-                3));                       // maxAttempts per request (1 = never retry a 429)
+        .withFanOutConcurrency(8)                   // detail batches and the Tickers default; 4 if unset
+        .withAdaptiveRateLimit(AdaptiveRateLimitConfig.defaults()
+                .withMaxDelay(Duration.ofSeconds(5))   // pace cap (10 s if unset; clamped to callTimeout when longer)
+                .withMaxAttempts(3))                   // attempts per request (1 = never retry a 429)
+        .withTransientRetry(RetryConfig.defaults().withMaxAttempts(5))   // 5xx retries; 3 if unset
+        .withCookieJar(myPersistentCookieJar)       // keep Yahoo's session cookies across restarts; in-memory if unset
+        .withClock(Clock.systemUTC());              // the services' "now" (fetchedAt, period2); fix it in as-of tests
 
 try (var yf = YFinance.create(config)) {
     // ...
@@ -280,10 +355,17 @@ try (var yf = YFinance.create(config)) {
 ```
 
 Derive variants from `production()` with `withHosts(...)`, `withUserAgent(...)`, `withCallTimeout(...)`,
-`withAdaptiveRateLimit(...)`, `withTransientRetry(...)`, `withFanOutConcurrency(...)` and
-`withClientCustomizer(...)`.
-`AdaptiveRateLimitConfig.defaults()` is what `EndpointConfig.production()` uses;
+`withAdaptiveRateLimit(...)`, `withTransientRetry(...)`, `withFanOutConcurrency(...)`,
+`withClientCustomizer(...)`, `withCookieJar(...)` and `withClock(...)`.
+`AdaptiveRateLimitConfig.defaults()` is what `EndpointConfig.production()` uses (on, 500 ms → 10 s,
+×2 per 429, ×0.5 per success, ±20 % jitter, 3 attempts); each field has a wither
+(`withEnabled`, `withInitialDelay`, `withMaxDelay`, `withBackoffMultiplier`, `withRecoveryFactor`,
+`withJitterFactor`, `withMaxAttempts`), as do `RetryConfig`'s three (`withMaxAttempts`,
+`withInitialDelay`, `withMaxDelay`); validation runs on every copy.
 `AdaptiveRateLimitConfig.disabled()` turns throttling and 429-retries off entirely.
+A cookie jar you supply must be thread-safe (both clients write to it), and every `YFinance`
+created from the same `EndpointConfig` instance shares it; `production()` gives each config a
+fresh `InMemoryCookieJar`, which is also why two `production()` configs are never `equals`.
 `callTimeout` (30 s by default) bounds the **whole** call, rate-limit pacing and retry backoffs
 included. A `maxDelay` (10 s by default) longer than the call timeout could never be waited out,
 so `YFinance.create` clamps it to the call timeout and logs one `WARN`
@@ -371,40 +453,50 @@ Logback, Log4j 2 or another full backend to see them.) A Logback pattern that sh
 
 All failures surface as `YFinanceException` subtypes (unchecked):
 
-| Exception | Meaning |
-|---|---|
-| `YFDataException` | Yahoo error envelope, malformed or incomplete response, or I/O failure |
-| ↳ `YFHttpException` | unexpected HTTP status; carries `status()` and `path()`, body in the message |
-| ↳ `YFMissingDataException` | `Ticker` asked for something Yahoo has nothing for: unknown symbol, or a detail whose guaranteed module is absent; `field()` and `subject()` |
-| ↳↳ `YFSkippedException` | what `Outcome.Skipped.orElseThrow()` (and so every `Ticker` non-answer) actually throws; adds `reason()` (`SkipReason`) and `symbol()` |
-| ↳ `YFClassMismatchException` | `as(Equity.class)` on an instrument of another class; `actual()` and `requested()` |
-| `YFRateLimitException` | HTTP 429 after all adaptive retries (`retryAfter()` when Yahoo sent it), or a paced wait that cannot fit the call timeout (`retryAfter()` is that wait) |
-| `YFAuthException` | the cookie/crumb handshake failed, or Yahoo answered an HTML page instead of JSON (EU consent redirect or access blocked; the message names the path) |
+| Exception | Meaning | `isRetryable()` |
+|---|---|---|
+| `YFDataException` | Yahoo error envelope, malformed or incomplete response, or I/O failure | only when the cause is an `IOException` |
+| ↳ `YFHttpException` | unexpected HTTP status; carries `status()` and `path()`, body in the message | `status() >= 500` |
+| ↳ `YFMissingDataException` | `Ticker` asked for something Yahoo has nothing for: unknown symbol, or a detail whose guaranteed module is absent; `field()` and `subject()` | no |
+| ↳↳ `YFSkippedException` | what `Outcome.Skipped.orElseThrow()` (and so every `Ticker` non-answer) actually throws; adds `reason()` (`SkipReason`) and `symbol()` | no |
+| ↳ `YFClassMismatchException` | `as(Equity.class)` on an instrument of another class; `actual()` and `requested()` | no |
+| `YFRateLimitException` | HTTP 429 after all adaptive retries (`retryAfter()` when Yahoo sent it), or a paced wait that cannot fit the call timeout (`retryAfter()` is that wait) | yes |
+| `YFAuthException` | the cookie/crumb handshake failed, or Yahoo answered an HTML page instead of JSON (EU consent redirect or access blocked; the message names the path) | no |
 
-Batch calls never throw per symbol: a failure becomes `Outcome.Failed` (retryable) and a
-non-answer becomes `Outcome.Skipped` (not retryable). Passing an instrument of a different symbol as
+`YFinanceException.isRetryable()` says whether repeating the same call later may succeed;
+`Outcome.Failed.isRetryable()` delegates to it. Batch calls never throw per symbol: a failure
+becomes `Outcome.Failed` and a non-answer becomes `Outcome.Skipped` (never retryable). Passing an instrument of a different symbol as
 proof to `Ticker.detail(...)`/`statements(...)` is a programming error and throws
 `IllegalArgumentException`.
 
 ## Architecture
 
 ```
-YFinance / Ticker / Tickers — the facade; batch calls return Batch<Outcome<T>>
-service/     one service per concern (InstrumentService, DetailService, HistoryService, ...)
+YFinance / Ticker / Tickers — the facade; batch calls return Batch<T> (one Outcome<T> per symbol)
+service/     one service per concern (InstrumentService, DetailService, HistoryService, ...)   [internal, except HistoryRequest, deprecated for removal in 2.0]
 http/        client factory, interceptors (UA, crumb, auth-retry, adaptive rate limit),
              RawQuoteClient (batched v7 rows + per-symbol quoteSummary modules), YahooJsonMapper
-api/         Feign interfaces (one per endpoint) + YahooApis bundle
-assembly/    FieldSpec tables per class (specs/, mirrored from Appendix A), Resolver, builders (build/)
+api/         Feign interfaces (one per endpoint) + YahooApis bundle                            [internal]
+assembly/    FieldSpec tables per class (specs/, mirrored from Appendix A), Resolver, builders (build/)   [internal]
 instrument/  the sealed snapshot hierarchy and its value records
 detail/      EquityDetail, EtfDetail, MutualFundDetail, CryptoDetail (+ rows/)
 batch/       Batch, Outcome, SkipReason, FanOut
-market/      PriceHistory, PriceBar, HistoryMetadata, OptionChain, corporate actions
+market/      HistoryQuery, PriceHistory, PriceBar, HistoryMetadata, OptionChain, corporate actions
 fundamentals/ FinancialStatement;  search/ SearchResult, LookupQuote
-dto/ + mapper/ raw records and mappers for chart, options, timeseries, search, lookup
-auth/        CrumbStore — cookie (fc.yahoo.com) then crumb handshake, invalidate-on-401/403 (by identity), cooldown after a transient failure
+dto/ + mapper/ raw records and mappers for chart, options, timeseries, search, lookup          [internal]
+auth/        CrumbStore — cookie (fc.yahoo.com) then crumb handshake, invalidate-on-401/403 (by identity), cooldown after a transient failure   [internal]
 enums/       closed sets implementing WireEnum (Interval, Range, LineItem, ...)
 valueobject/ Symbol, Crumb
 ```
+
+The packages marked *internal* are `public` only because the layers live in separate packages;
+their `package-info` says so, they are left out of the published Javadoc, and they may change in
+any release. The API is the facade, `instrument`, `detail`, `market`, `fundamentals`, `search`,
+`batch` (not `FanOut`), `enums`, `valueobject`, `exception`, `logging`, the `http` configuration
+records (`EndpointConfig`, `AdaptiveRateLimitConfig`, `RetryConfig`) plus `InMemoryCookieJar`,
+and `service.HistoryRequest` (deprecated since 1.2, for removal in 2.0 — use
+`market.HistoryQuery` instead); the interceptors, client factory, Feign/Jackson glue and
+`RawQuoteClient` in `http` are internal too.
 
 ## Building, testing, consuming
 

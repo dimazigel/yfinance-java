@@ -13,6 +13,7 @@ import io.github.dimazigel.yfinance.exception.YFinanceException;
 import io.github.dimazigel.yfinance.instrument.AssetClass;
 import io.github.dimazigel.yfinance.instrument.Instrument;
 import io.github.dimazigel.yfinance.logging.LogContext;
+import io.github.dimazigel.yfinance.market.HistoryQuery;
 import io.github.dimazigel.yfinance.market.PriceHistory;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
 import java.util.List;
@@ -106,8 +107,13 @@ public final class Tickers {
         return yf.instruments(symbols);
     }
 
+    /** Price history for every symbol, fetched with {@code query}. */
+    public Batch<PriceHistory> histories(HistoryQuery query) {
+        return fetch(ticker -> ticker.history(query));
+    }
+
     public Batch<PriceHistory> histories(Range range, Interval interval) {
-        return fetch(ticker -> ticker.history(range, interval));
+        return histories(HistoryQuery.range(range, interval));
     }
 
     /**

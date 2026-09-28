@@ -1,16 +1,19 @@
 package io.github.dimazigel.yfinance.http;
 
 import io.github.dimazigel.yfinance.Tickers;
+import java.time.Clock;
 import java.time.Duration;
 import java.util.Objects;
 import java.util.function.Consumer;
+import okhttp3.CookieJar;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 
 /**
  * Host roots and HTTP identity used to reach Yahoo Finance. Start from {@link #production()} and
  * derive variants with the {@code with...} methods; the canonical constructor exists for callers
- * who want to spell out everything.
+ * who want to spell out everything. Note that two {@code production()} configs are never
+ * {@code equals}: each holds its own cookie jar.
  *
  * @param query1Base  primary API host ({@code https://query1.finance.yahoo.com/})
  * @param query2Base  secondary API host ({@code https://query2.finance.yahoo.com/}), used for
@@ -35,6 +38,14 @@ import okhttp3.OkHttpClient;
  *     {@link Tickers#DEFAULT_CONCURRENCY} by default. The library's own calls are synchronous, so
  *     this semaphore is their only bound; the shared OkHttp dispatcher is sized to the same value
  *     for callers who {@code enqueue} through the customizer's client
+ * @param cookieJar where the OkHttp clients store and send cookies (Yahoo's {@code A1}/{@code A3}
+ *     session cookies); a fresh {@link InMemoryCookieJar} per {@link #production()} call. Must be
+ *     thread-safe: both clients use it, and every {@code YFinance} created from the same
+ *     {@code EndpointConfig} instance shares it. Supply a persistent jar with
+ *     {@link #withCookieJar(CookieJar)} to survive restarts without a new handshake
+ * @param clock the source of "now" for the services — {@code fetchedAt} on instruments and details,
+ *     the end of an open-ended history window, the timeseries {@code period2};
+ *     {@link Clock#systemUTC()} by default, fixable with {@link #withClock(Clock)} for as-of tests
  */
 public record EndpointConfig(
         HttpUrl query1Base,
@@ -45,7 +56,9 @@ public record EndpointConfig(
         AdaptiveRateLimitConfig adaptiveRateLimit,
         RetryConfig transientRetry,
         Consumer<OkHttpClient.Builder> clientCustomizer,
-        int fanOutConcurrency) {
+        int fanOutConcurrency,
+        CookieJar cookieJar,
+        Clock clock) {
 
     private static final String DEFAULT_USER_AGENT =
             "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
@@ -64,9 +77,39 @@ public record EndpointConfig(
         Objects.requireNonNull(adaptiveRateLimit, "adaptiveRateLimit");
         Objects.requireNonNull(transientRetry, "transientRetry");
         Objects.requireNonNull(clientCustomizer, "clientCustomizer");
+        Objects.requireNonNull(cookieJar, "cookieJar");
+        Objects.requireNonNull(clock, "clock");
         if (fanOutConcurrency < 1) {
             throw new IllegalArgumentException("fanOutConcurrency must be >= 1, was " + fanOutConcurrency);
         }
+    }
+
+    /**
+     * The canonical constructor of 1.1.0: a fresh {@link InMemoryCookieJar} and
+     * {@link Clock#systemUTC()} for the two components added since.
+     *
+     * @param query1Base primary API host
+     * @param query2Base secondary API host
+     * @param cookieUrl cookie-seeding URL
+     * @param userAgent the {@code User-Agent} header
+     * @param callTimeout overall per-call timeout
+     * @param adaptiveRateLimit adaptive throttling after HTTP 429
+     * @param transientRetry retry policy for 5xx
+     * @param clientCustomizer hook applied last to every OkHttp client builder
+     * @param fanOutConcurrency the fan-out bound, at least 1
+     */
+    public EndpointConfig(
+            HttpUrl query1Base,
+            HttpUrl query2Base,
+            HttpUrl cookieUrl,
+            String userAgent,
+            Duration callTimeout,
+            AdaptiveRateLimitConfig adaptiveRateLimit,
+            RetryConfig transientRetry,
+            Consumer<OkHttpClient.Builder> clientCustomizer,
+            int fanOutConcurrency) {
+        this(query1Base, query2Base, cookieUrl, userAgent, callTimeout, adaptiveRateLimit, transientRetry,
+                clientCustomizer, fanOutConcurrency, new InMemoryCookieJar(), Clock.systemUTC());
     }
 
     /** The production Yahoo Finance configuration. */
@@ -80,7 +123,9 @@ public record EndpointConfig(
                 AdaptiveRateLimitConfig.defaults(),
                 RetryConfig.defaults(),
                 NO_CUSTOMIZATION,
-                Tickers.DEFAULT_CONCURRENCY);
+                Tickers.DEFAULT_CONCURRENCY,
+                new InMemoryCookieJar(),
+                Clock.systemUTC());
     }
 
     /**
@@ -95,14 +140,14 @@ public record EndpointConfig(
     public EndpointConfig withHosts(HttpUrl query1Base, HttpUrl query2Base, HttpUrl cookieUrl) {
         return new EndpointConfig(
                 query1Base, query2Base, cookieUrl, userAgent, callTimeout, adaptiveRateLimit, transientRetry,
-                clientCustomizer, fanOutConcurrency);
+                clientCustomizer, fanOutConcurrency, cookieJar, clock);
     }
 
     /** Returns a copy with a different {@code User-Agent}. */
     public EndpointConfig withUserAgent(String userAgent) {
         return new EndpointConfig(
                 query1Base, query2Base, cookieUrl, userAgent, callTimeout, adaptiveRateLimit, transientRetry,
-                clientCustomizer, fanOutConcurrency);
+                clientCustomizer, fanOutConcurrency, cookieJar, clock);
     }
 
     /**
@@ -113,21 +158,21 @@ public record EndpointConfig(
     public EndpointConfig withCallTimeout(Duration timeout) {
         return new EndpointConfig(
                 query1Base, query2Base, cookieUrl, userAgent, timeout, adaptiveRateLimit, transientRetry,
-                clientCustomizer, fanOutConcurrency);
+                clientCustomizer, fanOutConcurrency, cookieJar, clock);
     }
 
     /** Returns a copy with a different adaptive rate-limit config. */
     public EndpointConfig withAdaptiveRateLimit(AdaptiveRateLimitConfig config) {
         return new EndpointConfig(
                 query1Base, query2Base, cookieUrl, userAgent, callTimeout, config, transientRetry, clientCustomizer,
-                fanOutConcurrency);
+                fanOutConcurrency, cookieJar, clock);
     }
 
     /** Returns a copy with a different transient-server-error retry policy. */
     public EndpointConfig withTransientRetry(RetryConfig config) {
         return new EndpointConfig(
                 query1Base, query2Base, cookieUrl, userAgent, callTimeout, adaptiveRateLimit, config, clientCustomizer,
-                fanOutConcurrency);
+                fanOutConcurrency, cookieJar, clock);
     }
 
     /**
@@ -137,7 +182,7 @@ public record EndpointConfig(
     public EndpointConfig withClientCustomizer(Consumer<OkHttpClient.Builder> customizer) {
         return new EndpointConfig(
                 query1Base, query2Base, cookieUrl, userAgent, callTimeout, adaptiveRateLimit, transientRetry,
-                customizer, fanOutConcurrency);
+                customizer, fanOutConcurrency, cookieJar, clock);
     }
 
     /**
@@ -149,7 +194,30 @@ public record EndpointConfig(
     public EndpointConfig withFanOutConcurrency(int concurrency) {
         return new EndpointConfig(
                 query1Base, query2Base, cookieUrl, userAgent, callTimeout, adaptiveRateLimit, transientRetry,
-                clientCustomizer, concurrency);
+                clientCustomizer, concurrency, cookieJar, clock);
+    }
+
+    /**
+     * Returns a copy whose OkHttp clients store and send cookies through {@code cookieJar} instead
+     * of a private {@link InMemoryCookieJar}: e.g. a persistent jar that keeps Yahoo's session
+     * cookies ({@code A1}/{@code A3}) across restarts. The jar must be thread-safe, and every
+     * {@code YFinance} created from a config holding the same instance shares it.
+     */
+    public EndpointConfig withCookieJar(CookieJar cookieJar) {
+        return new EndpointConfig(
+                query1Base, query2Base, cookieUrl, userAgent, callTimeout, adaptiveRateLimit, transientRetry,
+                clientCustomizer, fanOutConcurrency, cookieJar, clock);
+    }
+
+    /**
+     * Returns a copy whose services read "now" from {@code clock}: it stamps {@code fetchedAt} on
+     * instruments and details, closes an open-ended history window and sets the timeseries
+     * {@code period2}. {@link Clock#systemUTC()} by default; fix it for as-of tests.
+     */
+    public EndpointConfig withClock(Clock clock) {
+        return new EndpointConfig(
+                query1Base, query2Base, cookieUrl, userAgent, callTimeout, adaptiveRateLimit, transientRetry,
+                clientCustomizer, fanOutConcurrency, cookieJar, clock);
     }
 
     private static void noCustomization(OkHttpClient.Builder builder) {}

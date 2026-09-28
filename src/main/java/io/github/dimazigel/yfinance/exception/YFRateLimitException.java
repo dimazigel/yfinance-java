@@ -18,6 +18,12 @@ public class YFRateLimitException extends YFinanceException {
         this.retryAfter = retryAfter;
     }
 
+    /** Always {@code true}: the request was fine, Yahoo just wants it later. */
+    @Override
+    public boolean isRetryable() {
+        return true;
+    }
+
     /** The {@code Retry-After} delay Yahoo asked us to wait, if it was provided. */
     public Optional<Duration> retryAfter() {
         return Optional.ofNullable(retryAfter);

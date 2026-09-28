@@ -40,8 +40,35 @@ java {
     withJavadocJar()
 }
 
+// The published Javadoc covers the API only: the plumbing packages (assembly, dto, mapper, api,
+// auth), the service classes, the http plumbing (interceptors, client factory, Feign/Jackson
+// glue, RawQuoteClient) and batch.FanOut are internal (see their package-info) and are left out;
+// HistoryRequest stays — deprecated since 1.2, for removal in 2.0 — as the one adapter type left
+// in `service`, as do the http configuration records and InMemoryCookieJar. The current
+// price-history query type, HistoryQuery, lives in `market` and is covered like the rest of that
+// package. Doclint runs on what remains at
+// `all,-missing`: malformed HTML, bad references and wrong @param names fail the build; a member
+// without a comment does not.
 tasks.javadoc {
-    (options as StandardJavadocDocletOptions).addBooleanOption("Xdoclint:none", true)
+    exclude(
+        "**/assembly/**",
+        "**/dto/**",
+        "**/mapper/**",
+        "**/api/**",
+        "**/auth/**",
+        "**/service/*Service.java",
+        "**/service/FundamentalKeys.java",
+        "**/http/*Interceptor.java",
+        "**/http/RawQuoteClient.java",
+        "**/http/YahooFeign*.java",
+        "**/http/YahooJsonMapper.java",
+        "**/http/RawAwareNumberModule.java",
+        "**/http/YahooClientFactory.java",
+        "**/http/CallBudget.java",
+        "**/http/RateLimitBudgetExceeded.java",
+        "**/batch/FanOut.java",
+    )
+    (options as StandardJavadocDocletOptions).addBooleanOption("Xdoclint:all,-missing", true)
 }
 
 tasks.jar {

@@ -30,4 +30,10 @@ public class YFSkippedException extends YFMissingDataException {
     public SkipReason reason() {
         return reason;
     }
+
+    /** Never: a skip is by definition not a transport failure. */
+    @Override
+    public boolean isRetryable() {
+        return false;
+    }
 }

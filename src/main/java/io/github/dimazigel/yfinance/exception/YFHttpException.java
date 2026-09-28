@@ -12,10 +12,18 @@ public class YFHttpException extends YFDataException {
         this.path = path;
     }
 
+    /** The HTTP status Yahoo answered with. */
     public int status() {
         return status;
     }
 
+    /** {@code true} for a server error (status 500 and above), {@code false} for a client error such as 404. */
+    @Override
+    public boolean isRetryable() {
+        return status >= 500;
+    }
+
+    /** The request path, e.g. {@code /v8/finance/chart/AAPL}. */
     public String path() {
         return path;
     }

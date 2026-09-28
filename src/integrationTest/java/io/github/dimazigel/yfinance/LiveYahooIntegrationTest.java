@@ -27,6 +27,7 @@ import io.github.dimazigel.yfinance.instrument.FxPair;
 import io.github.dimazigel.yfinance.instrument.Index;
 import io.github.dimazigel.yfinance.instrument.MutualFund;
 import io.github.dimazigel.yfinance.instrument.Unclassified;
+import io.github.dimazigel.yfinance.market.HistoryQuery;
 import io.github.dimazigel.yfinance.market.PriceBar;
 import io.github.dimazigel.yfinance.service.HistoryRequest;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
@@ -301,6 +302,7 @@ class LiveYahooIntegrationTest {
         }
 
         @Test
+        @SuppressWarnings({"deprecation", "removal"}) // proves the deprecated HistoryRequest path still works live
         void openEndedPeriodRunsToNow() {
             var start = Instant.now().minus(Duration.ofDays(10));
             var history = aapl.history(HistoryRequest.builder(aapl.symbol())
@@ -344,17 +346,17 @@ class LiveYahooIntegrationTest {
 
         @Test
         void includePrePostAddsExtendedHoursBars() {
-            var regular = aapl.history(HistoryRequest.builder(aapl.symbol())
-                    .range(Range.FIVE_DAYS).interval(Interval.ONE_HOUR).includePrePost(false).build());
-            var extended = aapl.history(HistoryRequest.builder(aapl.symbol())
-                    .range(Range.FIVE_DAYS).interval(Interval.ONE_HOUR).includePrePost(true).build());
+            var regular = aapl.history(HistoryQuery.of(Interval.ONE_HOUR)
+                    .range(Range.FIVE_DAYS).includePrePost(false).build());
+            var extended = aapl.history(HistoryQuery.of(Interval.ONE_HOUR)
+                    .range(Range.FIVE_DAYS).includePrePost(true).build());
             assertThat(extended.bars().size()).isGreaterThan(regular.bars().size());
         }
 
         @Test
         void eventsSubsetOnlyReturnsRequestedEvents() {
-            var history = aapl.history(HistoryRequest.builder(aapl.symbol())
-                    .range(Range.MAX).interval(Interval.THREE_MONTHS)
+            var history = aapl.history(HistoryQuery.of(Interval.THREE_MONTHS)
+                    .range(Range.MAX)
                     .events(Set.of(EventType.DIVIDENDS)).build());
             assertThat(history.dividends()).isNotEmpty();
             assertThat(history.splits()).isEmpty(); // AAPL has split; it was not requested
@@ -385,8 +387,8 @@ class LiveYahooIntegrationTest {
             // them (FCNTX, VFIAX, AGTHX all come back dividends-only), so only the request shape and
             // the mapping of whatever is present can be verified.
             var fund = yf.ticker("FCNTX");
-            var history = fund.history(HistoryRequest.builder(fund.symbol())
-                    .range(Range.MAX).interval(Interval.THREE_MONTHS)
+            var history = fund.history(HistoryQuery.of(Interval.THREE_MONTHS)
+                    .range(Range.MAX)
                     .events(Set.of(EventType.DIVIDENDS, EventType.CAPITAL_GAINS)).build());
             assertThat(history.metadata().instrumentType()).isEqualTo("MUTUALFUND");
             assertThat(history.dividends()).isNotEmpty();
@@ -527,6 +529,63 @@ class LiveYahooIntegrationTest {
                         .as("%s: %d of %d line items present at %s", type, present, items.size(), latest)
                         .isGreaterThanOrEqualTo(items.size() / 2);
             }
+        }
+
+        @Test
+        void severalStatementsInOneRequest() {   // batch B, item 3: the multi-statement request shape
+            var byType = aapl.statements(aaplEquity,
+                    Set.of(StatementType.INCOME, StatementType.CASH_FLOW), Set.of(Frequency.ANNUAL, Frequency.QUARTERLY));
+
+            assertThat(byType.keySet()).containsExactlyInAnyOrder(StatementType.INCOME, StatementType.CASH_FLOW);
+            for (StatementType type : byType.keySet()) {
+                assertThat(byType.get(type).keySet()).as("%s frequencies", type).containsExactlyInAnyOrder(Frequency.ANNUAL, Frequency.QUARTERLY);
+                for (Frequency frequency : byType.get(type).keySet()) {
+                    FinancialStatement statement = byType.get(type).get(frequency);
+                    assertThat(statement.type()).isEqualTo(type);
+                    assertThat(statement.frequency()).isEqualTo(frequency);
+                    assertThat(statement.periods()).as("%s %s periods", type, frequency).isNotEmpty();
+                    assertThat(statement.lineItems()).as("%s %s line items", type, frequency).isNotEmpty();
+                }
+            }
+            FinancialStatement incomeAnnual = byType.get(StatementType.INCOME).get(Frequency.ANNUAL);
+            FinancialStatement incomeQuarterly = byType.get(StatementType.INCOME).get(Frequency.QUARTERLY);
+            assertThat(incomeAnnual.latest(LineItem.TOTAL_REVENUE).orElseThrow()).isPositive();
+            assertThat(incomeAnnual.latestPeriod()).contains(incomeAnnual.periods().getLast());
+            assertThat(incomeAnnual.row(LineItem.TOTAL_REVENUE).keySet()).isSubsetOf(incomeAnnual.periods());
+            // The split is by frequency prefix: quarterly periods are ~3 months apart, annual ones ~12.
+            // (Yahoo serves the same number of periods for both — five — so counts don't tell them apart.)
+            assertThat(daysBetweenLastTwo(incomeQuarterly)).as("quarterly period spacing").isLessThan(150);
+            assertThat(daysBetweenLastTwo(incomeAnnual)).as("annual period spacing").isGreaterThan(300);
+            assertThat(incomeAnnual.lineItems()).doesNotContainKey(LineItem.OPERATING_CASH_FLOW.key());
+            FinancialStatement cashQuarterly = byType.get(StatementType.CASH_FLOW).get(Frequency.QUARTERLY);
+            assertThat(cashQuarterly.value(LineItem.OPERATING_CASH_FLOW, cashQuarterly.periods().getLast())).isPresent();
+            assertThat(cashQuarterly.lineItems()).doesNotContainKey(LineItem.TOTAL_REVENUE.key());
+        }
+
+        @Test
+        void allThreeStatementsAtAllThreeFrequenciesInOneRequest() {   // review of batch B, minor 4: the 168-key request
+            var byType = aapl.statements(aaplEquity, Set.of(StatementType.values()), Set.of(Frequency.values()));
+
+            assertThat(byType.keySet()).containsExactlyInAnyOrder(StatementType.values());
+            int entries = 0;
+            for (StatementType type : byType.keySet()) {
+                for (Frequency frequency : byType.get(type).keySet()) {
+                    entries++;
+                    FinancialStatement statement = byType.get(type).get(frequency);
+                    assertThat(statement.type()).isEqualTo(type);
+                    assertThat(statement.frequency()).isEqualTo(frequency);
+                    assertThat(statement.periods()).as("%s %s periods", type, frequency).isNotEmpty();
+                    assertThat(statement.lineItems()).as("%s %s line items", type, frequency).isNotEmpty();
+                }
+            }
+            assertThat(entries).as("every pair but the trailing balance sheet").isEqualTo(8);
+            assertThat(byType.get(StatementType.BALANCE_SHEET)).doesNotContainKey(Frequency.TRAILING);
+        }
+
+        private long daysBetweenLastTwo(FinancialStatement statement) {
+            List<LocalDate> periods = statement.periods();
+            assertThat(periods.size()).isGreaterThanOrEqualTo(2);
+            return java.time.temporal.ChronoUnit.DAYS.between(periods.get(periods.size() - 2), periods.getLast());
         }
 
         @Test
