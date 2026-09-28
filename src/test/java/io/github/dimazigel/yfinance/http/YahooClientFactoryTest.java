@@ -9,6 +9,7 @@ import io.github.dimazigel.yfinance.valueobject.Crumb;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import okhttp3.ConnectionPool;
 import okhttp3.Dispatcher;
@@ -195,6 +196,53 @@ class YahooClientFactoryTest {
         assertThat(server.takeRequest().getPath()).isEqualTo("/v1/test/getcrumb");
         assertThat(server.takeRequest().getRequestUrl().queryParameter("crumb")).isEqualTo("fresh");
         assertThat(sleeps).as("one paced wait for the api request; none for the nested handshake").containsExactly(Duration.ofMillis(500));
+    }
+
+    @Test
+    void aNestedHandshakesRetriesAreStillPaced() throws Exception {   // re-review, important 1
+        // The exemption covers only the nested call's first attempt (the slot the api request paid
+        // for); if the crumb endpoint answers 429, its retries must wait like any other and each
+        // distinct 429 must raise the pace once.
+        var crumbCalls = new AtomicInteger();
+        var paceAtThirdCrumbCall = new java.util.concurrent.atomic.AtomicReference<Duration>();
+        var sleeps = new ArrayList<Duration>();
+        var nowNanos = new AtomicLong();
+        var limiter = new AdaptiveRateLimiter(
+                new AdaptiveRateLimitConfig(true, Duration.ofMillis(500), Duration.ofSeconds(4), 2.0, 0.5, 0.0, 3),
+                nowNanos::get, Instant::now, d -> { sleeps.add(d); nowNanos.addAndGet(d.toNanos()); }, () -> 0.0);
+        server.setDispatcher(new okhttp3.mockwebserver.Dispatcher() {
+            @Override
+            public MockResponse dispatch(RecordedRequest request) {
+                return switch (request.getRequestUrl().encodedPath()) {
+                    case "/v1/test/getcrumb" -> {
+                        if (crumbCalls.incrementAndGet() < 3) {
+                            yield new MockResponse().setResponseCode(429);
+                        }
+                        paceAtThirdCrumbCall.set(limiter.currentDelay());
+                        yield new MockResponse().setResponseCode(200).setBody("fresh");
+                    }
+                    case "/data" -> new MockResponse().setResponseCode(200).setBody("{}");
+                    default -> new MockResponse().setResponseCode(404);
+                };
+            }
+        });
+        limiter.onResponse(429, null);   // degraded: pace 500 ms
+        var shared = new AdaptiveRateLimitInterceptor(limiter);
+        var cookieJar = new InMemoryCookieJar();
+        var dispatcher = new Dispatcher();
+        var pool = new ConnectionPool();
+        var store = new CrumbStore(YahooClientFactory.baseClient(config, cookieJar, shared, dispatcher, pool), config);
+        var api = YahooClientFactory.apiClient(
+                config, cookieJar, () -> store.tryGetCrumb().orElse(null), store::invalidate, shared, dispatcher, pool);
+
+        try (var response = api.newCall(new Request.Builder().url(server.url("/data")).build()).execute()) {
+            assertThat(response.code()).isEqualTo(200);
+        }
+
+        assertThat(server.getRequestCount()).as("cookie, crumb x3, data").isEqualTo(5);
+        assertThat(sleeps).as("api slot; crumb attempt 1 free; attempt 2 waits 1 s; attempt 3 waits 2 s in slices")
+                .containsExactly(Duration.ofMillis(500), Duration.ofSeconds(1), Duration.ofSeconds(1), Duration.ofSeconds(1));
+        assertThat(paceAtThirdCrumbCall.get()).as("two distinct 429s: 500 ms -> 1 s -> 2 s").isEqualTo(Duration.ofSeconds(2));
     }
 
     @Test

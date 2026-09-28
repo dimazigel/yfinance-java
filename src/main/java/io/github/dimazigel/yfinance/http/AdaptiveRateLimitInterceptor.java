@@ -22,8 +22,9 @@ import org.slf4j.LoggerFactory;
  *
  * <p>One instance is shared by the api client and the handshake client. A handshake triggered from
  * inside an api request (the {@link CrumbInterceptor} below this one finds no crumb) runs on the
- * same thread, so it is recognised through a thread-local flag and sent without waiting for another
- * slot: the api request already paid for this one. Its responses still feed the limiter.
+ * same thread, so it is recognised through a thread-local flag and its first attempt is sent without
+ * waiting for another slot: the api request already paid for this one. Its responses still feed the
+ * limiter, and its own 429 retries wait like any other request.
  */
 public final class AdaptiveRateLimitInterceptor implements Interceptor {
 
@@ -51,7 +52,9 @@ public final class AdaptiveRateLimitInterceptor implements Interceptor {
         int maxAttempts = limiter.maxAttemptsPerRequest();
         boolean nested = INSIDE_PACED_CALL.get();
         for (int attempt = 1; ; attempt++) {
-            if (!nested) {
+            // A nested handshake's first attempt rides in the slot the enclosing api request already
+            // waited for; its 429 retries are paced like any other request.
+            if (!nested || attempt > 1) {
                 awaitPermission(chain, enteredNanos);
             }
             long sentNanos = limiter.nanoTime();

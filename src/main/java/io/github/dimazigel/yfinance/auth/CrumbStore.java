@@ -164,13 +164,13 @@ public final class CrumbStore {
             long cooldownMs = startCooldown(e.retryAfter);
             LOG.atWarn()
                     .addKeyValue("cooldownMs", cooldownMs)
-                    .log("{}; continuing without a crumb for the next {} ms", e.getMessage(), cooldownMs);
+                    .log("Entering handshake cooldown for {} ms after: {}; continuing without a crumb", cooldownMs, e.getMessage());
             throw e;
         } catch (YFAuthException e) {
             long cooldownMs = startCooldown(null);
             LOG.atWarn()
                     .addKeyValue("cooldownMs", cooldownMs)
-                    .log("{}; no handshake will be attempted for the next {} ms", e.getMessage(), cooldownMs);
+                    .log("Entering handshake cooldown for {} ms after: {}", cooldownMs, e.getMessage());
             throw e;
         }
     }

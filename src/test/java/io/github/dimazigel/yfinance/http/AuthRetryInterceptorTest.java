@@ -1,6 +1,7 @@
 package io.github.dimazigel.yfinance.http;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import io.github.dimazigel.yfinance.auth.CrumbStore;
 import io.github.dimazigel.yfinance.valueobject.Crumb;
@@ -126,6 +127,36 @@ class AuthRetryInterceptorTest {
         }
 
         assertThat(rejected.get()).as("the hook still runs (a no-op for a null crumb)").isNull();
+        assertThat(server.getRequestCount()).isEqualTo(1);
+    }
+
+    @Test
+    void closesTheRejectedResponseEvenWhenTheCrumbSupplierThrows() {   // re-review, minor 2
+        // tryGetCrumb() rethrows a rejected handshake (YFAuthException); the 401 body must not leak.
+        server.enqueue(new MockResponse().setResponseCode(401).setBody("unauthorized"));
+        var closed = new java.util.concurrent.atomic.AtomicBoolean();
+        Supplier<@Nullable Crumb> throwing = () -> {
+            throw new io.github.dimazigel.yfinance.exception.YFAuthException("Failed to obtain crumb: HTTP 403");
+        };
+        OkHttpClient client = new OkHttpClient.Builder()
+                .addInterceptor(AuthRetryInterceptor.onRejectedCrumb(rejected -> { }, throwing))
+                .addInterceptor(chain -> {   // below the retry: wrap the body so close() is observable
+                    Response response = chain.proceed(chain.request());
+                    okhttp3.ResponseBody body = java.util.Objects.requireNonNull(response.body());
+                    return response.newBuilder().body(new okhttp3.ResponseBody() {
+                        @Override public okhttp3.@Nullable MediaType contentType() { return body.contentType(); }
+                        @Override public long contentLength() { return body.contentLength(); }
+                        @Override public okio.BufferedSource source() { return body.source(); }
+                        @Override public void close() { closed.set(true); body.close(); }
+                    }).build();
+                })
+                .addInterceptor(new CrumbInterceptor(() -> null))
+                .build();
+
+        assertThatThrownBy(() -> client.newCall(new Request.Builder().url(server.url("/data")).build()).execute())
+                .isInstanceOf(io.github.dimazigel.yfinance.exception.YFAuthException.class);
+
+        assertThat(closed).as("the rejected response was closed before the supplier ran").isTrue();
         assertThat(server.getRequestCount()).isEqualTo(1);
     }
 

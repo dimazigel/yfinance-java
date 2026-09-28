@@ -66,8 +66,16 @@ public final class AuthRetryInterceptor implements Interceptor {
                     .log("HTTP {} from Yahoo; refreshing crumb and retrying once", response.code());
             // response.request() is the request as sent, i.e. after CrumbInterceptor appended the crumb.
             String rejected = response.request().url().queryParameter("crumb");
-            onAuthFailure.accept(rejected);
-            if (rejected == null && crumb != null && crumb.get() == null) {
+            boolean retry;
+            try {
+                onAuthFailure.accept(rejected);
+                // crumb.get() may throw (a rejected handshake rethrows from tryGetCrumb): the 401 must not leak.
+                retry = rejected != null || crumb == null || crumb.get() != null;
+            } catch (RuntimeException e) {
+                response.close();
+                throw e;
+            }
+            if (!retry) {
                 LOG.atDebug().log("Request carried no crumb and none is available; not retrying");
                 return response;
             }
