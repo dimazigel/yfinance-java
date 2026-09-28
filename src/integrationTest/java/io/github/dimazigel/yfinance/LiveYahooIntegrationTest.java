@@ -547,7 +547,9 @@ class LiveYahooIntegrationTest {
             }
             FinancialStatement incomeAnnual = byType.get(StatementType.INCOME).get(Frequency.ANNUAL);
             FinancialStatement incomeQuarterly = byType.get(StatementType.INCOME).get(Frequency.QUARTERLY);
-            assertThat(incomeAnnual.value(LineItem.TOTAL_REVENUE, incomeAnnual.periods().getLast()).orElseThrow()).isPositive();
+            assertThat(incomeAnnual.latest(LineItem.TOTAL_REVENUE).orElseThrow()).isPositive();
+            assertThat(incomeAnnual.latestPeriod()).contains(incomeAnnual.periods().getLast());
+            assertThat(incomeAnnual.row(LineItem.TOTAL_REVENUE).keySet()).isSubsetOf(incomeAnnual.periods());
             // The split is by frequency prefix: quarterly periods are ~3 months apart, annual ones ~12.
             // (Yahoo serves the same number of periods for both — five — so counts don't tell them apart.)
             assertThat(daysBetweenLastTwo(incomeQuarterly)).as("quarterly period spacing").isLessThan(150);

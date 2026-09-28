@@ -43,7 +43,7 @@ try (var yf = YFinance.create()) { // cookie+crumb handshake; close() releases t
     FinancialStatement income = yf.statements(equity, StatementType.INCOME, Frequency.ANNUAL);
     Map<StatementType, Map<Frequency, FinancialStatement>> statements = yf.statements(equity,   // one request
             Set.of(StatementType.INCOME, StatementType.BALANCE_SHEET, StatementType.CASH_FLOW), Set.of(Frequency.ANNUAL, Frequency.QUARTERLY));
-    Optional<BigDecimal> revenue = income.value(LineItem.TOTAL_REVENUE, income.periods().getFirst());
+    Optional<BigDecimal> revenue = income.latest(LineItem.TOTAL_REVENUE);   // most recent period; row(...) for all periods
     List<NewsArticle> news = aapl.news();
 
     SearchResult results = yf.search("apple");
@@ -224,8 +224,11 @@ price data for them. Detail records are fetched with the instrument as proof, so
   hundreds). Within a chain, `bid`, `openInterest` and `volume` are `Optional`; a contract missing
   any other field is dropped.
 - **Financial statements** exist for equities only (the timeseries endpoint returns empty series
-  for every other class), hence the `Equity` proof. `FinancialStatement.value(...)` is
-  `Optional<BigDecimal>`; line items are the `LineItem` enum or a raw key. `statements(equity,
+  for every other class), hence the `Equity` proof. `FinancialStatement.value(item, period)`,
+  `latest(item)` (at `latestPeriod()`, the last of the ascending `periods()`) and `row(item)`
+  (period → value, ascending, absent values omitted) return `Optional<BigDecimal>` / an immutable
+  map; the typed forms throw `IllegalArgumentException` for a `LineItem` of another statement
+  (`TOTAL_ASSETS` asked of an income statement); the raw-key `value(String, period)` stays lenient. `statements(equity,
   Set<StatementType>, Set<Frequency>)` fetches every requested pair in **one** request and returns
   `type → frequency → FinancialStatement`; the trailing balance sheet (which Yahoo does not
   publish) is skipped when other pairs remain and an `IllegalArgumentException` when it is the
