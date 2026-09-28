@@ -13,6 +13,7 @@ import io.github.dimazigel.yfinance.enums.LookupType;
 import io.github.dimazigel.yfinance.enums.Range;
 import io.github.dimazigel.yfinance.enums.StatementType;
 import io.github.dimazigel.yfinance.fundamentals.FinancialStatement;
+import io.github.dimazigel.yfinance.http.AdaptiveRateLimitInterceptor;
 import io.github.dimazigel.yfinance.http.EndpointConfig;
 import io.github.dimazigel.yfinance.http.InMemoryCookieJar;
 import io.github.dimazigel.yfinance.http.RawQuoteClient;
@@ -43,6 +44,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
+import okhttp3.ConnectionPool;
+import okhttp3.Dispatcher;
 import okhttp3.OkHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -106,10 +109,14 @@ public final class YFinance implements AutoCloseable {
      */
     public static YFinance create(EndpointConfig config) {
         var cookieJar = new InMemoryCookieJar();
-        var authClient = YahooClientFactory.baseClient(config, cookieJar);
+        var limiter = new AdaptiveRateLimitInterceptor(config.adaptiveRateLimit());
+        var dispatcher = new Dispatcher();
+        var pool = new ConnectionPool();
+        var authClient = YahooClientFactory.baseClient(config, cookieJar, limiter, dispatcher, pool);
         var crumbStore = new CrumbStore(authClient, config);
         var client = YahooClientFactory.apiClient(
-                config, cookieJar, () -> crumbStore.tryGetCrumb().orElse(null), crumbStore::invalidate);
+                config, cookieJar, () -> crumbStore.tryGetCrumb().orElse(null), crumbStore::invalidate,
+                limiter, dispatcher, pool);
         LOG.atInfo().log("yfinance-java client created: hosts={}/{}, callTimeout={}, rateLimit={}, retry5xx={} attempts, fanOut={}, customizer={}",
                 config.query1Base().host(), config.query2Base().host(), config.callTimeout(),
                 config.adaptiveRateLimit().enabled() ? "on/" + config.adaptiveRateLimit().maxAttempts() + " attempts" : "off",

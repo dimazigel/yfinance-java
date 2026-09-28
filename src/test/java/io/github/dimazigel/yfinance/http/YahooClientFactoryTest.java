@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import io.github.dimazigel.yfinance.valueobject.Crumb;
 import java.time.Duration;
+import okhttp3.ConnectionPool;
+import okhttp3.Dispatcher;
 import okhttp3.HttpUrl;
 import okhttp3.Request;
 import okhttp3.mockwebserver.MockResponse;
@@ -109,5 +111,24 @@ class YahooClientFactoryTest {
             assertThat(response.code()).isEqualTo(200);
         }
         assertThat(server.getRequestCount()).isEqualTo(2);
+    }
+
+    @Test
+    void handshakeClientSharesTheApiClientsRateLimiter() {
+        var cookieJar = new InMemoryCookieJar();
+        var limiter = new AdaptiveRateLimitInterceptor(config.adaptiveRateLimit());
+        var dispatcher = new Dispatcher();
+        var pool = new ConnectionPool();
+
+        var base = YahooClientFactory.baseClient(config, cookieJar, limiter, dispatcher, pool);
+        var api = YahooClientFactory.apiClient(
+                config, cookieJar, () -> Crumb.of("c"), rejected -> {}, limiter, dispatcher, pool);
+
+        assertThat(base.interceptors()).as("the same limiter instance paces the handshake").contains(limiter);
+        assertThat(api.interceptors()).contains(limiter);
+        var order = base.interceptors().stream().map(i -> i.getClass().getSimpleName()).toList();
+        assertThat(order.indexOf("LogContextInterceptor")).isLessThan(order.indexOf("AdaptiveRateLimitInterceptor"));
+        assertThat(order.indexOf("AdaptiveRateLimitInterceptor")).isLessThan(order.indexOf("RequestLogInterceptor"));
+        assertThat(order).doesNotContain("CrumbInterceptor", "AuthRetryInterceptor");
     }
 }
