@@ -161,8 +161,8 @@ and `missing()` (the field names). `instruments(symbols, Equity.class)` reports 
 
 | Depth | Types | Requests |
 |---|---|---|
-| **Snapshot** | the `Instrument` hierarchy | one `/v7/finance/quote` request per 100 symbols, plus at most one `quoteSummary` request per symbol whose v7 row left a guaranteed field short (the modules requested depend on the class) |
-| **Detail** | `EquityDetail`, `EtfDetail`, `MutualFundDetail`, `CryptoDetail` | one `quoteSummary` request per instrument; `equityDetails(...)` and friends keep at most `EndpointConfig.fanOutConcurrency()` requests in flight (4 by default — raise it with `withFanOutConcurrency(n)`); `tickers(...).withConcurrency(n)` overrides the bound for one `fetch`/`histories` call |
+| **Snapshot** | the `Instrument` hierarchy | one `/v7/finance/quote` request per 100 distinct symbols (a chunk that fails marks only its own symbols `Failed`; the others proceed), plus at most one `quoteSummary` request per symbol whose v7 row left a guaranteed field short (the modules requested depend on the class); those fallbacks run `fanOutConcurrency()` at a time and the batch's INFO line reports `fallbacks=N` |
+| **Detail** | `EquityDetail`, `EtfDetail`, `MutualFundDetail`, `CryptoDetail` | one `quoteSummary` request per instrument; `equityDetails(...)` and friends keep at most `EndpointConfig.fanOutConcurrency()` requests in flight (4 by default — raise it with `withFanOutConcurrency(n)`, which also sizes the OkHttp dispatcher so the width is real); `tickers(...).withConcurrency(n)` overrides the bound for one `fetch`/`histories` call |
 
 Each snapshot field is assembled from both endpoints in a fixed precedence (v7 first, then the
 quoteSummary modules) before it counts as missing, which is what lifts e.g. ETF trailing returns
@@ -263,16 +263,16 @@ Everything is tuned through `EndpointConfig` (an immutable record with `with...`
 
 ```java
 var config = EndpointConfig.production()
-        .withCallTimeout(Duration.ofSeconds(10))
-        .withFanOutConcurrency(8)          // detail batches and the Tickers default; 4 if unset
+        .withFanOutConcurrency(8)          // detail batches, the Tickers default and the dispatcher width; 4 if unset
         .withAdaptiveRateLimit(new AdaptiveRateLimitConfig(
                 true,                      // enabled
                 Duration.ofMillis(500),    // initialDelay after the first 429
-                Duration.ofSeconds(30),    // maxDelay cap
+                Duration.ofSeconds(5),     // maxDelay cap — must stay shorter than callTimeout (10 s by default)
                 2.0,                       // backoffMultiplier per consecutive 429
                 0.5,                       // recoveryFactor per success while degraded
                 0.2,                       // jitterFactor (±20% on scheduled waits)
-                3));                       // maxAttempts per request (1 = never retry a 429)
+                3))                        // maxAttempts per request (1 = never retry a 429)
+        .withCallTimeout(Duration.ofSeconds(15));   // bounds the whole call, paced waits and retries included
 
 try (var yf = YFinance.create(config)) {
     // ...
@@ -284,9 +284,16 @@ Derive variants from `production()` with `withHosts(...)`, `withUserAgent(...)`,
 `withClientCustomizer(...)`.
 `AdaptiveRateLimitConfig.defaults()` is what `EndpointConfig.production()` uses;
 `AdaptiveRateLimitConfig.disabled()` turns throttling and 429-retries off entirely.
+`callTimeout` (30 s by default) bounds the **whole** call, rate-limit pacing and retry backoffs
+included, so `EndpointConfig` rejects a `maxDelay` that is not shorter than it: to run with a call
+timeout of 10 s or less, lower `maxDelay` (or disable the limiter) *before* calling
+`withCallTimeout(...)`, as above.
 
 To customise the underlying OkHttp clients (proxy, extra interceptors, metrics, connection pool),
-supply a customizer; it runs last, after the library's own interceptors and timeouts:
+supply a customizer; it runs last, after the library's own interceptors and timeouts. The two
+clients (handshake and data) share one dispatcher — sized to `fanOutConcurrency` per host — and one
+connection pool; `close()` shuts those down, but a dispatcher or pool the customizer installs is
+left running, since it is typically shared with your other clients and is yours to close:
 
 ```java
 var config = EndpointConfig.production()
@@ -300,12 +307,21 @@ var config = EndpointConfig.production()
 `YFinance` is thread-safe — hold one instance (e.g. a singleton) and `close()` it on shutdown.
 The shared client adaptively throttles on HTTP 429: a throttled request is retried up to
 `maxAttempts` times (waiting the adapted, jittered delay, honoring `Retry-After`), and while
-degraded **every** request is paced by the current delay until traffic recovers — no burst-429
-oscillation. Only after retries are exhausted is `YFRateLimitException` (with `retryAfter()`)
-thrown. A stale crumb (401/403) is automatically invalidated and the request retried once. Transient
-server errors (HTTP 500/502/503/504 — Yahoo's lookup endpoint is known to hiccup) are retried with
-exponential backoff, honouring `Retry-After`: 3 attempts by default, tunable or disabled via
-`EndpointConfig.withTransientRetry(RetryConfig)`.
+degraded **every** request is paced by the current delay (capped at `maxDelay`, 10 s by default)
+until traffic recovers — no burst-429 oscillation. A burst of concurrent 429s for requests that were
+already in flight raises the pace once, not once per response. Every paced wait stays inside the
+call's `callTimeout`: a wait that could not fit in what is left of the budget fails immediately
+(`YFDataException` wrapping `InterruptedIOException("rate-limit wait of N ms exceeds the remaining
+call timeout")`) instead of sleeping and then timing out unsent. Only after retries are exhausted is
+`YFRateLimitException` (with `retryAfter()`) thrown. A stale crumb (401/403) is automatically
+invalidated and the request retried once; when several requests are rejected at the same time, the
+first one's handshake refreshes the crumb and the others reuse it. The handshake itself is paced by
+the same limiter, and if the crumb endpoint answers 429 (or is unreachable) the client continues
+without a crumb for a cooldown — 30 s, doubling per consecutive failure up to 5 min, or `Retry-After`
+when longer — during which no handshake is attempted (one `WARN` on entering the cooldown, `DEBUG`
+after). Transient server errors (HTTP 500/502/503/504 — Yahoo's lookup endpoint is known to hiccup)
+are retried with exponential backoff, honouring `Retry-After` and the same call budget: 3 attempts
+by default, tunable or disabled via `EndpointConfig.withTransientRetry(RetryConfig)`.
 
 ### Nullability
 
@@ -323,8 +339,8 @@ classes under `io.github.dimazigel.yfinance`. A healthy production log from this
 
 | level | when | examples |
 |---|---|---|
-| `WARN` | degraded, or gave up | cookie/crumb unavailable; still 429 or 5xx after all retries |
-| `INFO` | once per client, once per multi-symbol batch (a single `Ticker` lookup logs its summary at `DEBUG`) | effective config at `create()`; rate limiter entering/leaving degraded mode; `instruments: 500 symbols: 497 ok, 2 skipped, 1 failed`; `Fetched 20 symbols: 20 ok, 0 skipped, 0 failed in 1 812 ms` |
+| `WARN` | degraded, or gave up | cookie/crumb unavailable (once, on entering the cooldown); still 429 or 5xx after all retries |
+| `INFO` | once per client, once per multi-symbol batch (a single `Ticker` lookup logs its summary at `DEBUG`) | effective config at `create()`; rate limiter entering/leaving degraded mode; `instruments: 500 symbols: 497 ok, 2 skipped, 1 failed; fallbacks=12`; `Fetched 20 symbols: 20 ok, 0 skipped, 0 failed in 1 812 ms` |
 | `DEBUG` | once per request or per dropped datum | `GET /v8/finance/chart/AAPL?range=1mo&interval=1d -> 200 (23 KB) in 412 ms`; `BAC-PL downgraded from EQUITY: missing [marketCap, impliedSharesOutstanding]`; `Dropped 4 of 390 bars without a complete OHLC`; each retry; each failed symbol in a batch |
 
 The library never logs an error it also throws: the exception message carries Yahoo's reason and
@@ -332,10 +348,12 @@ the request path, and the caller decides what to do with it.
 
 Every call runs inside an MDC scope so log lines can be correlated without parsing messages:
 `yf.op` (`instruments`, `details`, `history`, `statements`, `options`, `search`, `lookup`,
-`fetch`), `yf.symbol` (comma-joined for a batch; the per-symbol scope is opened on the worker
-thread that serves that symbol) and, while an HTTP request is in flight, `yf.endpoint`
-(e.g. `/v8/finance/chart/AAPL`). Event-specific facts such as `status`, `attempt`, `delayMs` and
-`missing` are attached as SLF4J key-value pairs. (Note: `slf4j-simple` has a no-op MDC, so use
+`fetch`), `yf.symbol` (for a batch the first five symbols, then `,…+N`; the per-symbol scope is
+opened on the worker thread that serves that symbol) and, while an HTTP request is in flight,
+`yf.endpoint` (e.g. `/v8/finance/chart/AAPL`). Fan-out workers start with a copy of the calling
+thread's MDC, so your own `traceId`/`requestId` appears on the per-symbol lines too. Event-specific
+facts such as `status`, `attempt`, `delayMs`, `fallbacks` and `missing` are attached as SLF4J
+key-value pairs. (Note: `slf4j-simple` has a no-op MDC, so use
 Logback, Log4j 2 or another full backend to see them.) A Logback pattern that shows them:
 
 ```
@@ -354,7 +372,7 @@ All failures surface as `YFinanceException` subtypes (unchecked):
 | ↳↳ `YFSkippedException` | what `Outcome.Skipped.orElseThrow()` (and so every `Ticker` non-answer) actually throws; adds `reason()` (`SkipReason`) and `symbol()` |
 | ↳ `YFClassMismatchException` | `as(Equity.class)` on an instrument of another class; `actual()` and `requested()` |
 | `YFRateLimitException` | HTTP 429 after all adaptive retries; `retryAfter()` when Yahoo sent it |
-| `YFAuthException` | the cookie/crumb handshake failed |
+| `YFAuthException` | the cookie/crumb handshake failed, or Yahoo answered an HTML page instead of JSON (EU consent redirect or access blocked; the message names the path) |
 
 Batch calls never throw per symbol: a failure becomes `Outcome.Failed` (retryable) and a
 non-answer becomes `Outcome.Skipped` (not retryable). Passing an instrument of a different symbol as
@@ -376,7 +394,7 @@ batch/       Batch, Outcome, SkipReason, FanOut
 market/      PriceHistory, PriceBar, HistoryMetadata, OptionChain, corporate actions
 fundamentals/ FinancialStatement;  search/ SearchResult, LookupQuote
 dto/ + mapper/ raw records and mappers for chart, options, timeseries, search, lookup
-auth/        CrumbStore — cookie (fc.yahoo.com) then crumb handshake, invalidate-on-401/403
+auth/        CrumbStore — cookie (fc.yahoo.com) then crumb handshake, invalidate-on-401/403 (by identity), cooldown after a transient failure
 enums/       closed sets implementing WireEnum (Interval, Range, LineItem, ...)
 valueobject/ Symbol, Crumb
 ```
