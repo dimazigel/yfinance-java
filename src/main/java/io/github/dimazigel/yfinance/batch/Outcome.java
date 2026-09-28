@@ -6,6 +6,7 @@ import io.github.dimazigel.yfinance.exception.YFinanceException;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
 
 /**
  * The result for one symbol in a batch: a value, a non-retryable skip with a reason, or a
@@ -26,6 +27,23 @@ public sealed interface Outcome<T> permits Outcome.Ok, Outcome.Skipped, Outcome.
      * the symbol and {@code reason()} the {@link SkipReason}.
      */
     T orElseThrow();
+
+    /**
+     * This outcome with an {@link Ok} value transformed by {@code fn}; a {@link Skipped} or
+     * {@link Failed} is returned retyped and otherwise unchanged (same symbol, reason, error).
+     *
+     * @param fn applied to an {@code Ok} value; must not return {@code null}
+     * @param <R> the new value type
+     * @return the mapped outcome
+     */
+    default <R> Outcome<R> map(Function<? super T, ? extends R> fn) {
+        Objects.requireNonNull(fn, "fn");
+        return switch (this) {
+            case Ok<T> ok -> new Ok<>(ok.symbol(), fn.apply(ok.value()));
+            case Skipped<T> s -> new Skipped<>(s.symbol(), s.reason(), s.detail());
+            case Failed<T> f -> new Failed<>(f.symbol(), f.error());
+        };
+    }
 
     static <T> Outcome<T> ok(Symbol symbol, T value) {
         return new Ok<>(symbol, value);

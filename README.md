@@ -65,7 +65,7 @@ makes no request.
 List<Symbol> symbols = Stream.of("AAPL", "SPY", "VFIAX", "BTC-USD", "NOSUCHSYMBOL").map(Symbol::of).toList();
 
 Batch<Instrument> batch = yf.instruments(symbols);   // one request per 100 symbols
-for (Outcome<Instrument> outcome : batch.outcomes()) {
+for (Outcome<Instrument> outcome : batch) {          // Batch is Iterable<Outcome<T>>
     switch (outcome) {
         case Outcome.Ok<Instrument> ok -> store(ok.value());
         case Outcome.Skipped<Instrument> s -> log.info("{} skipped: {} ({})", s.symbol(), s.reason(), s.detail());
@@ -73,6 +73,9 @@ for (Outcome<Instrument> outcome : batch.outcomes()) {
     }
 }
 log.info(batch.summary());                           // "5 symbols: 4 ok, 1 skipped, 0 failed"
+Map<Symbol, Instrument> bySymbol = batch.toMap();    // Ok values only, input order, first wins on a duplicate
+List<Instrument> all = batch.orElseThrowAll();        // all-or-nothing: throws the first skip/failure
+Batch<BigDecimal> prices = batch.map(i -> i.core().price());   // Skipped/Failed pass through retyped
 
 Batch<Equity> equities = yf.instruments(symbols, Equity.class);   // others → Skipped(WRONG_ASSET_CLASS)
 Batch<EquityDetail> details = yf.equityDetails(equities.values()); // one quoteSummary request each
@@ -97,10 +100,13 @@ Batch<Equity> viaFetch = yf.tickers(symbols).fetch(t -> t.as(Equity.class));   /
 `SkipReason` is `UNKNOWN_SYMBOL` (not in Yahoo's quote response), `WRONG_ASSET_CLASS`
 (`instruments(symbols, Equity.class)` met an ETF), `DOWNGRADED` (see below), `NOT_AVAILABLE_FOR_CLASS`
 and `MODULE_ABSENT` (a detail request lacked a guaranteed module; `detail` names the fields).
-`Batch` offers `outcomes()`, `values()` (the `Ok` values only), `skipped()`, `failed()`, `get(symbol)`
-and `summary()`; each `Outcome` has `optional()` and `orElseThrow()` (`Skipped` throws
-`YFSkippedException`, a `YFMissingDataException` carrying the `SkipReason`; `Failed` rethrows its
-error). The mapping is symmetric: `Tickers.fetch` turns a `YFSkippedException` or a
+`Batch` is `Iterable<Outcome<T>>` and offers `outcomes()`, `stream()`, `values()` (the `Ok` values
+only), `ok()`, `skipped()`, `failed()`, `allOk()`, `toMap()` (`Ok` values by symbol, input order,
+first wins on a duplicate; skipped and failed symbols are absent), `orElseThrowAll()` (every value,
+or the first non-`Ok` outcome's exception), `map(fn)` (transforms the `Ok` values, passes the rest
+through), `get(symbol)` (first occurrence, a linear scan) and `summary()`; each `Outcome` has
+`optional()`, `map(fn)` and `orElseThrow()` (`Skipped` throws `YFSkippedException`, a
+`YFMissingDataException` carrying the `SkipReason`; `Failed` rethrows its error). The mapping is symmetric: `Tickers.fetch` turns a `YFSkippedException` or a
 `YFClassMismatchException` thrown inside the fetcher back into `Skipped`, so `fetch(t -> t.as(Equity.class))`
 skips for the same reasons as `instruments(symbols, Equity.class)`.
 
