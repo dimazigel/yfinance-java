@@ -20,7 +20,6 @@ public record OptionChainResponse(@Nullable OptionChain optionChain) {
     public record Result(
             @Nullable String underlyingSymbol,
             @Nullable List<Long> expirationDates,
-            @Nullable List<@Nullable BigDecimal> strikes,
             @Nullable List<OptionsByExpiration> options) {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
