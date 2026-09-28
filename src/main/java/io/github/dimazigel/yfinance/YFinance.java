@@ -110,7 +110,7 @@ public final class YFinance implements AutoCloseable {
     public static YFinance create(EndpointConfig config) {
         var cookieJar = new InMemoryCookieJar();
         var limiter = new AdaptiveRateLimitInterceptor(config.adaptiveRateLimit());
-        var dispatcher = new Dispatcher();
+        var dispatcher = YahooClientFactory.newDispatcher(config);
         var pool = new ConnectionPool();
         var authClient = YahooClientFactory.baseClient(config, cookieJar, limiter, dispatcher, pool);
         var crumbStore = new CrumbStore(authClient, config);
@@ -124,8 +124,8 @@ public final class YFinance implements AutoCloseable {
                 config.fanOutConcurrency(),
                 config.hasClientCustomizer() ? "yes" : "no");
         return new YFinance(YahooApis.create(config, client), config.fanOutConcurrency(), () -> {
-            closeClient(client);
-            closeClient(authClient);
+            releaseOwned(client, dispatcher, pool);
+            releaseOwned(authClient, dispatcher, pool);
             LOG.atDebug().log("yfinance-java client closed");
         });
     }
@@ -138,7 +138,12 @@ public final class YFinance implements AutoCloseable {
         return new YFinance(Objects.requireNonNull(apis, "apis"), Tickers.DEFAULT_CONCURRENCY, () -> {});
     }
 
-    /** Releases the underlying OkHttp client's threads and connections. Idempotent. */
+    /**
+     * Releases the OkHttp dispatcher and connection pool this instance created (both clients share
+     * one of each). A dispatcher or pool installed through
+     * {@link EndpointConfig#clientCustomizer()} is the caller's — typically shared with other
+     * clients — and is left running. Idempotent.
+     */
     @Override
     public void close() {
         if (closed.compareAndSet(false, true)) {
@@ -239,8 +244,13 @@ public final class YFinance implements AutoCloseable {
         return lookup.lookup(query, type);
     }
 
-    private static void closeClient(OkHttpClient client) {
-        client.dispatcher().executorService().shutdown();
-        client.connectionPool().evictAll();
+    /** Shuts down only what the library created: a customizer may have swapped in the caller's own. */
+    private static void releaseOwned(OkHttpClient client, Dispatcher ownDispatcher, ConnectionPool ownPool) {
+        if (client.dispatcher() == ownDispatcher) {
+            ownDispatcher.executorService().shutdown();
+        }
+        if (client.connectionPool() == ownPool) {
+            ownPool.evictAll();
+        }
     }
 }

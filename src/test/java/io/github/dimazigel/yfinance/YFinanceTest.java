@@ -199,6 +199,39 @@ class YFinanceTest {
     }
 
     @Test
+    void bothClientsShareOneSizedDispatcherAndPoolWhichCloseShutsDown() {
+        // A builder's build() shares the builder's dispatcher and pool, so a customizer can observe
+        // what each of the two clients was given without the facade exposing them.
+        var built = new java.util.ArrayList<okhttp3.OkHttpClient>();
+        var config = EndpointConfig.production().withHosts(server.url("/"))
+                .withFanOutConcurrency(12)
+                .withClientCustomizer(b -> built.add(b.build()));
+
+        var created = YFinance.create(config);
+        assertThat(built).hasSize(2);
+        okhttp3.Dispatcher dispatcher = built.get(0).dispatcher();
+        okhttp3.ConnectionPool pool = built.get(0).connectionPool();
+        assertThat(built.get(1).dispatcher()).as("handshake and api client share the dispatcher").isSameAs(dispatcher);
+        assertThat(built.get(1).connectionPool()).as("...and the connection pool").isSameAs(pool);
+        assertThat(dispatcher.getMaxRequestsPerHost()).as("sized by fanOutConcurrency").isEqualTo(12);
+        assertThat(dispatcher.executorService().isShutdown()).isFalse();
+
+        created.close();
+        assertThat(dispatcher.executorService().isShutdown()).as("the library created it, so close() shuts it down").isTrue();
+    }
+
+    @Test
+    void closeLeavesACustomizerSuppliedDispatcherAlone() {   // robustness review, item 8
+        var mine = new okhttp3.Dispatcher();
+        var config = EndpointConfig.production().withHosts(server.url("/")).withClientCustomizer(b -> b.dispatcher(mine));
+
+        YFinance.create(config).close();
+
+        assertThat(mine.executorService().isShutdown()).as("a shared dispatcher is the caller's to close").isFalse();
+        mine.executorService().shutdown();
+    }
+
+    @Test
     void fanOutConcurrencyFromTheConfigBoundsDetailRequestsAndSeedsTickers() {   // final review, finding 5
         var inFlight = new AtomicInteger();
         var maxInFlight = new AtomicInteger();

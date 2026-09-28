@@ -25,11 +25,15 @@ import okhttp3.OkHttpClient;
  * @param transientRetry retry policy for transient server errors (HTTP 500/502/503/504)
  * @param clientCustomizer hook applied to every OkHttp client builder <em>after</em> the library's
  *     own interceptors and timeouts, so it can add a proxy, extra interceptors (logging, metrics), a
- *     custom dispatcher or connection pool, or override a timeout
+ *     custom dispatcher or connection pool, or override a timeout; a dispatcher or pool it installs
+ *     is the caller's to shut down — {@code YFinance.close()} releases only the ones the library
+ *     created
  * @param fanOutConcurrency how many per-symbol requests a fan-out keeps in flight at once: the
  *     bound for {@code equityDetails(...)} and the other detail batches, and the default for
- *     {@code Tickers} (overridable per instance with {@code withConcurrency(n)}); at least 1,
- *     {@link Tickers#DEFAULT_CONCURRENCY} by default
+ *     {@code Tickers} (overridable per instance with {@code withConcurrency(n)}); it also sizes the
+ *     OkHttp dispatcher ({@code maxRequestsPerHost}, never below OkHttp's default of 5) so the
+ *     configured width is actually reached; at least 1, {@link Tickers#DEFAULT_CONCURRENCY} by
+ *     default
  */
 public record EndpointConfig(
         HttpUrl query1Base,
@@ -146,6 +150,8 @@ public record EndpointConfig(
      * batches keep in flight at once, and the default {@code Tickers} concurrency. Raising it
      * makes a batch of 500 equity details faster at the cost of more simultaneous requests
      * against Yahoo's rate limit; the adaptive limiter still paces every request while degraded.
+     * The OkHttp dispatcher is sized to match, so the width is real rather than capped at OkHttp's
+     * default of 5 per host.
      */
     public EndpointConfig withFanOutConcurrency(int concurrency) {
         return new EndpointConfig(

@@ -21,7 +21,25 @@ import org.jspecify.annotations.Nullable;
  */
 public final class YahooClientFactory {
 
+    /** OkHttp's own default for {@code maxRequestsPerHost}; the dispatcher is never sized below it. */
+    static final int MIN_REQUESTS_PER_HOST = 5;
+
     private YahooClientFactory() {}
+
+    /**
+     * A dispatcher sized for {@link EndpointConfig#fanOutConcurrency()}: OkHttp's default caps
+     * requests per host at {@value #MIN_REQUESTS_PER_HOST}, and all of Yahoo's traffic goes to one
+     * or two hosts, so without this a fan-out wider than that would silently queue in OkHttp.
+     * {@code maxRequests} is set to the same value, since the two hosts never both carry a full
+     * fan-out. A customizer may replace it (it runs last); the caller then owns that dispatcher.
+     */
+    public static Dispatcher newDispatcher(EndpointConfig config) {
+        int inFlight = Math.max(config.fanOutConcurrency(), MIN_REQUESTS_PER_HOST);
+        var dispatcher = new Dispatcher();
+        dispatcher.setMaxRequests(inFlight);
+        dispatcher.setMaxRequestsPerHost(inFlight);
+        return dispatcher;
+    }
 
     /**
      * Client used for the auth handshake (cookie + crumb). Carries the cookie jar and User-Agent
@@ -33,7 +51,7 @@ public final class YahooClientFactory {
 
     public static OkHttpClient baseClient(EndpointConfig config, CookieJar cookieJar) {
         return baseClient(config, cookieJar, new AdaptiveRateLimitInterceptor(config.adaptiveRateLimit()),
-                new Dispatcher(), new ConnectionPool());
+                newDispatcher(config), new ConnectionPool());
     }
 
     /**
@@ -68,7 +86,7 @@ public final class YahooClientFactory {
     public static OkHttpClient apiClient(
             EndpointConfig config, CookieJar cookieJar, Supplier<@Nullable Crumb> crumb, Runnable onAuthFailure) {
         return apiClient(config, cookieJar, crumb, rejected -> onAuthFailure.run(),
-                new AdaptiveRateLimitInterceptor(config.adaptiveRateLimit()), new Dispatcher(), new ConnectionPool());
+                new AdaptiveRateLimitInterceptor(config.adaptiveRateLimit()), newDispatcher(config), new ConnectionPool());
     }
 
     /**
@@ -114,7 +132,7 @@ public final class YahooClientFactory {
     public static OkHttpClient apiClient(EndpointConfig config) {
         var cookieJar = new InMemoryCookieJar();
         var limiter = new AdaptiveRateLimitInterceptor(config.adaptiveRateLimit());
-        var dispatcher = new Dispatcher();
+        var dispatcher = newDispatcher(config);
         var pool = new ConnectionPool();
         var crumbStore = new CrumbStore(baseClient(config, cookieJar, limiter, dispatcher, pool), config);
         return apiClient(config, cookieJar, () -> crumbStore.tryGetCrumb().orElse(null), crumbStore::invalidate,

@@ -114,6 +114,19 @@ class YahooClientFactoryTest {
     }
 
     @Test
+    void dispatcherIsSizedByTheFanOutConcurrency() {   // efficiency review, item 3
+        var twelve = YahooClientFactory.newDispatcher(config.withFanOutConcurrency(12));
+        assertThat(twelve.getMaxRequestsPerHost()).as("all Yahoo traffic goes to one or two hosts").isEqualTo(12);
+        assertThat(twelve.getMaxRequests()).isEqualTo(12);
+
+        var four = YahooClientFactory.newDispatcher(config.withFanOutConcurrency(4));
+        assertThat(four.getMaxRequestsPerHost()).as("never below OkHttp's default of 5").isEqualTo(5);
+
+        var client = YahooClientFactory.apiClient(config.withFanOutConcurrency(12));
+        assertThat(client.dispatcher().getMaxRequestsPerHost()).isEqualTo(12);
+    }
+
+    @Test
     void handshakeClientSharesTheApiClientsRateLimiter() {
         var cookieJar = new InMemoryCookieJar();
         var limiter = new AdaptiveRateLimitInterceptor(config.adaptiveRateLimit());
