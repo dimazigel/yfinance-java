@@ -91,7 +91,7 @@ Batch<PriceHistory> histories = yf.histories(symbols, Range.ONE_YEAR, Interval.O
 Batch<Optional<OptionChain>> chains = yf.options(symbols);
 Batch<FinancialStatement> statements = yf.statements(equities.values(), StatementType.INCOME, Frequency.ANNUAL);
 // Several statements per equity in ONE timeseries request each (type → frequency → statement):
-Batch<Map<StatementType, Map<Frequency, FinancialStatement>>> all = yf.statements(equities.values(),
+Batch<Map<StatementType, Map<Frequency, FinancialStatement>>> multi = yf.statements(equities.values(),
         Set.of(StatementType.INCOME, StatementType.CASH_FLOW), Set.of(Frequency.ANNUAL, Frequency.QUARTERLY));
 
 // Fan out any Ticker call with bounded concurrency (virtual threads); a Ticker's non-answer
@@ -122,6 +122,25 @@ through), `get(symbol)` (first occurrence, a linear scan) and `summary()`; each 
 `YFMissingDataException` carrying the `SkipReason`; `Failed` rethrows its error). The mapping is symmetric: `Tickers.fetch` turns a `YFSkippedException` or a
 `YFClassMismatchException` thrown inside the fetcher back into `Skipped`, so `fetch(t -> t.as(Equity.class))`
 skips for the same reasons as `instruments(symbols, Equity.class)`.
+
+### Coming from Python yfinance
+
+| Python `yfinance` | `yfinance-java` |
+|---|---|
+| `Ticker("AAPL").info` | `ticker.instrument()` (snapshot, typed by class) + `yf.detail(equity)` / `ticker.detail(equity)` (profile, statistics, analysts, ownership); two requests, because Yahoo's v7 quote and quoteSummary are two endpoints |
+| `history(period="1mo", interval="1d")` | `ticker.history(Range.ONE_MONTH, Interval.ONE_DAY)`; `history(start, end, interval)` for a window; `history(HistoryRequest.builder(symbol)....build())` for `includePrePost`/`events` |
+| `history(auto_adjust=True)` (the Python default) | `ticker.history(...).adjusted()` — bars are raw OHLC + `adjClose` until you ask |
+| `dividends` / `splits` / `actions` / `capital_gains` | `ticker.dividends()` / `ticker.splits()`; `history(...).dividends()` / `.splits()` / `.capitalGains()` on any fetched window |
+| `options` / `option_chain(date)` | `ticker.options()` → `Optional<OptionChain>` (nearest expiration; `expirationDates()` lists the rest), `ticker.options(expiration)` for one of them |
+| `financials` / `balance_sheet` / `cashflow` (+ `quarterly_*`, `ttm_*`) | `yf.statements(equity, StatementType.INCOME \| BALANCE_SHEET \| CASH_FLOW, Frequency.ANNUAL \| QUARTERLY \| TRAILING)`; several at once in one request: `yf.statements(equity, Set.of(...types), Set.of(...frequencies))` |
+| `Tickers("AAPL MSFT")` / `download([...])` | `yf.instruments(symbols)` (one request per 100 symbols) / `yf.histories(symbols, range, interval)`; `yf.tickers(...).fetch(Ticker::...)` fans any call out |
+| `Search("apple")` / `Lookup("apple")` | `yf.search("apple")` (`quotes()` + `news()`) / `yf.lookup("apple", LookupType.EQUITY)` |
+| `Ticker.news` | `ticker.news()` |
+| `history(repair=True)`, `EquityQuery`/`Screener`, `WebSocket`, ISIN (`isin`, `Ticker("US0378331005")`) | not covered |
+
+Three defaults differ from Python: history is **not** auto-adjusted (call `adjusted()`), a symbol
+Yahoo does not know is an exception on `Ticker` and a `Skipped` outcome in a batch (never an empty
+frame), and percents are stored as fractions.
 
 ## The model
 
