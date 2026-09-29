@@ -136,6 +136,8 @@ class OptionsServiceTest {
             // The second call has no "currency", a 100% key, so it is dropped.
             assertThat(chain.calls()).hasSize(1);
             assertThat(chain.calls().getFirst().contractSymbol()).isEqualTo("AAPL240503C00190000");
+            assertThat(chain.calls().getFirst().changePercent()).as("wire 4.8 % stored as a fraction")
+                    .isEqualByComparingTo("0.048");
             assertThat(log.messages(Level.DEBUG)).anySatisfy(m -> assertThat(m)
                     .isEqualTo("Dropped 1 of 2 contracts without a complete required field"));
         }

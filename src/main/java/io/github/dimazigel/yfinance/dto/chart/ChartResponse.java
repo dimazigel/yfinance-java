@@ -29,7 +29,6 @@ public record ChartResponse(@Nullable Chart chart) {
             @Nullable String instrumentType,
             @Nullable Long firstTradeDate,
             @Nullable Long regularMarketTime,
-            @Nullable Integer gmtoffset,
             @Nullable String timezone,
             @Nullable String exchangeTimezoneName,
             @Nullable BigDecimal regularMarketPrice,
@@ -45,7 +44,7 @@ public record ChartResponse(@Nullable Chart chart) {
             @Nullable TradingPeriod pre, @Nullable TradingPeriod regular, @Nullable TradingPeriod post) {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record TradingPeriod(@Nullable String timezone, @Nullable Long start, @Nullable Long end, @Nullable Integer gmtoffset) {}
+    public record TradingPeriod(@Nullable String timezone, @Nullable Long start, @Nullable Long end) {}
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record Indicators(@Nullable List<Quote> quote, @Nullable List<AdjClose> adjclose) {}

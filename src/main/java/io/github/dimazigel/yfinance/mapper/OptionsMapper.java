@@ -117,6 +117,8 @@ public final class OptionsMapper {
             return null;
         }
 
+        // options percentChange is served as a percent, per AGENTS.md's percent-fields list; the
+        // assembly pipeline's Unit.PERCENT does not cover this mapper, so it converts here instead.
         return new OptionContract(
                 contractSymbol, type, strike, expiration,
                 QuoteCurrency.of(currencyCode), lastPrice, change, percentChange.divide(HUNDRED, MathContext.DECIMAL64), ask, contractSize,

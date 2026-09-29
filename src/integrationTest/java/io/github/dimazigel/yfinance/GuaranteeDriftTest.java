@@ -70,9 +70,12 @@ class GuaranteeDriftTest {
             long downgraded = symbols.stream()
                     .filter(s -> batch.get(s).flatMap(Outcome::optional).filter(Unclassified.class::isInstance).isPresent())
                     .count();
-            long failed = symbols.stream()
-                    .filter(s -> batch.get(s).filter(Outcome.Failed.class::isInstance).isPresent())
-                    .count();
+            List<String> failedSymbols = symbols.stream()
+                    .flatMap(s -> batch.get(s).filter(Outcome.Failed.class::isInstance).stream())
+                    .map(o -> (Outcome.Failed<?>) o)
+                    .map(f -> f.symbol() + "=" + f.error().getClass().getSimpleName() + ": " + f.error().getMessage())
+                    .toList();
+            long failed = failedSymbols.size();
             List<String> offenders = symbols.stream()
                     .filter(s -> batch.get(s).flatMap(Outcome::optional).filter(Unclassified.class::isInstance).isPresent())
                     .map(s -> s + "=" + ((Unclassified) batch.get(s).orElseThrow().orElseThrow()).missing())
@@ -80,11 +83,12 @@ class GuaranteeDriftTest {
 
             System.out.println("  " + assetClass + ": live=" + live + "/" + symbols.size()
                     + " downgraded=" + downgraded + " failed=" + failed
-                    + (offenders.isEmpty() ? "" : " offenders=" + offenders));
+                    + (offenders.isEmpty() ? "" : " offenders=" + offenders)
+                    + (failedSymbols.isEmpty() ? "" : " failures=" + failedSymbols));
 
             soft.assertThat(failed)
-                    .as("%s: %d transport failure(s) (a failure must never masquerade as \"nothing downgraded\")",
-                            assetClass, failed)
+                    .as("%s: %d transport failure(s) (a failure must never masquerade as \"nothing downgraded\"): %s",
+                            assetClass, failed, failedSymbols)
                     .isZero();
             soft.assertThat(downgraded)
                     .as("%s downgraded: %s", assetClass, offenders)
