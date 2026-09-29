@@ -3,7 +3,8 @@ name: Live API check
 # Yahoo Finance has no public API contract, so the real risk to this library is the endpoints
 # drifting underneath it. The unit tests replay fixed JSON and cannot notice that; this suite hits
 # the live endpoints on a schedule (and on demand) so drift shows up as a failed run rather than as
-# a user's bug report.
+# a user's bug report. A failure opens or updates a `yahoo-drift`-labelled issue so it isn't only
+# visible in the Actions tab.
 #
 # Note: GitHub disables scheduled workflows after 60 days without repository activity.
 
@@ -14,6 +15,7 @@ on:
 
 permissions:
   contents: read
+  issues: write
 
 jobs:
   live:
@@ -41,3 +43,32 @@ jobs:
           name: live-test-report
           path: build/reports/tests/integrationTest
           if-no-files-found: ignore
+
+      - name: Open or update the drift tracking issue
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          COMMIT_SHA: ${{ github.sha }}
+          TRIGGER: ${{ github.event_name }}
+        run: |
+          gh label create yahoo-drift --description "Live Yahoo API check failed" --color D93F0B --force
+
+          issue=$(gh issue list --label yahoo-drift --state open --limit 1 --json number --jq '.[0].number // empty')
+
+          body=$(cat <<BODY
+          The live integration suite failed, which usually means a Yahoo Finance endpoint or response shape changed underneath this library.
+
+          - Run: $RUN_URL
+          - Commit: $COMMIT_SHA
+          - Trigger: $TRIGGER
+
+          Download the \`live-test-report\` artifact for the failing tests.
+          BODY
+          )
+
+          if [ -z "$issue" ]; then
+            gh issue create --title "Live API check failed: possible Yahoo drift" --label yahoo-drift --body "$body"
+          else
+            gh issue comment "$issue" --body "$body"
+          fi
