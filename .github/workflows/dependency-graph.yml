@@ -1,0 +1,29 @@
+# Submits the fully resolved Gradle dependency graph (including BOM-managed and transitive
+# versions) to GitHub's dependency graph so Dependabot alerts fire on what actually ends up on
+# the classpath. This needs contents: write, which build.yml deliberately does not grant, so it
+# runs as its own workflow rather than an extra step there.
+#
+# Runs on every push to main (the graph should track what's actually released) and on demand.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  submit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Submit dependency graph
+        uses: gradle/actions/dependency-submission@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
