@@ -1,3 +1,5 @@
+name: Dependency graph
+
 # Submits the fully resolved Gradle dependency graph (including BOM-managed and transitive
 # versions) to GitHub's dependency graph so Dependabot alerts fire on what actually ends up on
 # the classpath. This needs contents: write, which build.yml deliberately does not grant, so it

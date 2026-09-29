@@ -2,8 +2,8 @@
 
 ## Supported versions
 
-Only the latest release on the `1.x` line (currently `1.1.0`) is supported. Fixes ship as a new
-patch or minor release; there is no backport line for older versions.
+Only the latest release on the `1.x` line is supported. Fixes ship as a new patch or minor
+release; there is no backport line for older versions.
 
 ## Reporting a vulnerability
 
@@ -24,7 +24,9 @@ This library is a client for Yahoo Finance's unofficial endpoints. It:
 
 - Talks only to `query1`/`query2.finance.yahoo.com` and `fc.yahoo.com` — no other network
   destination.
-- Stores the auth cookie and crumb in memory only (`auth/CrumbStore`); nothing is written to disk.
+- Stores the auth cookie and crumb in memory only (`auth/CrumbStore` and the default
+  `InMemoryCookieJar`; a cookie jar you install through `EndpointConfig` is yours); nothing is
+  written to disk.
 - Has no server component, credential store, or user data of its own.
 
 Reports about vulnerabilities in Yahoo Finance's own services, or in Yahoo's infrastructure, are

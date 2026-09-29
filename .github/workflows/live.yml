@@ -3,8 +3,8 @@ name: Live API check
 # Yahoo Finance has no public API contract, so the real risk to this library is the endpoints
 # drifting underneath it. The unit tests replay fixed JSON and cannot notice that; this suite hits
 # the live endpoints on a schedule (and on demand) so drift shows up as a failed run rather than as
-# a user's bug report. A failure opens or updates a `yahoo-drift`-labelled issue so it isn't only
-# visible in the Actions tab.
+# a user's bug report. A failure of the test step itself opens or updates a `yahoo-drift`-labelled
+# issue so it isn't only visible in the Actions tab; an infra hiccup earlier in the job does not.
 #
 # Note: GitHub disables scheduled workflows after 60 days without repository activity.
 
@@ -34,6 +34,7 @@ jobs:
         uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
 
       - name: Run live integration tests against Yahoo Finance
+        id: live
         run: ./gradlew integrationTest
 
       - name: Upload test report
@@ -45,7 +46,7 @@ jobs:
           if-no-files-found: ignore
 
       - name: Open or update the drift tracking issue
-        if: failure()
+        if: failure() && steps.live.outcome == 'failure'
         env:
           GH_TOKEN: ${{ github.token }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
