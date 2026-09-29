@@ -537,6 +537,19 @@ dependencies { implementation("io.github.dimazigel:yfinance-java:<version>") }
 The library is deliberately not published to Maven Central; GitHub Packages is the only
 distribution channel. See [RELEASING.md](RELEASING.md) for how releases are cut.
 
+**Runtime footprint:** the published POM brings in, at runtime, OkHttp 5.5.0 (`okhttp-jvm`, which
+pulls in Kotlin stdlib 2.2.21 and Okio 3.18.1), OpenFeign 13.15 (`feign-core`, `feign-okhttp`,
+`feign-jackson3`), Jackson 3.2.3 databind and core (`tools.jackson.core:jackson-databind`,
+`tools.jackson.core:jackson-core`) plus `com.fasterxml.jackson.core:jackson-annotations` 2.22,
+JSpecify 1.0.1 and `slf4j-api` 2.0.20 — the exact list and versions the catalog resolves today,
+verified with `./gradlew dependencies --configuration runtimeClasspath -q`. Only OkHttp, JSpecify
+and SLF4J are `api` (compile-visible to consumers); Feign and Jackson are implementation details
+that never appear in the library's public signatures. A project already on Jackson 2 is
+unaffected: Jackson 3 lives under different Maven coordinates and packages (`tools.jackson.*`),
+while the shared `jackson-annotations` artifact stays on its familiar `com.fasterxml.jackson.core`
+2.x coordinates and `com.fasterxml.jackson.annotation` package, so the two major versions coexist
+without conflict.
+
 Unit tests never touch the network; they replay captured Yahoo responses from
 `src/test/resources/fixtures/` (one snapshot per asset class plus edge cases such as a UCITS ETF,
 a preferred share and a dead symbol). The live suite (`src/integrationTest`) verifies shape against
@@ -544,9 +557,12 @@ real responses and includes the guarantee-drift detector; it is excluded from `b
 weekly in CI so that Yahoo API drift shows up as a failed run.
 
 CI (GitHub Actions, `.github/workflows/build.yml`) runs `./gradlew build` on every push/PR and
-uploads the JaCoCo coverage report as an artifact; CodeQL scans on every push, PR and weekly. The
-build compiles main code with Error Prone, NullAway and `-Werror`, so a nullness mistake or an
-Error Prone finding is a compile error. The Gradle configuration cache is enabled via
+uploads the JaCoCo coverage report as an artifact, plus the JUnit report as the `test-report`
+artifact when the build fails; CodeQL scans on every push, PR and weekly. The weekly live check
+(`live.yml`) opens or updates a `yahoo-drift`-labelled issue when it fails, and
+`dependency-graph.yml` submits the fully resolved dependency graph to GitHub on every push to
+`main`. The build compiles main code with Error Prone, NullAway and `-Werror`, so a nullness
+mistake or an Error Prone finding is a compile error. The Gradle configuration cache is enabled via
 `gradle.properties`.
 
 ## License
