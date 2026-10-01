@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.Optional;
 import java.util.function.LongSupplier;
+import okhttp3.FormBody;
+import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -35,8 +37,15 @@ import org.slf4j.LoggerFactory;
  * Without the cooldown, every data request made while the crumb endpoint is rate-limiting or
  * blocking would re-run the two-request handshake against it.
  *
- * <p>TODO: the EU-consent (guce/collectConsent) CSRF cookie fallback that Python yfinance uses is
- * not yet implemented; only the {@code fc.yahoo.com} cookie strategy is attempted.
+ * <p><strong>Consent fallback</strong> (Python yfinance's "csrf" cookie strategy): where Yahoo
+ * requires cookie consent (the EU), the {@code fc.yahoo.com} cookie is not enough and the crumb
+ * request is rejected. On a rejection — never on a transient failure — the store asks
+ * {@link EndpointConfig#consentUrl()} once; if the page it lands on is the consent form (it has the
+ * {@code csrfToken} and {@code sessionId} inputs), the store posts the acceptance back to that page,
+ * calls {@code copyConsent}, and requests the crumb again with the cookies that set. Anywhere else
+ * the entry point just redirects to Yahoo's home page, no form is found, and the original rejection
+ * stands. The form path follows upstream and is covered by tests against a stub server; it has not
+ * been exercised against Yahoo from a network that shows the consent wall.
  */
 public final class CrumbStore {
 
@@ -45,6 +54,8 @@ public final class CrumbStore {
     private static final long MAX_BACKOFF_MINUTES = 5;
     private static final Duration INITIAL_BACKOFF = Duration.ofSeconds(INITIAL_BACKOFF_SECONDS);
     private static final Duration MAX_BACKOFF = Duration.ofMinutes(MAX_BACKOFF_MINUTES);
+    /** The consent page is small; where no consent is required the entry point lands on a home page of half a megabyte. */
+    private static final long MAX_CONSENT_PAGE_BYTES = 1024 * 1024;
 
     private final OkHttpClient client;
     private final EndpointConfig config;
@@ -163,6 +174,72 @@ public final class CrumbStore {
 
     private Crumb fetch() {
         seedCookie();
+        try {
+            return requestCrumb();
+        } catch (TransientCrumbFailure e) {
+            throw e;
+        } catch (YFAuthException rejected) {
+            if (!acceptConsent()) {
+                throw rejected;
+            }
+        }
+        try {
+            return requestCrumb();
+        } catch (TransientCrumbFailure e) {
+            throw e;
+        } catch (YFAuthException stillRejected) {
+            throw new YFAuthException(stillRejected.getMessage() + " after accepting Yahoo's consent form", stillRejected);
+        }
+    }
+
+    /**
+     * Accepts Yahoo's cookie-consent form if {@link EndpointConfig#consentUrl()} leads to one.
+     *
+     * @return whether a form was found and submitted; {@code false} when the entry point leads
+     *     elsewhere (no consent required here) or the flow failed with an I/O error
+     */
+    private boolean acceptConsent() {
+        try {
+            ConsentForm form;
+            HttpUrl formUrl;
+            try (Response page = client.newCall(new Request.Builder().url(config.consentUrl()).get().build()).execute()) {
+                Optional<ConsentForm> parsed = ConsentForm.parse(page.peekBody(MAX_CONSENT_PAGE_BYTES).string());
+                if (parsed.isEmpty()) {
+                    LOG.atDebug().log("No consent form behind {}; not a consent wall", config.consentUrl());
+                    return false;
+                }
+                form = parsed.get();
+                formUrl = page.request().url();   // after redirects: the page the form is served from and posts to
+            }
+            var acceptance = new FormBody.Builder()
+                    .add("agree", "agree")
+                    .add("agree", "agree")
+                    .add("consentUUID", "default")
+                    .add("sessionId", form.sessionId())
+                    .add("csrfToken", form.csrfToken())
+                    .add("originalDoneUrl", "https://finance.yahoo.com/")
+                    .add("namespace", "yahoo")
+                    .build();
+            try (Response posted = client.newCall(new Request.Builder().url(formUrl).post(acceptance).build()).execute()) {
+                posted.body(); // the Set-Cookie matters, not the page
+            }
+            HttpUrl copyConsent = config.consentUrl().newBuilder()
+                    .encodedPath("/copyConsent")
+                    .query(null)
+                    .addQueryParameter("sessionId", form.sessionId())
+                    .build();
+            try (Response copied = client.newCall(new Request.Builder().url(copyConsent).get().build()).execute()) {
+                copied.body();
+            }
+            LOG.atInfo().log("Accepted Yahoo's cookie-consent form; requesting the crumb again");
+            return true;
+        } catch (IOException e) {
+            LOG.atDebug().addKeyValue("cause", e.toString()).log("Consent flow failed; keeping the crumb rejection");
+            return false;
+        }
+    }
+
+    private Crumb requestCrumb() {
         var request = new Request.Builder().url(config.crumbUrl()).get().build();
         try (Response response = client.newCall(request).execute()) {
             if (response.code() == 429) {

@@ -124,7 +124,7 @@ class YahooApisTest {
         var second = new MockWebServer();
         second.start();
         try {
-            var config = EndpointConfig.production().withHosts(server.url("/"), second.url("/"), server.url("/"), server.url("/"));
+            var config = EndpointConfig.production().withHosts(server.url("/"), second.url("/"), server.url("/"), server.url("/"), server.url("/consent"));
             var split = YahooApis.create(config, new OkHttpClient());
             second.enqueue(Fixtures.jsonResponse("timeseries_income_annual.json"));
             split.fundamentals().timeseries("AAPL", "annualTotalRevenue", 1600000000L, 1700000000L);
@@ -141,7 +141,7 @@ class YahooApisTest {
         var site = new MockWebServer();
         site.start();
         try {
-            var config = EndpointConfig.production().withHosts(server.url("/"), server.url("/"), site.url("/"), server.url("/"));
+            var config = EndpointConfig.production().withHosts(server.url("/"), server.url("/"), site.url("/"), server.url("/"), server.url("/consent"));
             var split = YahooApis.create(config, new OkHttpClient());
             site.enqueue(Fixtures.jsonResponse("news/ncp_news_unknown.json"));
             split.news().news("latestNews", new NewsRequest(new NewsRequest.ServiceConfig(10, List.of("AAPL"))));

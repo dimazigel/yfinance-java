@@ -23,6 +23,7 @@ class EndpointConfigTest {
         assertThat(config.query2Base().host()).isEqualTo("query2.finance.yahoo.com");
         assertThat(config.financeBase().host()).isEqualTo("finance.yahoo.com");
         assertThat(config.cookieUrl().host()).isEqualTo("fc.yahoo.com");
+        assertThat(config.consentUrl()).isEqualTo(HttpUrl.get("https://guce.yahoo.com/consent"));
         assertThat(config.userAgent()).startsWith("Mozilla/5.0");
         assertThat(config.adaptiveRateLimit().enabled()).isTrue();
         assertThat(config.adaptiveRateLimit().maxDelay()).as("well under the 30 s call timeout").isEqualTo(Duration.ofSeconds(10));
@@ -36,6 +37,7 @@ class EndpointConfigTest {
         assertThat(config.query2Base()).isEqualTo(URL);
         assertThat(config.financeBase()).isEqualTo(URL);
         assertThat(config.cookieUrl()).isEqualTo(URL);
+        assertThat(config.consentUrl()).isEqualTo(URL.resolve("consent"));
         assertThat(config.crumbUrl()).isEqualTo(URL.resolve("v1/test/getcrumb"));
         assertThat(config.userAgent()).isEqualTo(EndpointConfig.production().userAgent()); // untouched
     }
@@ -44,10 +46,12 @@ class EndpointConfigTest {
     void withHostsCanSetEachHostSeparately() {
         var other = HttpUrl.get("https://other.test/");
         var site = HttpUrl.get("https://site.test/");
-        var config = EndpointConfig.production().withHosts(URL, other, site, URL);
+        var consent = HttpUrl.get("https://consent.test/consent");
+        var config = EndpointConfig.production().withHosts(URL, other, site, URL, consent);
         assertThat(config.query1Base()).isEqualTo(URL);
         assertThat(config.query2Base()).isEqualTo(other);
         assertThat(config.financeBase()).isEqualTo(site);
+        assertThat(config.consentUrl()).isEqualTo(consent);
         assertThat(config.cookieUrl()).isEqualTo(URL);
     }
 
