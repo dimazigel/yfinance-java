@@ -29,7 +29,6 @@ import io.github.dimazigel.yfinance.instrument.MutualFund;
 import io.github.dimazigel.yfinance.instrument.Unclassified;
 import io.github.dimazigel.yfinance.market.HistoryQuery;
 import io.github.dimazigel.yfinance.market.PriceBar;
-import io.github.dimazigel.yfinance.service.HistoryRequest;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
 import java.time.Duration;
 import java.time.Instant;
@@ -303,11 +302,9 @@ class LiveYahooIntegrationTest {
         }
 
         @Test
-        @SuppressWarnings({"deprecation", "removal"}) // proves the deprecated HistoryRequest path still works live
         void openEndedPeriodRunsToNow() {
             var start = Instant.now().minus(Duration.ofDays(10));
-            var history = aapl.history(HistoryRequest.builder(aapl.symbol())
-                    .period(start, null).interval(Interval.ONE_DAY).build());
+            var history = aapl.history(HistoryQuery.of(Interval.ONE_DAY).period(start).build());
             assertThat(history.bars()).isNotEmpty();
         }
 

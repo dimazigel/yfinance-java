@@ -84,34 +84,6 @@ public record EndpointConfig(
         }
     }
 
-    /**
-     * The canonical constructor of 1.1.0: a fresh {@link InMemoryCookieJar} and
-     * {@link Clock#systemUTC()} for the two components added since.
-     *
-     * @param query1Base primary API host
-     * @param query2Base secondary API host
-     * @param cookieUrl cookie-seeding URL
-     * @param userAgent the {@code User-Agent} header
-     * @param callTimeout overall per-call timeout
-     * @param adaptiveRateLimit adaptive throttling after HTTP 429
-     * @param transientRetry retry policy for 5xx
-     * @param clientCustomizer hook applied last to every OkHttp client builder
-     * @param fanOutConcurrency the fan-out bound, at least 1
-     */
-    public EndpointConfig(
-            HttpUrl query1Base,
-            HttpUrl query2Base,
-            HttpUrl cookieUrl,
-            String userAgent,
-            Duration callTimeout,
-            AdaptiveRateLimitConfig adaptiveRateLimit,
-            RetryConfig transientRetry,
-            Consumer<OkHttpClient.Builder> clientCustomizer,
-            int fanOutConcurrency) {
-        this(query1Base, query2Base, cookieUrl, userAgent, callTimeout, adaptiveRateLimit, transientRetry,
-                clientCustomizer, fanOutConcurrency, new InMemoryCookieJar(), Clock.systemUTC());
-    }
-
     /** The production Yahoo Finance configuration. */
     public static EndpointConfig production() {
         return new EndpointConfig(

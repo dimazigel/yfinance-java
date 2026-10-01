@@ -61,11 +61,8 @@ class DependencyHygieneTest {
         String name = topLevel.getSimpleName();
         if (isOrIsSubPackage(pkg, "assembly") || isOrIsSubPackage(pkg, "dto")
                 || isOrIsSubPackage(pkg, "mapper") || isOrIsSubPackage(pkg, "api")
-                || isOrIsSubPackage(pkg, "auth")) {
+                || isOrIsSubPackage(pkg, "auth") || isOrIsSubPackage(pkg, "service")) {
             return true;
-        }
-        if (pkg.equals(BASE + ".service")) {
-            return name.endsWith("Service") || name.equals("FundamentalKeys");
         }
         if (pkg.equals(BASE + ".http")) {
             return name.endsWith("Interceptor")

@@ -96,21 +96,6 @@ class CrumbStoreTest {
         assertThat(server.getRequestCount()).isEqualTo(2); // not re-fetched
     }
 
-    @Test
-    void invalidateForcesReFetch() throws Exception {
-        server.enqueue(new MockResponse().setResponseCode(404));
-        server.enqueue(new MockResponse().setResponseCode(200).setBody("first-crumb"));
-        server.enqueue(new MockResponse().setResponseCode(404));
-        server.enqueue(new MockResponse().setResponseCode(200).setBody("second-crumb"));
-
-        Crumb first = crumbStore.getCrumb();
-        crumbStore.invalidate();
-        Crumb second = crumbStore.getCrumb();
-
-        assertThat(first).isEqualTo(Crumb.of("first-crumb"));
-        assertThat(second).isEqualTo(Crumb.of("second-crumb"));
-        assertThat(server.getRequestCount()).isEqualTo(4);
-    }
 
     @Test
     void invalidateWithTheRejectedCrumbClearsOnlyThatCrumb() {

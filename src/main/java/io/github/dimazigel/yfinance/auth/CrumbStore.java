@@ -19,8 +19,8 @@ import org.slf4j.LoggerFactory;
  *
  * <p>The handshake is: (1) hit {@code fc.yahoo.com} to let Yahoo set a session cookie, then
  * (2) request a crumb from {@code /v1/test/getcrumb} (sent with that cookie). The crumb is then
- * attached to every authenticated data request. The result is cached until {@link #invalidate()}
- * or {@link #invalidate(String)}.
+ * attached to every authenticated data request. The result is cached until
+ * {@link #invalidate(String)}.
  *
  * <p>The cookie is best-effort: a failure to reach {@code fc.yahoo.com} (common behind SOCKS5 or
  * corporate proxies) does not abort the handshake. Use {@link #tryGetCrumb()} to also degrade on
@@ -115,19 +115,6 @@ public final class CrumbStore {
             } catch (TransientCrumbFailure e) {
                 return Optional.empty();
             }
-        }
-    }
-
-    /**
-     * Drops the cached crumb unconditionally so the next {@link #getCrumb()} repeats the handshake.
-     * Prefer {@link #invalidate(String)} when reacting to a rejected request.
-     */
-    public void invalidate() {
-        synchronized (this) {
-            if (cached != null) {
-                LOG.atDebug().log("Crumb invalidated; next request will repeat the handshake");
-            }
-            cached = null;
         }
     }
 

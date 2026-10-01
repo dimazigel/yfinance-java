@@ -8,9 +8,7 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneOffset;
-import java.util.function.Consumer;
 import okhttp3.HttpUrl;
-import okhttp3.OkHttpClient;
 import org.junit.jupiter.api.Test;
 
 class EndpointConfigTest {
@@ -135,15 +133,4 @@ class EndpointConfigTest {
         assertThat(production.withClock(fixed).cookieJar()).isSameAs(production.cookieJar());
     }
 
-    @Test
-    void previousCanonicalConstructorStillCompilesAndDefaultsTheNewComponents() {   // 1.1.0 signature
-        Consumer<OkHttpClient.Builder> none = b -> {};
-        var config = new EndpointConfig(URL, URL, URL, "ua", Duration.ofSeconds(3),
-                AdaptiveRateLimitConfig.defaults(), RetryConfig.defaults(), none, 2);
-
-        assertThat(config.cookieJar()).isInstanceOf(InMemoryCookieJar.class);
-        assertThat(config.clock()).isEqualTo(Clock.systemUTC());
-        assertThat(config.fanOutConcurrency()).isEqualTo(2);
-        assertThat(config.clientCustomizer()).isSameAs(none);
-    }
 }

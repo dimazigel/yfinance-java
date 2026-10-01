@@ -22,7 +22,6 @@ import io.github.dimazigel.yfinance.market.OptionChain;
 import io.github.dimazigel.yfinance.market.PriceHistory;
 import io.github.dimazigel.yfinance.market.Split;
 import io.github.dimazigel.yfinance.search.SearchResult.NewsArticle;
-import io.github.dimazigel.yfinance.service.HistoryRequest;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
 import java.time.Instant;
 import java.util.List;
@@ -105,24 +104,6 @@ public final class Ticker {
     /** Price history for this ticker's symbol. */
     public PriceHistory history(HistoryQuery query) {
         return yf.history.getHistory(symbol, query);
-    }
-
-    /**
-     * Price history for an arbitrary {@link HistoryRequest} built for this ticker's symbol.
-     *
-     * @throws IllegalArgumentException if {@code request} was built for a different symbol; a
-     *     request for MSFT sent through the AAPL ticker would otherwise silently fetch MSFT
-     * @deprecated use {@link #history(HistoryQuery)}; {@link HistoryRequest} is scheduled for
-     *     removal in 2.0
-     */
-    @Deprecated(since = "1.2", forRemoval = true)
-    @SuppressWarnings("removal") // HistoryRequest is the deprecated adapter this method exists to serve
-    public PriceHistory history(HistoryRequest request) {
-        if (!request.symbol().equals(symbol)) {
-            throw new IllegalArgumentException(
-                    "HistoryRequest is for " + request.symbol() + " but this ticker is " + symbol);
-        }
-        return history(request.toQuery());
     }
 
     public PriceHistory history(Range range, Interval interval) {
