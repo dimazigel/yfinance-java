@@ -18,7 +18,8 @@ public record YahooApis(
         SearchApi search,
         LookupApi lookup,
         NewsApi news,
-        DomainApi domain) {
+        DomainApi domain,
+        ScreenerApi screener) {
 
     /** Builds all interfaces from the given client and host configuration. */
     public static YahooApis create(EndpointConfig config, OkHttpClient client) {
@@ -32,6 +33,7 @@ public record YahooApis(
                 feign.target(SearchApi.class, config.query1Base()),
                 feign.target(LookupApi.class, config.query1Base()),
                 feign.target(NewsApi.class, config.financeBase()),
-                feign.target(DomainApi.class, config.query1Base()));
+                feign.target(DomainApi.class, config.query1Base()),
+                feign.target(ScreenerApi.class, config.query1Base()));
     }
 }

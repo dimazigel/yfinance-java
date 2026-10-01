@@ -80,27 +80,60 @@ public final class InstrumentService {
             return new Batch<>(List.of());
         }
         try (var ignored = LogContext.scope("instruments", symbols)) {
-            Instant now = clock.instant();
             List<Symbol> distinct = symbols.stream().distinct().toList();
             var rows = new HashMap<Symbol, JsonNode>();
             var chunkFailures = new HashMap<Symbol, YFinanceException>();
             fetchRows(distinct, rows, chunkFailures);
-
-            var needingFallback = new ArrayList<Symbol>();
-            for (Symbol symbol : distinct) {
-                JsonNode row = rows.get(symbol);
-                if (row != null && needsFallback(symbol, row)) {
-                    needingFallback.add(symbol);
-                }
-            }
-            Map<Symbol, Outcome<Optional<Map<String, JsonNode>>>> fallbacks = fetchFallbacks(needingFallback, rows);
-
-            var outcomes = new ArrayList<Outcome<Instrument>>(symbols.size());
-            for (Symbol symbol : symbols) {
-                outcomes.add(outcome(symbol, rows.get(symbol), chunkFailures.get(symbol), fallbacks.get(symbol), now));
-            }
-            return summarised(new Batch<>(outcomes), needingFallback.size());
+            return classify(symbols, rows, chunkFailures);
         }
+    }
+
+    /**
+     * Classifies v7 quote rows that were fetched elsewhere — the screener answers with them — by the
+     * same rules as {@link #instruments(List)}, the quoteSummary fallback included: one outcome per
+     * row, in order. A row without a symbol cannot be an outcome and is dropped (DEBUG). The caller
+     * owns the {@link LogContext} scope.
+     */
+    public Batch<Instrument> fromRows(List<JsonNode> quoteRows) {
+        var symbols = new ArrayList<Symbol>(quoteRows.size());
+        var rows = new HashMap<Symbol, JsonNode>();
+        for (JsonNode row : quoteRows) {
+            String reported = row.path("symbol").asString("");
+            if (reported.isBlank()) {
+                continue;
+            }
+            Symbol symbol = Symbol.of(reported);
+            symbols.add(symbol);
+            rows.putIfAbsent(symbol, row);
+        }
+        int dropped = quoteRows.size() - symbols.size();
+        if (dropped > 0) {
+            LOG.atDebug().addKeyValue("dropped", dropped).log("Dropped {} of {} quote rows without a symbol", dropped, quoteRows.size());
+        }
+        if (symbols.isEmpty()) {
+            return new Batch<>(List.of());
+        }
+        return classify(symbols, rows, Map.of());
+    }
+
+    /** The shared second half: fallbacks for the rows that need one, then one outcome per requested symbol. */
+    private Batch<Instrument> classify(
+            List<Symbol> symbols, Map<Symbol, JsonNode> rows, Map<Symbol, YFinanceException> chunkFailures) {
+        Instant now = clock.instant();
+        var needingFallback = new ArrayList<Symbol>();
+        for (Symbol symbol : symbols.stream().distinct().toList()) {
+            JsonNode row = rows.get(symbol);
+            if (row != null && needsFallback(symbol, row)) {
+                needingFallback.add(symbol);
+            }
+        }
+        Map<Symbol, Outcome<Optional<Map<String, JsonNode>>>> fallbacks = fetchFallbacks(needingFallback, rows);
+
+        var outcomes = new ArrayList<Outcome<Instrument>>(symbols.size());
+        for (Symbol symbol : symbols) {
+            outcomes.add(outcome(symbol, rows.get(symbol), chunkFailures.get(symbol), fallbacks.get(symbol), now));
+        }
+        return summarised(new Batch<>(outcomes), needingFallback.size());
     }
 
     /** One v7 request per chunk; a failed chunk fails only its own symbols. */

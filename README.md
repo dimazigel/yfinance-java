@@ -53,6 +53,12 @@ try (var yf = YFinance.create()) { // cookie+crumb handshake; close() releases t
 
     Sector tech = yf.sector(SectorKey.TECHNOLOGY);         // overview, performance, top companies and funds, industries
     Industry industry = yf.industry(detail.profile().industryKey());   // the equity's own industry page
+
+    ScreenResult gainers = yf.screen(PredefinedScreen.DAY_GAINERS);    // typed instruments, one request
+    ScreenResult largeUsTech = yf.screenEquities(ScreenQuery.and(
+            ScreenQuery.eq(EquityScreenField.REGION, "us"),
+            ScreenQuery.eq(EquityScreenField.SECTOR, "Technology"),
+            ScreenQuery.gt(EquityScreenField.INTRADAYMARKETCAP, 100_000_000_000L)));
 }
 ```
 
@@ -171,6 +177,7 @@ Batch<PriceHistory> backfill = yf.histories(symbols,
 | `Ticker.valuation` | `yf.valuationHistory(equity[, Frequency])` / `ticker.valuationHistory(equity[, Frequency])` — typed rows per period end, without the "Current" column (current values are on `Equity` / `EquityDetail`) |
 | `Tickers("AAPL MSFT")` / `download([...])` | `yf.instruments(symbols)` (one request per 100 symbols) / `yf.histories(symbols, range, interval)`; `yf.tickers(...).fetch(Ticker::...)` fans any call out |
 | `Search("apple")` / `Lookup("apple")` | `yf.search("apple")` (`quotes()` + `news()`) / `yf.lookup("apple", LookupType.EQUITY)` |
+| `screen("day_gainers")` / `screen(EquityQuery(...))` / `screen(FundQuery(...))` | `yf.screen(PredefinedScreen.DAY_GAINERS)` / `yf.screenEquities(ScreenQuery...)` / `yf.screenFunds(ScreenQuery...)` — the result's quotes are typed `Instrument`s; `size`/`offset`/`sortField`/`sortAsc` are `ScreenOptions` |
 | `Sector("technology")` / `Industry("semiconductors")` | `yf.sector(SectorKey.TECHNOLOGY)` / `yf.industry("semiconductors")` — typed records in place of DataFrames; `info["sectorKey"]` / `info["industryKey"]` are `detail.profile().sectorKey()` / `industryKey()` |
 | `Ticker.news` / `get_news(count, tab)` | `ticker.news()` / `ticker.news(NewsTab.PRESS_RELEASES, 20)` — tabs `ALL`, `NEWS`, `PRESS_RELEASES` |
 | `history(repair=True)`, `EquityQuery`/`Screener`, `WebSocket`, ISIN (`isin`, `Ticker("US0378331005")`) | not covered |
@@ -339,6 +346,19 @@ and which deeper calls exist. History and `options()` exist for every class (opt
 | `FxPair` | `session` | `book` | — | — |
 | `Future` | `session`, `contract` (expiry, open interest, underlying, continuous root) | `book` | — | — |
 
+**Screener.** `yf.screen(PredefinedScreen)` runs one of Yahoo's fifteen saved screens (nine of
+equities, six of mutual funds); `yf.screenEquities(query)` and `yf.screenFunds(query)` run a custom
+`ScreenQuery`: conditions (`eq`, `gt`, `gte`, `lt`, `lte`, `between`, `isIn`) joined by `and` / `or`,
+nested as needed. The fields are enums generated from Yahoo's own catalogue — `EquityScreenField`
+(124) and `FundScreenField` (27), named after Yahoo's field ids — so a query cannot name a field
+Yahoo does not have, mix equity and fund fields, or compare a text field numerically. Deprecated,
+premium-only and per-locale ranking fields are left out. Text values (`"us"`, `"Technology"`,
+`"NMS"`) are Yahoo's and are not checked; a value Yahoo rejects is a `YFHttpException` (400).
+`ScreenOptions` picks the page (`withOffset`, `withSize` up to 250) and the order (`sortedBy`).
+A `ScreenResult` carries `total`, `offset`, the saved screen's own `Info` for a predefined screen,
+and `instruments()`: a `Batch<Instrument>` built from the rows Yahoo returns — they are full quote
+rows, so each is classified exactly as `yf.instruments(...)` would, with no second request.
+
 **Sectors and industries.** `yf.sector(SectorKey)` and `yf.industry(key)` are one request each and
 return the page Yahoo shows: `Overview` (company count, market cap, weight, employees), `Performance`
 over five horizons with the same for its `Benchmark`, up to 50 `TopCompany` rows and recent
@@ -372,8 +392,9 @@ Twitter and proof-of-work stats.
 | Per-symbol news stream (news, press releases, all) | `POST finance.yahoo.com/xhr/ncp` | `Ticker.news()`, `Ticker.news(tab, count)`, `YFinance.news(...)` |
 | Lookup | `/v1/finance/lookup` | `YFinance.lookup(...)` |
 | Sector and industry pages | `/v1/finance/sectors/{key}`, `/v1/finance/industries/{key}` | `YFinance.sector(SectorKey)`, `YFinance.industry(key)` |
+| Screener: predefined screens and custom equity / fund queries | `/v1/finance/screener/predefined/saved`, `POST /v1/finance/screener` | `YFinance.screen(...)`, `screenEquities(...)`, `screenFunds(...)` |
 
-Not covered: live WebSocket streaming, `EquityQuery`/`Screener`, ESG / sustainability
+Not covered: live WebSocket streaming, ESG / sustainability
 scores — Yahoo stopped serving the `esgScores` module (verified 2026-10-01: HTTP 200 with the module
 omitted for every symbol tried), so there is nothing to port.
 
@@ -531,6 +552,7 @@ exported (the API)
   fundamentals/  FinancialStatement, SharesOutstanding, ValuationMeasures
   search/        SearchResult, LookupQuote;   news/  NewsItem
   sector/        Sector, Industry, Overview, Performance, Benchmark, TopCompany, ResearchReport
+  screener/      ScreenQuery, ScreenOptions, ScreenResult, EquityScreenField, FundScreenField
   http/          EndpointConfig, AdaptiveRateLimitConfig, RetryConfig, InMemoryCookieJar
   enums/         closed sets implementing WireEnum (Interval, Range, LineItem, ...)
   valueobject/   Symbol;   exception/  the YFinanceException hierarchy;   logging/  LogContext (MDC keys)

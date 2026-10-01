@@ -9,6 +9,7 @@ import io.github.dimazigel.yfinance.enums.Frequency;
 import io.github.dimazigel.yfinance.enums.Interval;
 import io.github.dimazigel.yfinance.enums.LookupType;
 import io.github.dimazigel.yfinance.enums.NewsTab;
+import io.github.dimazigel.yfinance.enums.PredefinedScreen;
 import io.github.dimazigel.yfinance.enums.Range;
 import io.github.dimazigel.yfinance.enums.SectorKey;
 import io.github.dimazigel.yfinance.enums.StatementType;
@@ -33,11 +34,17 @@ import io.github.dimazigel.yfinance.internal.service.InstrumentService;
 import io.github.dimazigel.yfinance.internal.service.LookupService;
 import io.github.dimazigel.yfinance.internal.service.NewsService;
 import io.github.dimazigel.yfinance.internal.service.OptionsService;
+import io.github.dimazigel.yfinance.internal.service.ScreenerService;
 import io.github.dimazigel.yfinance.internal.service.SearchService;
 import io.github.dimazigel.yfinance.market.HistoryQuery;
 import io.github.dimazigel.yfinance.market.OptionChain;
 import io.github.dimazigel.yfinance.market.PriceHistory;
 import io.github.dimazigel.yfinance.news.NewsItem;
+import io.github.dimazigel.yfinance.screener.EquityScreenField;
+import io.github.dimazigel.yfinance.screener.FundScreenField;
+import io.github.dimazigel.yfinance.screener.ScreenOptions;
+import io.github.dimazigel.yfinance.screener.ScreenQuery;
+import io.github.dimazigel.yfinance.screener.ScreenResult;
 import io.github.dimazigel.yfinance.search.LookupQuote;
 import io.github.dimazigel.yfinance.search.SearchResult;
 import io.github.dimazigel.yfinance.sector.Industry;
@@ -95,6 +102,7 @@ public final class YFinance implements AutoCloseable {
     private final LookupService lookup;
     private final NewsService news;
     private final DomainService domain;
+    private final ScreenerService screener;
     private final Clock clock;
     private final Runnable closer;
     private final int fanOutConcurrency;
@@ -112,6 +120,7 @@ public final class YFinance implements AutoCloseable {
         this.lookup = new LookupService(apis.lookup());
         this.news = new NewsService(apis.news());
         this.domain = new DomainService(apis.domain(), clock);
+        this.screener = new ScreenerService(apis.screener(), instruments);
         this.clock = clock;
         this.closer = closer;
     }
@@ -428,6 +437,58 @@ public final class YFinance implements AutoCloseable {
      */
     public List<NewsItem> news(Symbol symbol, NewsTab tab, int count) {
         return news.getNews(symbol, tab, count);
+    }
+
+    /**
+     * The first 25 instruments of one of Yahoo's predefined screens, in the screen's own order; see
+     * {@link #screen(PredefinedScreen, ScreenOptions)}.
+     */
+    public ScreenResult screen(PredefinedScreen screen) {
+        return screen(screen, ScreenOptions.defaults());
+    }
+
+    /**
+     * One page of a predefined screen in one request (Python yfinance's {@code screen("day_gainers")}).
+     * The rows Yahoo returns are classified exactly as {@link #instruments(Collection)} classifies
+     * symbols, without a second request for their quotes: {@code result.instruments()} is a
+     * {@link Batch} of typed {@link Instrument}s.
+     *
+     * @param screen which screen
+     * @param options the page (up to {@value ScreenOptions#MAX_SIZE} instruments) and, optionally, an
+     *     order that replaces the screen's own
+     */
+    public ScreenResult screen(PredefinedScreen screen, ScreenOptions options) {
+        return screener.screen(screen, options);
+    }
+
+    /** The first 25 equities matching {@code query}; see {@link #screenEquities(ScreenQuery, ScreenOptions)}. */
+    public ScreenResult screenEquities(ScreenQuery<EquityScreenField> query) {
+        return screenEquities(query, ScreenOptions.defaults());
+    }
+
+    /**
+     * One page of the equities matching a custom query, in one request (Python yfinance's
+     * {@code screen(EquityQuery(...))}). Without a sort in {@code options} the page is ordered by
+     * symbol, descending, which is Yahoo's own default.
+     *
+     * @throws io.github.dimazigel.yfinance.exception.YFHttpException when Yahoo rejects the query
+     *     (HTTP 400), e.g. for a value it does not accept for a field
+     */
+    public ScreenResult screenEquities(ScreenQuery<EquityScreenField> query, ScreenOptions options) {
+        return screener.screenEquities(query, options);
+    }
+
+    /** The first 25 mutual funds matching {@code query}; see {@link #screenFunds(ScreenQuery, ScreenOptions)}. */
+    public ScreenResult screenFunds(ScreenQuery<FundScreenField> query) {
+        return screenFunds(query, ScreenOptions.defaults());
+    }
+
+    /**
+     * One page of the mutual funds matching a custom query, in one request (Python yfinance's
+     * {@code screen(FundQuery(...))}); see {@link #screenEquities(ScreenQuery, ScreenOptions)}.
+     */
+    public ScreenResult screenFunds(ScreenQuery<FundScreenField> query, ScreenOptions options) {
+        return screener.screenFunds(query, options);
     }
 
     /**
