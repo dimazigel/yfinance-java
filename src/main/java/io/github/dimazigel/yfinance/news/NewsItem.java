@@ -7,8 +7,9 @@ import java.util.Optional;
 /**
  * One entry of a symbol's news stream: an article, a video or a press release.
  *
- * <p>The non-{@code Optional} components were present on every item of the survey capture (60
- * items over four symbols and all three tabs); an item Yahoo serves without one of them is dropped.
+ * <p>The non-{@code Optional} components were present on every item surveyed (the 60 captured as
+ * fixtures, and 2,763 fetched live over five symbols and all three tabs, none of which was
+ * dropped); an item Yahoo serves without one of them is dropped.
  *
  * @param id Yahoo's identifier of the item
  * @param title the headline
