@@ -2,7 +2,7 @@ package io.github.dimazigel.yfinance.enums;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import io.github.dimazigel.yfinance.http.YahooJsonMapper;
+import io.github.dimazigel.yfinance.internal.http.YahooJsonMapper;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.Arrays;

@@ -499,29 +499,36 @@ proof to `Ticker.detail(...)`/`statements(...)` is a programming error and throw
 
 ```
 YFinance / Ticker / Tickers — the facade; batch calls return Batch<T> (one Outcome<T> per symbol)
-service/     one service per concern (InstrumentService, DetailService, HistoryService, ...)   [internal]
-http/        client factory, interceptors (UA, crumb, auth-retry, adaptive rate limit),
-             RawQuoteClient (batched v7 rows + per-symbol quoteSummary modules), YahooJsonMapper
-api/         Feign interfaces (one per endpoint) + YahooApis bundle                            [internal]
-assembly/    FieldSpec tables per class (specs/, mirrored from Appendix A), Resolver, builders (build/)   [internal]
-instrument/  the sealed snapshot hierarchy and its value records
-detail/      EquityDetail, EtfDetail, MutualFundDetail, CryptoDetail (+ rows/)
-batch/       Batch, Outcome, SkipReason, FanOut
-market/      HistoryQuery, PriceHistory, PriceBar, HistoryMetadata, OptionChain, corporate actions
-fundamentals/ FinancialStatement;  search/ SearchResult, LookupQuote;  news/ NewsItem
-dto/ + mapper/ raw records and mappers for chart, options, timeseries, search, lookup, news          [internal]
-auth/        CrumbStore — cookie (fc.yahoo.com) then crumb handshake, invalidate-on-401/403 (by identity), cooldown after a transient failure   [internal]
-enums/       closed sets implementing WireEnum (Interval, Range, LineItem, ...)
-valueobject/ Symbol, Crumb
+
+exported (the API)
+  instrument/    the sealed snapshot hierarchy and its value records
+  detail/        EquityDetail, EtfDetail, MutualFundDetail, CryptoDetail (+ rows/)
+  batch/         Batch, Outcome, SkipReason
+  market/        HistoryQuery, PriceHistory, PriceBar, HistoryMetadata, OptionChain, corporate actions
+  fundamentals/  FinancialStatement, SharesOutstanding, ValuationMeasures
+  search/        SearchResult, LookupQuote;   news/  NewsItem
+  http/          EndpointConfig, AdaptiveRateLimitConfig, RetryConfig, InMemoryCookieJar
+  enums/         closed sets implementing WireEnum (Interval, Range, LineItem, ...)
+  valueobject/   Symbol;   exception/  the YFinanceException hierarchy;   logging/  LogContext (MDC keys)
+
+internal/ (encapsulated, may change in any release)
+  service/       one service per concern (InstrumentService, DetailService, HistoryService, ...)
+  http/          client factory, interceptors (UA, crumb, auth-retry, adaptive rate limit),
+                 RawQuoteClient (batched v7 rows + per-symbol quoteSummary modules), Feign/Jackson glue
+  api/           Feign interfaces (one per endpoint) + YahooApis bundle
+  assembly/      FieldSpec tables per class (specs/, mirrored from Appendix A), Resolver, builders (build/)
+  dto/ + mapper/ raw records and mappers for chart, options, timeseries, search, lookup, news
+  auth/          CrumbStore — cookie (fc.yahoo.com) then crumb handshake, invalidate-on-401/403
+                 (by identity), cooldown after a transient failure
+  batch/         FanOut
 ```
 
-The packages marked *internal* are `public` only because the layers live in separate packages;
-their `package-info` says so, they are left out of the published Javadoc, and they may change in
-any release. The API is the facade, `instrument`, `detail`, `market`, `fundamentals`, `search`, `news`,
-`batch` (not `FanOut`), `enums`, `valueobject`, `exception`, `logging`, the `http` configuration
-records (`EndpointConfig`, `AdaptiveRateLimitConfig`, `RetryConfig`) plus `InMemoryCookieJar`;
-the interceptors, client factory, Feign/Jackson glue and
-`RawQuoteClient` in `http` are internal too.
+The library is a JPMS module, `io.github.dimazigel.yfinance`. Its `module-info.java` exports only
+the API packages above; everything under `io.github.dimazigel.yfinance.internal` is not exported,
+is left out of the published Javadoc and may change in any release. On the module path the
+internal packages cannot be reached at all; on the classpath they are visible but still not API.
+A build step (`./gradlew moduleSmokeTest`, part of `check`) runs the library as a named module
+against a local stub server, so a missing `exports` or `opens` fails the build.
 
 ## Building, testing, consuming
 

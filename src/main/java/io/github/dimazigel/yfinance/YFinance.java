@@ -1,7 +1,5 @@
 package io.github.dimazigel.yfinance;
 
-import io.github.dimazigel.yfinance.api.YahooApis;
-import io.github.dimazigel.yfinance.auth.CrumbStore;
 import io.github.dimazigel.yfinance.batch.Batch;
 import io.github.dimazigel.yfinance.detail.CryptoDetail;
 import io.github.dimazigel.yfinance.detail.EquityDetail;
@@ -17,27 +15,29 @@ import io.github.dimazigel.yfinance.fundamentals.FinancialStatement;
 import io.github.dimazigel.yfinance.fundamentals.SharesOutstanding;
 import io.github.dimazigel.yfinance.fundamentals.ValuationMeasures;
 import io.github.dimazigel.yfinance.http.EndpointConfig;
-import io.github.dimazigel.yfinance.http.RawQuoteClient;
-import io.github.dimazigel.yfinance.http.YahooClientFactory;
 import io.github.dimazigel.yfinance.instrument.Crypto;
 import io.github.dimazigel.yfinance.instrument.Equity;
 import io.github.dimazigel.yfinance.instrument.Etf;
 import io.github.dimazigel.yfinance.instrument.Instrument;
 import io.github.dimazigel.yfinance.instrument.MutualFund;
+import io.github.dimazigel.yfinance.internal.api.YahooApis;
+import io.github.dimazigel.yfinance.internal.auth.CrumbStore;
+import io.github.dimazigel.yfinance.internal.http.RawQuoteClient;
+import io.github.dimazigel.yfinance.internal.http.YahooClientFactory;
+import io.github.dimazigel.yfinance.internal.service.DetailService;
+import io.github.dimazigel.yfinance.internal.service.FundamentalsService;
+import io.github.dimazigel.yfinance.internal.service.HistoryService;
+import io.github.dimazigel.yfinance.internal.service.InstrumentService;
+import io.github.dimazigel.yfinance.internal.service.LookupService;
+import io.github.dimazigel.yfinance.internal.service.NewsService;
+import io.github.dimazigel.yfinance.internal.service.OptionsService;
+import io.github.dimazigel.yfinance.internal.service.SearchService;
 import io.github.dimazigel.yfinance.market.HistoryQuery;
 import io.github.dimazigel.yfinance.market.OptionChain;
 import io.github.dimazigel.yfinance.market.PriceHistory;
 import io.github.dimazigel.yfinance.news.NewsItem;
 import io.github.dimazigel.yfinance.search.LookupQuote;
 import io.github.dimazigel.yfinance.search.SearchResult;
-import io.github.dimazigel.yfinance.service.DetailService;
-import io.github.dimazigel.yfinance.service.FundamentalsService;
-import io.github.dimazigel.yfinance.service.HistoryService;
-import io.github.dimazigel.yfinance.service.InstrumentService;
-import io.github.dimazigel.yfinance.service.LookupService;
-import io.github.dimazigel.yfinance.service.NewsService;
-import io.github.dimazigel.yfinance.service.OptionsService;
-import io.github.dimazigel.yfinance.service.SearchService;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
 import java.time.Clock;
 import java.time.Instant;
@@ -146,10 +146,11 @@ public final class YFinance implements AutoCloseable {
     }
 
     /**
-     * Instance backed by pre-built API interfaces (advanced use and testing); fan-outs run with
-     * {@link Tickers#DEFAULT_CONCURRENCY}.
+     * Instance backed by pre-built API interfaces, skipping the handshake; fan-outs run with
+     * {@link Tickers#DEFAULT_CONCURRENCY}. Package-private: {@code YahooApis} is internal, so this
+     * is a seam for the library's own tests, not API.
      */
-    public static YFinance fromApis(YahooApis apis) {
+    static YFinance fromApis(YahooApis apis) {
         return new YFinance(Objects.requireNonNull(apis, "apis"), Tickers.DEFAULT_CONCURRENCY, Clock.systemUTC(), () -> {});
     }
 

@@ -1,7 +1,6 @@
 package io.github.dimazigel.yfinance;
 
 import io.github.dimazigel.yfinance.batch.Batch;
-import io.github.dimazigel.yfinance.batch.FanOut;
 import io.github.dimazigel.yfinance.batch.Outcome;
 import io.github.dimazigel.yfinance.batch.SkipReason;
 import io.github.dimazigel.yfinance.enums.Interval;
@@ -12,6 +11,7 @@ import io.github.dimazigel.yfinance.exception.YFSkippedException;
 import io.github.dimazigel.yfinance.exception.YFinanceException;
 import io.github.dimazigel.yfinance.instrument.AssetClass;
 import io.github.dimazigel.yfinance.instrument.Instrument;
+import io.github.dimazigel.yfinance.internal.batch.FanOut;
 import io.github.dimazigel.yfinance.logging.LogContext;
 import io.github.dimazigel.yfinance.market.HistoryQuery;
 import io.github.dimazigel.yfinance.market.PriceHistory;

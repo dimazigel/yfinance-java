@@ -40,36 +40,20 @@ java {
     withJavadocJar()
 }
 
-// The published Javadoc covers the API only: the plumbing packages (assembly, dto, mapper, api,
-// auth, service), the http plumbing (interceptors, client factory, Feign/Jackson glue,
-// RawQuoteClient) and batch.FanOut are internal (see their package-info) and are left out; the
-// http configuration records and InMemoryCookieJar stay. Doclint runs on what remains at
+// The published Javadoc covers the API only: everything under `internal` is encapsulated by
+// module-info.java (not exported) and left out here. Doclint runs on what remains at
 // `all,-missing`: malformed HTML, bad references and wrong @param names fail the build; a member
 // without a comment does not.
 tasks.javadoc {
-    exclude(
-        "**/assembly/**",
-        "**/dto/**",
-        "**/mapper/**",
-        "**/api/**",
-        "**/auth/**",
-        "**/service/**",
-        "**/http/*Interceptor.java",
-        "**/http/RawQuoteClient.java",
-        "**/http/YahooFeign*.java",
-        "**/http/YahooJsonMapper.java",
-        "**/http/RawAwareNumberModule.java",
-        "**/http/YahooClientFactory.java",
-        "**/http/CallBudget.java",
-        "**/http/RateLimitBudgetExceeded.java",
-        "**/batch/FanOut.java",
+    exclude("**/internal/**")
+    val docletOptions = options as StandardJavadocDocletOptions
+    docletOptions.addBooleanOption("Xdoclint:all,-missing", true)
+    // The API sources reference internal types; with their sources excluded, javadoc resolves them
+    // from the compiled classes, which must be patched into the module to be visible from it.
+    docletOptions.addStringOption(
+        "-patch-module",
+        "io.github.dimazigel.yfinance=" + sourceSets.main.get().output.classesDirs.asPath,
     )
-    (options as StandardJavadocDocletOptions).addBooleanOption("Xdoclint:all,-missing", true)
-}
-
-tasks.jar {
-    // Stable JPMS name for module-path consumers; without it the name derives from the jar filename.
-    manifest.attributes("Automatic-Module-Name" to "io.github.dimazigel.yfinance")
 }
 
 // Formatting is deliberately light: the codebase's existing style (4-space indent, ~110 columns) is
@@ -151,6 +135,13 @@ tasks.register<VerifySourcesPublicationTask>("verifySourcesPublication") {
 val integrationTest: SourceSet by sourceSets.creating {
     compileClasspath += sourceSets.main.get().output + sourceSets.test.get().output
     runtimeClasspath += sourceSets.main.get().output + sourceSets.test.get().output
+}
+
+// A consumer module (it has its own module-info.java) that uses the library's jar on the module
+// path; see ModulePathSmoke.
+val moduleTest: SourceSet = sourceSets.create("moduleTest") {
+    compileClasspath += files(tasks.jar) + configurations.runtimeClasspath.get()
+    runtimeClasspath += files(tasks.jar) + configurations.runtimeClasspath.get()
 }
 
 configurations[integrationTest.implementationConfigurationName]
@@ -244,8 +235,21 @@ tasks.jacocoTestCoverageVerification {
     }
 }
 
+// The unit tests run on the classpath; this runs the library as a named module against a local stub
+// server, which is what verifies the exports and opens of module-info.java.
+val moduleSmokeTest = tasks.register<JavaExec>("moduleSmokeTest") {
+    description = "Runs the library on the module path against a local stub server."
+    group = "verification"
+    classpath = moduleTest.runtimeClasspath
+    mainModule = "io.github.dimazigel.yfinance.moduletest"
+    mainClass = "io.github.dimazigel.yfinance.moduletest.ModulePathSmoke"
+    val fixtures = layout.projectDirectory.dir("src/test/resources/fixtures")
+    inputs.dir(fixtures)
+    args(fixtures.asFile.absolutePath)
+}
+
 tasks.check {
-    dependsOn(tasks.jacocoTestCoverageVerification)
+    dependsOn(tasks.jacocoTestCoverageVerification, moduleSmokeTest)
 }
 
 val integrationTestTask = tasks.register<Test>("integrationTest") {
