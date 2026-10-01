@@ -1,0 +1,1146 @@
+{
+  "data" : {
+    "tickerStream" : {
+      "pagination" : {
+        "requestedCount" : 10,
+        "contentOverrides" : {
+          "6953eac9-ee61-359c-a8b0-cc9ed53de020" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "6d84c79c-d8ba-39b9-aec5-7dd551de1393" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "669b63a6-9b5d-3d80-883b-a034691d12ab" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "6490e9a9-c4e3-35ff-8422-2aa0ef074d1e" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "1ae9ec85-0368-3838-b129-00779e76b9fc" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "0e5a3f7e-605a-3ef5-8f57-95b8935f1825" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "67145e49-a74f-3c9b-b6f8-285f72cab639" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "a2967756-8176-3255-ad63-9c675cddf889" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "fde0e27a-f9f2-38d4-8b22-7ad0f5aab1da" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "f72f6881-1c1a-3197-8a5c-4c52d4e22dab" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "d6ba16cd-8293-36b0-a289-6610ea786ad2" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "9fe4aae6-1fc2-38c4-97d4-85867242f6cf" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "ba697caa-b8d0-3d74-839e-8fb3fee7118d" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "357d3938-19ce-3f0a-8e4e-32573b408214" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "90e79f89-9f40-3c44-9a50-bb098a4d8844" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "037ba1d8-428e-3e71-82fb-c10c5d936fa6" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "dd59676a-e6e9-3ea3-813e-e8527d689e21" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "5a390aa7-f4e0-33be-a98a-0cb042b4029e" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "7e0ff6c9-ed21-3b6f-96ba-d84fa34f4619" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "c833164b-ad0f-3a88-9ae5-a674beb8112e" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "f7b8605b-a664-3617-82d0-e895604cd36c" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "797fb051-181c-3d29-91b5-b3d3d7f23c98" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "303263c6-6d0c-3b00-adb0-4bacd59550c8" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "5407ea88-203a-34ad-b715-735e08dda0d4" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "dfeaac98-f14e-3a39-a304-5f0a7f45c606" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "fe4e1f84-4f3c-3cb1-8b12-ba7bebf7b295" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "6727d8ce-8b8c-34f6-83ee-add523d1398d" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "8ca342e3-79bb-39ec-9c0a-f43cad7c061b" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "c2db5e4b-75a7-351d-a476-25c382833010" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "194825ad-5e59-3ce5-9adc-80be29403679" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "f2976781-1082-34a9-9c5c-5100af86733d" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "103f837b-5638-31c3-8890-74a2e955ff65" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "d09dda49-95ec-3f1e-96f6-f1d017cbddc5" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "c4e74c35-6979-3ffb-983a-3983e197f8ab" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "39dc0ea2-87f5-3a1e-8384-28c6c60e2dae" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "5a49df8f-701c-3a67-856c-6f2651aa7fee" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "5bb7e446-82e6-31d8-9f66-8319f670253b" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "fa91e031-ae36-3064-a5fd-184510953216" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "87f8dd13-f746-3c19-99e2-b35299e795c4" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "5947f24f-aeb8-3b0e-b655-c38873ff2239" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "c41dca0d-b757-3ce1-954c-3eabf60ee811" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "6c29edfd-8f9b-38bc-8a25-b776b42be8ea" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "17fac111-eda4-325c-bc84-4bf6a0890191" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "d4a01f0d-42eb-3c2e-8f6f-86fa92a6bd4f" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "6dea0ab7-68cb-3354-9855-82965d3d9f8d" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "d2885a52-0df0-3e5b-8147-8ea64f874828" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "b70169ca-13c2-3329-9d7d-70fe74d4cacf" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "e4ae5214-c1f2-39fe-bf25-5fa2854bef81" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "d8a9fb39-1cc9-3728-b13c-796db41ef3b0" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "53c09a87-d31e-3637-9c08-9e93e2dea549" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "4020e5af-8de7-38d7-8991-689241db612b" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "27440709-5949-3bae-88b2-187e7615ba3a" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "fcf2bf98-15ea-32c1-97f5-12c8e7243b9f" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "912b4161-9a3c-3b60-b4f7-89e2a57a42fb" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "7b3a79b9-53d4-3241-bdaa-0dc426eed216" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "90796e70-69ca-30e7-a7c9-2d7ad3a57f0d" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "6a82c4d0-0922-30ca-8a35-cdc9965432c3" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "1d2c7614-dd2e-3bb2-83f8-3ac1e52dc35c" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "73dca60e-f0a6-3aef-9ebb-5db3174ad10d" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "972cd65d-952b-338d-a715-696a44aaffd8" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "bf3df86a-f894-37c8-b559-b6ea9f86dd11" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "58d9ca01-1252-3c88-a277-bc4f9e337d39" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "94ded774-d05b-3584-826c-0c42401ae5e1" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "86ff50bf-50ca-3801-a14d-ca7dd7f93574" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "6d8cc3be-9a49-39dc-9549-185226388116" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "d8a121f5-1cee-3f8c-9d0a-af201907141f" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "ab53c8a3-0a2d-37eb-907f-fdf60c858736" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "3dc12edd-f3f5-36ca-9820-cd930e957ad0" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "30c22623-1c4d-33e2-ad2c-0791bdc9113a" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "399d50fc-09f5-3873-a330-633eb03fc624" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "33b54854-36c9-35a5-a432-0c1af2a9129c" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "0035b3d2-c3cf-38c2-b00c-06ece2e3d6a6" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "1ab9f437-ea8c-3e6a-b9a8-3219ea5e9b88" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "1e0248b8-bee1-3f95-bb1f-7e727da03e3b" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "3c685c6a-c343-395d-886f-80eabdbea84d" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "db22e268-fd5b-3f1c-bf03-de1cce564e8a" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "66a44a9b-8c3f-3434-af8d-6873f3b77b42" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "bd45a600-623c-3603-ac64-9874b7efb337" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "9348eede-e8aa-3c17-901f-9f8f82c85ce2" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "f836ef10-f6f0-340e-b51b-04fabba2841a" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "f7b6c287-7e49-3329-8f9c-87685b59c912" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "081d72bd-32a7-3207-8bc7-756fba4d0f1d" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "674e2aa6-9fef-33a0-896b-b6be4d3e5f75" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "7f6ef9a5-a5b9-36f4-9ecb-6921506a771a" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "7cdcb54c-2c53-3f7c-ae2e-29feab0ebe79" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "210a9095-a77d-36d2-bef7-288073f8a7b6" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "1f51cfeb-2b18-323b-8a2a-207a51b18cf0" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "f4b36970-cf46-3d32-b90f-8a5bf920672a" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "74e70a6d-e9e4-357e-ae04-689c16044dad" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "28bd94e2-32ea-35d2-96ed-8228b407161b" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "e171de1f-61ce-32c7-a7c8-3c6e52b35262" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "04e90423-aacc-328e-a960-fe2e358075f7" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "b335a482-33c8-3a4e-9879-d7f9f599f54d" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "22c7e916-5ffd-351c-b1bd-9acb86c077e2" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "eb5dec37-791b-379b-90e2-6ebc99c3e336" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "7451f885-77b0-3ae5-b2a1-5c867064ec8b" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "0b26c4ea-bedb-362f-a82a-3d6e8336bf94" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "ba72a17e-5017-36ae-8a70-1275d5877c8b" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "c1ac298d-18c4-3844-bd3b-7386e8569170" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "28bf0aec-443b-36aa-86e1-2b2273f9f94f" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "c82ede80-9729-32f9-b5f2-89be85d48f68" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "083e0d1a-1840-3309-9bda-8af474e346ab" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "bc427261-3a7a-3ccc-b340-4cd647655ce9" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "80af7318-82f7-3035-98a6-78443a4f3865" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "c7c816f0-eb4e-3026-8a62-9627baa4e7ea" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "42f918b1-9d0c-3aed-9646-656e5590bb63" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "e47a7545-826c-3821-8a86-1ff4981707e4" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "97015a97-c87d-3baf-a048-e5685b6b8f15" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "dbb14352-3ac6-363c-a84d-450319f63e2d" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "3de6597a-463b-3cc3-9acc-0ea1008a8089" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "94c13dd3-574f-36ec-91ed-cc7b0adc78c0" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "e6a54843-ec2b-37cc-afa0-32a6d4648ae8" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "68f18639-c555-3066-95af-a19a71a8bd13" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "2807c10f-5359-3707-a7f1-a1566eabd0bf" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "2bbac61e-0b6a-3ff0-a2d6-fc371e4d4db1" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "15645bba-efc1-3a90-a5ec-aff34f04c6d2" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "a630571d-098a-3602-af58-e1af705d6559" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "2d762dde-930b-386a-bd4c-8f4cd40162bb" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "6e6437f5-16ee-3990-ac43-0241c3688469" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "46465bed-34ea-3e03-a653-114921a2ff92" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "e62b7fcd-4654-30dc-88d7-92701477c2e4" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "666665b2-0bfb-34d8-b8ba-8de04b3228a7" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "fb73ea94-b263-3d07-9a39-99fbafe725b8" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "886f1a2c-97fd-3288-933f-fc4f405ec898" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "a3564442-3d3e-3f90-96dc-ff47b60b8088" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "b7506fe8-51fa-3aec-8724-57b15ede2247" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "134a0b79-387c-3ef9-8725-812d4d51017d" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "33ba8ae2-26b1-3aae-a9a2-2c07d5b3f186" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "c714f022-0ab8-3f26-b405-4fc8d77cd2a2" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "fabcc504-e248-36c1-b2cd-ac973dfc6610" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "aba8eddb-0bb1-3c84-87c1-f629333c6b9c" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "f2dc5ecc-5cc3-318b-8288-345a897b404f" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "fd676d16-73db-3489-9c30-2c7c246e67f1" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "2dfe975a-2424-33a7-9b8b-312178bd19de" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "7dab3b6b-d829-3e32-adaa-7a9a1c662313" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "261be097-b5b9-3fc4-96fd-ea732093e90e" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "9a2cae65-f90d-3ce8-9829-cbc8db1eba2c" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "ad9cb776-1920-3631-9e57-7893c8ceeead" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "fc7a9544-ba00-3246-83fc-d6243390b775" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "7730f0fc-50cb-3858-b984-c17eb7022067" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "f04cdf84-e106-3bc4-abdc-5d20a5407943" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "cb0e03c5-ff83-36ae-98a9-e6e5cb350c53" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "0d346e1d-93cc-323e-8879-e0653767d431" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "aefdf7c3-6697-3fee-b6e2-de3388c1bd4f" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "b70105b0-b8bc-3efb-b30b-2c76a7df5648" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "fa16a9b1-7215-3c4e-92a7-09c23257142b" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "7a7a7fb9-d47f-3008-a309-e30c1739c5c8" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "12ee2897-e1e4-3e9d-98fb-4911f0bb9e03" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "e2a88ca7-c4ae-3fe8-8e49-1d70bc480c37" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "42e219e2-45e0-311a-a507-5e01e5de5727" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "cc00f7c6-17c1-399d-96b3-af61f01bd838" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "df94805b-6121-39fe-abec-2724600ddc4b" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "af796db8-3891-3f0c-8ea0-daa073629784" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "3a9b0f30-cec5-3bef-9909-f744a94ebe57" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "bd91c57b-7ceb-3215-b4a7-13e5f6931325" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "83b06b9c-d532-3ddd-95c6-9502f2132789" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "0d7ce40b-04a6-3b7f-b6e0-03f8bfa4b376" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "ff61df80-1223-3dc1-91a0-9ce5ee60d4b2" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "9ae91f93-e5e4-308e-866d-b041ef5f5118" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "9dcbb358-576a-3a3f-ae53-221849e4ee23" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "2e3fe684-4b78-39ab-9c1b-78da6ca3112f" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "1322e302-ce44-304e-b1e3-f6e388954095" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "9c520567-7036-34bb-9b64-50fb25a713f1" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "1ab856be-6f5c-3e94-8d62-5770b2dcb0e4" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "26b7b27c-3dbd-3180-ab65-3a0d85e6c596" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "d9deb383-46ae-3efc-8174-42803656a87c" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "2cd1bcdc-6d58-3224-8d20-5250d1006fdf" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "7fde9c9d-8b3e-3401-8fa3-f451e059cfb8" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "62c4ae43-60ae-3c10-9e17-f2f66e992ab9" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "27e6170d-a3d9-3d52-9712-cd745e16eed5" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "5fd11200-aa4c-3209-bb87-a458d26aaade" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "112d3b75-e756-3f01-9bd2-928a4df6ff94" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "da9cd6a9-918a-39e3-9118-68ecba18a76c" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "25aba54a-d75f-313d-af39-9e65f518da41" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "e33d3349-c7d4-3ef6-805f-78f6468aed0a" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "b1e9b28f-46f9-32b8-a9f6-26a3c13a2d6d" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "bf8626b5-794d-34ea-8db7-8e09b192e085" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "61e8457e-50a7-3991-ba38-4f163b4d89a9" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "94ef0abd-b1ad-37a3-9822-237b3722f36a" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "b0ed1564-f9c7-3223-9a16-fd2723f689a9" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "67140abd-fe48-3cb9-84d3-a79724257679" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "500d357a-2168-3e38-9697-c4b5c1af9654" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "0deaaf3f-8e1b-3bce-a52e-f46b913b1cda" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "3260e6b0-7309-31bd-a151-75e0eb77767e" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "0d1427b5-0296-39d9-979a-39e76c0b855b" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "9fc07bd7-468d-32f2-9fed-9db36f3be3bc" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "354b4d30-ce13-3ba1-b7ea-cc9f9c993d8a" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "9f0d8a45-4fd8-3efe-9611-ecf716a3f743" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "ffda6398-8051-30ea-9f42-252eb0ad24fd" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          },
+          "41573132-720c-345d-ac4b-ffc09d70d082" : {
+            "list" : "ee9a71c0-d3f8-11e9-aff7-e24e68c3a35b"
+          }
+        },
+        "remainingCount" : 190,
+        "uuids" : "d8a121f5-1cee-3f8c-9d0a-af201907141f:STORY,58d9ca01-1252-3c88-a277-bc4f9e337d39:STORY,6d8cc3be-9a49-39dc-9549-185226388116:STORY,081d72bd-32a7-3207-8bc7-756fba4d0f1d:STORY,a3564442-3d3e-3f90-96dc-ff47b60b8088:STORY,3de6597a-463b-3cc3-9acc-0ea1008a8089:STORY,7a7a7fb9-d47f-3008-a309-e30c1739c5c8:STORY,94c13dd3-574f-36ec-91ed-cc7b0adc78c0:STORY,f7b8605b-a664-3617-82d0-e895604cd36c:STORY,80af7318-82f7-3035-98a6-78443a4f3865:STORY,2bbac61e-0b6a-3ff0-a2d6-fc371e4d4db1:STORY,67145e49-a74f-3c9b-b6f8-285f72cab639:STORY,797fb051-181c-3d29-91b5-b3d3d7f23c98:STORY,db22e268-fd5b-3f1c-bf03-de1cce564e8a:STORY,666665b2-0bfb-34d8-b8ba-8de04b3228a7:STORY,ffda6398-8051-30ea-9f42-252eb0ad24fd:STORY,f4b36970-cf46-3d32-b90f-8a5bf920672a:STORY,6d84c79c-d8ba-39b9-aec5-7dd551de1393:STORY,6953eac9-ee61-359c-a8b0-cc9ed53de020:STORY,b335a482-33c8-3a4e-9879-d7f9f599f54d:STORY,d6ba16cd-8293-36b0-a289-6610ea786ad2:STORY,1ae9ec85-0368-3838-b129-00779e76b9fc:STORY,ff61df80-1223-3dc1-91a0-9ce5ee60d4b2:STORY,df94805b-6121-39fe-abec-2724600ddc4b:STORY,d2885a52-0df0-3e5b-8147-8ea64f874828:STORY,61e8457e-50a7-3991-ba38-4f163b4d89a9:STORY,fd676d16-73db-3489-9c30-2c7c246e67f1:STORY,d09dda49-95ec-3f1e-96f6-f1d017cbddc5:STORY,7451f885-77b0-3ae5-b2a1-5c867064ec8b:STORY,972cd65d-952b-338d-a715-696a44aaffd8:STORY,f836ef10-f6f0-340e-b51b-04fabba2841a:STORY,fe4e1f84-4f3c-3cb1-8b12-ba7bebf7b295:STORY,15645bba-efc1-3a90-a5ec-aff34f04c6d2:STORY,ba72a17e-5017-36ae-8a70-1275d5877c8b:STORY,fa91e031-ae36-3064-a5fd-184510953216:STORY,42e219e2-45e0-311a-a507-5e01e5de5727:STORY,6dea0ab7-68cb-3354-9855-82965d3d9f8d:STORY,c1ac298d-18c4-3844-bd3b-7386e8569170:STORY,886f1a2c-97fd-3288-933f-fc4f405ec898:STORY,3dc12edd-f3f5-36ca-9820-cd930e957ad0:STORY,22c7e916-5ffd-351c-b1bd-9acb86c077e2:STORY,53c09a87-d31e-3637-9c08-9e93e2dea549:STORY,9c520567-7036-34bb-9b64-50fb25a713f1:STORY,5407ea88-203a-34ad-b715-735e08dda0d4:STORY,c2db5e4b-75a7-351d-a476-25c382833010:STORY,66a44a9b-8c3f-3434-af8d-6873f3b77b42:STORY,33b54854-36c9-35a5-a432-0c1af2a9129c:STORY,6490e9a9-c4e3-35ff-8422-2aa0ef074d1e:STORY,7730f0fc-50cb-3858-b984-c17eb7022067:STORY,c41dca0d-b757-3ce1-954c-3eabf60ee811:STORY,27440709-5949-3bae-88b2-187e7615ba3a:STORY,b70169ca-13c2-3329-9d7d-70fe74d4cacf:STORY,fc7a9544-ba00-3246-83fc-d6243390b775:STORY,28bf0aec-443b-36aa-86e1-2b2273f9f94f:STORY,ab53c8a3-0a2d-37eb-907f-fdf60c858736:STORY,27e6170d-a3d9-3d52-9712-cd745e16eed5:STORY,210a9095-a77d-36d2-bef7-288073f8a7b6:STORY,67140abd-fe48-3cb9-84d3-a79724257679:STORY,b1e9b28f-46f9-32b8-a9f6-26a3c13a2d6d:STORY,7fde9c9d-8b3e-3401-8fa3-f451e059cfb8:STORY,1ab9f437-ea8c-3e6a-b9a8-3219ea5e9b88:STORY,9ae91f93-e5e4-308e-866d-b041ef5f5118:STORY,cb0e03c5-ff83-36ae-98a9-e6e5cb350c53:STORY,87f8dd13-f746-3c19-99e2-b35299e795c4:STORY,d4a01f0d-42eb-3c2e-8f6f-86fa92a6bd4f:STORY,5fd11200-aa4c-3209-bb87-a458d26aaade:STORY,b7506fe8-51fa-3aec-8724-57b15ede2247:STORY,94ded774-d05b-3584-826c-0c42401ae5e1:STORY,134a0b79-387c-3ef9-8725-812d4d51017d:STORY,354b4d30-ce13-3ba1-b7ea-cc9f9c993d8a:STORY,74e70a6d-e9e4-357e-ae04-689c16044dad:STORY,42f918b1-9d0c-3aed-9646-656e5590bb63:STORY,68f18639-c555-3066-95af-a19a71a8bd13:STORY,5947f24f-aeb8-3b0e-b655-c38873ff2239:STORY,d8a9fb39-1cc9-3728-b13c-796db41ef3b0:STORY,17fac111-eda4-325c-bc84-4bf6a0890191:STORY,674e2aa6-9fef-33a0-896b-b6be4d3e5f75:STORY,e62b7fcd-4654-30dc-88d7-92701477c2e4:STORY,62c4ae43-60ae-3c10-9e17-f2f66e992ab9:STORY,12ee2897-e1e4-3e9d-98fb-4911f0bb9e03:STORY,500d357a-2168-3e38-9697-c4b5c1af9654:STORY,303263c6-6d0c-3b00-adb0-4bacd59550c8:STORY,037ba1d8-428e-3e71-82fb-c10c5d936fa6:STORY,a2967756-8176-3255-ad63-9c675cddf889:STORY,fb73ea94-b263-3d07-9a39-99fbafe725b8:STORY,fcf2bf98-15ea-32c1-97f5-12c8e7243b9f:STORY,9fe4aae6-1fc2-38c4-97d4-85867242f6cf:STORY,bf8626b5-794d-34ea-8db7-8e09b192e085:STORY,90796e70-69ca-30e7-a7c9-2d7ad3a57f0d:STORY,1322e302-ce44-304e-b1e3-f6e388954095:STORY,39dc0ea2-87f5-3a1e-8384-28c6c60e2dae:STORY,30c22623-1c4d-33e2-ad2c-0791bdc9113a:STORY,0deaaf3f-8e1b-3bce-a52e-f46b913b1cda:STORY,6c29edfd-8f9b-38bc-8a25-b776b42be8ea:STORY,c7c816f0-eb4e-3026-8a62-9627baa4e7ea:STORY,6a82c4d0-0922-30ca-8a35-cdc9965432c3:STORY,0d346e1d-93cc-323e-8879-e0653767d431:STORY,af796db8-3891-3f0c-8ea0-daa073629784:STORY,bd45a600-623c-3603-ac64-9874b7efb337:STORY,ba697caa-b8d0-3d74-839e-8fb3fee7118d:STORY,aefdf7c3-6697-3fee-b6e2-de3388c1bd4f:STORY,bd91c57b-7ceb-3215-b4a7-13e5f6931325:STORY,b70105b0-b8bc-3efb-b30b-2c76a7df5648:STORY,bf3df86a-f894-37c8-b559-b6ea9f86dd11:STORY,7f6ef9a5-a5b9-36f4-9ecb-6921506a771a:STORY,fabcc504-e248-36c1-b2cd-ac973dfc6610:STORY,2dfe975a-2424-33a7-9b8b-312178bd19de:STORY,3a9b0f30-cec5-3bef-9909-f744a94ebe57:STORY,e6a54843-ec2b-37cc-afa0-32a6d4648ae8:STORY,fa16a9b1-7215-3c4e-92a7-09c23257142b:STORY,0035b3d2-c3cf-38c2-b00c-06ece2e3d6a6:STORY,94ef0abd-b1ad-37a3-9822-237b3722f36a:STORY,357d3938-19ce-3f0a-8e4e-32573b408214:STORY,1ab856be-6f5c-3e94-8d62-5770b2dcb0e4:STORY,26b7b27c-3dbd-3180-ab65-3a0d85e6c596:STORY,4020e5af-8de7-38d7-8991-689241db612b:STORY,e47a7545-826c-3821-8a86-1ff4981707e4:STORY,2cd1bcdc-6d58-3224-8d20-5250d1006fdf:STORY,73dca60e-f0a6-3aef-9ebb-5db3174ad10d:STORY,7e0ff6c9-ed21-3b6f-96ba-d84fa34f4619:STORY,d9deb383-46ae-3efc-8174-42803656a87c:STORY,399d50fc-09f5-3873-a330-633eb03fc624:STORY,5a49df8f-701c-3a67-856c-6f2651aa7fee:STORY,1e0248b8-bee1-3f95-bb1f-7e727da03e3b:STORY,c4e74c35-6979-3ffb-983a-3983e197f8ab:STORY,3260e6b0-7309-31bd-a151-75e0eb77767e:STORY,f2dc5ecc-5cc3-318b-8288-345a897b404f:STORY,3c685c6a-c343-395d-886f-80eabdbea84d:STORY,112d3b75-e756-3f01-9bd2-928a4df6ff94:STORY,669b63a6-9b5d-3d80-883b-a034691d12ab:STORY,7b3a79b9-53d4-3241-bdaa-0dc426eed216:STORY,dbb14352-3ac6-363c-a84d-450319f63e2d:STORY,e2a88ca7-c4ae-3fe8-8e49-1d70bc480c37:STORY,ad9cb776-1920-3631-9e57-7893c8ceeead:STORY,261be097-b5b9-3fc4-96fd-ea732093e90e:STORY,9f0d8a45-4fd8-3efe-9611-ecf716a3f743:STORY,e33d3349-c7d4-3ef6-805f-78f6468aed0a:STORY,9a2cae65-f90d-3ce8-9829-cbc8db1eba2c:STORY,e171de1f-61ce-32c7-a7c8-3c6e52b35262:STORY,083e0d1a-1840-3309-9bda-8af474e346ab:STORY,c714f022-0ab8-3f26-b405-4fc8d77cd2a2:STORY,0d7ce40b-04a6-3b7f-b6e0-03f8bfa4b376:STORY,dd59676a-e6e9-3ea3-813e-e8527d689e21:STORY,9dcbb358-576a-3a3f-ae53-221849e4ee23:STORY,e4ae5214-c1f2-39fe-bf25-5fa2854bef81:STORY,2d762dde-930b-386a-bd4c-8f4cd40162bb:STORY,a630571d-098a-3602-af58-e1af705d6559:STORY,6727d8ce-8b8c-34f6-83ee-add523d1398d:STORY,83b06b9c-d532-3ddd-95c6-9502f2132789:STORY,41573132-720c-345d-ac4b-ffc09d70d082:STORY,2807c10f-5359-3707-a7f1-a1566eabd0bf:STORY,7cdcb54c-2c53-3f7c-ae2e-29feab0ebe79:STORY,f2976781-1082-34a9-9c5c-5100af86733d:STORY,97015a97-c87d-3baf-a048-e5685b6b8f15:STORY,dfeaac98-f14e-3a39-a304-5f0a7f45c606:STORY,9fc07bd7-468d-32f2-9fed-9db36f3be3bc:STORY,1d2c7614-dd2e-3bb2-83f8-3ac1e52dc35c:STORY,b0ed1564-f9c7-3223-9a16-fd2723f689a9:STORY,f72f6881-1c1a-3197-8a5c-4c52d4e22dab:STORY,0b26c4ea-bedb-362f-a82a-3d6e8336bf94:STORY,86ff50bf-50ca-3801-a14d-ca7dd7f93574:STORY,c833164b-ad0f-3a88-9ae5-a674beb8112e:STORY,bc427261-3a7a-3ccc-b340-4cd647655ce9:STORY,6e6437f5-16ee-3990-ac43-0241c3688469:STORY,04e90423-aacc-328e-a960-fe2e358075f7:STORY,103f837b-5638-31c3-8890-74a2e955ff65:STORY,1f51cfeb-2b18-323b-8a2a-207a51b18cf0:STORY,5bb7e446-82e6-31d8-9f66-8319f670253b:STORY,2e3fe684-4b78-39ab-9c1b-78da6ca3112f:STORY,f04cdf84-e106-3bc4-abdc-5d20a5407943:STORY,25aba54a-d75f-313d-af39-9e65f518da41:STORY,0d1427b5-0296-39d9-979a-39e76c0b855b:STORY,c82ede80-9729-32f9-b5f2-89be85d48f68:STORY,aba8eddb-0bb1-3c84-87c1-f629333c6b9c:STORY,cc00f7c6-17c1-399d-96b3-af61f01bd838:STORY,33ba8ae2-26b1-3aae-a9a2-2c07d5b3f186:STORY,7dab3b6b-d829-3e32-adaa-7a9a1c662313:STORY,da9cd6a9-918a-39e3-9118-68ecba18a76c:STORY,9348eede-e8aa-3c17-901f-9f8f82c85ce2:STORY,f7b6c287-7e49-3329-8f9c-87685b59c912:STORY,90e79f89-9f40-3c44-9a50-bb098a4d8844:STORY,912b4161-9a3c-3b60-b4f7-89e2a57a42fb:STORY,5a390aa7-f4e0-33be-a98a-0cb042b4029e:STORY,0e5a3f7e-605a-3ef5-8f57-95b8935f1825:STORY,194825ad-5e59-3ce5-9adc-80be29403679:STORY,46465bed-34ea-3e03-a653-114921a2ff92:STORY,eb5dec37-791b-379b-90e2-6ebc99c3e336:STORY,fde0e27a-f9f2-38d4-8b22-7ad0f5aab1da:STORY,8ca342e3-79bb-39ec-9c0a-f43cad7c061b:STORY,28bd94e2-32ea-35d2-96ed-8228b407161b:STORY"
+      },
+      "nextPage" : true,
+      "stream" : [ {
+        "id" : "dd562920-1877-3949-958d-8bfd00660082",
+        "content" : {
+          "id" : "dd562920-1877-3949-958d-8bfd00660082",
+          "contentType" : "STORY",
+          "title" : "Land of Startups: What ICTWeek Uzbekistan Revealed About Central Asia's Tech Rise",
+          "description" : "",
+          "summary" : "Why tech giants like Amazon, Apple, NVIDIA, Meta, Oracle, Coursera, Huawei, ZTE, and Alibaba are entering the Uzbek digital market and showcasing themselves at the region's biggest tech event - ICTWeek Uzbekistan 2026.UZBEKISTAN / ACCESS Newswire / September 29, 2026 / This year, ICTWeek Uzbekistan, under the theme \"Land of Startups,\" brought together more than 30,000 visitors, thousands of startups, hundreds of VCs and investors, and more than 3,000 international guests, including speakers, exp",
+          "pubDate" : "2026-09-30T03:32:00Z",
+          "displayTime" : "2026-09-30T03:32:00Z",
+          "isHosted" : true,
+          "bypassModal" : false,
+          "previewUrl" : null,
+          "thumbnail" : {
+            "originalUrl" : "https://media.zenfs.com/en/accesswire.ca/7a51ac775d3e50553fbef981ac9576a0.png",
+            "originalWidth" : 400,
+            "originalHeight" : 400,
+            "caption" : "",
+            "resolutions" : [ {
+              "url" : "https://s.yimg.com/uu/api/res/1.2/TOA6JcbJtwqlXw3.J6wFHA--~B/aD00MDA7dz00MDA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/accesswire.ca/7a51ac775d3e50553fbef981ac9576a0.png",
+              "width" : 400,
+              "height" : 400,
+              "tag" : "original"
+            }, {
+              "url" : "https://s.yimg.com/uu/api/res/1.2/0X9bGkhmWLkciyAe79D78w--~B/Zmk9c3RyaW07aD0xMjg7dz0xNzA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/accesswire.ca/7a51ac775d3e50553fbef981ac9576a0.png",
+              "width" : 170,
+              "height" : 128,
+              "tag" : "170x128"
+            } ]
+          },
+          "provider" : {
+            "displayName" : "ACCESS Newswire",
+            "url" : "https://www.accessnewswire.com/",
+            "sourceId" : "accesswire.ca"
+          },
+          "canonicalUrl" : {
+            "url" : "https://finance.yahoo.com/small-business/articles/land-startups-ictweek-uzbekistan-revealed-033200402.html",
+            "site" : "finance",
+            "region" : "US",
+            "lang" : "en-US"
+          },
+          "clickThroughUrl" : {
+            "url" : "https://finance.yahoo.com/small-business/articles/land-startups-ictweek-uzbekistan-revealed-033200402.html",
+            "site" : "finance",
+            "region" : "US",
+            "lang" : "en-US"
+          },
+          "metadata" : null,
+          "finance" : {
+            "premiumFinance" : {
+              "isPremiumNews" : false,
+              "isPremiumFreeNews" : false
+            }
+          },
+          "storyline" : null
+        }
+      }, {
+        "id" : "bcf27e68-1f15-3802-80e0-7ed104c7a855",
+        "content" : {
+          "id" : "bcf27e68-1f15-3802-80e0-7ed104c7a855",
+          "contentType" : "STORY",
+          "title" : "Client Computing Global Market Report 2026: Capitalize on AI, Hybrid and Edge Disruption as Revenue Climbs $41.73B to $277.88B by 2030—Benchmark Microsoft, Apple, Dell, Lenovo and HP to Secure Share Before Rivals",
+          "description" : "",
+          "summary" : "Dublin, Sept. 29, 2026 (GLOBE NEWSWIRE) -- \"Client Computing Global Market Report 2026\" has been added to ResearchAndMarkets.com's offering. The global client computing market is maintaining steady growth as enterprises invest in modern endpoint devices, hybrid infrastructure and artificial intelligence capabilities. The market is projected to increase from $227.26 billion in 2025 to $236.15 billion in 2026, representing a compound annual growth rate (CAGR) of 3.9%. Historic market growth has be",
+          "pubDate" : "2026-09-29T08:16:00Z",
+          "displayTime" : "2026-09-29T08:16:00Z",
+          "isHosted" : true,
+          "bypassModal" : false,
+          "previewUrl" : null,
+          "thumbnail" : {
+            "originalUrl" : "https://media.zenfs.com/en/globenewswire.com/93d5b27580f67db722dd7c112e43e8bc.jpg",
+            "originalWidth" : 480,
+            "originalHeight" : 58,
+            "caption" : "",
+            "resolutions" : [ {
+              "url" : "https://s.yimg.com/uu/api/res/1.2/iogELng_NEvmVlKg85874A--~B/aD01ODt3PTQ4MDthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/globenewswire.com/93d5b27580f67db722dd7c112e43e8bc.jpg",
+              "width" : 480,
+              "height" : 58,
+              "tag" : "original"
+            }, {
+              "url" : "https://s.yimg.com/uu/api/res/1.2/FKfoNjxIKsT30SLvQU_13Q--~B/Zmk9c3RyaW07aD0xMjg7dz0xNzA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/globenewswire.com/93d5b27580f67db722dd7c112e43e8bc.jpg",
+              "width" : 170,
+              "height" : 128,
+              "tag" : "170x128"
+            } ]
+          },
+          "provider" : {
+            "displayName" : "GlobeNewswire",
+            "url" : "https://www.globenewswire.com/",
+            "sourceId" : "globenewswire.com"
+          },
+          "canonicalUrl" : {
+            "url" : "https://finance.yahoo.com/technology/articles/client-computing-global-market-report-081600133.html",
+            "site" : "finance",
+            "region" : "US",
+            "lang" : "en-US"
+          },
+          "clickThroughUrl" : {
+            "url" : "https://finance.yahoo.com/technology/articles/client-computing-global-market-report-081600133.html",
+            "site" : "finance",
+            "region" : "US",
+            "lang" : "en-US"
+          },
+          "metadata" : null,
+          "finance" : {
+            "premiumFinance" : {
+              "isPremiumNews" : false,
+              "isPremiumFreeNews" : false
+            }
+          },
+          "storyline" : null
+        }
+      }, {
+        "id" : "4eff47b4-0bca-3fa3-941b-fc0144102f43",
+        "content" : {
+          "id" : "4eff47b4-0bca-3fa3-941b-fc0144102f43",
+          "contentType" : "STORY",
+          "title" : "Computers Global Market Report 2026: Capitalize on the $161.29 Billion Revenue Surge to $676.41 Billion by 2030—Benchmark Apple, Microsoft, Dell, Lenovo and ASUS to Secure Share as AI PCs and Tariffs Disrupt Global Supply Chains",
+          "description" : "",
+          "summary" : "Apple, Microsoft, Dell, Lenovo and ASUS are profiled as leading computer vendors, covering market presence, shares, segments, trends and opportunitiesDublin, Sept. 28, 2026 (GLOBE NEWSWIRE) -- \"Computers Market Report 2026\" has been added to ResearchAndMarkets.com's offering. The global computers market is maintaining strong growth as businesses, households, educational institutions and digital entertainment users increase demand for advanced computing devices. The market is projected to grow fr",
+          "pubDate" : "2026-09-28T09:21:00Z",
+          "displayTime" : "2026-09-28T09:21:00Z",
+          "isHosted" : true,
+          "bypassModal" : false,
+          "previewUrl" : null,
+          "thumbnail" : {
+            "originalUrl" : "https://media.zenfs.com/en/globenewswire.com/93d5b27580f67db722dd7c112e43e8bc.jpg",
+            "originalWidth" : 480,
+            "originalHeight" : 58,
+            "caption" : "",
+            "resolutions" : [ {
+              "url" : "https://s.yimg.com/uu/api/res/1.2/iogELng_NEvmVlKg85874A--~B/aD01ODt3PTQ4MDthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/globenewswire.com/93d5b27580f67db722dd7c112e43e8bc.jpg",
+              "width" : 480,
+              "height" : 58,
+              "tag" : "original"
+            }, {
+              "url" : "https://s.yimg.com/uu/api/res/1.2/FKfoNjxIKsT30SLvQU_13Q--~B/Zmk9c3RyaW07aD0xMjg7dz0xNzA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/globenewswire.com/93d5b27580f67db722dd7c112e43e8bc.jpg",
+              "width" : 170,
+              "height" : 128,
+              "tag" : "170x128"
+            } ]
+          },
+          "provider" : {
+            "displayName" : "GlobeNewswire",
+            "url" : "https://www.globenewswire.com/",
+            "sourceId" : "globenewswire.com"
+          },
+          "canonicalUrl" : {
+            "url" : "https://finance.yahoo.com/technology/articles/computers-global-market-report-2026-092100899.html",
+            "site" : "finance",
+            "region" : "US",
+            "lang" : "en-US"
+          },
+          "clickThroughUrl" : {
+            "url" : "https://finance.yahoo.com/technology/articles/computers-global-market-report-2026-092100899.html",
+            "site" : "finance",
+            "region" : "US",
+            "lang" : "en-US"
+          },
+          "metadata" : null,
+          "finance" : {
+            "premiumFinance" : {
+              "isPremiumNews" : false,
+              "isPremiumFreeNews" : false
+            }
+          },
+          "storyline" : null
+        }
+      }, {
+        "id" : "8772e350-d076-351a-874b-93aaa166e0fc",
+        "content" : {
+          "id" : "8772e350-d076-351a-874b-93aaa166e0fc",
+          "contentType" : "STORY",
+          "title" : "$58 Million Multifamily Asset Sale Closed by Institutional Property Advisors in North Phoenix",
+          "description" : "",
+          "summary" : "PHOENIX, September 25, 2026--$58 Million Multifamily Asset Sale Closed by Institutional Property Advisors in North Phoenix",
+          "pubDate" : "2026-09-25T22:32:00Z",
+          "displayTime" : "2026-09-25T22:32:00Z",
+          "isHosted" : true,
+          "bypassModal" : false,
+          "previewUrl" : null,
+          "thumbnail" : {
+            "originalUrl" : "https://media.zenfs.com/en/business-wire.com/0804b5829ac85b3f5262bf6f49a3f546.jpg",
+            "originalWidth" : 1024,
+            "originalHeight" : 512,
+            "caption" : "",
+            "resolutions" : [ {
+              "url" : "https://s.yimg.com/uu/api/res/1.2/mEbS0AgO8McsG4JsDTc6qw--~B/aD01MTI7dz0xMDI0O2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/business-wire.com/0804b5829ac85b3f5262bf6f49a3f546.jpg",
+              "width" : 1024,
+              "height" : 512,
+              "tag" : "original"
+            }, {
+              "url" : "https://s.yimg.com/uu/api/res/1.2/iJ13AOi4gA3JtuRgAIucEA--~B/Zmk9c3RyaW07aD0xMjg7dz0xNzA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/business-wire.com/0804b5829ac85b3f5262bf6f49a3f546.jpg",
+              "width" : 170,
+              "height" : 128,
+              "tag" : "170x128"
+            } ]
+          },
+          "provider" : {
+            "displayName" : "Business Wire",
+            "url" : "http://www.businesswire.com/",
+            "sourceId" : "business-wire.com"
+          },
+          "canonicalUrl" : {
+            "url" : "https://finance.yahoo.com/real-estate/articles/58-million-multifamily-asset-sale-223200532.html",
+            "site" : "finance",
+            "region" : "US",
+            "lang" : "en-US"
+          },
+          "clickThroughUrl" : {
+            "url" : "https://finance.yahoo.com/real-estate/articles/58-million-multifamily-asset-sale-223200532.html",
+            "site" : "finance",
+            "region" : "US",
+            "lang" : "en-US"
+          },
+          "metadata" : null,
+          "finance" : {
+            "premiumFinance" : {
+              "isPremiumNews" : false,
+              "isPremiumFreeNews" : false
+            }
+          },
+          "storyline" : null
+        }
+      }, {
+        "id" : "ca30da12-17c7-3e18-96d0-11afa86bf23f",
+        "content" : {
+          "id" : "ca30da12-17c7-3e18-96d0-11afa86bf23f",
+          "contentType" : "STORY",
+          "title" : "Smartphone Li-Ion Battery Market Report 2026-2031 | Fast Charging, Premium Devices and Supply Chain Shifts Unlock New Opportunities",
+          "description" : "",
+          "summary" : "Demand is shifting to high-density silicon-anode, fast-charging pouch cells for AI and foldable phones, while supply-chain localization and greener, repairable designs create opportunitiesDublin, Sept. 24, 2026 (GLOBE NEWSWIRE) -- \"Smartphone Li-Ion Battery Market Outlook 2026-2031: Trends, Supply Chain, and Key Players Analysis\" has been added to ResearchAndMarkets.com's offering. The global smartphone lithium-ion battery market is entering a period of steady value growth as device manufacturer",
+          "pubDate" : "2026-09-24T14:06:00Z",
+          "displayTime" : "2026-09-24T14:06:00Z",
+          "isHosted" : true,
+          "bypassModal" : false,
+          "previewUrl" : null,
+          "thumbnail" : {
+            "originalUrl" : "https://media.zenfs.com/en/globenewswire.com/93d5b27580f67db722dd7c112e43e8bc.jpg",
+            "originalWidth" : 480,
+            "originalHeight" : 58,
+            "caption" : "",
+            "resolutions" : [ {
+              "url" : "https://s.yimg.com/uu/api/res/1.2/iogELng_NEvmVlKg85874A--~B/aD01ODt3PTQ4MDthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/globenewswire.com/93d5b27580f67db722dd7c112e43e8bc.jpg",
+              "width" : 480,
+              "height" : 58,
+              "tag" : "original"
+            }, {
+              "url" : "https://s.yimg.com/uu/api/res/1.2/FKfoNjxIKsT30SLvQU_13Q--~B/Zmk9c3RyaW07aD0xMjg7dz0xNzA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/globenewswire.com/93d5b27580f67db722dd7c112e43e8bc.jpg",
+              "width" : 170,
+              "height" : 128,
+              "tag" : "170x128"
+            } ]
+          },
+          "provider" : {
+            "displayName" : "GlobeNewswire",
+            "url" : "https://www.globenewswire.com/",
+            "sourceId" : "globenewswire.com"
+          },
+          "canonicalUrl" : {
+            "url" : "https://finance.yahoo.com/technology/articles/smartphone-li-ion-battery-market-140600239.html",
+            "site" : "finance",
+            "region" : "US",
+            "lang" : "en-US"
+          },
+          "clickThroughUrl" : {
+            "url" : "https://finance.yahoo.com/technology/articles/smartphone-li-ion-battery-market-140600239.html",
+            "site" : "finance",
+            "region" : "US",
+            "lang" : "en-US"
+          },
+          "metadata" : null,
+          "finance" : {
+            "premiumFinance" : {
+              "isPremiumNews" : false,
+              "isPremiumFreeNews" : false
+            }
+          },
+          "storyline" : null
+        }
+      }, {
+        "id" : "222565aa-a27e-3e7d-a1e8-053fd7c862c3",
+        "content" : {
+          "id" : "222565aa-a27e-3e7d-a1e8-053fd7c862c3",
+          "contentType" : "STORY",
+          "title" : "Discern Security Partners with Jamf to Bring AI Asset Discovery to Managed Mac Fleets",
+          "description" : "",
+          "summary" : "Discern Security, an AI-driven cybersecurity management platform that helps organizations reduce security debt and prove measurable posture improvement using the security tools they already own today, announced its integration with Jamf, the standard for managing and securing Apple devices at work.",
+          "pubDate" : "2026-09-24T12:59:00Z",
+          "displayTime" : "2026-09-24T12:59:00Z",
+          "isHosted" : true,
+          "bypassModal" : false,
+          "previewUrl" : null,
+          "thumbnail" : {
+            "originalUrl" : "https://media.zenfs.com/en/prnewswire.com/77180a343428e3ba4cd44ee800d43546.png",
+            "originalWidth" : 16,
+            "originalHeight" : 16,
+            "caption" : "Cision",
+            "resolutions" : [ {
+              "url" : "https://s.yimg.com/uu/api/res/1.2/BQHcqjO7Wqlz.uHjdzmplg--~B/aD0xNjt3PTE2O2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/prnewswire.com/77180a343428e3ba4cd44ee800d43546.png",
+              "width" : 16,
+              "height" : 16,
+              "tag" : "original"
+            }, {
+              "url" : "https://s.yimg.com/uu/api/res/1.2/rI7NH97AdSoco4h3fMpGaA--~B/Zmk9c3RyaW07aD0xMjg7dz0xNzA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/prnewswire.com/77180a343428e3ba4cd44ee800d43546.png",
+              "width" : 170,
+              "height" : 128,
+              "tag" : "170x128"
+            } ]
+          },
+          "provider" : {
+            "displayName" : "PR Newswire",
+            "url" : "https://www.prnewswire.com/",
+            "sourceId" : "prnewswire.com"
+          },
+          "canonicalUrl" : {
+            "url" : "https://finance.yahoo.com/technology/ai/articles/discern-security-partners-jamf-bring-125900611.html",
+            "site" : "finance",
+            "region" : "US",
+            "lang" : "en-US"
+          },
+          "clickThroughUrl" : {
+            "url" : "https://finance.yahoo.com/technology/ai/articles/discern-security-partners-jamf-bring-125900611.html",
+            "site" : "finance",
+            "region" : "US",
+            "lang" : "en-US"
+          },
+          "metadata" : null,
+          "finance" : {
+            "premiumFinance" : {
+              "isPremiumNews" : false,
+              "isPremiumFreeNews" : false
+            }
+          },
+          "storyline" : null
+        }
+      }, {
+        "id" : "7831b99c-73b2-3cde-9208-af57c8ca6967",
+        "content" : {
+          "id" : "7831b99c-73b2-3cde-9208-af57c8ca6967",
+          "contentType" : "STORY",
+          "title" : "Qualcomm Announces Renewal of Global Patent License Agreement with Apple",
+          "description" : "",
+          "summary" : "Qualcomm Incorporated today announced the renewal of its global patent license agreement with Apple, effective April 1, 2027.",
+          "pubDate" : "2026-09-24T11:30:00Z",
+          "displayTime" : "2026-09-24T11:30:00Z",
+          "isHosted" : true,
+          "bypassModal" : false,
+          "previewUrl" : null,
+          "thumbnail" : {
+            "originalUrl" : "https://media.zenfs.com/en/prnewswire.com/6b3290b6405028b67822d617adffb20a.jpg",
+            "originalWidth" : 400,
+            "originalHeight" : 153,
+            "caption" : "Qualcomm",
+            "resolutions" : [ {
+              "url" : "https://s.yimg.com/uu/api/res/1.2/K6D6GBvZMyMDXG2Bwj7F6g--~B/aD0xNTM7dz00MDA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/prnewswire.com/6b3290b6405028b67822d617adffb20a.jpg",
+              "width" : 400,
+              "height" : 153,
+              "tag" : "original"
+            }, {
+              "url" : "https://s.yimg.com/uu/api/res/1.2/3g9xdT107TVznBY0p73dKg--~B/Zmk9c3RyaW07aD0xMjg7dz0xNzA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/prnewswire.com/6b3290b6405028b67822d617adffb20a.jpg",
+              "width" : 170,
+              "height" : 128,
+              "tag" : "170x128"
+            } ]
+          },
+          "provider" : {
+            "displayName" : "PR Newswire",
+            "url" : "https://www.prnewswire.com/",
+            "sourceId" : "prnewswire.com"
+          },
+          "canonicalUrl" : {
+            "url" : "https://finance.yahoo.com/technology/articles/qualcomm-announces-renewal-global-patent-113000391.html",
+            "site" : "finance",
+            "region" : "US",
+            "lang" : "en-US"
+          },
+          "clickThroughUrl" : {
+            "url" : "https://finance.yahoo.com/technology/articles/qualcomm-announces-renewal-global-patent-113000391.html",
+            "site" : "finance",
+            "region" : "US",
+            "lang" : "en-US"
+          },
+          "metadata" : null,
+          "finance" : {
+            "premiumFinance" : {
+              "isPremiumNews" : false,
+              "isPremiumFreeNews" : false
+            }
+          },
+          "storyline" : null
+        }
+      }, {
+        "id" : "89d49866-536e-3d66-a93a-19996faa8bc3",
+        "content" : {
+          "id" : "89d49866-536e-3d66-a93a-19996faa8bc3",
+          "contentType" : "STORY",
+          "title" : "Formula 1 Business Outlook 2026: Global Expansion, Digital Innovation and Sponsorship Growth Accelerate Revenue Opportunities",
+          "description" : "",
+          "summary" : "Formula 1’s US and social media growth is creating opportunities in media rights, sponsorships, race hosting, ticketing and pop-culture partnerships despite event disruptions.Dublin, Sept. 24, 2026 (GLOBE NEWSWIRE) -- \"The Business of Formula 1 2026\" has been added to ResearchAndMarkets.com's offering. The \"Business of Formula 1 2026\" report provides a comprehensive analysis of the commercial landscape surrounding one of the world's largest and most popular motorsport competitions. Published as",
+          "pubDate" : "2026-09-24T09:12:00Z",
+          "displayTime" : "2026-09-24T09:12:00Z",
+          "isHosted" : true,
+          "bypassModal" : false,
+          "previewUrl" : null,
+          "thumbnail" : {
+            "originalUrl" : "https://media.zenfs.com/en/globenewswire.com/93d5b27580f67db722dd7c112e43e8bc.jpg",
+            "originalWidth" : 480,
+            "originalHeight" : 58,
+            "caption" : "",
+            "resolutions" : [ {
+              "url" : "https://s.yimg.com/uu/api/res/1.2/iogELng_NEvmVlKg85874A--~B/aD01ODt3PTQ4MDthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/globenewswire.com/93d5b27580f67db722dd7c112e43e8bc.jpg",
+              "width" : 480,
+              "height" : 58,
+              "tag" : "original"
+            }, {
+              "url" : "https://s.yimg.com/uu/api/res/1.2/FKfoNjxIKsT30SLvQU_13Q--~B/Zmk9c3RyaW07aD0xMjg7dz0xNzA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/globenewswire.com/93d5b27580f67db722dd7c112e43e8bc.jpg",
+              "width" : 170,
+              "height" : 128,
+              "tag" : "170x128"
+            } ]
+          },
+          "provider" : {
+            "displayName" : "GlobeNewswire",
+            "url" : "https://www.globenewswire.com/",
+            "sourceId" : "globenewswire.com"
+          },
+          "canonicalUrl" : {
+            "url" : "https://finance.yahoo.com/media-advertising/articles/formula-1-business-outlook-2026-091200059.html",
+            "site" : "finance",
+            "region" : "US",
+            "lang" : "en-US"
+          },
+          "clickThroughUrl" : {
+            "url" : "https://finance.yahoo.com/media-advertising/articles/formula-1-business-outlook-2026-091200059.html",
+            "site" : "finance",
+            "region" : "US",
+            "lang" : "en-US"
+          },
+          "metadata" : null,
+          "finance" : {
+            "premiumFinance" : {
+              "isPremiumNews" : false,
+              "isPremiumFreeNews" : false
+            }
+          },
+          "storyline" : null
+        }
+      }, {
+        "id" : "2b90568e-9be2-3a7c-9df0-1178f1eb9e22",
+        "content" : {
+          "id" : "2b90568e-9be2-3a7c-9df0-1178f1eb9e22",
+          "contentType" : "STORY",
+          "title" : "Jamf Takes Apple Management into the AI Era at JNUC 2026",
+          "description" : "",
+          "summary" : "KANSAS CITY, Mo., September 23, 2026--Jamf, the standard in managing and securing Apple at work, today unveiled a slate of new platform innovations at its 17th annual Jamf Nation User Conference (JNUC) in Kansas City. Joined on stage by Apple, Anthropic and AWS, Jamf showcased new ways to gain deeper visibility into the AI tools running across corporate Mac fleets, build and manage Apple environments through APIs, automate app deployment and updates, and identify and resolve device health issues",
+          "pubDate" : "2026-09-23T15:00:00Z",
+          "displayTime" : "2026-09-23T15:00:00Z",
+          "isHosted" : true,
+          "bypassModal" : false,
+          "previewUrl" : null,
+          "thumbnail" : {
+            "originalUrl" : "https://media.zenfs.com/en/business-wire.com/846f6ed2f965931e9707feb932a38c93.jpg",
+            "originalWidth" : 1024,
+            "originalHeight" : 512,
+            "caption" : "",
+            "resolutions" : [ {
+              "url" : "https://s.yimg.com/uu/api/res/1.2/4GKj5fmdcMxsopvwvd_NEA--~B/aD01MTI7dz0xMDI0O2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/business-wire.com/846f6ed2f965931e9707feb932a38c93.jpg",
+              "width" : 1024,
+              "height" : 512,
+              "tag" : "original"
+            }, {
+              "url" : "https://s.yimg.com/uu/api/res/1.2/kK0aQuE69zcDl8aFTqwxQA--~B/Zmk9c3RyaW07aD0xMjg7dz0xNzA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/business-wire.com/846f6ed2f965931e9707feb932a38c93.jpg",
+              "width" : 170,
+              "height" : 128,
+              "tag" : "170x128"
+            } ]
+          },
+          "provider" : {
+            "displayName" : "Business Wire",
+            "url" : "http://www.businesswire.com/",
+            "sourceId" : "business-wire.com"
+          },
+          "canonicalUrl" : {
+            "url" : "https://finance.yahoo.com/technology/ai/articles/jamf-takes-apple-management-ai-150000490.html",
+            "site" : "finance",
+            "region" : "US",
+            "lang" : "en-US"
+          },
+          "clickThroughUrl" : {
+            "url" : "https://finance.yahoo.com/technology/ai/articles/jamf-takes-apple-management-ai-150000490.html",
+            "site" : "finance",
+            "region" : "US",
+            "lang" : "en-US"
+          },
+          "metadata" : null,
+          "finance" : {
+            "premiumFinance" : {
+              "isPremiumNews" : false,
+              "isPremiumFreeNews" : false
+            }
+          },
+          "storyline" : null
+        }
+      }, {
+        "id" : "83db6692-b46e-3ef8-9091-92ca0c71c7a2",
+        "content" : {
+          "id" : "83db6692-b46e-3ef8-9091-92ca0c71c7a2",
+          "contentType" : "STORY",
+          "title" : "GridX, Apple Bring Electricity Data and Insights to Southern California Edison Customers in Apple’s Home App",
+          "description" : "",
+          "summary" : "WALNUT CREEK, Calif., September 23, 2026--GridX, the Enterprise Rate and Data Platform provider to utilities and energy providers, today announced its role in supporting the delivery of electricity usage information to residential electric customers of Southern California Edison (SCE). Beginning today, SCE customers with an iPhone, iPad, Mac or an Apple Watch running software version 27 can use the Home app to access, understand and make informed decisions about their electricity usage.",
+          "pubDate" : "2026-09-23T13:00:00Z",
+          "displayTime" : "2026-09-23T13:00:00Z",
+          "isHosted" : true,
+          "bypassModal" : false,
+          "previewUrl" : null,
+          "thumbnail" : {
+            "originalUrl" : "https://media.zenfs.com/en/business-wire.com/e124407720e2871bccf0f6206f75167b.jpg",
+            "originalWidth" : 400,
+            "originalHeight" : 300,
+            "caption" : "",
+            "resolutions" : [ {
+              "url" : "https://s.yimg.com/uu/api/res/1.2/.2E3Oz2pgvAVRAO6JrrHJA--~B/aD0zMDA7dz00MDA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/business-wire.com/e124407720e2871bccf0f6206f75167b.jpg",
+              "width" : 400,
+              "height" : 300,
+              "tag" : "original"
+            }, {
+              "url" : "https://s.yimg.com/uu/api/res/1.2/TKRGVWWwv0cQEWMh9fjY5Q--~B/Zmk9c3RyaW07aD0xMjg7dz0xNzA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/business-wire.com/e124407720e2871bccf0f6206f75167b.jpg",
+              "width" : 170,
+              "height" : 128,
+              "tag" : "170x128"
+            } ]
+          },
+          "provider" : {
+            "displayName" : "Business Wire",
+            "url" : "http://www.businesswire.com/",
+            "sourceId" : "business-wire.com"
+          },
+          "canonicalUrl" : {
+            "url" : "https://finance.yahoo.com/energy/articles/gridx-apple-bring-electricity-data-130000786.html",
+            "site" : "finance",
+            "region" : "US",
+            "lang" : "en-US"
+          },
+          "clickThroughUrl" : {
+            "url" : "https://finance.yahoo.com/energy/articles/gridx-apple-bring-electricity-data-130000786.html",
+            "site" : "finance",
+            "region" : "US",
+            "lang" : "en-US"
+          },
+          "metadata" : null,
+          "finance" : {
+            "premiumFinance" : {
+              "isPremiumNews" : false,
+              "isPremiumFreeNews" : false
+            }
+          },
+          "storyline" : null
+        }
+      } ]
+    }
+  },
+  "status" : "OK"
+}

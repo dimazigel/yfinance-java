@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import io.github.dimazigel.yfinance.enums.EventType;
 import io.github.dimazigel.yfinance.enums.Frequency;
 import io.github.dimazigel.yfinance.enums.Interval;
+import io.github.dimazigel.yfinance.enums.NewsTab;
 import io.github.dimazigel.yfinance.enums.Range;
 import io.github.dimazigel.yfinance.enums.StatementType;
 import io.github.dimazigel.yfinance.exception.YFClassMismatchException;
@@ -278,15 +279,30 @@ class TickerTest {
         assertThat(url.queryParameter("events")).isEqualTo("div");
     }
 
-
     @Test
-    void newsSearchesBySymbol() throws Exception {
+    void newsIsTheSymbolsNewsStream() throws Exception {
         var news = yf.ticker("AAPL").news();
 
-        assertThat(news).singleElement().satisfies(n -> {
-            assertThat(n.title()).contains("Apple announces new product");
-            assertThat(n.link()).isPresent();
-        });
-        assertThat(server.takeRequest().getRequestUrl().queryParameter("q")).isEqualTo("AAPL");
+        assertThat(news).hasSize(10);
+        assertThat(news.getFirst().title()).isEqualTo("Apple's new CEO John Ternus plans on making some changes");
+        RecordedRequest request = server.takeRequest();
+        assertThat(request.getRequestUrl().encodedPath()).isEqualTo("/xhr/ncp");
+        assertThat(request.getRequestUrl().queryParameter("queryRef")).as("the news tab by default").isEqualTo("latestNews");
+        assertThat(request.getBody().readUtf8()).as("ten items by default").contains("\"snippetCount\":10").contains("\"AAPL\"");
+    }
+
+    @Test
+    void newsTakesATabAndACount() throws Exception {
+        var releases = yf.ticker("AAPL").news(NewsTab.PRESS_RELEASES, 3);
+
+        assertThat(releases.getFirst().provider().name()).isEqualTo("ACCESS Newswire");
+        RecordedRequest request = server.takeRequest();
+        assertThat(request.getRequestUrl().queryParameter("queryRef")).isEqualTo("pressRelease");
+        assertThat(request.getBody().readUtf8()).contains("\"snippetCount\":3");
+    }
+
+    @Test
+    void newsIsEmptyForAnUnknownSymbol() {
+        assertThat(yf.ticker(YahooDispatcher.UNKNOWN).news()).isEmpty();
     }
 }

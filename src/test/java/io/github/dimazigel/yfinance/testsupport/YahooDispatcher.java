@@ -22,6 +22,8 @@ import okhttp3.mockwebserver.RecordedRequest;
  *   <li>{@code /v7/finance/options/{symbol}}: the captured chain for that symbol (and expiration,
  *       when {@code date} is given), or the no-listed-options capture for anything else
  *   <li>search and lookup: the single fixture each
+ *   <li>{@code /xhr/ncp} (the news stream): the AAPL capture of the requested tab for every symbol
+ *       except {@link #UNKNOWN}, which gets the empty-stream capture
  *   <li>{@code /ws/fundamentals-timeseries/}: {@code type=shares_out} (batch E/1, item 4) gets the
  *       shares-outstanding capture; a chunk whose keys are purely annual-income ones
  *       (a chunk never spills past {@code FundamentalsService.MAX_KEYS_PER_REQUEST} keys without
@@ -54,6 +56,9 @@ public class YahooDispatcher extends Dispatcher {
         }
         if (path.equals("/v1/finance/lookup")) {
             return Fixtures.jsonResponse("lookup_apple.json");
+        }
+        if (path.equals("/xhr/ncp")) {
+            return news(url.queryParameter("queryRef"), request.getBody().snapshot().utf8());
         }
         if (path.equals("/v1/test/getcrumb")) {
             return new MockResponse().setResponseCode(200).setBody("mock-crumb");
@@ -124,6 +129,18 @@ public class YahooDispatcher extends Dispatcher {
         } catch (IllegalArgumentException noFixture) {
             return Fixtures.jsonResponse("options/options_empty.json");
         }
+    }
+
+    private static MockResponse news(String queryRef, String body) {
+        if (body.contains(UNKNOWN)) {
+            return Fixtures.jsonResponse("news/ncp_news_unknown.json");
+        }
+        String tab = switch (queryRef) {
+            case "newsAll" -> "all";
+            case "pressRelease" -> "press";
+            default -> "news";
+        };
+        return Fixtures.jsonResponse("news/ncp_" + tab + "_AAPL.json");
     }
 
     private static MockResponse json(String body) {

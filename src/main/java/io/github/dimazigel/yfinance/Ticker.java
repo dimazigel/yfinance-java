@@ -6,6 +6,7 @@ import io.github.dimazigel.yfinance.detail.EtfDetail;
 import io.github.dimazigel.yfinance.detail.MutualFundDetail;
 import io.github.dimazigel.yfinance.enums.Frequency;
 import io.github.dimazigel.yfinance.enums.Interval;
+import io.github.dimazigel.yfinance.enums.NewsTab;
 import io.github.dimazigel.yfinance.enums.Range;
 import io.github.dimazigel.yfinance.enums.StatementType;
 import io.github.dimazigel.yfinance.exception.YFClassMismatchException;
@@ -21,7 +22,7 @@ import io.github.dimazigel.yfinance.market.HistoryQuery;
 import io.github.dimazigel.yfinance.market.OptionChain;
 import io.github.dimazigel.yfinance.market.PriceHistory;
 import io.github.dimazigel.yfinance.market.Split;
-import io.github.dimazigel.yfinance.search.SearchResult.NewsArticle;
+import io.github.dimazigel.yfinance.news.NewsItem;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
 import java.time.Instant;
 import java.util.List;
@@ -35,6 +36,9 @@ import java.util.Set;
  * {@link Tickers} or the {@code YFinance} batch methods, which never throw per symbol.
  */
 public final class Ticker {
+
+    /** {@link #news()}'s item count; Python yfinance's {@code get_news} default. */
+    private static final int DEFAULT_NEWS_COUNT = 10;
 
     private final YFinance yf;
     private final Symbol symbol;
@@ -182,9 +186,20 @@ public final class Ticker {
         return yf.sharesOutstanding(proof(proof));
     }
 
-    /** Recent news articles related to this symbol. */
-    public List<NewsArticle> news() {
-        return yf.search(symbol.value()).news();
+    /** The ten latest items on this symbol's {@link NewsTab#NEWS} tab; see {@link #news(NewsTab, int)}. */
+    public List<NewsItem> news() {
+        return news(NewsTab.NEWS, DEFAULT_NEWS_COUNT);
+    }
+
+    /**
+     * This symbol's news stream in one request: up to {@code count} items of {@code tab}, in Yahoo's
+     * order (roughly, not strictly, newest first).
+     *
+     * @return the items; empty when Yahoo has none for the symbol, an unknown symbol included
+     * @throws IllegalArgumentException if {@code count} is less than 1
+     */
+    public List<NewsItem> news(NewsTab tab, int count) {
+        return yf.news(symbol, tab, count);
     }
 
     private PriceHistory fullHistory() {

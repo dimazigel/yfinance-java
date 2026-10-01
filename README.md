@@ -45,7 +45,7 @@ try (var yf = YFinance.create()) { // cookie+crumb handshake; close() releases t
             Set.of(StatementType.INCOME, StatementType.BALANCE_SHEET, StatementType.CASH_FLOW), Set.of(Frequency.ANNUAL, Frequency.QUARTERLY));
     Optional<BigDecimal> revenue = income.latest(LineItem.TOTAL_REVENUE);   // most recent period; row(...) for all periods
     List<SharesOutstanding> shares = yf.sharesOutstanding(equity);   // default window: last 548 days
-    List<NewsArticle> news = aapl.news();
+    List<NewsItem> news = aapl.news();                     // latest ten; news(NewsTab.PRESS_RELEASES, 20) picks tab and count
 
     SearchResult results = yf.search("apple");
     List<LookupQuote> lookup = yf.lookup("apple", LookupType.EQUITY);
@@ -166,7 +166,7 @@ Batch<PriceHistory> backfill = yf.histories(symbols,
 | `get_shares_full()` | `yf.sharesOutstanding(equity[, start, end])` / `ticker.sharesOutstanding(equity[, start, end])` — default window `[now - 548 days, now]` |
 | `Tickers("AAPL MSFT")` / `download([...])` | `yf.instruments(symbols)` (one request per 100 symbols) / `yf.histories(symbols, range, interval)`; `yf.tickers(...).fetch(Ticker::...)` fans any call out |
 | `Search("apple")` / `Lookup("apple")` | `yf.search("apple")` (`quotes()` + `news()`) / `yf.lookup("apple", LookupType.EQUITY)` |
-| `Ticker.news` | `ticker.news()` |
+| `Ticker.news` / `get_news(count, tab)` | `ticker.news()` / `ticker.news(NewsTab.PRESS_RELEASES, 20)` — tabs `ALL`, `NEWS`, `PRESS_RELEASES` |
 | `history(repair=True)`, `EquityQuery`/`Screener`, `WebSocket`, ISIN (`isin`, `Ticker("US0378331005")`) | not covered |
 
 Three defaults differ from Python: history is **not** auto-adjusted (call `adjusted()`), a symbol
@@ -339,7 +339,8 @@ Twitter and proof-of-work stats.
 | Price history, dividends, splits, capital gains, metadata | `/v8/finance/chart` | `Ticker.history(...)`, `dividends()`, `splits()`, `YFinance.histories(...)` |
 | Income / balance sheet / cash flow (annual, quarterly, trailing) | `/ws/fundamentals-timeseries` | `Ticker.statements(...)`, `YFinance.statements(...)` (single, multi-statement, and batch forms) |
 | Options chain | `/v7/finance/options` | `Ticker.options(...)`, `YFinance.options(...)` |
-| Search & per-symbol news | `/v1/finance/search` | `YFinance.search(...)`, `Ticker.news()` |
+| Search | `/v1/finance/search` | `YFinance.search(...)` (`quotes()` + `news()`) |
+| Per-symbol news stream (news, press releases, all) | `POST finance.yahoo.com/xhr/ncp` | `Ticker.news()`, `Ticker.news(tab, count)`, `YFinance.news(...)` |
 | Lookup | `/v1/finance/lookup` | `YFinance.lookup(...)` |
 
 Not covered: live WebSocket streaming, `EquityQuery`/`Screener`, `Sector`/`Industry`, ESG / sustainability
@@ -494,8 +495,8 @@ instrument/  the sealed snapshot hierarchy and its value records
 detail/      EquityDetail, EtfDetail, MutualFundDetail, CryptoDetail (+ rows/)
 batch/       Batch, Outcome, SkipReason, FanOut
 market/      HistoryQuery, PriceHistory, PriceBar, HistoryMetadata, OptionChain, corporate actions
-fundamentals/ FinancialStatement;  search/ SearchResult, LookupQuote
-dto/ + mapper/ raw records and mappers for chart, options, timeseries, search, lookup          [internal]
+fundamentals/ FinancialStatement;  search/ SearchResult, LookupQuote;  news/ NewsItem
+dto/ + mapper/ raw records and mappers for chart, options, timeseries, search, lookup, news          [internal]
 auth/        CrumbStore — cookie (fc.yahoo.com) then crumb handshake, invalidate-on-401/403 (by identity), cooldown after a transient failure   [internal]
 enums/       closed sets implementing WireEnum (Interval, Range, LineItem, ...)
 valueobject/ Symbol, Crumb
@@ -503,7 +504,7 @@ valueobject/ Symbol, Crumb
 
 The packages marked *internal* are `public` only because the layers live in separate packages;
 their `package-info` says so, they are left out of the published Javadoc, and they may change in
-any release. The API is the facade, `instrument`, `detail`, `market`, `fundamentals`, `search`,
+any release. The API is the facade, `instrument`, `detail`, `market`, `fundamentals`, `search`, `news`,
 `batch` (not `FanOut`), `enums`, `valueobject`, `exception`, `logging`, the `http` configuration
 records (`EndpointConfig`, `AdaptiveRateLimitConfig`, `RetryConfig`) plus `InMemoryCookieJar`;
 the interceptors, client factory, Feign/Jackson glue and

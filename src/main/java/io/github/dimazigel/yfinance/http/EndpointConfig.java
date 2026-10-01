@@ -18,6 +18,8 @@ import okhttp3.OkHttpClient;
  * @param query1Base  primary API host ({@code https://query1.finance.yahoo.com/})
  * @param query2Base  secondary API host ({@code https://query2.finance.yahoo.com/}), used for
  *     fundamentals timeseries
+ * @param financeBase the finance.yahoo.com site ({@code https://finance.yahoo.com/}), which serves
+ *     the news stream
  * @param cookieUrl   URL hit purely to seed session cookies ({@code https://fc.yahoo.com/})
  * @param userAgent   the {@code User-Agent} header sent on every request
  * @param callTimeout overall per-call timeout applied to the OkHttp clients; it bounds the whole
@@ -50,6 +52,7 @@ import okhttp3.OkHttpClient;
 public record EndpointConfig(
         HttpUrl query1Base,
         HttpUrl query2Base,
+        HttpUrl financeBase,
         HttpUrl cookieUrl,
         String userAgent,
         Duration callTimeout,
@@ -71,6 +74,7 @@ public record EndpointConfig(
     public EndpointConfig {
         Objects.requireNonNull(query1Base, "query1Base");
         Objects.requireNonNull(query2Base, "query2Base");
+        Objects.requireNonNull(financeBase, "financeBase");
         Objects.requireNonNull(cookieUrl, "cookieUrl");
         Objects.requireNonNull(userAgent, "userAgent");
         Objects.requireNonNull(callTimeout, "callTimeout");
@@ -89,6 +93,7 @@ public record EndpointConfig(
         return new EndpointConfig(
                 HttpUrl.get("https://query1.finance.yahoo.com/"),
                 HttpUrl.get("https://query2.finance.yahoo.com/"),
+                HttpUrl.get("https://finance.yahoo.com/"),
                 HttpUrl.get("https://fc.yahoo.com/"),
                 DEFAULT_USER_AGENT,
                 DEFAULT_CALL_TIMEOUT,
@@ -101,24 +106,24 @@ public record EndpointConfig(
     }
 
     /**
-     * Returns a copy with all three hosts pointed at {@code base}: handy for tests against a mock
+     * Returns a copy with all four hosts pointed at {@code base}: handy for tests against a mock
      * server or for routing everything through one proxy front.
      */
     public EndpointConfig withHosts(HttpUrl base) {
-        return withHosts(base, base, base);
+        return withHosts(base, base, base, base);
     }
 
     /** Returns a copy with different hosts. */
-    public EndpointConfig withHosts(HttpUrl query1Base, HttpUrl query2Base, HttpUrl cookieUrl) {
+    public EndpointConfig withHosts(HttpUrl query1Base, HttpUrl query2Base, HttpUrl financeBase, HttpUrl cookieUrl) {
         return new EndpointConfig(
-                query1Base, query2Base, cookieUrl, userAgent, callTimeout, adaptiveRateLimit, transientRetry,
+                query1Base, query2Base, financeBase, cookieUrl, userAgent, callTimeout, adaptiveRateLimit, transientRetry,
                 clientCustomizer, fanOutConcurrency, cookieJar, clock);
     }
 
     /** Returns a copy with a different {@code User-Agent}. */
     public EndpointConfig withUserAgent(String userAgent) {
         return new EndpointConfig(
-                query1Base, query2Base, cookieUrl, userAgent, callTimeout, adaptiveRateLimit, transientRetry,
+                query1Base, query2Base, financeBase, cookieUrl, userAgent, callTimeout, adaptiveRateLimit, transientRetry,
                 clientCustomizer, fanOutConcurrency, cookieJar, clock);
     }
 
@@ -129,21 +134,21 @@ public record EndpointConfig(
      */
     public EndpointConfig withCallTimeout(Duration timeout) {
         return new EndpointConfig(
-                query1Base, query2Base, cookieUrl, userAgent, timeout, adaptiveRateLimit, transientRetry,
+                query1Base, query2Base, financeBase, cookieUrl, userAgent, timeout, adaptiveRateLimit, transientRetry,
                 clientCustomizer, fanOutConcurrency, cookieJar, clock);
     }
 
     /** Returns a copy with a different adaptive rate-limit config. */
     public EndpointConfig withAdaptiveRateLimit(AdaptiveRateLimitConfig config) {
         return new EndpointConfig(
-                query1Base, query2Base, cookieUrl, userAgent, callTimeout, config, transientRetry, clientCustomizer,
+                query1Base, query2Base, financeBase, cookieUrl, userAgent, callTimeout, config, transientRetry, clientCustomizer,
                 fanOutConcurrency, cookieJar, clock);
     }
 
     /** Returns a copy with a different transient-server-error retry policy. */
     public EndpointConfig withTransientRetry(RetryConfig config) {
         return new EndpointConfig(
-                query1Base, query2Base, cookieUrl, userAgent, callTimeout, adaptiveRateLimit, config, clientCustomizer,
+                query1Base, query2Base, financeBase, cookieUrl, userAgent, callTimeout, adaptiveRateLimit, config, clientCustomizer,
                 fanOutConcurrency, cookieJar, clock);
     }
 
@@ -153,7 +158,7 @@ public record EndpointConfig(
      */
     public EndpointConfig withClientCustomizer(Consumer<OkHttpClient.Builder> customizer) {
         return new EndpointConfig(
-                query1Base, query2Base, cookieUrl, userAgent, callTimeout, adaptiveRateLimit, transientRetry,
+                query1Base, query2Base, financeBase, cookieUrl, userAgent, callTimeout, adaptiveRateLimit, transientRetry,
                 customizer, fanOutConcurrency, cookieJar, clock);
     }
 
@@ -165,7 +170,7 @@ public record EndpointConfig(
      */
     public EndpointConfig withFanOutConcurrency(int concurrency) {
         return new EndpointConfig(
-                query1Base, query2Base, cookieUrl, userAgent, callTimeout, adaptiveRateLimit, transientRetry,
+                query1Base, query2Base, financeBase, cookieUrl, userAgent, callTimeout, adaptiveRateLimit, transientRetry,
                 clientCustomizer, concurrency, cookieJar, clock);
     }
 
@@ -177,7 +182,7 @@ public record EndpointConfig(
      */
     public EndpointConfig withCookieJar(CookieJar cookieJar) {
         return new EndpointConfig(
-                query1Base, query2Base, cookieUrl, userAgent, callTimeout, adaptiveRateLimit, transientRetry,
+                query1Base, query2Base, financeBase, cookieUrl, userAgent, callTimeout, adaptiveRateLimit, transientRetry,
                 clientCustomizer, fanOutConcurrency, cookieJar, clock);
     }
 
@@ -188,7 +193,7 @@ public record EndpointConfig(
      */
     public EndpointConfig withClock(Clock clock) {
         return new EndpointConfig(
-                query1Base, query2Base, cookieUrl, userAgent, callTimeout, adaptiveRateLimit, transientRetry,
+                query1Base, query2Base, financeBase, cookieUrl, userAgent, callTimeout, adaptiveRateLimit, transientRetry,
                 clientCustomizer, fanOutConcurrency, cookieJar, clock);
     }
 

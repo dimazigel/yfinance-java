@@ -1,0 +1,1303 @@
+{
+  "data" : {
+    "tickerStream" : {
+      "pagination" : {
+        "requestedCount" : 10,
+        "contentOverrides" : {
+          "d959ad89-a5ef-3979-b1b6-bab32af7459e" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "13d4ed29-2a20-3d4d-a04a-8ef586e2a321" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "599cf3c4-c5ee-34c8-9c3c-2de8a51392c6" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "05bbaa61-2b52-36ed-af87-83a35934421f" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "6b651354-40e4-339e-8703-143cecb78947" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "fdce35b5-37c9-3fe1-a474-3ddf06f4cbb7" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "af9ece8e-ee6b-3908-aa4f-bf88c17f1369" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "cf64edcb-cb7f-3e52-b49c-4bc0d56a7b70" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "703ebb23-701e-3236-99cd-c7a503b67b88" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "a61e9328-1211-318b-a627-7fcac590b212" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "446fbde2-dba5-3dfc-8781-96fe813451de" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "fd313179-b4e9-35fd-9c0e-a2784b398ee6" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "0ecd2fa4-16f1-3ec6-ba47-6e64f2aed4f9" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "5f643367-b211-388d-a6d9-87bb87b334a2" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "b11b35a9-0b65-3892-817a-437a79e85290" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "3e81c11c-80a4-3479-82de-697ed095e54b" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "7f16a21f-2d45-3169-90ad-b2f99059fda0" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "a92a5148-577d-3ea3-a39f-036fd382ab19" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "1be6b5d8-b953-327f-8955-812ffad51999" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "83b44021-d2c7-3169-8ad2-aefd829df56c" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "99783a45-fa2b-3658-a16d-9ecb23f8c3a9" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "4ad0710f-7e6f-37dd-984c-343ae82f39a6" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "3a148e4a-4fc8-305d-aa0c-c6a0200feafc" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "5e7c93d1-7951-37c9-8ef3-cef41a02a361" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "8384a337-1a0e-4e56-a654-042020a59caa" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "2005ade8-1163-364f-b0ed-80fdaba190c6" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "4c6a5bba-69d2-3a4c-8e6d-e173fcf863e6" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "c98491e7-52ff-31be-a8db-6f53718eb780" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "c9bca23c-d8ad-37e7-8b18-628cfe3359a9" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "a090d75c-f4f1-3203-b862-179ac5b70cd8" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "b8eae4aa-f7ed-33bb-9966-deffb558b2ed" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "2747c77d-ae0c-380f-84eb-f5ac9308d0c7" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "a2ef37b9-a13a-35e3-bad8-c717a7752472" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "ab8ce108-fd2e-354b-9324-c4532e87e2c4" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "84f34ace-a9a8-34e9-8808-d2418bf17d62" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "7ebfdb57-47a7-4a02-a808-ecc4aeb7d7a1" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "5f8679ff-0c38-386f-b8d3-a4f12b54984c" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "5a986735-1f2e-34ac-b5c6-93f0ecdb324a" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "db3d19a5-b467-3c68-9fa6-a834040f6cfa" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "82153cc2-3bf7-3648-af0e-b38a69f27278" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "0b07ff90-994a-3e7a-ae63-9c05a385bc1f" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "75e6112a-6be7-3c0e-b6cf-9efd1f9e4030" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "9eaadca5-d49f-30e8-94a3-eafa32a9a8fb" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "4dfa3a06-352a-4eda-93d2-d17f3bb13a66" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "74429078-5654-3585-a611-0c04d15d973c" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "ad88b7a0-56a7-3b99-a10c-65d20e102397" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "1eebe253-871e-3206-b841-9aa38d0a9f54" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "9b651b1d-3558-3ae0-8779-a49b6a2b2569" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "c0298592-a5a9-3e1b-b9ae-6f41c7e2e24f" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "9f630677-8840-319d-b6ea-ea20484dfc16" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "29c3ad3b-b636-3ab5-bb09-c276cff4845d" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "77984e48-7413-3b1b-8287-adc3ae8b47c2" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "d3d65b6a-fb82-42b5-8983-e576be57db92" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "26b80483-5474-3452-aae6-4633a5dfd975" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "0c6c6b7e-ca93-4f21-85c3-99d565f5a283" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "932d7078-0570-4d2b-9394-aae7cebbb5df" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "f1a7689e-40b7-3082-8f4a-03accd12e2b7" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "c934c38d-596b-3bb4-a72f-5b2679c00704" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "7756723c-bd09-351c-84e2-800c358b2a35" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "29d09feb-cb75-3e7c-a25f-2c44214d5858" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "9677119e-4e17-3f2e-9a3a-8baff3f430cf" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "2fa1c342-f207-3b92-bae6-23635719f2a1" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "d5b42a77-af36-3891-ae1b-42302b3b4307" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "d48e75f4-7ef2-3b4b-8146-397b433aa22b" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "7cca6f48-3df6-3792-bbd4-d156172a61cf" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "fd0184cd-b917-335e-abf0-cf10718ca549" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "a760c74a-d27a-3e56-a9ba-adb9061ace8d" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "ff0c3c0f-8972-39f7-a7dc-003adebce902" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "d22ad056-8cc2-3dbc-8f12-af3d4b9fb1cb" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "763d83ec-a728-3293-8a8e-7f232ed60342" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "5c4afa60-4c9a-3219-87ea-40fd99002f84" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "32b9e704-0c28-3aab-8722-98c63961c35d" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "0c6bd0f5-d526-3ee7-a635-cf3b15d31dd8" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "86576aa3-a71f-3b47-970c-b4a48c18abda" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "862133be-a2d8-3a39-a583-c259441e7fdf" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "6336494b-bb64-3042-a6e4-5d3b914e9b96" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "7bcda23e-4ef4-3c89-bd75-be83fcf86357" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "c20180e3-074c-3409-a7cb-ac35926810e5" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "bc5a85e3-66dd-3fef-8716-c8df8af2ba99" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "32dbd841-8b7b-32e5-8cdf-445e9f195cf2" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "23c0df89-6fed-302d-b991-01fda88d64cc" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "392195c4-efab-3945-829a-45e2b1d8f514" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "e6833740-65e9-34e4-bbbc-869587780f73" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "91496ea0-3d64-3f41-82c8-d091bcc04c81" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "389763de-d39c-3df5-a7c7-5c3294f16fd6" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "2ae43b16-20cc-35f2-8099-c517e75d46ea" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "a4670f55-cdd1-35e4-b1c9-7d773e92fde7" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "8757314c-41ab-383f-89ee-51177c4ae956" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "26412bd1-07ba-3946-81a8-2f3d8b594a1d" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "b85c713a-225c-3232-b2cc-a4313095ad66" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "89d67038-ef7b-3f5d-a86a-bc0658adc92f" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "92b69e88-d2fd-3fec-8265-cb49d9159506" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "e13615d3-3c28-3484-a52a-817e1443acb1" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "0581d377-7073-3cdf-bae2-0ec6f2b784bf" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "e5af0859-b4c4-34bd-b7c2-5436509890f3" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "dac0cc87-c83a-3704-a008-19b2371d7529" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "d60cee49-0cb3-3bcd-92b0-029c88bb437e" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "c8c66e6d-38ef-391a-a064-209473ad07c6" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "65d3b4d6-3f3b-3486-ae71-a66574c615da" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "e6eb1c69-c15c-3a4e-be23-223ba82179c7" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "4d0a12b7-86a4-3d14-888b-abaa98270a72" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "9d354324-7049-3304-a302-132d423b0a1b" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "e4f1b969-c0fe-30a6-9a60-edd63f5336b3" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "12b696ee-3024-3799-b66f-c28e3308540f" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "c61c889c-7492-3ab4-8196-992221ed8af6" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "a4651216-f4bf-3aca-a9ea-4f538c690eb6" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "eef43d2a-a8ef-3858-a6d2-0b8d3236e657" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "80bae26d-7231-3361-a397-987087a75704" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "17587d1e-41ea-3a83-8279-1f77c115df23" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "35fe632f-2598-386d-ae30-a6fed8fab9d3" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "e7a98f09-080c-38a2-abd6-a2ed5d2e4d92" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "f24fdde3-3b65-300f-b3b6-7d0e5250b957" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "2146d96b-cef8-32b4-889c-2a60e4972d28" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "dafc468d-8f5a-45c5-8b64-3643c652dbce" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "e4c63816-8d5f-3cc4-a06f-9cc7458d4a95" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "67c10219-d947-3df2-ad53-7fa0aa5746f0" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "24b37079-3ef0-3020-8808-e7c1db839f1b" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "9c65eca5-b721-32ba-b039-522b19df8f31" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "94b3c8fc-264b-3271-9391-58092d408032" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "05318a81-527f-312b-beb9-0fbd550e6c0c" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "0e8d2f84-8f1d-3198-b047-b03a134ce78e" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "ef0dfb02-fb01-3d80-ae96-78413b584978" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "4552adf9-27f7-37d8-8ab1-dad1fc9e42c2" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "a817234d-d91d-3711-83f8-e59322ab9d04" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "3bf53f24-5f76-364d-9cab-3b432beefca8" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "8b856d97-b3d1-3a90-af7d-f776a4536923" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "71931c5a-7f5d-36e6-9b0f-0c3f2a8ebd0f" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "0b7a2c6a-c201-39e5-990b-708cf5eac4e8" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "594e3a49-2a39-3df5-ad4a-1e2d93c6e25b" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "0aa7bb9e-5a0e-3f21-97c6-386236138a93" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "1d239e4b-af0a-39a9-a45d-b35c177235ad" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "d2e54aa7-bccc-3ea9-b507-fdf90ab324f3" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "f1f26f58-dd05-33b6-957d-53b1dd0ab848" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "6bb7aa15-3ecc-33be-94c4-a4fd968a8033" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "28ea89b2-9e05-3410-ae0c-456feabefd85" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "262ee3a3-4239-3a76-a09f-a6fb2bf24ed9" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "60f2fbbf-6359-3eed-a9c8-5153a7f1421b" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "d4317aed-90b5-3ffb-9c3d-fb9a773a4ad7" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "7a0141b9-6b29-320c-a600-a7e00c4f6a28" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "4347c052-18a7-3120-a510-227eea3c7081" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "15aed82b-3832-33be-99f1-3e64b8943923" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "27f107ca-5c2f-33c4-8e85-7d241cfcc1d7" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "f4a3d018-b961-3bdb-91a7-ecab9e62300d" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "a23a37e6-3d59-3f4b-b7a7-1f927d618313" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "61a1255c-4d4f-36b0-8873-881a18b64b03" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "2a1d0705-5b71-3edb-885a-676a91f71b89" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "fe123035-6dd0-31ea-9073-18cf7a3de959" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "2ea99ddd-6463-3088-8cb5-2f0c1450a0a3" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "2dc12936-d26b-32cb-8f1f-06e0ee2ced5c" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "64bdf888-22f4-3a67-a662-765b34cbea2e" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "54097b82-8800-3367-9392-6f4df6a2ad1e" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "5284a2b8-9ab4-32e2-95a4-3a69a660399b" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "17af322e-1889-3d34-bc21-7559cd23fb68" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "f1316113-aeaa-3eea-854d-85131b1a2f94" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "039fbf20-fa00-36d5-aade-e8ea4f55ef27" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "773df546-31ba-3aed-8dc3-0f95a16e42c3" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "6d37f0c4-4812-3c56-996d-43f324b954a3" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "67d27dfd-5a8c-391c-94f3-46ffb8b152b3" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "9051be90-ca73-3645-8a68-99acb4fa4867" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "fc7ad1cf-58ab-32b3-bc16-06a9c1cd4a68" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "cbb53dab-f947-37c6-b1d5-716385638299" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "4e32833e-ab95-3e77-91d1-92a514a75574" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "f869a399-097b-3c32-b546-c6e14ab8dcad" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "01d9fa0b-d2bd-314a-a84c-a892203f7032" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "659642f6-9b91-3b6d-86a9-17f26cd7b2f6" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "3ee2dcda-af13-3586-a18d-5889c0d4dbc3" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "71ef7067-cd37-38a0-bf3c-fd15b93a50d5" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "28a4c35a-63fd-39c9-b319-f35b5345e36a" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "e27da891-e48a-38e6-96ab-971f85631b91" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "f98798b9-a1da-304e-8cf6-637fbe97e6f3" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "3c85d2bd-8de2-3ebd-be7d-8f7b7c10eeeb" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "522457dd-d95d-391e-9368-5023ad38f3b9" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "c07e1dd8-bc74-3a95-96d8-7ea7085eba55" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "6bae6237-02c2-3c91-a30d-9f4d3b75b477" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "081501eb-a14c-3157-aaf1-c28c4d453f69" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "6d48c29e-1367-39b5-99b4-a628243d31c9" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "399009c9-b853-3def-81ee-8eae99361e22" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "2c7b4181-8da4-3bae-923e-8a14bfa4ecc7" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "4a796bc6-3482-35e4-b3b5-67ec78ae5ef9" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "b6246e00-fa5e-3b30-9adb-4b9526e4ede2" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "81b93c63-3db8-3677-83a3-2c44c51e492b" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "c44aa6f5-be99-3b9f-9eb5-70967f13005d" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "cd16cb4a-f484-3c94-bc62-5b0619ef4f33" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "cdb7ab65-b0da-39ae-9314-4629f423b27a" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "3e492f8d-d226-386c-b188-0fa5c1e3417e" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "520ee065-e2f0-3621-9507-fda37214d1a9" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "d87c76fa-791a-3c83-aafe-eab35cc0b8ec" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "532e60a6-8b52-3bf4-be26-d036011c47f5" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "9e73a9f1-3753-34e1-aac3-a81ab7a7585a" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "1ccff0e2-d7b3-3387-bc73-b779ef488d81" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          }
+        },
+        "remainingCount" : 190,
+        "uuids" : "2ea99ddd-6463-3088-8cb5-2f0c1450a0a3:STORY,ef0dfb02-fb01-3d80-ae96-78413b584978:STORY,0aa7bb9e-5a0e-3f21-97c6-386236138a93:STORY,ff0c3c0f-8972-39f7-a7dc-003adebce902:STORY,6b651354-40e4-339e-8703-143cecb78947:STORY,27f107ca-5c2f-33c4-8e85-7d241cfcc1d7:STORY,5e7c93d1-7951-37c9-8ef3-cef41a02a361:STORY,4347c052-18a7-3120-a510-227eea3c7081:STORY,81b93c63-3db8-3677-83a3-2c44c51e492b:STORY,3e492f8d-d226-386c-b188-0fa5c1e3417e:STORY,60f2fbbf-6359-3eed-a9c8-5153a7f1421b:STORY,d2e54aa7-bccc-3ea9-b507-fdf90ab324f3:STORY,32dbd841-8b7b-32e5-8cdf-445e9f195cf2:STORY,c0298592-a5a9-3e1b-b9ae-6f41c7e2e24f:STORY,71931c5a-7f5d-36e6-9b0f-0c3f2a8ebd0f:STORY,703ebb23-701e-3236-99cd-c7a503b67b88:STORY,7756723c-bd09-351c-84e2-800c358b2a35:STORY,763d83ec-a728-3293-8a8e-7f232ed60342:STORY,e27da891-e48a-38e6-96ab-971f85631b91:STORY,a817234d-d91d-3711-83f8-e59322ab9d04:STORY,d959ad89-a5ef-3979-b1b6-bab32af7459e:STORY,446fbde2-dba5-3dfc-8781-96fe813451de:STORY,cdb7ab65-b0da-39ae-9314-4629f423b27a:STORY,659642f6-9b91-3b6d-86a9-17f26cd7b2f6:STORY,c61c889c-7492-3ab4-8196-992221ed8af6:STORY,74429078-5654-3585-a611-0c04d15d973c:STORY,12b696ee-3024-3799-b66f-c28e3308540f:STORY,ab8ce108-fd2e-354b-9324-c4532e87e2c4:STORY,77984e48-7413-3b1b-8287-adc3ae8b47c2:STORY,3ee2dcda-af13-3586-a18d-5889c0d4dbc3:STORY,0581d377-7073-3cdf-bae2-0ec6f2b784bf:STORY,0b07ff90-994a-3e7a-ae63-9c05a385bc1f:STORY,71ef7067-cd37-38a0-bf3c-fd15b93a50d5:STORY,92b69e88-d2fd-3fec-8265-cb49d9159506:STORY,e4c63816-8d5f-3cc4-a06f-9cc7458d4a95:STORY,8757314c-41ab-383f-89ee-51177c4ae956:STORY,399009c9-b853-3def-81ee-8eae99361e22:STORY,0c6bd0f5-d526-3ee7-a635-cf3b15d31dd8:STORY,520ee065-e2f0-3621-9507-fda37214d1a9:STORY,532e60a6-8b52-3bf4-be26-d036011c47f5:STORY,65d3b4d6-3f3b-3486-ae71-a66574c615da:STORY,2005ade8-1163-364f-b0ed-80fdaba190c6:STORY,4ad0710f-7e6f-37dd-984c-343ae82f39a6:STORY,9e73a9f1-3753-34e1-aac3-a81ab7a7585a:STORY,1d239e4b-af0a-39a9-a45d-b35c177235ad:STORY,d87c76fa-791a-3c83-aafe-eab35cc0b8ec:STORY,5f643367-b211-388d-a6d9-87bb87b334a2:STORY,039fbf20-fa00-36d5-aade-e8ea4f55ef27:STORY,fd313179-b4e9-35fd-9c0e-a2784b398ee6:STORY,fe123035-6dd0-31ea-9073-18cf7a3de959:STORY,2fa1c342-f207-3b92-bae6-23635719f2a1:STORY,2ae43b16-20cc-35f2-8099-c517e75d46ea:STORY,15aed82b-3832-33be-99f1-3e64b8943923:STORY,522457dd-d95d-391e-9368-5023ad38f3b9:STORY,24b37079-3ef0-3020-8808-e7c1db839f1b:STORY,4c6a5bba-69d2-3a4c-8e6d-e173fcf863e6:STORY,c9bca23c-d8ad-37e7-8b18-628cfe3359a9:STORY,389763de-d39c-3df5-a7c7-5c3294f16fd6:STORY,67c10219-d947-3df2-ad53-7fa0aa5746f0:STORY,9c65eca5-b721-32ba-b039-522b19df8f31:STORY,d5b42a77-af36-3891-ae1b-42302b3b4307:STORY,3e81c11c-80a4-3479-82de-697ed095e54b:STORY,b11b35a9-0b65-3892-817a-437a79e85290:STORY,db3d19a5-b467-3c68-9fa6-a834040f6cfa:STORY,5284a2b8-9ab4-32e2-95a4-3a69a660399b:STORY,17af322e-1889-3d34-bc21-7559cd23fb68:STORY,4dfa3a06-352a-4eda-93d2-d17f3bb13a66:VIDEO,cd16cb4a-f484-3c94-bc62-5b0619ef4f33:STORY,29c3ad3b-b636-3ab5-bb09-c276cff4845d:STORY,2a1d0705-5b71-3edb-885a-676a91f71b89:STORY,a61e9328-1211-318b-a627-7fcac590b212:STORY,f1a7689e-40b7-3082-8f4a-03accd12e2b7:STORY,c934c38d-596b-3bb4-a72f-5b2679c00704:STORY,1ccff0e2-d7b3-3387-bc73-b779ef488d81:STORY,862133be-a2d8-3a39-a583-c259441e7fdf:STORY,fd0184cd-b917-335e-abf0-cf10718ca549:STORY,c8c66e6d-38ef-391a-a064-209473ad07c6:STORY,61a1255c-4d4f-36b0-8873-881a18b64b03:STORY,13d4ed29-2a20-3d4d-a04a-8ef586e2a321:STORY,a760c74a-d27a-3e56-a9ba-adb9061ace8d:STORY,23c0df89-6fed-302d-b991-01fda88d64cc:STORY,e6eb1c69-c15c-3a4e-be23-223ba82179c7:STORY,599cf3c4-c5ee-34c8-9c3c-2de8a51392c6:STORY,83b44021-d2c7-3169-8ad2-aefd829df56c:STORY,6bae6237-02c2-3c91-a30d-9f4d3b75b477:STORY,0b7a2c6a-c201-39e5-990b-708cf5eac4e8:STORY,05318a81-527f-312b-beb9-0fbd550e6c0c:STORY,e6833740-65e9-34e4-bbbc-869587780f73:STORY,0c6c6b7e-ca93-4f21-85c3-99d565f5a283:STORY,8384a337-1a0e-4e56-a654-042020a59caa:VIDEO,3bf53f24-5f76-364d-9cab-3b432beefca8:STORY,9051be90-ca73-3645-8a68-99acb4fa4867:STORY,3c85d2bd-8de2-3ebd-be7d-8f7b7c10eeeb:STORY,9d354324-7049-3304-a302-132d423b0a1b:STORY,67d27dfd-5a8c-391c-94f3-46ffb8b152b3:STORY,c07e1dd8-bc74-3a95-96d8-7ea7085eba55:STORY,84f34ace-a9a8-34e9-8808-d2418bf17d62:STORY,0e8d2f84-8f1d-3198-b047-b03a134ce78e:STORY,773df546-31ba-3aed-8dc3-0f95a16e42c3:STORY,b85c713a-225c-3232-b2cc-a4313095ad66:STORY,6bb7aa15-3ecc-33be-94c4-a4fd968a8033:STORY,35fe632f-2598-386d-ae30-a6fed8fab9d3:STORY,89d67038-ef7b-3f5d-a86a-bc0658adc92f:STORY,4552adf9-27f7-37d8-8ab1-dad1fc9e42c2:STORY,7bcda23e-4ef4-3c89-bd75-be83fcf86357:STORY,7ebfdb57-47a7-4a02-a808-ecc4aeb7d7a1:VIDEO,dafc468d-8f5a-45c5-8b64-3643c652dbce:VIDEO,32b9e704-0c28-3aab-8722-98c63961c35d:STORY,932d7078-0570-4d2b-9394-aae7cebbb5df:VIDEO,75e6112a-6be7-3c0e-b6cf-9efd1f9e4030:STORY,af9ece8e-ee6b-3908-aa4f-bf88c17f1369:STORY,e7a98f09-080c-38a2-abd6-a2ed5d2e4d92:STORY,5c4afa60-4c9a-3219-87ea-40fd99002f84:STORY,d3d65b6a-fb82-42b5-8983-e576be57db92:STORY,54097b82-8800-3367-9392-6f4df6a2ad1e:STORY,7cca6f48-3df6-3792-bbd4-d156172a61cf:STORY,9677119e-4e17-3f2e-9a3a-8baff3f430cf:STORY,f24fdde3-3b65-300f-b3b6-7d0e5250b957:STORY,bc5a85e3-66dd-3fef-8716-c8df8af2ba99:STORY,fc7ad1cf-58ab-32b3-bc16-06a9c1cd4a68:STORY,f869a399-097b-3c32-b546-c6e14ab8dcad:STORY,594e3a49-2a39-3df5-ad4a-1e2d93c6e25b:STORY,9f630677-8840-319d-b6ea-ea20484dfc16:STORY,d22ad056-8cc2-3dbc-8f12-af3d4b9fb1cb:STORY,e4f1b969-c0fe-30a6-9a60-edd63f5336b3:STORY,2747c77d-ae0c-380f-84eb-f5ac9308d0c7:STORY,99783a45-fa2b-3658-a16d-9ecb23f8c3a9:STORY,d60cee49-0cb3-3bcd-92b0-029c88bb437e:STORY,1be6b5d8-b953-327f-8955-812ffad51999:STORY,d4317aed-90b5-3ffb-9c3d-fb9a773a4ad7:STORY,1eebe253-871e-3206-b841-9aa38d0a9f54:STORY,a92a5148-577d-3ea3-a39f-036fd382ab19:STORY,4a796bc6-3482-35e4-b3b5-67ec78ae5ef9:STORY,01d9fa0b-d2bd-314a-a84c-a892203f7032:STORY,c44aa6f5-be99-3b9f-9eb5-70967f13005d:STORY,eef43d2a-a8ef-3858-a6d2-0b8d3236e657:STORY,a4670f55-cdd1-35e4-b1c9-7d773e92fde7:STORY,e13615d3-3c28-3484-a52a-817e1443acb1:STORY,2dc12936-d26b-32cb-8f1f-06e0ee2ced5c:STORY,fdce35b5-37c9-3fe1-a474-3ddf06f4cbb7:STORY,ad88b7a0-56a7-3b99-a10c-65d20e102397:STORY,f1f26f58-dd05-33b6-957d-53b1dd0ab848:STORY,cbb53dab-f947-37c6-b1d5-716385638299:STORY,2146d96b-cef8-32b4-889c-2a60e4972d28:STORY,29d09feb-cb75-3e7c-a25f-2c44214d5858:STORY,8b856d97-b3d1-3a90-af7d-f776a4536923:STORY,262ee3a3-4239-3a76-a09f-a6fb2bf24ed9:STORY,b6246e00-fa5e-3b30-9adb-4b9526e4ede2:STORY,081501eb-a14c-3157-aaf1-c28c4d453f69:STORY,28ea89b2-9e05-3410-ae0c-456feabefd85:STORY,a2ef37b9-a13a-35e3-bad8-c717a7752472:STORY,9eaadca5-d49f-30e8-94a3-eafa32a9a8fb:STORY,d48e75f4-7ef2-3b4b-8146-397b433aa22b:STORY,a4651216-f4bf-3aca-a9ea-4f538c690eb6:STORY,7a0141b9-6b29-320c-a600-a7e00c4f6a28:STORY,80bae26d-7231-3361-a397-987087a75704:STORY,0ecd2fa4-16f1-3ec6-ba47-6e64f2aed4f9:STORY,6d37f0c4-4812-3c56-996d-43f324b954a3:STORY,6d48c29e-1367-39b5-99b4-a628243d31c9:STORY,c20180e3-074c-3409-a7cb-ac35926810e5:STORY,86576aa3-a71f-3b47-970c-b4a48c18abda:STORY,392195c4-efab-3945-829a-45e2b1d8f514:STORY,f98798b9-a1da-304e-8cf6-637fbe97e6f3:STORY,9b651b1d-3558-3ae0-8779-a49b6a2b2569:STORY,4d0a12b7-86a4-3d14-888b-abaa98270a72:STORY,dac0cc87-c83a-3704-a008-19b2371d7529:STORY,05bbaa61-2b52-36ed-af87-83a35934421f:STORY,a090d75c-f4f1-3203-b862-179ac5b70cd8:STORY,2c7b4181-8da4-3bae-923e-8a14bfa4ecc7:STORY,a23a37e6-3d59-3f4b-b7a7-1f927d618313:STORY,64bdf888-22f4-3a67-a662-765b34cbea2e:STORY,f1316113-aeaa-3eea-854d-85131b1a2f94:STORY,c98491e7-52ff-31be-a8db-6f53718eb780:STORY,f4a3d018-b961-3bdb-91a7-ecab9e62300d:STORY,b8eae4aa-f7ed-33bb-9966-deffb558b2ed:STORY,28a4c35a-63fd-39c9-b319-f35b5345e36a:STORY,94b3c8fc-264b-3271-9391-58092d408032:STORY,17587d1e-41ea-3a83-8279-1f77c115df23:STORY,cf64edcb-cb7f-3e52-b49c-4bc0d56a7b70:STORY,7f16a21f-2d45-3169-90ad-b2f99059fda0:STORY,4e32833e-ab95-3e77-91d1-92a514a75574:STORY,91496ea0-3d64-3f41-82c8-d091bcc04c81:STORY,26412bd1-07ba-3946-81a8-2f3d8b594a1d:STORY,82153cc2-3bf7-3648-af0e-b38a69f27278:STORY,3a148e4a-4fc8-305d-aa0c-c6a0200feafc:STORY,26b80483-5474-3452-aae6-4633a5dfd975:STORY,6336494b-bb64-3042-a6e4-5d3b914e9b96:STORY,5f8679ff-0c38-386f-b8d3-a4f12b54984c:STORY,5a986735-1f2e-34ac-b5c6-93f0ecdb324a:STORY,e5af0859-b4c4-34bd-b7c2-5436509890f3:STORY"
+      },
+      "nextPage" : true,
+      "stream" : [ {
+        "id" : "8f4828bf-8d97-4abf-b0bd-37602ea1a93c",
+        "content" : {
+          "id" : "8f4828bf-8d97-4abf-b0bd-37602ea1a93c",
+          "contentType" : "VIDEO",
+          "title" : "Apple's new CEO John Ternus plans on making some changes",
+          "description" : "<p>The 8:30 Hosts Julie Hyman, Pras Subramanian, and Jake Conley discuss the changes Apple's (<a target=\"_blank\" rel=\"\" class=\"link\" href=\"https://finance.yahoo.com/quote/AAPL/\" data-i13n=\"slk:AAPL;cpos:1;pos:1\">AAPL</a>) new CEO, John Ternus, is expected to make as he takes the reins — and what his leadership could mean for the company's products, strategy, and future.</p>",
+          "summary" : "The 8:30 Hosts Julie Hyman, Pras Subramanian, and Jake Conley discuss the changes Apple's (AAPL) new CEO, John Ternus, is expected to make as he takes the reins — and what his leadership could mean for the company's products, strategy, and future.",
+          "pubDate" : "2026-09-30T13:57:00Z",
+          "displayTime" : "",
+          "isHosted" : true,
+          "bypassModal" : false,
+          "previewUrl" : null,
+          "thumbnail" : {
+            "originalUrl" : "https://s.yimg.com/uu/api/res/1.2/NjTv3WAdaK4EBp7a6oXwdg--~B/aD01MzQ2O3c9NzkwMjthcHBpZD15dGFjaHlvbg--/https://d29szjachogqwa.cloudfront.net/images/2026-09/9904c6f8-2a0f-4885-bf59-f235a343dd07",
+            "originalWidth" : 7902,
+            "originalHeight" : 5346,
+            "caption" : "",
+            "resolutions" : [ {
+              "url" : "https://s.yimg.com/uu/api/res/1.2/NjTv3WAdaK4EBp7a6oXwdg--~B/aD01MzQ2O3c9NzkwMjthcHBpZD15dGFjaHlvbg--/https://d29szjachogqwa.cloudfront.net/images/2026-09/9904c6f8-2a0f-4885-bf59-f235a343dd07",
+              "width" : 7902,
+              "height" : 5346,
+              "tag" : "original"
+            }, {
+              "url" : "https://s.yimg.com/uu/api/res/1.2/Fi9MRG0.Hc_YFxNkX64gpQ--~B/Zmk9c3RyaW07aD0xMjg7dz0xNzA7YXBwaWQ9eXRhY2h5b24-/https://d29szjachogqwa.cloudfront.net/images/2026-09/9904c6f8-2a0f-4885-bf59-f235a343dd07",
+              "width" : 170,
+              "height" : 128,
+              "tag" : "170x128"
+            } ]
+          },
+          "provider" : {
+            "displayName" : "Yahoo Finance Video",
+            "url" : "https://finance.yahoo.com/",
+            "sourceId" : "video.yahoofinance.com"
+          },
+          "canonicalUrl" : {
+            "url" : "https://finance.yahoo.com/video/apples-ceo-john-ternus-plans-135700100.html",
+            "site" : "finance",
+            "region" : "US",
+            "lang" : "en-US"
+          },
+          "clickThroughUrl" : {
+            "url" : "https://finance.yahoo.com/video/apples-ceo-john-ternus-plans-135700100.html",
+            "site" : "finance",
+            "region" : "US",
+            "lang" : "en-US"
+          },
+          "metadata" : {
+            "editorsPick" : true
+          },
+          "finance" : {
+            "premiumFinance" : {
+              "isPremiumNews" : false,
+              "isPremiumFreeNews" : false
+            }
+          },
+          "storyline" : null
+        }
+      }, {
+        "id" : "18a58151-08bc-452d-9b4f-b049199ef94b",
+        "content" : {
+          "id" : "18a58151-08bc-452d-9b4f-b049199ef94b",
+          "contentType" : "VIDEO",
+          "title" : "OpenAI is releasing newer models faster. Is that a good thing?",
+          "description" : "<p>The 8:30 Hosts Julie Hyman, Pras Subramanian, and Jake Conley break down OpenAI's (<a target=\"_blank\" rel=\"\" class=\"link\" href=\"https://finance.yahoo.com/quote/OPAI.PVT/\" data-i13n=\"cpos:1;pos:1\">OPAI.PVT</a>) DevDay, the unveiling of its new AI agent, Dots, and the company's more frequent model releases. </p>",
+          "summary" : "The 8:30 Hosts Julie Hyman, Pras Subramanian, and Jake Conley break down OpenAI's (OPAI.PVT) DevDay, the unveiling of its new AI agent, Dots, and the company's more frequent model releases.",
+          "pubDate" : "2026-09-30T13:30:03Z",
+          "displayTime" : "",
+          "isHosted" : true,
+          "bypassModal" : false,
+          "previewUrl" : null,
+          "thumbnail" : {
+            "originalUrl" : "https://s.yimg.com/uu/api/res/1.2/hXZqlR6HEurJsriVxTTxzQ--~B/aD04Mjg7dz0xNDcyO2FwcGlkPXl0YWNoeW9u/https://d29szjachogqwa.cloudfront.net/images/user-uploaded/video-frame-1790774787134_4063.jpg_6639ffaa0ef4a96449a2342debbda99e5ebd3e6984b04300db11582009f2fd97.jpg",
+            "originalWidth" : 1472,
+            "originalHeight" : 828,
+            "caption" : "",
+            "resolutions" : [ {
+              "url" : "https://s.yimg.com/uu/api/res/1.2/hXZqlR6HEurJsriVxTTxzQ--~B/aD04Mjg7dz0xNDcyO2FwcGlkPXl0YWNoeW9u/https://d29szjachogqwa.cloudfront.net/images/user-uploaded/video-frame-1790774787134_4063.jpg_6639ffaa0ef4a96449a2342debbda99e5ebd3e6984b04300db11582009f2fd97.jpg",
+              "width" : 1472,
+              "height" : 828,
+              "tag" : "original"
+            }, {
+              "url" : "https://s.yimg.com/uu/api/res/1.2/AofGjJNBOFOy7ifQM51WyQ--~B/Zmk9c3RyaW07aD0xMjg7dz0xNzA7YXBwaWQ9eXRhY2h5b24-/https://d29szjachogqwa.cloudfront.net/images/user-uploaded/video-frame-1790774787134_4063.jpg_6639ffaa0ef4a96449a2342debbda99e5ebd3e6984b04300db11582009f2fd97.jpg",
+              "width" : 170,
+              "height" : 128,
+              "tag" : "170x128"
+            } ]
+          },
+          "provider" : {
+            "displayName" : "Yahoo Finance Video",
+            "url" : "https://finance.yahoo.com/",
+            "sourceId" : "video.yahoofinance.com"
+          },
+          "canonicalUrl" : {
+            "url" : "https://finance.yahoo.com/video/openai-releasing-newer-models-faster-133003219.html",
+            "site" : "finance",
+            "region" : "US",
+            "lang" : "en-US"
+          },
+          "clickThroughUrl" : {
+            "url" : "https://finance.yahoo.com/video/openai-releasing-newer-models-faster-133003219.html",
+            "site" : "finance",
+            "region" : "US",
+            "lang" : "en-US"
+          },
+          "metadata" : {
+            "editorsPick" : true
+          },
+          "finance" : {
+            "premiumFinance" : {
+              "isPremiumNews" : false,
+              "isPremiumFreeNews" : false
+            }
+          },
+          "storyline" : null
+        }
+      }, {
+        "id" : "72dc4b58-5a05-3d05-acd0-01f77a2bd197",
+        "content" : {
+          "id" : "72dc4b58-5a05-3d05-acd0-01f77a2bd197",
+          "contentType" : "STORY",
+          "title" : "Jim Cramer Says 'Buy' Apple Stock Because of iPhone Duo, Not On Smart Home Device Buzz: Calls the $1,999 Foldable 'Amazing'",
+          "description" : "",
+          "summary" : "On Wednesday, Jim Cramer asked investors to buy Apple Inc. (NASDAQ:AAPL) for its \"AMAZING\" iPhone Duo. Cupertino shares gained 1.1% during regular hours, then reached $334.25 in after-hours trading, up 0.37%, according to Benzinga Pro. Cramer Urges Investors to Buy Apple Stock Taking to X, Cramer said, \"Buy the stock of Apple because of the DUO, not smart home… Duo is AMAZING.\" Priced at 1,999, iPhone Duo will become available in the U.S. on Oct. 23, with pre-orders opening on Oct. 16. Buy the s",
+          "pubDate" : "2026-10-01T07:16:54Z",
+          "displayTime" : "2026-10-01T07:16:54Z",
+          "isHosted" : true,
+          "bypassModal" : false,
+          "previewUrl" : null,
+          "thumbnail" : {
+            "originalUrl" : "https://media.zenfs.com/en/Benzinga/2db04d72926856621b09188bf2158605.jpg",
+            "originalWidth" : 1920,
+            "originalHeight" : 1080,
+            "caption" : "",
+            "resolutions" : [ {
+              "url" : "https://s.yimg.com/uu/api/res/1.2/4GucpT76NYTQvag77JpSjg--~B/aD0xMDgwO3c9MTkyMDthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/Benzinga/2db04d72926856621b09188bf2158605.jpg",
+              "width" : 1920,
+              "height" : 1080,
+              "tag" : "original"
+            }, {
+              "url" : "https://s.yimg.com/uu/api/res/1.2/BTSNTRHurmR9mbmEw0V8JQ--~B/Zmk9c3RyaW07aD0xMjg7dz0xNzA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/Benzinga/2db04d72926856621b09188bf2158605.jpg",
+              "width" : 170,
+              "height" : 128,
+              "tag" : "170x128"
+            } ]
+          },
+          "provider" : {
+            "displayName" : "Benzinga",
+            "url" : "http://www.benzinga.com/",
+            "sourceId" : "Benzinga"
+          },
+          "canonicalUrl" : {
+            "url" : "https://finance.yahoo.com/markets/stocks/articles/jim-cramer-says-buy-apple-071654391.html",
+            "site" : "finance",
+            "region" : "US",
+            "lang" : "en-US"
+          },
+          "clickThroughUrl" : {
+            "url" : "https://finance.yahoo.com/markets/stocks/articles/jim-cramer-says-buy-apple-071654391.html",
+            "site" : "finance",
+            "region" : "US",
+            "lang" : "en-US"
+          },
+          "metadata" : {
+            "editorsPick" : false
+          },
+          "finance" : {
+            "premiumFinance" : {
+              "isPremiumNews" : false,
+              "isPremiumFreeNews" : false
+            }
+          },
+          "storyline" : null
+        }
+      }, {
+        "id" : "28b9cb57-ecf6-3a30-a084-03d42662e487",
+        "content" : {
+          "id" : "28b9cb57-ecf6-3a30-a084-03d42662e487",
+          "contentType" : "STORY",
+          "title" : "Apple Predicted To Sell 6 Million iPhone Duo Handsets This Year",
+          "description" : "",
+          "summary" : "Apple is poised to sell 6 million units of the iPhone Duo, its first folding-screen smartphone, Counterpoint Research says. Apple stock rose.",
+          "pubDate" : "2026-09-30T21:06:15Z",
+          "displayTime" : "2026-09-30T21:06:15Z",
+          "isHosted" : false,
+          "bypassModal" : false,
+          "previewUrl" : "https://finance.yahoo.com/m/28b9cb57-ecf6-3a30-a084-03d42662e487/apple-predicted-to-sell-6.html",
+          "thumbnail" : {
+            "originalUrl" : "https://media.zenfs.com/en/ibd.com/a6dc066c325a0c531f54e7d9f4737e99.jpg",
+            "originalWidth" : 1000,
+            "originalHeight" : 563,
+            "caption" : "",
+            "resolutions" : [ {
+              "url" : "https://s.yimg.com/uu/api/res/1.2/W.jRbdEWMlxZqrwksPePbA--~B/aD01NjM7dz0xMDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/ibd.com/a6dc066c325a0c531f54e7d9f4737e99.jpg",
+              "width" : 1000,
+              "height" : 563,
+              "tag" : "original"
+            }, {
+              "url" : "https://s.yimg.com/uu/api/res/1.2/C.BnLZzRpDYhmC3ymDRNyg--~B/Zmk9c3RyaW07aD0xMjg7dz0xNzA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/ibd.com/a6dc066c325a0c531f54e7d9f4737e99.jpg",
+              "width" : 170,
+              "height" : 128,
+              "tag" : "170x128"
+            } ]
+          },
+          "provider" : {
+            "displayName" : "Investor's Business Daily",
+            "url" : "http://www.investors.com/",
+            "sourceId" : "ibd.com"
+          },
+          "canonicalUrl" : {
+            "url" : "https://www.investors.com/news/technology/apple-stock-aapl-iphone-duo-2026-sales-forecast/?src=A00220&yptr=yahoo",
+            "site" : "finance",
+            "region" : "US",
+            "lang" : "en-US"
+          },
+          "clickThroughUrl" : null,
+          "metadata" : {
+            "editorsPick" : false
+          },
+          "finance" : {
+            "premiumFinance" : {
+              "isPremiumNews" : false,
+              "isPremiumFreeNews" : false
+            }
+          },
+          "storyline" : null
+        }
+      }, {
+        "id" : "abad5bc8-3bcf-36a6-9e23-0c15c2107b86",
+        "content" : {
+          "id" : "abad5bc8-3bcf-36a6-9e23-0c15c2107b86",
+          "contentType" : "STORY",
+          "title" : "S&P 500 dips, Nasdaq higher after data shows moderate inflation rise",
+          "description" : "",
+          "summary" : "By Chuck Mikolajczak and Shashwat Chauhan NEW YORK, Sept 30 (Reuters) - Nasdaq climbed on Wednesday and the S&P 500 dipped, but both indexes notched their second straight quarterly gains, as a softer-",
+          "pubDate" : "2026-09-30T20:35:11Z",
+          "displayTime" : "2026-09-30T20:35:11Z",
+          "isHosted" : true,
+          "bypassModal" : false,
+          "previewUrl" : null,
+          "thumbnail" : {
+            "originalUrl" : "https://media.zenfs.com/en/reuters.com/b00e4893fcd896430d9dd3c54b4568b4.jpg",
+            "originalWidth" : 800,
+            "originalHeight" : 533,
+            "caption" : "Traders work on the floor at the New York Stock Exchange (NYSE) in New York City, U.S., September 29, 2026. REUTERS/Jeenah Moon",
+            "resolutions" : [ {
+              "url" : "https://s.yimg.com/uu/api/res/1.2/h.GfIiUtUaCbJxfpyi7Btg--~B/aD01MzM7dz04MDA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/reuters.com/b00e4893fcd896430d9dd3c54b4568b4.jpg",
+              "width" : 800,
+              "height" : 533,
+              "tag" : "original"
+            }, {
+              "url" : "https://s.yimg.com/uu/api/res/1.2/NW4M3b5ohVFMrpe2rCa.AQ--~B/Zmk9c3RyaW07aD0xMjg7dz0xNzA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/reuters.com/b00e4893fcd896430d9dd3c54b4568b4.jpg",
+              "width" : 170,
+              "height" : 128,
+              "tag" : "170x128"
+            } ]
+          },
+          "provider" : {
+            "displayName" : "Reuters",
+            "url" : "https://www.reuters.com/",
+            "sourceId" : "reuters.com"
+          },
+          "canonicalUrl" : {
+            "url" : "https://finance.yahoo.com/markets/stocks/articles/us-stock-futures-slip-ahead-113432814.html",
+            "site" : "finance",
+            "region" : "US",
+            "lang" : "en-US"
+          },
+          "clickThroughUrl" : {
+            "url" : "https://finance.yahoo.com/markets/stocks/articles/us-stock-futures-slip-ahead-113432814.html",
+            "site" : "finance",
+            "region" : "US",
+            "lang" : "en-US"
+          },
+          "metadata" : {
+            "editorsPick" : false
+          },
+          "finance" : {
+            "premiumFinance" : {
+              "isPremiumNews" : false,
+              "isPremiumFreeNews" : false
+            }
+          },
+          "storyline" : null
+        }
+      }, {
+        "id" : "fc7d19f6-6564-3f53-95f0-3bdb2c04d1a5",
+        "content" : {
+          "id" : "fc7d19f6-6564-3f53-95f0-3bdb2c04d1a5",
+          "contentType" : "STORY",
+          "title" : "What Is The Case For Waiting On Qualcomm Stock?",
+          "description" : "",
+          "summary" : "Qualcomm (QCOM) stock is up 46% over six months. It still trades about 26% below its high of the past year. At 21 times earnings, about the market's level, the price appears to assume Qualcomm keeps growing as Apple sales shrink. Qualcomm plans to fill that gap with car and data center chips, and is raising prices as memory costs climb. Both plans are under way. So is there a case for waiting before you buy Qualcomm.",
+          "pubDate" : "2026-09-30T18:51:54Z",
+          "displayTime" : "2026-09-30T18:51:54Z",
+          "isHosted" : true,
+          "bypassModal" : false,
+          "previewUrl" : null,
+          "thumbnail" : {
+            "originalUrl" : "https://media.zenfs.com/en/trefis_142/819c7c9a1e17ab2ee1c33e599bcc2465.jpg",
+            "originalWidth" : 1280,
+            "originalHeight" : 853,
+            "caption" : "",
+            "resolutions" : [ {
+              "url" : "https://s.yimg.com/uu/api/res/1.2/SGH1bXAkIuRtzBv_ux2mxA--~B/aD04NTM7dz0xMjgwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/trefis_142/819c7c9a1e17ab2ee1c33e599bcc2465.jpg",
+              "width" : 1280,
+              "height" : 853,
+              "tag" : "original"
+            }, {
+              "url" : "https://s.yimg.com/uu/api/res/1.2/FWedEB5uKS5hXxfCjEqXuA--~B/Zmk9c3RyaW07aD0xMjg7dz0xNzA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/trefis_142/819c7c9a1e17ab2ee1c33e599bcc2465.jpg",
+              "width" : 170,
+              "height" : 128,
+              "tag" : "170x128"
+            } ]
+          },
+          "provider" : {
+            "displayName" : "Trefis",
+            "url" : "https://www.trefis.com/",
+            "sourceId" : "trefis_142"
+          },
+          "canonicalUrl" : {
+            "url" : "https://www.trefis.com/articles/617167/what-is-the-case-for-waiting-on-qualcomm-stock/2026-09-30",
+            "site" : "finance",
+            "region" : "US",
+            "lang" : "en-US"
+          },
+          "clickThroughUrl" : {
+            "url" : "https://finance.yahoo.com/markets/stocks/articles/case-waiting-qualcomm-stock-185154269.html",
+            "site" : "finance",
+            "region" : "US",
+            "lang" : "en-US"
+          },
+          "metadata" : {
+            "editorsPick" : false
+          },
+          "finance" : {
+            "premiumFinance" : {
+              "isPremiumNews" : false,
+              "isPremiumFreeNews" : false
+            }
+          },
+          "storyline" : null
+        }
+      }, {
+        "id" : "fb5ee3d0-2a54-3217-a90d-5900322f754a",
+        "content" : {
+          "id" : "fb5ee3d0-2a54-3217-a90d-5900322f754a",
+          "contentType" : "STORY",
+          "title" : "New Apple CEO Makes Surprising Move After Tim Cook Exit",
+          "description" : "",
+          "summary" : "A familiar playbook may be nearing its biggest overhaul",
+          "pubDate" : "2026-09-30T18:04:43Z",
+          "displayTime" : "2026-09-30T18:04:43Z",
+          "isHosted" : true,
+          "bypassModal" : false,
+          "previewUrl" : null,
+          "thumbnail" : null,
+          "provider" : {
+            "displayName" : "GuruFocus.com",
+            "url" : "http://www.gurufocus.com/",
+            "sourceId" : "us.finance.gurufocus"
+          },
+          "canonicalUrl" : {
+            "url" : "https://finance.yahoo.com/markets/stocks/articles/apple-ceo-makes-surprising-move-180443018.html",
+            "site" : "finance",
+            "region" : "US",
+            "lang" : "en-US"
+          },
+          "clickThroughUrl" : {
+            "url" : "https://finance.yahoo.com/markets/stocks/articles/apple-ceo-makes-surprising-move-180443018.html",
+            "site" : "finance",
+            "region" : "US",
+            "lang" : "en-US"
+          },
+          "metadata" : {
+            "editorsPick" : false
+          },
+          "finance" : {
+            "premiumFinance" : {
+              "isPremiumNews" : false,
+              "isPremiumFreeNews" : false
+            }
+          },
+          "storyline" : null
+        }
+      }, {
+        "id" : "72d29562-b456-3ba6-9089-dfb27d22f500",
+        "content" : {
+          "id" : "72d29562-b456-3ba6-9089-dfb27d22f500",
+          "contentType" : "STORY",
+          "title" : "Apple, Alphabet, Nvidia Lead Powerful Tech Rally as Rate Fears Fade",
+          "description" : "",
+          "summary" : "Magnificent Seven Stocks Power Higher as Investors Bet on Lower Rates",
+          "pubDate" : "2026-09-30T17:58:03Z",
+          "displayTime" : "2026-09-30T17:58:03Z",
+          "isHosted" : true,
+          "bypassModal" : false,
+          "previewUrl" : null,
+          "thumbnail" : null,
+          "provider" : {
+            "displayName" : "GuruFocus.com",
+            "url" : "http://www.gurufocus.com/",
+            "sourceId" : "us.finance.gurufocus"
+          },
+          "canonicalUrl" : {
+            "url" : "https://finance.yahoo.com/markets/stocks/articles/apple-alphabet-nvidia-lead-powerful-175803008.html",
+            "site" : "finance",
+            "region" : "US",
+            "lang" : "en-US"
+          },
+          "clickThroughUrl" : {
+            "url" : "https://finance.yahoo.com/markets/stocks/articles/apple-alphabet-nvidia-lead-powerful-175803008.html",
+            "site" : "finance",
+            "region" : "US",
+            "lang" : "en-US"
+          },
+          "metadata" : {
+            "editorsPick" : false
+          },
+          "finance" : {
+            "premiumFinance" : {
+              "isPremiumNews" : false,
+              "isPremiumFreeNews" : false
+            }
+          },
+          "storyline" : null
+        }
+      }, {
+        "id" : "f0c0a255-852c-311f-a66a-111ee779e0cc",
+        "content" : {
+          "id" : "f0c0a255-852c-311f-a66a-111ee779e0cc",
+          "contentType" : "STORY",
+          "title" : "Why Apple Stock Is Climbing Today",
+          "description" : "",
+          "summary" : "Apple is reportedly preparing a new home hub alongside updated HomePod and Apple TV devices for an October launch",
+          "pubDate" : "2026-09-30T17:54:13Z",
+          "displayTime" : "2026-09-30T17:54:13Z",
+          "isHosted" : true,
+          "bypassModal" : false,
+          "previewUrl" : null,
+          "thumbnail" : null,
+          "provider" : {
+            "displayName" : "GuruFocus.com",
+            "url" : "http://www.gurufocus.com/",
+            "sourceId" : "us.finance.gurufocus"
+          },
+          "canonicalUrl" : {
+            "url" : "https://finance.yahoo.com/markets/stocks/articles/why-apple-stock-climbing-today-175413500.html",
+            "site" : "finance",
+            "region" : "US",
+            "lang" : "en-US"
+          },
+          "clickThroughUrl" : {
+            "url" : "https://finance.yahoo.com/markets/stocks/articles/why-apple-stock-climbing-today-175413500.html",
+            "site" : "finance",
+            "region" : "US",
+            "lang" : "en-US"
+          },
+          "metadata" : {
+            "editorsPick" : false
+          },
+          "finance" : {
+            "premiumFinance" : {
+              "isPremiumNews" : false,
+              "isPremiumFreeNews" : false
+            }
+          },
+          "storyline" : null
+        }
+      }, {
+        "id" : "091ec086-02ec-323b-bcef-c531fd214480",
+        "content" : {
+          "id" : "091ec086-02ec-323b-bcef-c531fd214480",
+          "contentType" : "STORY",
+          "title" : "How Much Upside Is Left In Microsoft Stock?",
+          "description" : "",
+          "summary" : "Microsoft (MSFT) shares returned 37% over the past three months, against 2.6% for the S&P 500. Even so, Microsoft's P/E, the price divided by a year of profit, is 28.3. That is below 31.8, the stock's average at the last twelve quarter-ends, leaving out readings above 100. A run that big makes buyers wary, but the shares cost less per dollar of profit than usual. So how much upside is left in Microsoft stock at today's price.",
+          "pubDate" : "2026-09-30T17:26:50Z",
+          "displayTime" : "2026-09-30T17:26:50Z",
+          "isHosted" : true,
+          "bypassModal" : false,
+          "previewUrl" : null,
+          "thumbnail" : {
+            "originalUrl" : "https://media.zenfs.com/en/trefis_142/006a41f0afe5e5a832d7e7d9e9067f82.jpg",
+            "originalWidth" : 1920,
+            "originalHeight" : 1152,
+            "caption" : "",
+            "resolutions" : [ {
+              "url" : "https://s.yimg.com/uu/api/res/1.2/cck1xvDO9l_ibx2F7XgFYw--~B/aD0xMTUyO3c9MTkyMDthcHBpZD15dGFjaHlvbg--/https://media.zenfs.com/en/trefis_142/006a41f0afe5e5a832d7e7d9e9067f82.jpg",
+              "width" : 1920,
+              "height" : 1152,
+              "tag" : "original"
+            }, {
+              "url" : "https://s.yimg.com/uu/api/res/1.2/rNzAn7xZGs8Bp2KN1L18aw--~B/Zmk9c3RyaW07aD0xMjg7dz0xNzA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/trefis_142/006a41f0afe5e5a832d7e7d9e9067f82.jpg",
+              "width" : 170,
+              "height" : 128,
+              "tag" : "170x128"
+            } ]
+          },
+          "provider" : {
+            "displayName" : "Trefis",
+            "url" : "https://www.trefis.com/",
+            "sourceId" : "trefis_142"
+          },
+          "canonicalUrl" : {
+            "url" : "https://www.trefis.com/articles/617147/how-much-upside-is-left-in-microsoft-stock/2026-09-30",
+            "site" : "finance",
+            "region" : "US",
+            "lang" : "en-US"
+          },
+          "clickThroughUrl" : {
+            "url" : "https://finance.yahoo.com/markets/stocks/articles/much-upside-left-microsoft-stock-172650952.html",
+            "site" : "finance",
+            "region" : "US",
+            "lang" : "en-US"
+          },
+          "metadata" : {
+            "editorsPick" : false
+          },
+          "finance" : {
+            "premiumFinance" : {
+              "isPremiumNews" : false,
+              "isPremiumFreeNews" : false
+            }
+          },
+          "storyline" : null
+        }
+      } ]
+    }
+  },
+  "status" : "OK"
+}

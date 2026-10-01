@@ -10,6 +10,7 @@ import io.github.dimazigel.yfinance.enums.Frequency;
 import io.github.dimazigel.yfinance.enums.Interval;
 import io.github.dimazigel.yfinance.enums.LineItem;
 import io.github.dimazigel.yfinance.enums.LookupType;
+import io.github.dimazigel.yfinance.enums.NewsTab;
 import io.github.dimazigel.yfinance.enums.OptionType;
 import io.github.dimazigel.yfinance.enums.Range;
 import io.github.dimazigel.yfinance.enums.StatementType;
@@ -45,6 +46,8 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 /**
  * Smoke tests that hit the real Yahoo Finance API. Excluded from the default {@code test} task;
@@ -657,11 +660,6 @@ class LiveYahooIntegrationTest {
         }
 
         @Test
-        void tickerNewsIsSymbolSpecific() {
-            assertThat(aapl.news()).isNotEmpty();
-        }
-
-        @Test
         void lookupByType() {
             assertThat(yf.lookup("apple", LookupType.EQUITY))
                     .extracting(q -> q.symbol()).contains(Symbol.of("AAPL"));
@@ -671,6 +669,39 @@ class LiveYahooIntegrationTest {
                     .extracting(q -> q.symbol()).contains(Symbol.of("BTC-USD"));
             assertThat(yf.lookup("dow jones", LookupType.INDEX)).isNotEmpty();
             assertThat(yf.lookup("apple", LookupType.ALL)).isNotEmpty();
+        }
+    }
+
+    @Nested
+    class News {
+
+        @ParameterizedTest
+        @EnumSource(NewsTab.class)
+        void everyTabServesCompleteItems(NewsTab tab) {
+            var items = aapl.news(tab, 10);
+
+            // Not hasSize(10): an item missing a required field is dropped, and one or two may be.
+            assertThat(items).hasSizeBetween(8, 10).allSatisfy(item -> {
+                assertThat(item.title()).isNotBlank();
+                assertThat(item.url()).isNotNull();
+                assertThat(item.provider().name()).isNotBlank();
+                assertThat(item.published()).isBefore(Instant.now().plus(Duration.ofDays(1)));
+            });
+        }
+
+        @Test
+        void defaultNewsIsTheNewsTab() {
+            assertThat(aapl.news()).isNotEmpty();
+        }
+
+        @Test
+        void countBoundsTheStream() {
+            assertThat(aapl.news(NewsTab.NEWS, 3)).hasSizeBetween(1, 3);
+        }
+
+        @Test
+        void unknownSymbolHasNoNews() {
+            assertThat(yf.ticker("ZZZZNOTREAL").news()).isEmpty();
         }
     }
 

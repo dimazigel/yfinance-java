@@ -10,6 +10,7 @@ import io.github.dimazigel.yfinance.detail.MutualFundDetail;
 import io.github.dimazigel.yfinance.enums.Frequency;
 import io.github.dimazigel.yfinance.enums.Interval;
 import io.github.dimazigel.yfinance.enums.LookupType;
+import io.github.dimazigel.yfinance.enums.NewsTab;
 import io.github.dimazigel.yfinance.enums.Range;
 import io.github.dimazigel.yfinance.enums.StatementType;
 import io.github.dimazigel.yfinance.fundamentals.FinancialStatement;
@@ -25,6 +26,7 @@ import io.github.dimazigel.yfinance.instrument.MutualFund;
 import io.github.dimazigel.yfinance.market.HistoryQuery;
 import io.github.dimazigel.yfinance.market.OptionChain;
 import io.github.dimazigel.yfinance.market.PriceHistory;
+import io.github.dimazigel.yfinance.news.NewsItem;
 import io.github.dimazigel.yfinance.search.LookupQuote;
 import io.github.dimazigel.yfinance.search.SearchResult;
 import io.github.dimazigel.yfinance.service.DetailService;
@@ -32,6 +34,7 @@ import io.github.dimazigel.yfinance.service.FundamentalsService;
 import io.github.dimazigel.yfinance.service.HistoryService;
 import io.github.dimazigel.yfinance.service.InstrumentService;
 import io.github.dimazigel.yfinance.service.LookupService;
+import io.github.dimazigel.yfinance.service.NewsService;
 import io.github.dimazigel.yfinance.service.OptionsService;
 import io.github.dimazigel.yfinance.service.SearchService;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
@@ -85,6 +88,7 @@ public final class YFinance implements AutoCloseable {
     final OptionsService options;
     private final SearchService search;
     private final LookupService lookup;
+    private final NewsService news;
     private final Clock clock;
     private final Runnable closer;
     private final int fanOutConcurrency;
@@ -100,6 +104,7 @@ public final class YFinance implements AutoCloseable {
         this.options = new OptionsService(apis.options());
         this.search = new SearchService(apis.search());
         this.lookup = new LookupService(apis.lookup());
+        this.news = new NewsService(apis.news());
         this.clock = clock;
         this.closer = closer;
     }
@@ -382,6 +387,17 @@ public final class YFinance implements AutoCloseable {
     public List<SharesOutstanding> sharesOutstanding(Equity equity) {
         Instant end = clock.instant();
         return sharesOutstanding(equity, end.minus(SHARES_OUTSTANDING_DEFAULT_WINDOW_DAYS, ChronoUnit.DAYS), end);
+    }
+
+    /**
+     * One symbol's news stream in one request (Python yfinance's {@code Ticker.get_news}): up to
+     * {@code count} items of {@code tab}, in Yahoo's order.
+     *
+     * @return the items; empty when Yahoo has none for the symbol, an unknown symbol included
+     * @throws IllegalArgumentException if {@code count} is less than 1
+     */
+    public List<NewsItem> news(Symbol symbol, NewsTab tab, int count) {
+        return news.getNews(symbol, tab, count);
     }
 
     public SearchResult search(String query) {
