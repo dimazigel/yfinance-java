@@ -12,6 +12,7 @@ import io.github.dimazigel.yfinance.enums.StatementType;
 import io.github.dimazigel.yfinance.exception.YFClassMismatchException;
 import io.github.dimazigel.yfinance.fundamentals.FinancialStatement;
 import io.github.dimazigel.yfinance.fundamentals.SharesOutstanding;
+import io.github.dimazigel.yfinance.fundamentals.ValuationMeasures;
 import io.github.dimazigel.yfinance.instrument.Crypto;
 import io.github.dimazigel.yfinance.instrument.Equity;
 import io.github.dimazigel.yfinance.instrument.Etf;
@@ -184,6 +185,23 @@ public final class Ticker {
     /** {@link #sharesOutstanding(Equity, Instant, Instant)} over the default 18-month window. */
     public List<SharesOutstanding> sharesOutstanding(Equity proof) {
         return yf.sharesOutstanding(proof(proof));
+    }
+
+    /**
+     * Valuation measures for this ticker's symbol at each recent period end, oldest first;
+     * {@code proof} is the compile-time {@link Equity} evidence, as for {@link #statements}. See
+     * {@link YFinance#valuationHistory(Equity, Frequency)}.
+     *
+     * @throws IllegalArgumentException if {@code proof} is for a different symbol, or for
+     *     {@link Frequency#TRAILING}
+     */
+    public List<ValuationMeasures> valuationHistory(Equity proof, Frequency frequency) {
+        return yf.valuationHistory(proof(proof), frequency);
+    }
+
+    /** {@link #valuationHistory(Equity, Frequency)} by quarter. */
+    public List<ValuationMeasures> valuationHistory(Equity proof) {
+        return yf.valuationHistory(proof(proof));
     }
 
     /** The ten latest items on this symbol's {@link NewsTab#NEWS} tab; see {@link #news(NewsTab, int)}. */

@@ -25,7 +25,8 @@ import okhttp3.mockwebserver.RecordedRequest;
  *   <li>{@code /xhr/ncp} (the news stream): the AAPL capture of the requested tab for every symbol
  *       except {@link #UNKNOWN}, which gets the empty-stream capture
  *   <li>{@code /ws/fundamentals-timeseries/}: {@code type=shares_out} (batch E/1, item 4) gets the
- *       shares-outstanding capture; a chunk whose keys are purely annual-income ones
+ *       shares-outstanding capture; the valuation-measure keys (batch E/2) get the AAPL valuation
+ *       capture of their frequency, quarterly or annual; a chunk whose keys are purely annual-income ones
  *       (a chunk never spills past {@code FundamentalsService.MAX_KEYS_PER_REQUEST} keys without
  *       picking up a key from another frequency or statement) gets the single-statement annual
  *       income capture; everything else (a quarterly or trailing key present, or a balance-sheet or
@@ -86,6 +87,10 @@ public class YahooDispatcher extends Dispatcher {
         }
         if (type.equals("shares_out")) {
             return Fixtures.jsonResponse("timeseries_shares_out_aapl.json");
+        }
+        if (type.contains("PeRatio")) {   // a valuation-measure request; no statement key contains this
+            return Fixtures.jsonResponse(type.startsWith("annual")
+                    ? "timeseries_valuation_annual_aapl.json" : "timeseries_valuation_quarterly_aapl.json");
         }
         boolean pureAnnualIncome = Arrays.stream(type.split(",")).allMatch(YahooDispatcher::isAnnualIncomeKey);
         return Fixtures.jsonResponse(pureAnnualIncome ? "timeseries_income_annual.json" : "timeseries_multi.json");

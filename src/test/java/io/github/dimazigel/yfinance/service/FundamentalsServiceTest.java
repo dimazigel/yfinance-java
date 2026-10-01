@@ -10,7 +10,9 @@ import io.github.dimazigel.yfinance.enums.StatementType;
 import io.github.dimazigel.yfinance.exception.YFDataException;
 import io.github.dimazigel.yfinance.fundamentals.FinancialStatement;
 import io.github.dimazigel.yfinance.fundamentals.SharesOutstanding;
+import io.github.dimazigel.yfinance.fundamentals.ValuationMeasures;
 import io.github.dimazigel.yfinance.instrument.Equity;
+import io.github.dimazigel.yfinance.instrument.QuoteCurrency;
 import io.github.dimazigel.yfinance.testsupport.Fixtures;
 import io.github.dimazigel.yfinance.testsupport.Instruments;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
@@ -458,5 +460,148 @@ class FundamentalsServiceTest {
             assertThat(log.messages(ch.qos.logback.classic.Level.DEBUG))
                     .anySatisfy(m -> assertThat(m).contains("3").contains("2").contains("mismatch"));
         }
+    }
+
+    // --- batch E/2: valuation measures history (Ticker.valuation parity) ---
+
+    @Test
+    void valuationHistoryMapsOneRowPerQuarterEndOldestFirst() {
+        server.enqueue(Fixtures.jsonResponse("timeseries_valuation_quarterly_aapl.json"));
+
+        List<ValuationMeasures> rows = service.getValuationHistory(Instruments.equity("AAPL"), Frequency.QUARTERLY);
+
+        assertThat(rows).extracting(ValuationMeasures::asOf).containsExactly(
+                LocalDate.parse("2025-06-30"), LocalDate.parse("2025-09-30"), LocalDate.parse("2025-12-31"),
+                LocalDate.parse("2026-03-31"), LocalDate.parse("2026-06-30"));
+        ValuationMeasures latest = rows.getLast();
+        assertThat(latest.currency()).contains(QuoteCurrency.of("USD"));
+        assertThat(latest.marketCap().orElseThrow()).isEqualByComparingTo("4249933332160");
+        assertThat(latest.enterpriseValue().orElseThrow()).isEqualByComparingTo("4266137332160");
+        assertThat(latest.trailingPE().orElseThrow()).isEqualByComparingTo("35.031477");
+        assertThat(latest.forwardPE().orElseThrow()).isEqualByComparingTo("30.3951");
+        assertThat(latest.pegRatio().orElseThrow()).isEqualByComparingTo("2.3381");
+        assertThat(latest.priceToSales().orElseThrow()).isEqualByComparingTo("9.51005");
+        assertThat(latest.priceToBook().orElseThrow()).isEqualByComparingTo("39.90885");
+        assertThat(latest.enterpriseToRevenue().orElseThrow()).isEqualByComparingTo("9.45");
+        assertThat(latest.enterpriseToEbitda().orElseThrow()).isEqualByComparingTo("26.6674");
+    }
+
+    @Test
+    void valuationHistoryRequestsTheNineMeasuresOfTheFrequencyInOneRequest() throws Exception {
+        server.enqueue(Fixtures.jsonResponse("timeseries_valuation_quarterly_aapl.json"));
+
+        service.getValuationHistory(Instruments.equity("AAPL"), Frequency.QUARTERLY);
+
+        assertThat(server.getRequestCount()).isEqualTo(1);
+        RecordedRequest req = server.takeRequest();
+        assertThat(req.getRequestUrl().encodedPath())
+                .isEqualTo("/ws/fundamentals-timeseries/v1/finance/timeseries/AAPL");
+        assertThat(req.getRequestUrl().queryParameter("type").split(",")).containsExactlyInAnyOrder(
+                "quarterlyMarketCap", "quarterlyEnterpriseValue", "quarterlyPeRatio", "quarterlyForwardPeRatio",
+                "quarterlyPegRatio", "quarterlyPsRatio", "quarterlyPbRatio",
+                "quarterlyEnterprisesValueRevenueRatio", "quarterlyEnterprisesValueEBITDARatio");
+    }
+
+    @Test
+    void annualValuationHistoryIsOneRowPerFiscalYearEnd() throws Exception {
+        server.enqueue(Fixtures.jsonResponse("timeseries_valuation_annual_aapl.json"));
+
+        List<ValuationMeasures> rows = service.getValuationHistory(Instruments.equity("AAPL"), Frequency.ANNUAL);
+
+        assertThat(rows).extracting(ValuationMeasures::asOf).containsExactly(
+                LocalDate.parse("2022-09-30"), LocalDate.parse("2023-09-30"),
+                LocalDate.parse("2024-09-30"), LocalDate.parse("2025-09-30"));
+        assertThat(rows.getFirst().enterpriseValue().orElseThrow()).isEqualByComparingTo("2274841335000");
+        assertThat(rows.getFirst().forwardPE().orElseThrow()).isEqualByComparingTo("21.8341");
+        assertThat(server.takeRequest().getRequestUrl().queryParameter("type")).contains("annualPeRatio").doesNotContain("quarterly");
+    }
+
+    @Test
+    void valuationHistoryLeavesAMeasureEmptyWhereYahooHasNoPoint() {
+        // TotalEnergies: the 2025-03-31 quarter has no PEG and no EV ratios, and 2025-09-30 has only the EV ratios.
+        server.enqueue(Fixtures.jsonResponse("timeseries_valuation_quarterly_tte_pa.json"));
+
+        List<ValuationMeasures> rows = service.getValuationHistory(Instruments.equity("TTE.PA"), Frequency.QUARTERLY);
+
+        assertThat(rows).hasSize(6);
+        ValuationMeasures first = rows.getFirst();
+        assertThat(first.asOf()).isEqualTo(LocalDate.parse("2025-03-31"));
+        assertThat(first.currency()).contains(QuoteCurrency.of("EUR"));
+        assertThat(first.marketCap().orElseThrow()).isEqualByComparingTo("132480298753");
+        assertThat(first.trailingPE().orElseThrow()).isEqualByComparingTo("9.651985");
+        assertThat(first.pegRatio()).isEmpty();
+        assertThat(first.enterpriseToRevenue()).isEmpty();
+        assertThat(first.enterpriseToEbitda()).isEmpty();
+
+        ValuationMeasures sparse = rows.get(2);
+        assertThat(sparse.asOf()).isEqualTo(LocalDate.parse("2025-09-30"));
+        assertThat(sparse.enterpriseToEbitda().orElseThrow()).isEqualByComparingTo("4.3206");
+        assertThat(sparse.enterpriseToRevenue().orElseThrow()).isEqualByComparingTo("0.8983");
+        assertThat(sparse.marketCap()).isEmpty();
+        assertThat(sparse.currency()).as("no money value on this row, so no currency").isEmpty();
+    }
+
+    @Test
+    void valuationHistoryIsEmptyWhenYahooHasNoSeriesForTheSymbol() {
+        server.enqueue(Fixtures.jsonResponse("timeseries_valuation_quarterly_spy.json"));       // a non-equity
+        server.enqueue(Fixtures.jsonResponse("timeseries_valuation_quarterly_unknown.json"));   // an unknown symbol
+
+        assertThat(service.getValuationHistory(Symbol.of("SPY"), Frequency.QUARTERLY)).isEmpty();
+        assertThat(service.getValuationHistory(Symbol.of("ZZZZNOTREAL"), Frequency.QUARTERLY)).isEmpty();
+    }
+
+    @Test
+    void trailingValuationHistoryIsRejectedWithoutARequest() {
+        assertThatThrownBy(() -> service.getValuationHistory(Instruments.equity("AAPL"), Frequency.TRAILING))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("QUARTERLY")
+                .hasMessageContaining("AAPL");
+        assertThat(server.getRequestCount()).isZero();
+    }
+
+    @Test
+    void valuationHistoryErrorBodyThrowsYFDataException() {
+        server.enqueue(new MockResponse().setResponseCode(200).setBody(
+                "{\"timeseries\":{\"result\":null,\"error\":{\"code\":\"Bad Request\",\"description\":\"invalid type\"}}}"));
+
+        assertThatThrownBy(() -> service.getValuationHistory(Instruments.equity("AAPL"), Frequency.QUARTERLY))
+                .isInstanceOf(YFDataException.class)
+                .hasMessageContaining("invalid type");
+    }
+
+    @Test
+    void valuationHistorySkipsAPointWithoutAUsableDateAndLogsIt() {
+        server.enqueue(new MockResponse().setResponseCode(200).setBody(
+                "{\"timeseries\":{\"result\":[{\"meta\":{\"symbol\":[\"AAPL\"],\"type\":[\"quarterlyPeRatio\"]},"
+                        + "\"quarterlyPeRatio\":["
+                        + "{\"asOfDate\":\"2026-06-30\",\"periodType\":\"3M\",\"reportedValue\":{\"raw\":35.0}},"
+                        + "{\"asOfDate\":\"not-a-date\",\"periodType\":\"3M\",\"reportedValue\":{\"raw\":1.0}},"
+                        + "null]}],\"error\":null}}"));
+
+        try (var log = io.github.dimazigel.yfinance.testsupport.LogCapture.ofLibrary()) {
+            List<ValuationMeasures> rows = service.getValuationHistory(Instruments.equity("AAPL"), Frequency.QUARTERLY);
+
+            assertThat(rows).singleElement().satisfies(r -> {
+                assertThat(r.asOf()).isEqualTo(LocalDate.parse("2026-06-30"));
+                assertThat(r.trailingPE().orElseThrow()).isEqualByComparingTo("35.0");
+                assertThat(r.marketCap()).isEmpty();
+            });
+            assertThat(log.messages(ch.qos.logback.classic.Level.DEBUG))
+                    .anySatisfy(m -> assertThat(m).isEqualTo("Skipped 1 valuation point without a usable date"));
+        }
+    }
+
+    @Test
+    void valuationHistoryRunsInsideALogContextScope() {
+        var seen = new java.util.HashMap<String, String>();
+        var api = Fixtures.apis(server, chain -> {
+            seen.putAll(org.slf4j.MDC.getCopyOfContextMap());
+            return chain.proceed(chain.request());
+        }).fundamentals();
+        server.enqueue(Fixtures.jsonResponse("timeseries_valuation_quarterly_aapl.json"));
+
+        new FundamentalsService(api).getValuationHistory(Instruments.equity("AAPL"), Frequency.QUARTERLY);
+
+        assertThat(seen).containsEntry("yf.op", "valuation").containsEntry("yf.symbol", "AAPL");
     }
 }

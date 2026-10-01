@@ -643,6 +643,21 @@ class LiveYahooIntegrationTest {
                         .isAfterOrEqualTo(points.get(i - 1).date());
             }
         }
+
+        @ParameterizedTest
+        @EnumSource(value = Frequency.class, names = {"QUARTERLY", "ANNUAL"})
+        void valuationHistoryHasRecentPeriodEndsWithTheHeadlineMeasures(Frequency frequency) {   // batch E/2
+            var rows = aapl.valuationHistory(aaplEquity, frequency);
+
+            assertThat(rows).hasSizeBetween(3, 6);
+            assertThat(rows).extracting(r -> r.asOf()).isSorted().doesNotHaveDuplicates();
+            assertThat(rows.getLast().asOf()).isAfter(java.time.LocalDate.now().minusYears(2));
+            assertThat(rows).allSatisfy(r -> {
+                assertThat(r.marketCap().orElseThrow()).isGreaterThan(java.math.BigDecimal.valueOf(1_000_000_000_000L));
+                assertThat(r.trailingPE().orElseThrow()).isPositive();
+                assertThat(r.currency().orElseThrow().code()).isEqualTo("USD");
+            });
+        }
     }
 
     @Nested

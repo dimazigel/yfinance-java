@@ -1,0 +1,373 @@
+{
+  "timeseries" : {
+    "result" : [ {
+      "meta" : {
+        "symbol" : [ "AAPL" ],
+        "type" : [ "annualForwardPeRatio" ]
+      },
+      "timestamp" : [ 1664496000, 1696032000, 1727654400, 1759190400 ],
+      "annualForwardPeRatio" : [ {
+        "dataId" : 14020,
+        "asOfDate" : "2022-09-30",
+        "periodType" : "12M",
+        "reportedValue" : {
+          "raw" : 21.8341,
+          "fmt" : "21.83"
+        }
+      }, {
+        "dataId" : 14020,
+        "asOfDate" : "2023-09-30",
+        "periodType" : "12M",
+        "reportedValue" : {
+          "raw" : 25.7732,
+          "fmt" : "25.77"
+        }
+      }, {
+        "dataId" : 14020,
+        "asOfDate" : "2024-09-30",
+        "periodType" : "12M",
+        "reportedValue" : {
+          "raw" : 30.6748,
+          "fmt" : "30.67"
+        }
+      }, {
+        "dataId" : 14020,
+        "asOfDate" : "2025-09-30",
+        "periodType" : "12M",
+        "reportedValue" : {
+          "raw" : 31.6456,
+          "fmt" : "31.65"
+        }
+      } ]
+    }, {
+      "meta" : {
+        "symbol" : [ "AAPL" ],
+        "type" : [ "annualPeRatio" ]
+      },
+      "timestamp" : [ 1664496000, 1696032000, 1727654400, 1759190400 ],
+      "annualPeRatio" : [ {
+        "dataId" : 14008,
+        "asOfDate" : "2022-09-30",
+        "periodType" : "12M",
+        "reportedValue" : {
+          "raw" : 22.842975,
+          "fmt" : "22.84"
+        }
+      }, {
+        "dataId" : 14008,
+        "asOfDate" : "2023-09-30",
+        "periodType" : "12M",
+        "reportedValue" : {
+          "raw" : 28.72651,
+          "fmt" : "28.73"
+        }
+      }, {
+        "dataId" : 14008,
+        "asOfDate" : "2024-09-30",
+        "periodType" : "12M",
+        "reportedValue" : {
+          "raw" : 35.464231,
+          "fmt" : "35.46"
+        }
+      }, {
+        "dataId" : 14008,
+        "asOfDate" : "2025-09-30",
+        "periodType" : "12M",
+        "reportedValue" : {
+          "raw" : 38.638847,
+          "fmt" : "38.64"
+        }
+      } ]
+    }, {
+      "meta" : {
+        "symbol" : [ "AAPL" ],
+        "type" : [ "annualPegRatio" ]
+      },
+      "timestamp" : [ 1664496000, 1696032000, 1727654400, 1759190400 ],
+      "annualPegRatio" : [ {
+        "dataId" : 14021,
+        "asOfDate" : "2022-09-30",
+        "periodType" : "12M",
+        "reportedValue" : {
+          "raw" : 2.4734,
+          "fmt" : "2.47"
+        }
+      }, {
+        "dataId" : 14021,
+        "asOfDate" : "2023-09-30",
+        "periodType" : "12M",
+        "reportedValue" : {
+          "raw" : 2.1803,
+          "fmt" : "2.18"
+        }
+      }, {
+        "dataId" : 14021,
+        "asOfDate" : "2024-09-30",
+        "periodType" : "12M",
+        "reportedValue" : {
+          "raw" : 2.2362,
+          "fmt" : "2.24"
+        }
+      }, {
+        "dataId" : 14021,
+        "asOfDate" : "2025-09-30",
+        "periodType" : "12M",
+        "reportedValue" : {
+          "raw" : 2.4377,
+          "fmt" : "2.44"
+        }
+      } ]
+    }, {
+      "meta" : {
+        "symbol" : [ "AAPL" ],
+        "type" : [ "annualMarketCap" ]
+      },
+      "timestamp" : [ 1664496000, 1696032000, 1727654400, 1759190400 ],
+      "annualMarketCap" : [ {
+        "dataId" : 40001,
+        "asOfDate" : "2022-09-30",
+        "periodType" : "12M",
+        "currencyCode" : "USD",
+        "reportedValue" : {
+          "raw" : 2.203381335E12,
+          "fmt" : "2.20T"
+        }
+      }, {
+        "dataId" : 40001,
+        "asOfDate" : "2023-09-30",
+        "periodType" : "12M",
+        "currencyCode" : "USD",
+        "reportedValue" : {
+          "raw" : 2.67673686072E12,
+          "fmt" : "2.68T"
+        }
+      }, {
+        "dataId" : 40001,
+        "asOfDate" : "2024-09-30",
+        "periodType" : "12M",
+        "currencyCode" : "USD",
+        "reportedValue" : {
+          "raw" : 3.522211138E12,
+          "fmt" : "3.52T"
+        }
+      }, {
+        "dataId" : 40001,
+        "asOfDate" : "2025-09-30",
+        "periodType" : "12M",
+        "currencyCode" : "USD",
+        "reportedValue" : {
+          "raw" : 3.7617151938E12,
+          "fmt" : "3.76T"
+        }
+      } ]
+    }, {
+      "meta" : {
+        "symbol" : [ "AAPL" ],
+        "type" : [ "annualEnterprisesValueEBITDARatio" ]
+      },
+      "timestamp" : [ 1664496000, 1696032000, 1727654400, 1759190400 ],
+      "annualEnterprisesValueEBITDARatio" : [ {
+        "dataId" : 102,
+        "asOfDate" : "2022-09-30",
+        "periodType" : "12M",
+        "currencyCode" : "USD",
+        "reportedValue" : {
+          "raw" : 17.2732,
+          "fmt" : "17.27"
+        }
+      }, {
+        "dataId" : 102,
+        "asOfDate" : "2023-09-30",
+        "periodType" : "12M",
+        "currencyCode" : "USD",
+        "reportedValue" : {
+          "raw" : 21.4648,
+          "fmt" : "21.46"
+        }
+      }, {
+        "dataId" : 102,
+        "asOfDate" : "2024-09-30",
+        "periodType" : "12M",
+        "currencyCode" : "USD",
+        "reportedValue" : {
+          "raw" : 26.354,
+          "fmt" : "26.35"
+        }
+      }, {
+        "dataId" : 102,
+        "asOfDate" : "2025-09-30",
+        "periodType" : "12M",
+        "currencyCode" : "USD",
+        "reportedValue" : {
+          "raw" : 26.8747,
+          "fmt" : "26.87"
+        }
+      } ]
+    }, {
+      "meta" : {
+        "symbol" : [ "AAPL" ],
+        "type" : [ "annualEnterpriseValue" ]
+      },
+      "timestamp" : [ 1664496000, 1696032000, 1727654400, 1759190400 ],
+      "annualEnterpriseValue" : [ {
+        "dataId" : 40002,
+        "asOfDate" : "2022-09-30",
+        "periodType" : "12M",
+        "currencyCode" : "USD",
+        "reportedValue" : {
+          "raw" : 2.274841335E12,
+          "fmt" : "2.27T"
+        }
+      }, {
+        "dataId" : 40002,
+        "asOfDate" : "2023-09-30",
+        "periodType" : "12M",
+        "currencyCode" : "USD",
+        "reportedValue" : {
+          "raw" : 2.72353486072E12,
+          "fmt" : "2.72T"
+        }
+      }, {
+        "dataId" : 40002,
+        "asOfDate" : "2024-09-30",
+        "periodType" : "12M",
+        "currencyCode" : "USD",
+        "reportedValue" : {
+          "raw" : 3.561714138E12,
+          "fmt" : "3.56T"
+        }
+      }, {
+        "dataId" : 40002,
+        "asOfDate" : "2025-09-30",
+        "periodType" : "12M",
+        "currencyCode" : "USD",
+        "reportedValue" : {
+          "raw" : 3.8080411938E12,
+          "fmt" : "3.81T"
+        }
+      } ]
+    }, {
+      "meta" : {
+        "symbol" : [ "AAPL" ],
+        "type" : [ "annualPsRatio" ]
+      },
+      "timestamp" : [ 1664496000, 1696032000, 1727654400, 1759190400 ],
+      "annualPsRatio" : [ {
+        "dataId" : 14010,
+        "asOfDate" : "2022-09-30",
+        "periodType" : "12M",
+        "reportedValue" : {
+          "raw" : 5.867952,
+          "fmt" : "5.87"
+        }
+      }, {
+        "dataId" : 14010,
+        "asOfDate" : "2023-09-30",
+        "periodType" : "12M",
+        "reportedValue" : {
+          "raw" : 7.101132,
+          "fmt" : "7.10"
+        }
+      }, {
+        "dataId" : 14010,
+        "asOfDate" : "2024-09-30",
+        "periodType" : "12M",
+        "reportedValue" : {
+          "raw" : 9.375205,
+          "fmt" : "9.38"
+        }
+      }, {
+        "dataId" : 14010,
+        "asOfDate" : "2025-09-30",
+        "periodType" : "12M",
+        "reportedValue" : {
+          "raw" : 9.409086,
+          "fmt" : "9.41"
+        }
+      } ]
+    }, {
+      "meta" : {
+        "symbol" : [ "AAPL" ],
+        "type" : [ "annualPbRatio" ]
+      },
+      "timestamp" : [ 1664496000, 1696032000, 1727654400, 1759190400 ],
+      "annualPbRatio" : [ {
+        "dataId" : 14012,
+        "asOfDate" : "2022-09-30",
+        "periodType" : "12M",
+        "reportedValue" : {
+          "raw" : 37.919379,
+          "fmt" : "37.92"
+        }
+      }, {
+        "dataId" : 14012,
+        "asOfDate" : "2023-09-30",
+        "periodType" : "12M",
+        "reportedValue" : {
+          "raw" : 44.170388,
+          "fmt" : "44.17"
+        }
+      }, {
+        "dataId" : 14012,
+        "asOfDate" : "2024-09-30",
+        "periodType" : "12M",
+        "reportedValue" : {
+          "raw" : 52.800431,
+          "fmt" : "52.80"
+        }
+      }, {
+        "dataId" : 14012,
+        "asOfDate" : "2025-09-30",
+        "periodType" : "12M",
+        "reportedValue" : {
+          "raw" : 57.142871,
+          "fmt" : "57.14"
+        }
+      } ]
+    }, {
+      "meta" : {
+        "symbol" : [ "AAPL" ],
+        "type" : [ "annualEnterprisesValueRevenueRatio" ]
+      },
+      "timestamp" : [ 1664496000, 1696032000, 1727654400, 1759190400 ],
+      "annualEnterprisesValueRevenueRatio" : [ {
+        "dataId" : 101,
+        "asOfDate" : "2022-09-30",
+        "periodType" : "12M",
+        "currencyCode" : "USD",
+        "reportedValue" : {
+          "raw" : 5.8699,
+          "fmt" : "5.87"
+        }
+      }, {
+        "dataId" : 101,
+        "asOfDate" : "2023-09-30",
+        "periodType" : "12M",
+        "currencyCode" : "USD",
+        "reportedValue" : {
+          "raw" : 7.0938,
+          "fmt" : "7.09"
+        }
+      }, {
+        "dataId" : 101,
+        "asOfDate" : "2024-09-30",
+        "periodType" : "12M",
+        "currencyCode" : "USD",
+        "reportedValue" : {
+          "raw" : 9.2367,
+          "fmt" : "9.24"
+        }
+      }, {
+        "dataId" : 101,
+        "asOfDate" : "2025-09-30",
+        "periodType" : "12M",
+        "currencyCode" : "USD",
+        "reportedValue" : {
+          "raw" : 9.3192,
+          "fmt" : "9.32"
+        }
+      } ]
+    } ],
+    "error" : null
+  }
+}

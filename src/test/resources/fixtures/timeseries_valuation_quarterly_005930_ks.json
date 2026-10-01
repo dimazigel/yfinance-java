@@ -1,0 +1,449 @@
+{
+  "timeseries" : {
+    "result" : [ {
+      "meta" : {
+        "symbol" : [ "005930.KS" ],
+        "type" : [ "quarterlyEnterprisesValueRevenueRatio" ]
+      },
+      "timestamp" : [ 1751241600, 1759190400, 1767139200, 1774915200, 1782777600 ],
+      "quarterlyEnterprisesValueRevenueRatio" : [ {
+        "dataId" : 101,
+        "asOfDate" : "2025-06-30",
+        "periodType" : "3M",
+        "currencyCode" : "KRW",
+        "reportedValue" : {
+          "raw" : 0.9891,
+          "fmt" : "0.99"
+        }
+      }, {
+        "dataId" : 101,
+        "asOfDate" : "2025-09-30",
+        "periodType" : "3M",
+        "currencyCode" : "KRW",
+        "reportedValue" : {
+          "raw" : 1.4294,
+          "fmt" : "1.43"
+        }
+      }, {
+        "dataId" : 101,
+        "asOfDate" : "2025-12-31",
+        "periodType" : "3M",
+        "currencyCode" : "KRW",
+        "reportedValue" : {
+          "raw" : 2.1712,
+          "fmt" : "2.17"
+        }
+      }, {
+        "dataId" : 101,
+        "asOfDate" : "2026-03-31",
+        "periodType" : "3M",
+        "currencyCode" : "KRW",
+        "reportedValue" : {
+          "raw" : 2.4228,
+          "fmt" : "2.42"
+        }
+      }, {
+        "dataId" : 101,
+        "asOfDate" : "2026-06-30",
+        "periodType" : "3M",
+        "currencyCode" : "KRW",
+        "reportedValue" : {
+          "raw" : 4.0724,
+          "fmt" : "4.07"
+        }
+      } ]
+    }, {
+      "meta" : {
+        "symbol" : [ "005930.KS" ],
+        "type" : [ "quarterlyForwardPeRatio" ]
+      },
+      "timestamp" : [ 1751241600, 1759190400, 1767139200, 1774915200, 1782777600 ],
+      "quarterlyForwardPeRatio" : [ {
+        "dataId" : 14020,
+        "asOfDate" : "2025-06-30",
+        "periodType" : "3M",
+        "reportedValue" : {
+          "raw" : 13.8889,
+          "fmt" : "13.89"
+        }
+      }, {
+        "dataId" : 14020,
+        "asOfDate" : "2025-09-30",
+        "periodType" : "3M",
+        "reportedValue" : {
+          "raw" : 14.3472,
+          "fmt" : "14.35"
+        }
+      }, {
+        "dataId" : 14020,
+        "asOfDate" : "2025-12-31",
+        "periodType" : "3M",
+        "reportedValue" : {
+          "raw" : 10.6157,
+          "fmt" : "10.62"
+        }
+      }, {
+        "dataId" : 14020,
+        "asOfDate" : "2026-03-31",
+        "periodType" : "3M",
+        "reportedValue" : {
+          "raw" : 6.2578,
+          "fmt" : "6.26"
+        }
+      }, {
+        "dataId" : 14020,
+        "asOfDate" : "2026-06-30",
+        "periodType" : "3M",
+        "reportedValue" : {
+          "raw" : 7.4571,
+          "fmt" : "7.46"
+        }
+      } ]
+    }, {
+      "meta" : {
+        "symbol" : [ "005930.KS" ],
+        "type" : [ "quarterlyPegRatio" ]
+      },
+      "timestamp" : [ 1751241600, 1759190400, 1767139200, 1774915200, 1782777600 ],
+      "quarterlyPegRatio" : [ {
+        "dataId" : 14021,
+        "asOfDate" : "2025-06-30",
+        "periodType" : "3M",
+        "reportedValue" : {
+          "raw" : 1.6901,
+          "fmt" : "1.69"
+        }
+      }, {
+        "dataId" : 14021,
+        "asOfDate" : "2025-09-30",
+        "periodType" : "3M",
+        "reportedValue" : {
+          "raw" : 2.1474,
+          "fmt" : "2.15"
+        }
+      }, {
+        "dataId" : 14021,
+        "asOfDate" : "2025-12-31",
+        "periodType" : "3M",
+        "reportedValue" : {
+          "raw" : 0.9544,
+          "fmt" : "0.95"
+        }
+      }, {
+        "dataId" : 14021,
+        "asOfDate" : "2026-03-31",
+        "periodType" : "3M",
+        "reportedValue" : {
+          "raw" : 0.1611,
+          "fmt" : "0.16"
+        }
+      }, {
+        "dataId" : 14021,
+        "asOfDate" : "2026-06-30",
+        "periodType" : "3M",
+        "reportedValue" : {
+          "raw" : 0.3814,
+          "fmt" : "0.38"
+        }
+      } ]
+    }, {
+      "meta" : {
+        "symbol" : [ "005930.KS" ],
+        "type" : [ "quarterlyEnterprisesValueEBITDARatio" ]
+      },
+      "timestamp" : [ 1751241600, 1759190400, 1767139200, 1774915200, 1782777600 ],
+      "quarterlyEnterprisesValueEBITDARatio" : [ {
+        "dataId" : 102,
+        "asOfDate" : "2025-06-30",
+        "periodType" : "3M",
+        "currencyCode" : "KRW",
+        "reportedValue" : {
+          "raw" : 3.8138,
+          "fmt" : "3.81"
+        }
+      }, {
+        "dataId" : 102,
+        "asOfDate" : "2025-09-30",
+        "periodType" : "3M",
+        "currencyCode" : "KRW",
+        "reportedValue" : {
+          "raw" : 5.4202,
+          "fmt" : "5.42"
+        }
+      }, {
+        "dataId" : 102,
+        "asOfDate" : "2025-12-31",
+        "periodType" : "3M",
+        "currencyCode" : "KRW",
+        "reportedValue" : {
+          "raw" : 8.2331,
+          "fmt" : "8.23"
+        }
+      }, {
+        "dataId" : 102,
+        "asOfDate" : "2026-03-31",
+        "periodType" : "3M",
+        "currencyCode" : "KRW",
+        "reportedValue" : {
+          "raw" : 6.3727,
+          "fmt" : "6.37"
+        }
+      }, {
+        "dataId" : 102,
+        "asOfDate" : "2026-06-30",
+        "periodType" : "3M",
+        "currencyCode" : "KRW",
+        "reportedValue" : {
+          "raw" : 8.5751,
+          "fmt" : "8.58"
+        }
+      } ]
+    }, {
+      "meta" : {
+        "symbol" : [ "005930.KS" ],
+        "type" : [ "quarterlyPsRatio" ]
+      },
+      "timestamp" : [ 1751241600, 1759190400, 1767139200, 1774915200, 1782777600 ],
+      "quarterlyPsRatio" : [ {
+        "dataId" : 14010,
+        "asOfDate" : "2025-06-30",
+        "periodType" : "3M",
+        "reportedValue" : {
+          "raw" : 1.070615,
+          "fmt" : "1.07"
+        }
+      }, {
+        "dataId" : 14010,
+        "asOfDate" : "2025-09-30",
+        "periodType" : "3M",
+        "reportedValue" : {
+          "raw" : 1.408179,
+          "fmt" : "1.41"
+        }
+      }, {
+        "dataId" : 14010,
+        "asOfDate" : "2025-12-31",
+        "periodType" : "3M",
+        "reportedValue" : {
+          "raw" : 2.012403,
+          "fmt" : "2.01"
+        }
+      }, {
+        "dataId" : 14010,
+        "asOfDate" : "2026-03-31",
+        "periodType" : "3M",
+        "reportedValue" : {
+          "raw" : 2.793204,
+          "fmt" : "2.79"
+        }
+      }, {
+        "dataId" : 14010,
+        "asOfDate" : "2026-06-30",
+        "periodType" : "3M",
+        "reportedValue" : {
+          "raw" : 4.519593,
+          "fmt" : "4.52"
+        }
+      } ]
+    }, {
+      "meta" : {
+        "symbol" : [ "005930.KS" ],
+        "type" : [ "quarterlyEnterpriseValue" ]
+      },
+      "timestamp" : [ 1751241600, 1759190400, 1767139200, 1774915200, 1782777600 ],
+      "quarterlyEnterpriseValue" : [ {
+        "dataId" : 40002,
+        "asOfDate" : "2025-06-30",
+        "periodType" : "3M",
+        "currencyCode" : "KRW",
+        "reportedValue" : {
+          "raw" : 3.05241109778E14,
+          "fmt" : "305.24T"
+        }
+      }, {
+        "dataId" : 40002,
+        "asOfDate" : "2025-09-30",
+        "periodType" : "3M",
+        "currencyCode" : "KRW",
+        "reportedValue" : {
+          "raw" : 4.510559994699E14,
+          "fmt" : "451.06T"
+        }
+      }, {
+        "dataId" : 40002,
+        "asOfDate" : "2025-12-31",
+        "periodType" : "3M",
+        "currencyCode" : "KRW",
+        "reportedValue" : {
+          "raw" : 6.763261921542E14,
+          "fmt" : "676.33T"
+        }
+      }, {
+        "dataId" : 40002,
+        "asOfDate" : "2026-03-31",
+        "periodType" : "3M",
+        "currencyCode" : "KRW",
+        "reportedValue" : {
+          "raw" : 9.408670885708E14,
+          "fmt" : "940.87T"
+        }
+      }, {
+        "dataId" : 40002,
+        "asOfDate" : "2026-06-30",
+        "periodType" : "3M",
+        "currencyCode" : "KRW",
+        "reportedValue" : {
+          "raw" : 1.976222977638E15,
+          "fmt" : "1,976.22T"
+        }
+      } ]
+    }, {
+      "meta" : {
+        "symbol" : [ "005930.KS" ],
+        "type" : [ "quarterlyPbRatio" ]
+      },
+      "timestamp" : [ 1751241600, 1759190400, 1767139200, 1774915200, 1782777600 ],
+      "quarterlyPbRatio" : [ {
+        "dataId" : 14012,
+        "asOfDate" : "2025-06-30",
+        "periodType" : "3M",
+        "reportedValue" : {
+          "raw" : 1.02896,
+          "fmt" : "1.03"
+        }
+      }, {
+        "dataId" : 14012,
+        "asOfDate" : "2025-09-30",
+        "periodType" : "3M",
+        "reportedValue" : {
+          "raw" : 1.38427,
+          "fmt" : "1.38"
+        }
+      }, {
+        "dataId" : 14012,
+        "asOfDate" : "2025-12-31",
+        "periodType" : "3M",
+        "reportedValue" : {
+          "raw" : 1.99477,
+          "fmt" : "1.99"
+        }
+      }, {
+        "dataId" : 14012,
+        "asOfDate" : "2026-03-31",
+        "periodType" : "3M",
+        "reportedValue" : {
+          "raw" : 2.327074,
+          "fmt" : "2.33"
+        }
+      }, {
+        "dataId" : 14012,
+        "asOfDate" : "2026-06-30",
+        "periodType" : "3M",
+        "reportedValue" : {
+          "raw" : 3.881382,
+          "fmt" : "3.88"
+        }
+      } ]
+    }, {
+      "meta" : {
+        "symbol" : [ "005930.KS" ],
+        "type" : [ "quarterlyPeRatio" ]
+      },
+      "timestamp" : [ 1751241600, 1759190400, 1767139200, 1774915200, 1782777600 ],
+      "quarterlyPeRatio" : [ {
+        "dataId" : 14008,
+        "asOfDate" : "2025-06-30",
+        "periodType" : "3M",
+        "reportedValue" : {
+          "raw" : 13.333333,
+          "fmt" : "13.33"
+        }
+      }, {
+        "dataId" : 14008,
+        "asOfDate" : "2025-09-30",
+        "periodType" : "3M",
+        "reportedValue" : {
+          "raw" : 17.338293,
+          "fmt" : "17.34"
+        }
+      }, {
+        "dataId" : 14008,
+        "asOfDate" : "2025-12-31",
+        "periodType" : "3M",
+        "reportedValue" : {
+          "raw" : 24.777847,
+          "fmt" : "24.78"
+        }
+      }, {
+        "dataId" : 14008,
+        "asOfDate" : "2026-03-31",
+        "periodType" : "3M",
+        "reportedValue" : {
+          "raw" : 13.411406,
+          "fmt" : "13.41"
+        }
+      }, {
+        "dataId" : 14008,
+        "asOfDate" : "2026-06-30",
+        "periodType" : "3M",
+        "reportedValue" : {
+          "raw" : 14.71348,
+          "fmt" : "14.71"
+        }
+      } ]
+    }, {
+      "meta" : {
+        "symbol" : [ "005930.KS" ],
+        "type" : [ "quarterlyMarketCap" ]
+      },
+      "timestamp" : [ 1751241600, 1759190400, 1767139200, 1774915200, 1782777600 ],
+      "quarterlyMarketCap" : [ {
+        "dataId" : 40001,
+        "asOfDate" : "2025-06-30",
+        "periodType" : "3M",
+        "currencyCode" : "KRW",
+        "reportedValue" : {
+          "raw" : 3.91820123778E14,
+          "fmt" : "391.82T"
+        }
+      }, {
+        "dataId" : 40001,
+        "asOfDate" : "2025-09-30",
+        "periodType" : "3M",
+        "currencyCode" : "KRW",
+        "reportedValue" : {
+          "raw" : 5.427280794699E14,
+          "fmt" : "542.73T"
+        }
+      }, {
+        "dataId" : 40001,
+        "asOfDate" : "2025-12-31",
+        "periodType" : "3M",
+        "currencyCode" : "KRW",
+        "reportedValue" : {
+          "raw" : 7.768147001542E14,
+          "fmt" : "776.81T"
+        }
+      }, {
+        "dataId" : 40001,
+        "asOfDate" : "2026-03-31",
+        "periodType" : "3M",
+        "currencyCode" : "KRW",
+        "reportedValue" : {
+          "raw" : 1.0599869015708E15,
+          "fmt" : "1,059.99T"
+        }
+      }, {
+        "dataId" : 40001,
+        "asOfDate" : "2026-06-30",
+        "periodType" : "3M",
+        "currencyCode" : "KRW",
+        "reportedValue" : {
+          "raw" : 2.095342790638E15,
+          "fmt" : "2,095.34T"
+        }
+      } ]
+    } ],
+    "error" : null
+  }
+}

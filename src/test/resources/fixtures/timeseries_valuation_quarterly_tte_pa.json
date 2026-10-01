@@ -1,0 +1,441 @@
+{
+  "timeseries" : {
+    "result" : [ {
+      "meta" : {
+        "symbol" : [ "TTE.PA" ],
+        "type" : [ "quarterlyPegRatio" ]
+      },
+      "timestamp" : [ 1751241600, 1767139200, 1774915200, 1782777600 ],
+      "quarterlyPegRatio" : [ {
+        "dataId" : 14021,
+        "asOfDate" : "2025-06-30",
+        "periodType" : "3M",
+        "reportedValue" : {
+          "raw" : 9.8931,
+          "fmt" : "9.89"
+        }
+      }, {
+        "dataId" : 14021,
+        "asOfDate" : "2025-12-31",
+        "periodType" : "3M",
+        "reportedValue" : {
+          "raw" : 1.4955,
+          "fmt" : "1.50"
+        }
+      }, {
+        "dataId" : 14021,
+        "asOfDate" : "2026-03-31",
+        "periodType" : "3M",
+        "reportedValue" : {
+          "raw" : 2.1971,
+          "fmt" : "2.20"
+        }
+      }, {
+        "dataId" : 14021,
+        "asOfDate" : "2026-06-30",
+        "periodType" : "3M",
+        "reportedValue" : {
+          "raw" : 0.6338,
+          "fmt" : "0.63"
+        }
+      } ]
+    }, {
+      "meta" : {
+        "symbol" : [ "TTE.PA" ],
+        "type" : [ "quarterlyForwardPeRatio" ]
+      },
+      "timestamp" : [ 1743379200, 1751241600, 1767139200, 1774915200, 1782777600 ],
+      "quarterlyForwardPeRatio" : [ {
+        "dataId" : 14020,
+        "asOfDate" : "2025-03-31",
+        "periodType" : "3M",
+        "reportedValue" : {
+          "raw" : 7.9745,
+          "fmt" : "7.97"
+        }
+      }, {
+        "dataId" : 14020,
+        "asOfDate" : "2025-06-30",
+        "periodType" : "3M",
+        "reportedValue" : {
+          "raw" : 8.9047,
+          "fmt" : "8.90"
+        }
+      }, {
+        "dataId" : 14020,
+        "asOfDate" : "2025-12-31",
+        "periodType" : "3M",
+        "reportedValue" : {
+          "raw" : 9.2678,
+          "fmt" : "9.27"
+        }
+      }, {
+        "dataId" : 14020,
+        "asOfDate" : "2026-03-31",
+        "periodType" : "3M",
+        "reportedValue" : {
+          "raw" : 13.624,
+          "fmt" : "13.62"
+        }
+      }, {
+        "dataId" : 14020,
+        "asOfDate" : "2026-06-30",
+        "periodType" : "3M",
+        "reportedValue" : {
+          "raw" : 7.1633,
+          "fmt" : "7.16"
+        }
+      } ]
+    }, {
+      "meta" : {
+        "symbol" : [ "TTE.PA" ],
+        "type" : [ "quarterlyEnterpriseValue" ]
+      },
+      "timestamp" : [ 1743379200, 1751241600, 1767139200, 1774915200, 1782777600 ],
+      "quarterlyEnterpriseValue" : [ {
+        "dataId" : 40002,
+        "asOfDate" : "2025-03-31",
+        "periodType" : "3M",
+        "currencyCode" : "EUR",
+        "reportedValue" : {
+          "raw" : 1.51602940054E11,
+          "fmt" : "151.60B"
+        }
+      }, {
+        "dataId" : 40002,
+        "asOfDate" : "2025-06-30",
+        "periodType" : "3M",
+        "currencyCode" : "EUR",
+        "reportedValue" : {
+          "raw" : 1.40303035552E11,
+          "fmt" : "140.30B"
+        }
+      }, {
+        "dataId" : 40002,
+        "asOfDate" : "2025-12-31",
+        "periodType" : "3M",
+        "currencyCode" : "EUR",
+        "reportedValue" : {
+          "raw" : 1.48981879495E11,
+          "fmt" : "148.98B"
+        }
+      }, {
+        "dataId" : 40002,
+        "asOfDate" : "2026-03-31",
+        "periodType" : "3M",
+        "currencyCode" : "EUR",
+        "reportedValue" : {
+          "raw" : 2.01344968779E11,
+          "fmt" : "201.34B"
+        }
+      }, {
+        "dataId" : 40002,
+        "asOfDate" : "2026-06-30",
+        "periodType" : "3M",
+        "currencyCode" : "EUR",
+        "reportedValue" : {
+          "raw" : 1.81211377442E11,
+          "fmt" : "181.21B"
+        }
+      } ]
+    }, {
+      "meta" : {
+        "symbol" : [ "TTE.PA" ],
+        "type" : [ "quarterlyEnterprisesValueRevenueRatio" ]
+      },
+      "timestamp" : [ 1751241600, 1759190400, 1767139200, 1774915200, 1782777600 ],
+      "quarterlyEnterprisesValueRevenueRatio" : [ {
+        "dataId" : 101,
+        "asOfDate" : "2025-06-30",
+        "periodType" : "3M",
+        "currencyCode" : "EUR",
+        "reportedValue" : {
+          "raw" : 0.8586,
+          "fmt" : "0.86"
+        }
+      }, {
+        "dataId" : 101,
+        "asOfDate" : "2025-09-30",
+        "periodType" : "3M",
+        "currencyCode" : "EUR",
+        "reportedValue" : {
+          "raw" : 0.8983,
+          "fmt" : "0.90"
+        }
+      }, {
+        "dataId" : 101,
+        "asOfDate" : "2025-12-31",
+        "periodType" : "3M",
+        "currencyCode" : "EUR",
+        "reportedValue" : {
+          "raw" : 0.9535,
+          "fmt" : "0.95"
+        }
+      }, {
+        "dataId" : 101,
+        "asOfDate" : "2026-03-31",
+        "periodType" : "3M",
+        "currencyCode" : "EUR",
+        "reportedValue" : {
+          "raw" : 1.265,
+          "fmt" : "1.26"
+        }
+      }, {
+        "dataId" : 101,
+        "asOfDate" : "2026-06-30",
+        "periodType" : "3M",
+        "currencyCode" : "EUR",
+        "reportedValue" : {
+          "raw" : 1.1248,
+          "fmt" : "1.12"
+        }
+      } ]
+    }, {
+      "meta" : {
+        "symbol" : [ "TTE.PA" ],
+        "type" : [ "quarterlyPsRatio" ]
+      },
+      "timestamp" : [ 1743379200, 1751241600, 1767139200, 1774915200, 1782777600 ],
+      "quarterlyPsRatio" : [ {
+        "dataId" : 14010,
+        "asOfDate" : "2025-03-31",
+        "periodType" : "3M",
+        "reportedValue" : {
+          "raw" : 0.764047,
+          "fmt" : "0.76"
+        }
+      }, {
+        "dataId" : 14010,
+        "asOfDate" : "2025-06-30",
+        "periodType" : "3M",
+        "reportedValue" : {
+          "raw" : 0.72585,
+          "fmt" : "0.73"
+        }
+      }, {
+        "dataId" : 14010,
+        "asOfDate" : "2025-12-31",
+        "periodType" : "3M",
+        "reportedValue" : {
+          "raw" : 0.79625,
+          "fmt" : "0.80"
+        }
+      }, {
+        "dataId" : 14010,
+        "asOfDate" : "2026-03-31",
+        "periodType" : "3M",
+        "reportedValue" : {
+          "raw" : 1.125654,
+          "fmt" : "1.13"
+        }
+      }, {
+        "dataId" : 14010,
+        "asOfDate" : "2026-06-30",
+        "periodType" : "3M",
+        "reportedValue" : {
+          "raw" : 0.926408,
+          "fmt" : "0.93"
+        }
+      } ]
+    }, {
+      "meta" : {
+        "symbol" : [ "TTE.PA" ],
+        "type" : [ "quarterlyMarketCap" ]
+      },
+      "timestamp" : [ 1743379200, 1751241600, 1767139200, 1774915200, 1782777600 ],
+      "quarterlyMarketCap" : [ {
+        "dataId" : 40001,
+        "asOfDate" : "2025-03-31",
+        "periodType" : "3M",
+        "currencyCode" : "EUR",
+        "reportedValue" : {
+          "raw" : 1.32480298753E11,
+          "fmt" : "132.48B"
+        }
+      }, {
+        "dataId" : 40001,
+        "asOfDate" : "2025-06-30",
+        "periodType" : "3M",
+        "currencyCode" : "EUR",
+        "reportedValue" : {
+          "raw" : 1.1478944384E11,
+          "fmt" : "114.79B"
+        }
+      }, {
+        "dataId" : 40001,
+        "asOfDate" : "2025-12-31",
+        "periodType" : "3M",
+        "currencyCode" : "EUR",
+        "reportedValue" : {
+          "raw" : 1.19122866748E11,
+          "fmt" : "119.12B"
+        }
+      }, {
+        "dataId" : 40001,
+        "asOfDate" : "2026-03-31",
+        "periodType" : "3M",
+        "currencyCode" : "EUR",
+        "reportedValue" : {
+          "raw" : 1.72621271154E11,
+          "fmt" : "172.62B"
+        }
+      }, {
+        "dataId" : 40001,
+        "asOfDate" : "2026-06-30",
+        "periodType" : "3M",
+        "currencyCode" : "EUR",
+        "reportedValue" : {
+          "raw" : 1.51311555084E11,
+          "fmt" : "151.31B"
+        }
+      } ]
+    }, {
+      "meta" : {
+        "symbol" : [ "TTE.PA" ],
+        "type" : [ "quarterlyEnterprisesValueEBITDARatio" ]
+      },
+      "timestamp" : [ 1751241600, 1759190400, 1767139200, 1774915200, 1782777600 ],
+      "quarterlyEnterprisesValueEBITDARatio" : [ {
+        "dataId" : 102,
+        "asOfDate" : "2025-06-30",
+        "periodType" : "3M",
+        "currencyCode" : "EUR",
+        "reportedValue" : {
+          "raw" : 4.0873,
+          "fmt" : "4.09"
+        }
+      }, {
+        "dataId" : 102,
+        "asOfDate" : "2025-09-30",
+        "periodType" : "3M",
+        "currencyCode" : "EUR",
+        "reportedValue" : {
+          "raw" : 4.3206,
+          "fmt" : "4.32"
+        }
+      }, {
+        "dataId" : 102,
+        "asOfDate" : "2025-12-31",
+        "periodType" : "3M",
+        "currencyCode" : "EUR",
+        "reportedValue" : {
+          "raw" : 4.3811,
+          "fmt" : "4.38"
+        }
+      }, {
+        "dataId" : 102,
+        "asOfDate" : "2026-03-31",
+        "periodType" : "3M",
+        "currencyCode" : "EUR",
+        "reportedValue" : {
+          "raw" : 5.9368,
+          "fmt" : "5.94"
+        }
+      }, {
+        "dataId" : 102,
+        "asOfDate" : "2026-06-30",
+        "periodType" : "3M",
+        "currencyCode" : "EUR",
+        "reportedValue" : {
+          "raw" : 4.8067,
+          "fmt" : "4.81"
+        }
+      } ]
+    }, {
+      "meta" : {
+        "symbol" : [ "TTE.PA" ],
+        "type" : [ "quarterlyPeRatio" ]
+      },
+      "timestamp" : [ 1743379200, 1751241600, 1767139200, 1774915200, 1782777600 ],
+      "quarterlyPeRatio" : [ {
+        "dataId" : 14008,
+        "asOfDate" : "2025-03-31",
+        "periodType" : "3M",
+        "reportedValue" : {
+          "raw" : 9.651985,
+          "fmt" : "9.65"
+        }
+      }, {
+        "dataId" : 14008,
+        "asOfDate" : "2025-06-30",
+        "periodType" : "3M",
+        "reportedValue" : {
+          "raw" : 10.233504,
+          "fmt" : "10.23"
+        }
+      }, {
+        "dataId" : 14008,
+        "asOfDate" : "2025-12-31",
+        "periodType" : "3M",
+        "reportedValue" : {
+          "raw" : 10.548811,
+          "fmt" : "10.55"
+        }
+      }, {
+        "dataId" : 14008,
+        "asOfDate" : "2026-03-31",
+        "periodType" : "3M",
+        "reportedValue" : {
+          "raw" : 16.03697,
+          "fmt" : "16.04"
+        }
+      }, {
+        "dataId" : 14008,
+        "asOfDate" : "2026-06-30",
+        "periodType" : "3M",
+        "reportedValue" : {
+          "raw" : 11.525531,
+          "fmt" : "11.53"
+        }
+      } ]
+    }, {
+      "meta" : {
+        "symbol" : [ "TTE.PA" ],
+        "type" : [ "quarterlyPbRatio" ]
+      },
+      "timestamp" : [ 1743379200, 1751241600, 1767139200, 1774915200, 1782777600 ],
+      "quarterlyPbRatio" : [ {
+        "dataId" : 14012,
+        "asOfDate" : "2025-03-31",
+        "periodType" : "3M",
+        "reportedValue" : {
+          "raw" : 1.216611,
+          "fmt" : "1.22"
+        }
+      }, {
+        "dataId" : 14012,
+        "asOfDate" : "2025-06-30",
+        "periodType" : "3M",
+        "reportedValue" : {
+          "raw" : 1.14115,
+          "fmt" : "1.14"
+        }
+      }, {
+        "dataId" : 14012,
+        "asOfDate" : "2025-12-31",
+        "periodType" : "3M",
+        "reportedValue" : {
+          "raw" : 1.213766,
+          "fmt" : "1.21"
+        }
+      }, {
+        "dataId" : 14012,
+        "asOfDate" : "2026-03-31",
+        "periodType" : "3M",
+        "reportedValue" : {
+          "raw" : 1.721419,
+          "fmt" : "1.72"
+        }
+      }, {
+        "dataId" : 14012,
+        "asOfDate" : "2026-06-30",
+        "periodType" : "3M",
+        "reportedValue" : {
+          "raw" : 1.409974,
+          "fmt" : "1.41"
+        }
+      } ]
+    } ],
+    "error" : null
+  }
+}

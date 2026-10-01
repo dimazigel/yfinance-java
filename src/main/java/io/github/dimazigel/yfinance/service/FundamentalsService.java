@@ -7,10 +7,12 @@ import io.github.dimazigel.yfinance.enums.StatementType;
 import io.github.dimazigel.yfinance.exception.YFDataException;
 import io.github.dimazigel.yfinance.fundamentals.FinancialStatement;
 import io.github.dimazigel.yfinance.fundamentals.SharesOutstanding;
+import io.github.dimazigel.yfinance.fundamentals.ValuationMeasures;
 import io.github.dimazigel.yfinance.instrument.Equity;
 import io.github.dimazigel.yfinance.logging.LogContext;
 import io.github.dimazigel.yfinance.mapper.FundamentalsMapper;
 import io.github.dimazigel.yfinance.mapper.SharesMapper;
+import io.github.dimazigel.yfinance.mapper.ValuationMapper;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
 import java.time.Clock;
 import java.time.Instant;
@@ -26,7 +28,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-/** Retrieves income, balance-sheet and cash-flow statements via the timeseries endpoint. */
+/** Retrieves statements, shares-outstanding history and valuation-measure history via the timeseries endpoint. */
 public final class FundamentalsService {
 
     // Yahoo caps at ~4 years / 5 quarters regardless; this lower bound mirrors yfinance.
@@ -160,6 +162,35 @@ public final class FundamentalsService {
         try (var ignored = LogContext.scope("shares", symbol)) {
             var response = api.sharesOutstanding(symbol.value(), start.getEpochSecond(), end.getEpochSecond());
             return SharesMapper.toList(response);
+        }
+    }
+
+    /**
+     * {@code equity}'s valuation measures at each recent period end, oldest first, in one request
+     * (batch E/2, Python yfinance's {@code Ticker.valuation}): {@link Frequency#QUARTERLY} gives
+     * the latest five quarter ends, {@link Frequency#ANNUAL} the latest four fiscal year ends —
+     * Yahoo serves no more per request. Tolerant of absence like
+     * {@link #getSharesOutstanding(Equity, Instant, Instant)}: no series is an empty list.
+     *
+     * @param equity the equity, the compile-time proof (see {@link #getStatement(Equity, StatementType, Frequency)})
+     * @param frequency {@link Frequency#QUARTERLY} or {@link Frequency#ANNUAL}
+     * @throws IllegalArgumentException for {@link Frequency#TRAILING}: Yahoo's trailing series is
+     *     an irregular set of snapshot dates that differ per measure, not a history by period, and
+     *     the current values are on the snapshot and detail records
+     */
+    public List<ValuationMeasures> getValuationHistory(Equity equity, Frequency frequency) {
+        return getValuationHistory(equity.symbol(), frequency);
+    }
+
+    /** Package-private: reused by tests and the live drift check, which don't hold an {@link Equity}. */
+    List<ValuationMeasures> getValuationHistory(Symbol symbol, Frequency frequency) {
+        if (frequency == Frequency.TRAILING) {
+            throw new IllegalArgumentException(
+                    "Valuation history is stated per period end; use QUARTERLY or ANNUAL for " + symbol);
+        }
+        try (var ignored = LogContext.scope("valuation", symbol)) {
+            List<String> wireKeys = ValuationMapper.KEYS.stream().map(key -> frequency.wireValue() + key).toList();
+            return ValuationMapper.toList(fetchSeries(symbol, wireKeys), frequency);
         }
     }
 

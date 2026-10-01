@@ -15,6 +15,7 @@ import io.github.dimazigel.yfinance.enums.Range;
 import io.github.dimazigel.yfinance.enums.StatementType;
 import io.github.dimazigel.yfinance.fundamentals.FinancialStatement;
 import io.github.dimazigel.yfinance.fundamentals.SharesOutstanding;
+import io.github.dimazigel.yfinance.fundamentals.ValuationMeasures;
 import io.github.dimazigel.yfinance.http.EndpointConfig;
 import io.github.dimazigel.yfinance.http.RawQuoteClient;
 import io.github.dimazigel.yfinance.http.YahooClientFactory;
@@ -387,6 +388,28 @@ public final class YFinance implements AutoCloseable {
     public List<SharesOutstanding> sharesOutstanding(Equity equity) {
         Instant end = clock.instant();
         return sharesOutstanding(equity, end.minus(SHARES_OUTSTANDING_DEFAULT_WINDOW_DAYS, ChronoUnit.DAYS), end);
+    }
+
+    /**
+     * One equity's valuation measures at each recent period end, oldest first, in one request
+     * (Python yfinance's {@code Ticker.valuation}): market cap, enterprise value, trailing and
+     * forward P/E, PEG, price/sales, price/book, EV/revenue and EV/EBITDA.
+     * {@link Frequency#QUARTERLY} gives the latest five quarter ends, {@link Frequency#ANNUAL} the
+     * latest four fiscal year ends; Yahoo serves no more per request.
+     *
+     * @param equity the equity whose valuation history to fetch
+     * @param frequency {@link Frequency#QUARTERLY} or {@link Frequency#ANNUAL}
+     * @return one row per period end that has at least one measure; empty when Yahoo has none
+     * @throws IllegalArgumentException for {@link Frequency#TRAILING}, which Yahoo does not serve
+     *     as a history by period; the current values are on {@link Equity} and {@link EquityDetail}
+     */
+    public List<ValuationMeasures> valuationHistory(Equity equity, Frequency frequency) {
+        return fundamentals.getValuationHistory(equity, frequency);
+    }
+
+    /** {@link #valuationHistory(Equity, Frequency)} by quarter, the table Yahoo's statistics page shows. */
+    public List<ValuationMeasures> valuationHistory(Equity equity) {
+        return valuationHistory(equity, Frequency.QUARTERLY);
     }
 
     /**
