@@ -22,7 +22,7 @@ public final class EquityDetailSpecs {
             required("profile.country", RAW, "qs:assetProfile.country", "qs:summaryProfile.country"),
             required("profile.city", RAW, "qs:assetProfile.city"),
             required("profile.address1", RAW, "qs:assetProfile.address1"),
-            required("profile.zip", RAW, "qs:assetProfile.zip"),
+            optional("profile.zip", RAW, "qs:assetProfile.zip"),
             required("profile.website", RAW, "qs:assetProfile.website", "qs:summaryProfile.website"),
             required("profile.longBusinessSummary", RAW, "qs:assetProfile.longBusinessSummary", "qs:summaryProfile.longBusinessSummary"),
             list("profile.officers", "qs:assetProfile.companyOfficers"),

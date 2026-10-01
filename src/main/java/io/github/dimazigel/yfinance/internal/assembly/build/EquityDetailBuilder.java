@@ -44,13 +44,13 @@ public final class EquityDetailBuilder {
                 r.string("profile.country"),
                 r.string("profile.city"),
                 r.string("profile.address1"),
-                r.string("profile.zip"),
                 website(r),
                 r.string("profile.longBusinessSummary"),
                 officers(r),
                 r.optInt("profile.fullTimeEmployees"),
                 r.optString("profile.phone"),
                 r.optString("profile.state"),
+                r.optString("profile.zip"),
                 r.optString("profile.irWebsite").flatMap(Nodes::uri),
                 r.optCluster("governance", EquityDetailBuilder::governance));
     }

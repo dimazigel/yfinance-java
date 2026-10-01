@@ -98,7 +98,7 @@ List-row identifiers: every `analysts.*`/`ownership.*` list below is mapped row-
 | `profile.country` | R | `String` | `qs:assetProfile.country` → `qs:summaryProfile.country` | | 100% |  |
 | `profile.city` | R | `String` | `qs:assetProfile.city` | | 100% |  |
 | `profile.address1` | R | `String` | `qs:assetProfile.address1` | | 100% |  |
-| `profile.zip` | R | `String` | `qs:assetProfile.zip` | | 99% |  |
+| `profile.zip` | O | `String` | `qs:assetProfile.zip` | | 99% | 1299.HK — Hong Kong has no postal codes; demoted from `R` on 2026-10-01, when it was the one required field that cost a live equity (1 of 172) its whole detail |
 | `profile.website` | R | `URI` | `qs:assetProfile.website` → `qs:summaryProfile.website` | | 100% | lenient URI |
 | `profile.longBusinessSummary` | R | `String` | `qs:assetProfile.longBusinessSummary` → `qs:summaryProfile.longBusinessSummary` | | 100% |  |
 | `profile.officers` | L | `List<Officer>` | `qs:assetProfile.companyOfficers` | | 100% | may be empty list; ruled Task 18 — a list is never a missing-required entry, this row's earlier `R` was a transcription slip |

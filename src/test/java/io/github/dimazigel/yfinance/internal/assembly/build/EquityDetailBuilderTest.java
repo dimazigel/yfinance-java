@@ -62,6 +62,18 @@ class EquityDetailBuilderTest {
     }
 
     @Test
+    void anEquityWithoutAPostalCodeStillHasItsDetail() {
+        // AIA Group: Hong Kong has no postal codes, so Yahoo serves "zip": null. The only equity of
+        // the 172 in the live survey that lacked a required detail field (probed 2026-10-01).
+        EquityDetail aia = build("1299.HK");
+
+        assertThat(aia.profile().city()).isEqualTo("Central");
+        assertThat(aia.profile().address1()).isEqualTo("AIA Central");
+        assertThat(aia.profile().zip()).isEmpty();
+        assertThat(build("AAPL").profile().zip()).contains("95014");
+    }
+
+    @Test
     void lossMakingSmallCapHasEmptyOptionalsNotFailures() {
         EquityDetail plug = build("PLUG");
         assertThat(plug.statistics().pegRatio().get()).isEqualByComparingTo("0.84"); // present; drifted from the 84% survey figure

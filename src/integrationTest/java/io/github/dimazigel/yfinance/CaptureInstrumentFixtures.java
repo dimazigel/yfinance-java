@@ -20,7 +20,7 @@ import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 @EnabledIfEnvironmentVariable(named = "CAPTURE_FIXTURES", matches = "1")
 class CaptureInstrumentFixtures {
 
-    static final List<String> SYMBOLS = List.of("AAPL", "PLUG", "BAC-PL", "005930.KS", "TTE.PA", "SPY", "CSPX.L", "GLD",
+    static final List<String> SYMBOLS = List.of("AAPL", "PLUG", "BAC-PL", "005930.KS", "TTE.PA", "1299.HK", "SPY", "CSPX.L", "GLD",
             "VFIAX", "^GSPC", "BTC-USD", "EURUSD=X", "ES=F", "RIDE");
     static final String MODULES = "assetProfile,summaryProfile,summaryDetail,quoteType,price,financialData,defaultKeyStatistics,"
             + "calendarEvents,secFilings,recommendationTrend,upgradeDowngradeHistory,earningsTrend,earningsHistory,"
@@ -32,7 +32,11 @@ class CaptureInstrumentFixtures {
         var client = YahooClientFactory.apiClient(EndpointConfig.production());
         var out = Path.of("src/test/resources/fixtures/instruments");
         Files.createDirectories(out);
-        for (String symbol : SYMBOLS) {
+        // CAPTURE_SYMBOLS=1299.HK,AAPL captures just those; refreshing every symbol rewrites the
+        // values a good many tests assert on.
+        String only = System.getenv("CAPTURE_SYMBOLS");
+        List<String> symbols = only == null || only.isBlank() ? SYMBOLS : List.of(only.split(","));
+        for (String symbol : symbols) {
             String safe = symbol.replaceAll("[^A-Za-z0-9]", "_");
             var v7 = HttpUrl.get("https://query1.finance.yahoo.com/v7/finance/quote").newBuilder()
                     .addQueryParameter("symbols", symbol).addQueryParameter("formatted", "false").build();
