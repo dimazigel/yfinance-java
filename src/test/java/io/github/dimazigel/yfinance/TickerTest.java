@@ -19,7 +19,6 @@ import io.github.dimazigel.yfinance.instrument.Instrument;
 import io.github.dimazigel.yfinance.instrument.MutualFund;
 import io.github.dimazigel.yfinance.instrument.Unclassified;
 import io.github.dimazigel.yfinance.market.HistoryQuery;
-import io.github.dimazigel.yfinance.service.HistoryRequest;
 import io.github.dimazigel.yfinance.testsupport.Fixtures;
 import io.github.dimazigel.yfinance.testsupport.Instruments;
 import io.github.dimazigel.yfinance.testsupport.YahooDispatcher;
@@ -279,17 +278,6 @@ class TickerTest {
         assertThat(url.queryParameter("events")).isEqualTo("div");
     }
 
-    @Test
-    @SuppressWarnings({"deprecation", "removal"}) // proves the deprecated path still guards the symbol
-    void historyRejectsARequestBuiltForAnotherSymbol() {
-        var request = HistoryRequest.builder(Symbol.of("MSFT")).range(Range.ONE_MONTH).build();
-
-        assertThatThrownBy(() -> yf.ticker("AAPL").history(request))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("MSFT")
-                .hasMessageContaining("AAPL");
-        assertThat(server.getRequestCount()).isZero();
-    }
 
     @Test
     void newsSearchesBySymbol() throws Exception {

@@ -7,8 +7,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import io.github.dimazigel.yfinance.enums.EventType;
 import io.github.dimazigel.yfinance.enums.Interval;
 import io.github.dimazigel.yfinance.enums.Range;
-import io.github.dimazigel.yfinance.service.HistoryRequest;
-import io.github.dimazigel.yfinance.valueobject.Symbol;
 import java.time.Instant;
 import java.util.EnumSet;
 import java.util.Optional;
@@ -131,51 +129,6 @@ class HistoryQueryTest {
         assertThat(query.toString()).contains("ONE_DAY").contains("ONE_MONTH");
     }
 
-    @Test
-    @SuppressWarnings({"deprecation", "removal"}) // HistoryRequest is the deprecated adapter under test here
-    void historyRequestToQueryEquivalenceForRangeForm() {
-        var request = HistoryRequest.builder(Symbol.of("AAPL"))
-                .interval(Interval.ONE_WEEK)
-                .range(Range.SIX_MONTHS)
-                .includePrePost(true)
-                .events(Set.of(EventType.SPLITS))
-                .build();
 
-        var query = request.toQuery();
 
-        assertThat(query).isEqualTo(HistoryQuery.of(Interval.ONE_WEEK)
-                .range(Range.SIX_MONTHS)
-                .includePrePost(true)
-                .events(Set.of(EventType.SPLITS))
-                .build());
-    }
-
-    @Test
-    @SuppressWarnings({"deprecation", "removal"}) // HistoryRequest is the deprecated adapter under test here
-    void historyRequestToQueryEquivalenceForPeriodForm() {
-        var request = HistoryRequest.builder(Symbol.of("AAPL"))
-                .interval(Interval.ONE_HOUR)
-                .period(Instant.ofEpochSecond(1000), Instant.ofEpochSecond(2000))
-                .build();
-
-        var query = request.toQuery();
-
-        assertThat(query).isEqualTo(HistoryQuery.of(Interval.ONE_HOUR)
-                .period(Instant.ofEpochSecond(1000), Instant.ofEpochSecond(2000))
-                .build());
-    }
-
-    @Test
-    @SuppressWarnings({"deprecation", "removal"}) // HistoryRequest is the deprecated adapter under test here
-    void historyRequestToQueryEquivalenceForOpenEndedPeriod() {
-        var request = HistoryRequest.builder(Symbol.of("AAPL"))
-                .period(Instant.ofEpochSecond(1000), null)
-                .build();
-
-        var query = request.toQuery();
-
-        assertThat(query.hasPeriod()).isTrue();
-        assertThat(query.end()).isEmpty();
-        assertThat(query).isEqualTo(HistoryQuery.of(Interval.ONE_DAY).period(Instant.ofEpochSecond(1000)).build());
-    }
 }

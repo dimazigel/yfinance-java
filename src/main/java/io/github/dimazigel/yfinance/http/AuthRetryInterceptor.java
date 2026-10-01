@@ -19,8 +19,7 @@ import org.slf4j.LoggerFactory;
  * parameter of the request that was actually sent, {@code null} when it carried none — so the hook
  * can invalidate <em>only if the cache still holds that crumb</em>. That is what keeps a burst of
  * concurrent 401s down to one handshake: the workers after the first find the cache already
- * refreshed and leave it alone. The {@link #AuthRetryInterceptor(Runnable)} constructor is the
- * unconditional form.
+ * refreshed and leave it alone.
  *
  * <p>Must be installed <em>before</em> {@link CrumbInterceptor} so the retry re-runs crumb injection,
  * and before {@link AdaptiveRateLimitInterceptor} so the retry is paced and 429-handled as well.
@@ -31,11 +30,6 @@ public final class AuthRetryInterceptor implements Interceptor {
 
     private final Consumer<@Nullable String> onAuthFailure;
     private final @Nullable Supplier<@Nullable Crumb> crumb;
-
-    /** Unconditional hook: runs on every 401/403, without the rejected crumb, and always retries once. */
-    public AuthRetryInterceptor(Runnable onAuthFailure) {
-        this(rejected -> onAuthFailure.run(), null);
-    }
 
     private AuthRetryInterceptor(Consumer<@Nullable String> onAuthFailure, @Nullable Supplier<@Nullable Crumb> crumb) {
         this.onAuthFailure = onAuthFailure;

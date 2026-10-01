@@ -47,13 +47,13 @@ class AuthRetryInterceptorTest {
 
         var crumb = new AtomicReference<>("stale");
         var invalidations = new AtomicInteger();
-        Runnable onAuthFailure = () -> {
+        Consumer<@Nullable String> onAuthFailure = rejected -> {
             invalidations.incrementAndGet();
             crumb.set("fresh");
         };
 
         OkHttpClient client = new OkHttpClient.Builder()
-                .addInterceptor(new AuthRetryInterceptor(onAuthFailure))
+                .addInterceptor(AuthRetryInterceptor.onRejectedCrumb(onAuthFailure))
                 .addInterceptor(new CrumbInterceptor(() -> Crumb.of(crumb.get())))
                 .build();
 
@@ -75,7 +75,7 @@ class AuthRetryInterceptorTest {
         var invalidations = new AtomicInteger();
 
         OkHttpClient client = new OkHttpClient.Builder()
-                .addInterceptor(new AuthRetryInterceptor(invalidations::incrementAndGet))
+                .addInterceptor(AuthRetryInterceptor.onRejectedCrumb(rejected -> invalidations.incrementAndGet()))
                 .build();
 
         try (Response response = client.newCall(
@@ -207,8 +207,6 @@ class AuthRetryInterceptorTest {
         var config = EndpointConfig.production().withHosts(server.url("/"));
         var crumbStore = new CrumbStore(new OkHttpClient(), config);
         crumbStore.getCrumb();   // seeded with crumb-1
-        var unconditional = new AuthRetryInterceptor(crumbStore::invalidate);   // the 1.1.0 call shape must still compile (review, important 2)
-        assertThat(unconditional).isNotNull();
         Supplier<@Nullable Crumb> supplier = () -> crumbStore.tryGetCrumb().orElse(null);
         OkHttpClient client = new OkHttpClient.Builder()
                 .addInterceptor(AuthRetryInterceptor.onRejectedCrumb(crumbStore::invalidate, supplier))

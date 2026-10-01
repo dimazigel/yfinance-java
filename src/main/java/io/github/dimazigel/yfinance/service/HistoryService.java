@@ -58,18 +58,6 @@ public final class HistoryService {
         }
     }
 
-    /**
-     * As {@link #getHistory(Symbol, HistoryQuery)}, taking the symbol from {@code request}.
-     *
-     * @deprecated use {@link #getHistory(Symbol, HistoryQuery)}; {@link HistoryRequest} is
-     *     scheduled for removal in 2.0
-     */
-    @Deprecated(since = "1.2", forRemoval = true)
-    @SuppressWarnings("removal") // HistoryRequest is the deprecated adapter this method exists to serve
-    public PriceHistory getHistory(HistoryRequest request) {
-        return getHistory(request.symbol(), request.toQuery());
-    }
-
     private PriceHistory fetch(Symbol symbol, HistoryQuery query, Interval interval) {
         String events = query.events().stream()
                 .map(EventType::wireValue)

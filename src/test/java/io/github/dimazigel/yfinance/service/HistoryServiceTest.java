@@ -369,19 +369,6 @@ class HistoryServiceTest {
         assertThat(MDC.get("yf.op")).isNull(); // cleared once the call returns
     }
 
-    @Test
-    @SuppressWarnings({"deprecation", "removal"}) // proves the deprecated adapter still works
-    void deprecatedGetHistoryRequestStillDelegatesToTheQueryForm() throws Exception {
-        server.enqueue(Fixtures.jsonResponse("chart_aapl_1d.json"));
-
-        var history = service.getHistory(HistoryRequest.builder(AAPL).range(Range.ONE_MONTH).interval(Interval.ONE_DAY).build());
-
-        assertThat(history.bars()).hasSize(3);
-        var url = server.takeRequest().getRequestUrl();
-        assertThat(url.encodedPath()).isEqualTo("/v8/finance/chart/AAPL");
-        assertThat(url.queryParameter("range")).isEqualTo("1mo");
-        assertThat(url.queryParameter("interval")).isEqualTo("1d");
-    }
 
     /** A complete, valid chart {@code meta} object with an empty {@code validRanges}. */
     private static String fullMeta(String currency, String symbol, String timezone) {
