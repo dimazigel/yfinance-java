@@ -13,6 +13,7 @@ import io.github.dimazigel.yfinance.screener.FundScreenField;
 import io.github.dimazigel.yfinance.screener.ScreenOptions;
 import io.github.dimazigel.yfinance.screener.ScreenQuery;
 import io.github.dimazigel.yfinance.screener.ScreenResult;
+import io.github.dimazigel.yfinance.valueobject.Isin;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -21,9 +22,10 @@ import tools.jackson.databind.JsonNode;
 
 /**
  * Yahoo's screener ({@code yf.screen} parity): a predefined screen or a custom query, one request
- * per page. The page's rows are full v7 quote rows, so they are classified by
- * {@link InstrumentService#fromRows(List)} — no second request for the quotes, and a quoteSummary
- * fallback only for a row that is short of a field its class guarantees.
+ * per page. The page's rows are v7 quote rows, so they are classified by
+ * {@link InstrumentService#fromRows(List)}: no second request for the quotes and no quoteSummary
+ * fallback — a row short of a field its class guarantees is downgraded, so a page is always
+ * exactly one request.
  */
 public final class ScreenerService {
 
@@ -52,6 +54,19 @@ public final class ScreenerService {
 
     public ScreenResult screenFunds(ScreenQuery<FundScreenField> query, ScreenOptions options) {
         return custom("MUTUALFUND", query, options);
+    }
+
+    /**
+     * Every equity listing of the security with this ISIN, one row per exchange, the most traded
+     * first (so the primary listing leads), in one request: a screen on the {@code isin} field.
+     * Yahoo's screener knows ISINs for equities only, and its rows do not carry the ISIN, so this
+     * goes from ISIN to symbols and not back.
+     */
+    public Batch<Instrument> listings(Isin isin) {
+        return screenEquities(
+                ScreenQuery.eq(EquityScreenField.ISIN, isin.value()),
+                ScreenOptions.defaults().withSize(ScreenOptions.MAX_SIZE).sortedBy(EquityScreenField.DAYVOLUME, false))
+                .instruments();
     }
 
     private ScreenResult custom(String quoteType, ScreenQuery<?> query, ScreenOptions options) {

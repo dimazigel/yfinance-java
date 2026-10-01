@@ -13,7 +13,9 @@ import java.util.Optional;
  * @param offset how many matches were skipped before this page
  * @param instruments this page, one outcome per row Yahoo returned, in its order. Each row is
  *     classified by the rules of {@code YFinance.instruments(...)}, so an outcome is the typed
- *     instrument, an {@code Unclassified} downgrade, or a skip
+ *     instrument, an {@code Unclassified} downgrade, or a skip; a row short of a field its class
+ *     guarantees is downgraded rather than completed from another endpoint, which keeps a page at
+ *     one request
  */
 public record ScreenResult(Optional<Info> screen, int total, int offset, Batch<Instrument> instruments) {
 

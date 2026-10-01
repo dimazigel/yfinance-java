@@ -26,7 +26,8 @@ import okhttp3.mockwebserver.RecordedRequest;
  *       that key, or Yahoo's 404 error page when there is none
  *   <li>{@code /v1/finance/screener/predefined/saved}: the capture for that {@code scrIds}, or
  *       Yahoo's "Not Found" envelope; a POST to {@code /v1/finance/screener} gets the custom-equity
- *       capture, or the fund capture when the body asks for {@code MUTUALFUND}
+ *       capture, the fund capture when the body asks for {@code MUTUALFUND}, or Apple's listings
+ *       when the query is on {@code isin}
  *   <li>{@code /xhr/ncp} (the news stream): the AAPL capture of the requested tab for every symbol
  *       except {@link #UNKNOWN}, which gets the empty-stream capture
  *   <li>{@code /ws/fundamentals-timeseries/}: {@code type=shares_out} (batch E/1, item 4) gets the
@@ -73,7 +74,11 @@ public class YahooDispatcher extends Dispatcher {
             return predefinedScreen(url.queryParameter("scrIds"));
         }
         if (path.equals("/v1/finance/screener")) {
-            return Fixtures.jsonResponse(request.getBody().snapshot().utf8().contains("MUTUALFUND")
+            String body = request.getBody().snapshot().utf8();
+            if (body.contains("\"isin\"")) {
+                return Fixtures.jsonResponse("screener/custom_isin_apple.json");
+            }
+            return Fixtures.jsonResponse(body.contains("MUTUALFUND")
                     ? "screener/predefined_top_mutual_funds.json" : "screener/custom_equity.json");
         }
         if (path.equals("/v1/test/getcrumb")) {

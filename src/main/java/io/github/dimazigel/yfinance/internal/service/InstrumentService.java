@@ -84,15 +84,19 @@ public final class InstrumentService {
             var rows = new HashMap<Symbol, JsonNode>();
             var chunkFailures = new HashMap<Symbol, YFinanceException>();
             fetchRows(distinct, rows, chunkFailures);
-            return classify(symbols, rows, chunkFailures);
+            return classify(symbols, rows, chunkFailures, true);
         }
     }
 
     /**
      * Classifies v7 quote rows that were fetched elsewhere — the screener answers with them — by the
-     * same rules as {@link #instruments(List)}, the quoteSummary fallback included: one outcome per
-     * row, in order. A row without a symbol cannot be an outcome and is dropped (DEBUG). The caller
-     * owns the {@link LogContext} scope.
+     * same rules as {@link #instruments(List)}, one outcome per row, in order, but <em>without</em>
+     * the quoteSummary fallback: a row short of a field its class guarantees is downgraded to
+     * {@link Unclassified} (with the missing fields) instead of costing a request of its own. A
+     * screen is bulk — up to 250 rows, and thin regional listings routinely come without market cap
+     * or share counts — so it must stay one request; a caller who needs such a row fully typed asks
+     * {@link #instruments(List)} for it. A row without a symbol cannot be an outcome and is dropped
+     * (DEBUG). The caller owns the {@link LogContext} scope.
      */
     public Batch<Instrument> fromRows(List<JsonNode> quoteRows) {
         var symbols = new ArrayList<Symbol>(quoteRows.size());
@@ -113,18 +117,20 @@ public final class InstrumentService {
         if (symbols.isEmpty()) {
             return new Batch<>(List.of());
         }
-        return classify(symbols, rows, Map.of());
+        return classify(symbols, rows, Map.of(), false);
     }
 
-    /** The shared second half: fallbacks for the rows that need one, then one outcome per requested symbol. */
+    /** The shared second half: fallbacks for the rows that need one (when allowed), then one outcome per requested symbol. */
     private Batch<Instrument> classify(
-            List<Symbol> symbols, Map<Symbol, JsonNode> rows, Map<Symbol, YFinanceException> chunkFailures) {
+            List<Symbol> symbols, Map<Symbol, JsonNode> rows, Map<Symbol, YFinanceException> chunkFailures, boolean withFallback) {
         Instant now = clock.instant();
         var needingFallback = new ArrayList<Symbol>();
-        for (Symbol symbol : symbols.stream().distinct().toList()) {
-            JsonNode row = rows.get(symbol);
-            if (row != null && needsFallback(symbol, row)) {
-                needingFallback.add(symbol);
+        if (withFallback) {
+            for (Symbol symbol : symbols.stream().distinct().toList()) {
+                JsonNode row = rows.get(symbol);
+                if (row != null && needsFallback(symbol, row)) {
+                    needingFallback.add(symbol);
+                }
             }
         }
         Map<Symbol, Outcome<Optional<Map<String, JsonNode>>>> fallbacks = fetchFallbacks(needingFallback, rows);

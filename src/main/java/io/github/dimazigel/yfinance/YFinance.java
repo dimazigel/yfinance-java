@@ -49,6 +49,7 @@ import io.github.dimazigel.yfinance.search.LookupQuote;
 import io.github.dimazigel.yfinance.search.SearchResult;
 import io.github.dimazigel.yfinance.sector.Industry;
 import io.github.dimazigel.yfinance.sector.Sector;
+import io.github.dimazigel.yfinance.valueobject.Isin;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
 import java.time.Clock;
 import java.time.Instant;
@@ -449,9 +450,13 @@ public final class YFinance implements AutoCloseable {
 
     /**
      * One page of a predefined screen in one request (Python yfinance's {@code screen("day_gainers")}).
-     * The rows Yahoo returns are classified exactly as {@link #instruments(Collection)} classifies
-     * symbols, without a second request for their quotes: {@code result.instruments()} is a
-     * {@link Batch} of typed {@link Instrument}s.
+     * The rows Yahoo returns are quote rows, classified by the rules of
+     * {@link #instruments(Collection)} without a second request: {@code result.instruments()} is a
+     * {@link Batch} of typed {@link Instrument}s. A page is always exactly one request, so — unlike
+     * {@code instruments(...)} — a row that lacks a field its class guarantees (thin regional
+     * listings often come without market cap) is not completed from another endpoint: it is an
+     * {@link io.github.dimazigel.yfinance.instrument.Unclassified} naming what is missing. Ask
+     * {@code instruments(...)} for such a symbol to get it fully typed.
      *
      * @param screen which screen
      * @param options the page (up to {@value ScreenOptions#MAX_SIZE} instruments) and, optionally, an
@@ -489,6 +494,22 @@ public final class YFinance implements AutoCloseable {
      */
     public ScreenResult screenFunds(ScreenQuery<FundScreenField> query, ScreenOptions options) {
         return screener.screenFunds(query, options);
+    }
+
+    /**
+     * Every equity listing of the security with this ISIN in one request, one outcome per exchange,
+     * the most traded first — so the primary listing leads: {@code US0378331005} gives {@code AAPL}
+     * followed by Apple's listings in Frankfurt, London, Mexico and elsewhere. It is a screen on
+     * Yahoo's {@code isin} field, so the rows are classified like any screen's (see
+     * {@link #screen(PredefinedScreen, ScreenOptions)}).
+     *
+     * <p>Yahoo knows ISINs for equities only — an ETF's or a fund's ISIN gives an empty batch — and
+     * does not serve the ISIN of a symbol, so there is no lookup in the other direction.
+     *
+     * @return the listings; empty when Yahoo has no equity with this ISIN
+     */
+    public Batch<Instrument> listings(Isin isin) {
+        return screener.listings(isin);
     }
 
     /**

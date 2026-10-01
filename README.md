@@ -59,6 +59,7 @@ try (var yf = YFinance.create()) { // cookie+crumb handshake; close() releases t
             ScreenQuery.eq(EquityScreenField.REGION, "us"),
             ScreenQuery.eq(EquityScreenField.SECTOR, "Technology"),
             ScreenQuery.gt(EquityScreenField.INTRADAYMARKETCAP, 100_000_000_000L)));
+    Batch<Instrument> listings = yf.listings(Isin.of("US0378331005"));   // AAPL first, then its other exchanges
 }
 ```
 
@@ -178,6 +179,7 @@ Batch<PriceHistory> backfill = yf.histories(symbols,
 | `Tickers("AAPL MSFT")` / `download([...])` | `yf.instruments(symbols)` (one request per 100 symbols) / `yf.histories(symbols, range, interval)`; `yf.tickers(...).fetch(Ticker::...)` fans any call out |
 | `Search("apple")` / `Lookup("apple")` | `yf.search("apple")` (`quotes()` + `news()`) / `yf.lookup("apple", LookupType.EQUITY)` |
 | `screen("day_gainers")` / `screen(EquityQuery(...))` / `screen(FundQuery(...))` | `yf.screen(PredefinedScreen.DAY_GAINERS)` / `yf.screenEquities(ScreenQuery...)` / `yf.screenFunds(ScreenQuery...)` — the result's quotes are typed `Instrument`s; `size`/`offset`/`sortField`/`sortAsc` are `ScreenOptions` |
+| `Ticker.isin` (symbol → ISIN, from a third-party site) | not available: Yahoo does not serve a symbol's ISIN. The other direction is: `yf.listings(Isin.of("US0378331005"))` → every equity listing of that ISIN |
 | `Sector("technology")` / `Industry("semiconductors")` | `yf.sector(SectorKey.TECHNOLOGY)` / `yf.industry("semiconductors")` — typed records in place of DataFrames; `info["sectorKey"]` / `info["industryKey"]` are `detail.profile().sectorKey()` / `industryKey()` |
 | `Ticker.news` / `get_news(count, tab)` | `ticker.news()` / `ticker.news(NewsTab.PRESS_RELEASES, 20)` — tabs `ALL`, `NEWS`, `PRESS_RELEASES` |
 | `history(repair=True)`, `EquityQuery`/`Screener`, `WebSocket`, ISIN (`isin`, `Ticker("US0378331005")`) | not covered |
@@ -356,8 +358,17 @@ premium-only and per-locale ranking fields are left out. Text values (`"us"`, `"
 `"NMS"`) are Yahoo's and are not checked; a value Yahoo rejects is a `YFHttpException` (400).
 `ScreenOptions` picks the page (`withOffset`, `withSize` up to 250) and the order (`sortedBy`).
 A `ScreenResult` carries `total`, `offset`, the saved screen's own `Info` for a predefined screen,
-and `instruments()`: a `Batch<Instrument>` built from the rows Yahoo returns — they are full quote
-rows, so each is classified exactly as `yf.instruments(...)` would, with no second request.
+and `instruments()`: a `Batch<Instrument>` built from the quote rows Yahoo returns, classified by
+the rules of `yf.instruments(...)` with no second request. A page is always exactly one request:
+a row that lacks a field its class guarantees (thin regional listings often come without market
+cap) is an `Unclassified` naming what is missing, not completed from another endpoint — pass such
+a symbol to `yf.instruments(...)` to get it fully typed.
+
+**ISIN.** `yf.listings(Isin.of("US0378331005"))` is a screen on Yahoo's `isin` field: every equity
+listing of that security, one per exchange, the most traded first, so the primary listing leads.
+`Isin` checks the shape and the check digit. Yahoo knows ISINs for equities only (an ETF's ISIN
+gives an empty batch) and does not serve the ISIN of a symbol, so there is no lookup in the other
+direction.
 
 **Sectors and industries.** `yf.sector(SectorKey)` and `yf.industry(key)` are one request each and
 return the page Yahoo shows: `Overview` (company count, market cap, weight, employees), `Performance`
@@ -392,7 +403,7 @@ Twitter and proof-of-work stats.
 | Per-symbol news stream (news, press releases, all) | `POST finance.yahoo.com/xhr/ncp` | `Ticker.news()`, `Ticker.news(tab, count)`, `YFinance.news(...)` |
 | Lookup | `/v1/finance/lookup` | `YFinance.lookup(...)` |
 | Sector and industry pages | `/v1/finance/sectors/{key}`, `/v1/finance/industries/{key}` | `YFinance.sector(SectorKey)`, `YFinance.industry(key)` |
-| Screener: predefined screens and custom equity / fund queries | `/v1/finance/screener/predefined/saved`, `POST /v1/finance/screener` | `YFinance.screen(...)`, `screenEquities(...)`, `screenFunds(...)` |
+| Screener: predefined screens and custom equity / fund queries; listings by ISIN | `/v1/finance/screener/predefined/saved`, `POST /v1/finance/screener` | `YFinance.screen(...)`, `screenEquities(...)`, `screenFunds(...)`, `listings(Isin)` |
 
 Not covered: live WebSocket streaming, ESG / sustainability
 scores — Yahoo stopped serving the `esgScores` module (verified 2026-10-01: HTTP 200 with the module
@@ -555,7 +566,7 @@ exported (the API)
   screener/      ScreenQuery, ScreenOptions, ScreenResult, EquityScreenField, FundScreenField
   http/          EndpointConfig, AdaptiveRateLimitConfig, RetryConfig, InMemoryCookieJar
   enums/         closed sets implementing WireEnum (Interval, Range, LineItem, ...)
-  valueobject/   Symbol;   exception/  the YFinanceException hierarchy;   logging/  LogContext (MDC keys)
+  valueobject/   Symbol, Isin;   exception/  the YFinanceException hierarchy;   logging/  LogContext (MDC keys)
 
 internal/ (encapsulated, may change in any release)
   service/       one service per concern (InstrumentService, DetailService, HistoryService, ...)

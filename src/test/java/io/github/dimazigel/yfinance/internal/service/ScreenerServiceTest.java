@@ -11,15 +11,18 @@ import io.github.dimazigel.yfinance.enums.PredefinedScreen;
 import io.github.dimazigel.yfinance.exception.YFHttpException;
 import io.github.dimazigel.yfinance.instrument.Equity;
 import io.github.dimazigel.yfinance.instrument.MutualFund;
+import io.github.dimazigel.yfinance.instrument.Unclassified;
 import io.github.dimazigel.yfinance.internal.api.QuoteApi;
 import io.github.dimazigel.yfinance.internal.api.QuoteSummaryApi;
 import io.github.dimazigel.yfinance.internal.api.ScreenerApi;
 import io.github.dimazigel.yfinance.internal.http.RawQuoteClient;
+import io.github.dimazigel.yfinance.screener.EquityScreenField;
 import io.github.dimazigel.yfinance.screener.FundScreenField;
 import io.github.dimazigel.yfinance.screener.ScreenOptions;
 import io.github.dimazigel.yfinance.screener.ScreenQuery;
 import io.github.dimazigel.yfinance.screener.ScreenResult;
 import io.github.dimazigel.yfinance.testsupport.Fixtures;
+import io.github.dimazigel.yfinance.valueobject.Isin;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
 import java.time.Clock;
 import java.time.Instant;
@@ -170,6 +173,49 @@ class ScreenerServiceTest {
         assertThat(body.path("quoteType").asString()).isEqualTo("MUTUALFUND");
         assertThat(body.path("query").path("operator").asString()).isEqualTo("GTE");
         assertThat(body.path("query").path("operands").get(0).asString()).isEqualTo("performanceratingoverall");
+    }
+
+    @Test
+    void aRowShortOfARequiredFieldIsDowngradedNotRefetched() {
+        // Apple's 15 listings: the thin regional ones come without market cap or share counts. A
+        // screen is bulk, so it stays one request: no quoteSummary fallback per short row.
+        server.enqueue(Fixtures.jsonResponse("screener/custom_isin_apple.json"));
+
+        ScreenResult result = service.screenEquities(ScreenQuery.eq(EquityScreenField.ISIN, "US0378331005"),
+                ScreenOptions.defaults().withSize(250));
+
+        assertThat(server.getRequestCount()).as("exactly one request, whatever the rows lack").isEqualTo(1);
+        assertThat(result.instruments().size()).isEqualTo(15);
+        assertThat(result.instruments().failed()).isEmpty();
+        assertThat(result.instruments().values()).filteredOn(i -> i instanceof Equity).hasSize(10);
+        assertThat(result.instruments().values()).filteredOn(i -> i instanceof Unclassified).hasSize(5)
+                .allSatisfy(i -> assertThat(((Unclassified) i).missing())
+                        .containsExactly("marketCap", "sharesOutstanding", "impliedSharesOutstanding", "financialCurrency"));
+    }
+
+    @Test
+    void listingsOfAnIsinAreOneRequestMostTradedFirst() throws Exception {
+        server.enqueue(Fixtures.jsonResponse("screener/custom_isin_apple.json"));
+
+        var listings = service.listings(Isin.of("US0378331005"));
+
+        assertThat(listings.size()).isEqualTo(15);
+        assertThat(listings.outcomes().getFirst().symbol()).as("the primary listing trades most").isEqualTo(Symbol.of("AAPL"));
+        assertThat(listings.outcomes()).extracting(o -> o.symbol().value()).contains("APC.DE", "AAPL.MX", "0R2V.L");
+        assertThat(server.getRequestCount()).isEqualTo(1);
+        var json = JsonMapper.builder().build();
+        assertThat(json.readTree(server.takeRequest().getBody().readUtf8())).isEqualTo(json.readTree("""
+                {"offset":0,"size":250,"sortField":"dayvolume","sortType":"DESC","quoteType":"EQUITY",
+                 "userId":"","userIdType":"guid",
+                 "query":{"operator":"EQ","operands":["isin","US0378331005"]}}"""));
+    }
+
+    @Test
+    void anIsinYahooHasNoEquityForIsAnEmptyBatch() {
+        server.enqueue(new MockResponse().setResponseCode(200).setHeader("Content-Type", "application/json")
+                .setBody("{\"finance\":{\"result\":[{\"start\":0,\"count\":0,\"total\":0,\"quotes\":[]}],\"error\":null}}"));
+
+        assertThat(service.listings(Isin.of("US78462F1030")).size()).as("SPY is an ETF, not an equity").isZero();
     }
 
     @Test
