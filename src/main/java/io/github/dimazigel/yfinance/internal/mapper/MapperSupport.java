@@ -66,6 +66,19 @@ final class MapperSupport {
         }
     }
 
+    /** Parses an ISO-8601 instant such as {@code 2026-09-30T13:57:00Z}, or {@code null} if absent or malformed. */
+    static @Nullable Instant instant(@Nullable String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+        try {
+            return Instant.parse(value.strip());
+        } catch (DateTimeParseException e) {
+            LOG.atDebug().log("Unparseable timestamp \"{}\"; left null", value);
+            return null;
+        }
+    }
+
     /** The symbol Yahoo reported, or {@code fallback} when it is absent or blank. */
     static Symbol symbolOr(@Nullable String reported, Symbol fallback) {
         return reported == null || reported.isBlank() ? fallback : Symbol.of(reported);

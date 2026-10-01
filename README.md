@@ -50,6 +50,9 @@ try (var yf = YFinance.create()) { // cookie+crumb handshake; close() releases t
 
     SearchResult results = yf.search("apple");
     List<LookupQuote> lookup = yf.lookup("apple", LookupType.EQUITY);
+
+    Sector tech = yf.sector(SectorKey.TECHNOLOGY);         // overview, performance, top companies and funds, industries
+    Industry industry = yf.industry(detail.profile().industryKey());   // the equity's own industry page
 }
 ```
 
@@ -168,6 +171,7 @@ Batch<PriceHistory> backfill = yf.histories(symbols,
 | `Ticker.valuation` | `yf.valuationHistory(equity[, Frequency])` / `ticker.valuationHistory(equity[, Frequency])` — typed rows per period end, without the "Current" column (current values are on `Equity` / `EquityDetail`) |
 | `Tickers("AAPL MSFT")` / `download([...])` | `yf.instruments(symbols)` (one request per 100 symbols) / `yf.histories(symbols, range, interval)`; `yf.tickers(...).fetch(Ticker::...)` fans any call out |
 | `Search("apple")` / `Lookup("apple")` | `yf.search("apple")` (`quotes()` + `news()`) / `yf.lookup("apple", LookupType.EQUITY)` |
+| `Sector("technology")` / `Industry("semiconductors")` | `yf.sector(SectorKey.TECHNOLOGY)` / `yf.industry("semiconductors")` — typed records in place of DataFrames; `info["sectorKey"]` / `info["industryKey"]` are `detail.profile().sectorKey()` / `industryKey()` |
 | `Ticker.news` / `get_news(count, tab)` | `ticker.news()` / `ticker.news(NewsTab.PRESS_RELEASES, 20)` — tabs `ALL`, `NEWS`, `PRESS_RELEASES` |
 | `history(repair=True)`, `EquityQuery`/`Screener`, `WebSocket`, ISIN (`isin`, `Ticker("US0378331005")`) | not covered |
 
@@ -335,6 +339,18 @@ and which deeper calls exist. History and `options()` exist for every class (opt
 | `FxPair` | `session` | `book` | — | — |
 | `Future` | `session`, `contract` (expiry, open interest, underlying, continuous root) | `book` | — | — |
 
+**Sectors and industries.** `yf.sector(SectorKey)` and `yf.industry(key)` are one request each and
+return the page Yahoo shows: `Overview` (company count, market cap, weight, employees), `Performance`
+over five horizons with the same for its `Benchmark`, up to 50 `TopCompany` rows and recent
+`ResearchReport`s; a `Sector` adds its top ETFs and mutual funds and its industries (each with the
+key that opens it), an `Industry` adds its best performers and fastest growers. Every percentage is
+a fraction. The eleven sectors are the `SectorKey` enum; industry keys are strings, because Yahoo
+has about 145 and adds to them — an unknown key throws `YFMissingDataException`. The head of a page
+was complete for all 11 sectors and 145 industries surveyed, so it is non-`Optional`; in the lists,
+a row's name, rating, target price and returns are `Optional` (Yahoo omits them for some rows) and
+a row missing anything else is dropped. From an equity, `detail.profile().industryKey()` and
+`sectorKey()` lead to its pages.
+
 Detail contents: `EquityDetail` = `CompanyProfile`, `Statistics`, `FinancialHealth`, `AnalystView`
 (recommendation, targets, trends, estimates, upgrades/downgrades, SEC filings), `Ownership`
 (breakdown, institutions, funds, insiders, transactions, net purchase activity). `EtfDetail` /
@@ -355,8 +371,9 @@ Twitter and proof-of-work stats.
 | Search | `/v1/finance/search` | `YFinance.search(...)` (`quotes()` + `news()`) |
 | Per-symbol news stream (news, press releases, all) | `POST finance.yahoo.com/xhr/ncp` | `Ticker.news()`, `Ticker.news(tab, count)`, `YFinance.news(...)` |
 | Lookup | `/v1/finance/lookup` | `YFinance.lookup(...)` |
+| Sector and industry pages | `/v1/finance/sectors/{key}`, `/v1/finance/industries/{key}` | `YFinance.sector(SectorKey)`, `YFinance.industry(key)` |
 
-Not covered: live WebSocket streaming, `EquityQuery`/`Screener`, `Sector`/`Industry`, ESG / sustainability
+Not covered: live WebSocket streaming, `EquityQuery`/`Screener`, ESG / sustainability
 scores — Yahoo stopped serving the `esgScores` module (verified 2026-10-01: HTTP 200 with the module
 omitted for every symbol tried), so there is nothing to port.
 
@@ -513,6 +530,7 @@ exported (the API)
   market/        HistoryQuery, PriceHistory, PriceBar, HistoryMetadata, OptionChain, corporate actions
   fundamentals/  FinancialStatement, SharesOutstanding, ValuationMeasures
   search/        SearchResult, LookupQuote;   news/  NewsItem
+  sector/        Sector, Industry, Overview, Performance, Benchmark, TopCompany, ResearchReport
   http/          EndpointConfig, AdaptiveRateLimitConfig, RetryConfig, InMemoryCookieJar
   enums/         closed sets implementing WireEnum (Interval, Range, LineItem, ...)
   valueobject/   Symbol;   exception/  the YFinanceException hierarchy;   logging/  LogContext (MDC keys)
@@ -523,7 +541,8 @@ internal/ (encapsulated, may change in any release)
                  RawQuoteClient (batched v7 rows + per-symbol quoteSummary modules), Feign/Jackson glue
   api/           Feign interfaces (one per endpoint) + YahooApis bundle
   assembly/      FieldSpec tables per class (specs/, mirrored from Appendix A), Resolver, builders (build/)
-  dto/ + mapper/ raw records and mappers for chart, options, timeseries, search, lookup, news
+  dto/ + mapper/ raw records and mappers for chart, options, timeseries, search, lookup, news,
+                 sectors and industries
   auth/          CrumbStore — cookie (fc.yahoo.com) then crumb handshake, consent-form fallback,
                  invalidate-on-401/403 (by identity), cooldown after a failure
   batch/         FanOut

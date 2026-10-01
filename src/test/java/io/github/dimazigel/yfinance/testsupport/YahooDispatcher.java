@@ -22,6 +22,8 @@ import okhttp3.mockwebserver.RecordedRequest;
  *   <li>{@code /v7/finance/options/{symbol}}: the captured chain for that symbol (and expiration,
  *       when {@code date} is given), or the no-listed-options capture for anything else
  *   <li>search and lookup: the single fixture each
+ *   <li>{@code /v1/finance/sectors/{key}} and {@code /v1/finance/industries/{key}}: the capture for
+ *       that key, or Yahoo's 404 error page when there is none
  *   <li>{@code /xhr/ncp} (the news stream): the AAPL capture of the requested tab for every symbol
  *       except {@link #UNKNOWN}, which gets the empty-stream capture
  *   <li>{@code /ws/fundamentals-timeseries/}: {@code type=shares_out} (batch E/1, item 4) gets the
@@ -60,6 +62,9 @@ public class YahooDispatcher extends Dispatcher {
         }
         if (path.equals("/xhr/ncp")) {
             return news(url.queryParameter("queryRef"), request.getBody().snapshot().utf8());
+        }
+        if (path.startsWith("/v1/finance/sectors/") || path.startsWith("/v1/finance/industries/")) {
+            return domain(path.startsWith("/v1/finance/sectors/") ? "sector" : "industry", url.pathSegments().getLast());
         }
         if (path.equals("/v1/test/getcrumb")) {
             return new MockResponse().setResponseCode(200).setBody("mock-crumb");
@@ -146,6 +151,15 @@ public class YahooDispatcher extends Dispatcher {
             default -> "news";
         };
         return Fixtures.jsonResponse("news/ncp_" + tab + "_AAPL.json");
+    }
+
+    private static MockResponse domain(String kind, String key) {
+        try {
+            return Fixtures.jsonResponse("domain/" + kind + "_" + key.replace('-', '_') + ".json");
+        } catch (IllegalArgumentException noFixture) {
+            return new MockResponse().setResponseCode(404).setHeader("Content-Type", "text/html")
+                    .setBody(Fixtures.load("domain/industry_not_found.html"));
+        }
     }
 
     private static MockResponse json(String body) {

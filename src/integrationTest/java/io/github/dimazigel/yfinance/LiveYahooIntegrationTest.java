@@ -13,6 +13,7 @@ import io.github.dimazigel.yfinance.enums.LookupType;
 import io.github.dimazigel.yfinance.enums.NewsTab;
 import io.github.dimazigel.yfinance.enums.OptionType;
 import io.github.dimazigel.yfinance.enums.Range;
+import io.github.dimazigel.yfinance.enums.SectorKey;
 import io.github.dimazigel.yfinance.enums.StatementType;
 import io.github.dimazigel.yfinance.exception.YFClassMismatchException;
 import io.github.dimazigel.yfinance.exception.YFDataException;
@@ -717,6 +718,55 @@ class LiveYahooIntegrationTest {
         @Test
         void unknownSymbolHasNoNews() {
             assertThat(yf.ticker("ZZZZNOTREAL").news()).isEmpty();
+        }
+    }
+
+    @Nested
+    class SectorsAndIndustries {
+
+        @ParameterizedTest
+        @EnumSource(SectorKey.class)
+        void everySectorHasACompletePage(SectorKey key) {
+            var sector = yf.sector(key);
+
+            assertThat(sector.key()).isEqualTo(key);
+            assertThat(sector.name()).isNotBlank();
+            assertThat(sector.overview().companiesCount()).isPositive();
+            assertThat(sector.overview().marketWeight()).isBetween(java.math.BigDecimal.ZERO, java.math.BigDecimal.ONE);
+            assertThat(sector.benchmark().name()).isNotBlank();
+            assertThat(sector.topCompanies()).hasSizeGreaterThan(40);
+            assertThat(sector.topEtfs()).isNotEmpty();
+            assertThat(sector.topMutualFunds()).isNotEmpty();
+            assertThat(sector.industries()).hasSize(sector.industriesCount())
+                    .allSatisfy(i -> assertThat(i.key()).isNotBlank());
+            assertThat(sector.researchReports()).isNotEmpty();
+        }
+
+        @Test
+        void aSectorsIndustryOpensWithItsKey() {
+            var summary = yf.sector(SectorKey.TECHNOLOGY).industries().getFirst();
+
+            var industry = yf.industry(summary.key());
+
+            assertThat(industry.name()).isEqualTo(summary.name());
+            assertThat(industry.sector()).contains(SectorKey.TECHNOLOGY);
+            assertThat(industry.topCompanies()).isNotEmpty();
+            assertThat(industry.topPerformingCompanies()).isNotEmpty();
+            assertThat(industry.topGrowthCompanies()).isNotEmpty();
+        }
+
+        @Test
+        void anEquitysKeysOpenItsSectorAndIndustry() {
+            var profile = aapl.detail(aaplEquity).profile();
+
+            assertThat(SectorKey.ofKey(profile.sectorKey())).contains(SectorKey.TECHNOLOGY);
+            assertThat(yf.industry(profile.industryKey()).name()).isEqualTo(profile.industry());
+        }
+
+        @Test
+        void anUnknownIndustryIsMissingData() {
+            assertThatThrownBy(() -> yf.industry("no-such-industry"))
+                    .isInstanceOf(io.github.dimazigel.yfinance.exception.YFMissingDataException.class);
         }
     }
 

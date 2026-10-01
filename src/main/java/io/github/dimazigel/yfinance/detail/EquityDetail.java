@@ -32,10 +32,17 @@ public record EquityDetail(
         Ownership ownership,
         Instant fetchedAt) {
 
-    /** Company profile from the {@code assetProfile}/{@code summaryProfile} modules. */
+    /**
+     * Company profile from the {@code assetProfile}/{@code summaryProfile} modules. {@code sectorKey}
+     * and {@code industryKey} are Yahoo's keys for the sector and industry named by {@code sector}
+     * and {@code industry}: {@code YFinance.industry(industryKey)} opens the industry page, and
+     * {@code SectorKey.ofKey(sectorKey)} gives the argument of {@code YFinance.sector(...)}.
+     */
     public record CompanyProfile(
             String sector,
             String industry,
+            String sectorKey,
+            String industryKey,
             String country,
             String city,
             String address1,

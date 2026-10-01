@@ -4,7 +4,6 @@ import io.github.dimazigel.yfinance.internal.dto.news.NewsResponse;
 import io.github.dimazigel.yfinance.news.NewsItem;
 import java.net.URI;
 import java.time.Instant;
-import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -73,7 +72,7 @@ public final class NewsMapper {
         }
         String id = text(content.id());
         String title = text(content.title());
-        Instant published = instant(content.pubDate());
+        Instant published = MapperSupport.instant(content.pubDate());
         URI url = link(content.canonicalUrl());
         NewsItem.Provider provider = provider(content.provider());
         if (id == null || title == null || published == null || url == null || provider == null) {
@@ -125,18 +124,5 @@ public final class NewsMapper {
     /** Yahoo sends {@code ""} as well as {@code null} for a string it has no value for. */
     private static @Nullable String text(@Nullable String value) {
         return value == null || value.isBlank() ? null : value;
-    }
-
-    /** Parses an ISO-8601 instant such as {@code 2026-09-30T13:57:00Z}, or {@code null} if absent or malformed. */
-    private static @Nullable Instant instant(@Nullable String value) {
-        if (value == null || value.isBlank()) {
-            return null;
-        }
-        try {
-            return Instant.parse(value.strip());
-        } catch (DateTimeParseException e) {
-            LOG.atDebug().log("Unparseable timestamp \"{}\"; left null", value);
-            return null;
-        }
     }
 }
