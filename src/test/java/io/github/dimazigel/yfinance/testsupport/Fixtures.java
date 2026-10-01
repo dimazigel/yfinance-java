@@ -3,6 +3,7 @@ package io.github.dimazigel.yfinance.testsupport;
 import io.github.dimazigel.yfinance.api.ChartApi;
 import io.github.dimazigel.yfinance.api.FundamentalsApi;
 import io.github.dimazigel.yfinance.api.LookupApi;
+import io.github.dimazigel.yfinance.api.NewsApi;
 import io.github.dimazigel.yfinance.api.OptionsApi;
 import io.github.dimazigel.yfinance.api.QuoteApi;
 import io.github.dimazigel.yfinance.api.QuoteSummaryApi;
@@ -38,14 +39,14 @@ public final class Fixtures {
                 .setBody(load(fixtureName));
     }
 
-    /** All seven interfaces against {@code server}, with optional OkHttp interceptors (e.g. to observe MDC). */
+    /** All eight interfaces against {@code server}, with optional OkHttp interceptors (e.g. to observe MDC). */
     public static YahooApis apis(MockWebServer server, okhttp3.Interceptor... interceptors) {
         var client = new okhttp3.OkHttpClient.Builder();
         for (var interceptor : interceptors) {
             client.addInterceptor(interceptor);
         }
         var base = server.url("/");
-        return YahooApis.create(EndpointConfig.production().withHosts(base, base, base), client.build());
+        return YahooApis.create(EndpointConfig.production().withHosts(base), client.build());
     }
 
     public static <T> T api(MockWebServer server, Class<T> apiClass) {
@@ -58,6 +59,7 @@ public final class Fixtures {
         else if (apiClass == OptionsApi.class) api = apis.options();
         else if (apiClass == SearchApi.class) api = apis.search();
         else if (apiClass == LookupApi.class) api = apis.lookup();
+        else if (apiClass == NewsApi.class) api = apis.news();
         else throw new IllegalArgumentException("Not a Yahoo API interface: " + apiClass);
         return apiClass.cast(api);
     }

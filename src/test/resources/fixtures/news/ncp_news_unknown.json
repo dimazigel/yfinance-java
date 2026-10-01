@@ -1,0 +1,14 @@
+{
+  "data" : {
+    "tickerStream" : {
+      "pagination" : {
+        "requestedCount" : 10,
+        "remainingCount" : 0,
+        "uuids" : ""
+      },
+      "nextPage" : false,
+      "stream" : [ ]
+    }
+  },
+  "status" : "OK"
+}

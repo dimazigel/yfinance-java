@@ -2,8 +2,10 @@ package io.github.dimazigel.yfinance.api;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import io.github.dimazigel.yfinance.dto.news.NewsRequest;
 import io.github.dimazigel.yfinance.http.EndpointConfig;
 import io.github.dimazigel.yfinance.testsupport.Fixtures;
+import java.util.List;
 import java.util.Objects;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
@@ -122,7 +124,7 @@ class YahooApisTest {
         var second = new MockWebServer();
         second.start();
         try {
-            var config = EndpointConfig.production().withHosts(server.url("/"), second.url("/"), server.url("/"));
+            var config = EndpointConfig.production().withHosts(server.url("/"), second.url("/"), server.url("/"), server.url("/"));
             var split = YahooApis.create(config, new OkHttpClient());
             second.enqueue(Fixtures.jsonResponse("timeseries_income_annual.json"));
             split.fundamentals().timeseries("AAPL", "annualTotalRevenue", 1600000000L, 1700000000L);
@@ -131,6 +133,24 @@ class YahooApisTest {
             assertThat(server.getRequestCount()).isZero();
         } finally {
             second.shutdown();
+        }
+    }
+
+    @Test
+    void newsGoesToTheFinanceHost() throws Exception {
+        var site = new MockWebServer();
+        site.start();
+        try {
+            var config = EndpointConfig.production().withHosts(server.url("/"), server.url("/"), site.url("/"), server.url("/"));
+            var split = YahooApis.create(config, new OkHttpClient());
+            site.enqueue(Fixtures.jsonResponse("news/ncp_news_unknown.json"));
+            split.news().news("latestNews", new NewsRequest(new NewsRequest.ServiceConfig(10, List.of("AAPL"))));
+            var request = site.takeRequest();
+            assertThat(request.getMethod()).isEqualTo("POST");
+            assertThat(request.getPath()).isEqualTo("/xhr/ncp?queryRef=latestNews&serviceKey=ncp_fin");
+            assertThat(server.getRequestCount()).isZero();
+        } finally {
+            site.shutdown();
         }
     }
 }

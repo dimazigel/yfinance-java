@@ -4,6 +4,7 @@ import feign.Feign;
 import feign.Logger;
 import feign.Request;
 import feign.Retryer;
+import feign.jackson3.Jackson3Encoder;
 import java.util.concurrent.TimeUnit;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
@@ -11,7 +12,7 @@ import tools.jackson.databind.json.JsonMapper;
 
 /**
  * The one place Feign is configured. The builder runs on the library's OkHttp client (all resilience
- * lives in its interceptor chain), never retries on its own, decodes with Jackson 3, and maps every
+ * lives in its interceptor chain), never retries on its own, encodes and decodes with Jackson 3, and maps every
  * failure to a {@link io.github.dimazigel.yfinance.exception.YFinanceException}. Request options mirror
  * the client's timeouts so {@code feign-okhttp} uses the configured client as is instead of cloning it.
  *
@@ -36,6 +37,7 @@ public final class YahooFeign {
                         client.connectTimeoutMillis(), TimeUnit.MILLISECONDS,
                         client.readTimeoutMillis(), TimeUnit.MILLISECONDS,
                         client.followRedirects()))
+                .encoder(new Jackson3Encoder(mapper))
                 .decoder(new YahooDecoder(mapper))
                 .errorDecoder(new YahooErrorDecoder(mapper))
                 .invocationHandlerFactory(new YahooInvocationHandlerFactory())

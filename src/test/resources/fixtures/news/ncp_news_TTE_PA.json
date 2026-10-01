@@ -1,0 +1,1288 @@
+{
+  "data" : {
+    "tickerStream" : {
+      "pagination" : {
+        "requestedCount" : 10,
+        "contentOverrides" : {
+          "dfa6d612-a7c3-3831-a11b-6118b81408da" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "67a39509-619b-3097-94ed-b1b9106b45b4" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "e22c3a9b-88de-347a-9a6f-13bd43fc0ca3" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "8c9fd610-9e47-3230-bed1-5bfc1f9202bd" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "693af5b9-f2ce-349c-a818-a04709ea4f5c" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "2553896e-c473-3cbd-965e-bb0e95de2f0b" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "adc01cf8-2ef7-38de-b43b-669835e66e84" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "65ef13df-6bbf-3db9-bafc-dc3849166740" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "97c595f2-638f-39a7-b4eb-442d10470973" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "8bb602e8-4e6c-390d-97e7-18f0b2e2353a" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "f4223f8e-15d5-33df-8a22-7d88fd2900e0" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "4cc9b7a9-b3e0-3a50-a433-85efc6026258" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "4e53d78f-72f0-337b-a6f9-25408038874f" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "c9dbdcd8-15de-3421-9af3-379ab5d41e7b" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "f4f5d00e-30c4-30fb-bf11-d51fcee2f6dd" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "4516b382-978d-3d7b-aabd-18fb277381e2" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "ca72d20e-c136-37ea-b63a-feb193dd8608" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "16a2c875-26f2-3b57-ab4d-455e89221c40" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "c3117918-6e66-33fd-97a6-76dafbe5782d" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "3a852782-98f9-3cb2-8a91-073f5c66e64d" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "bbf7cc93-6b8f-3979-85f4-9554d7c20ae5" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "864f26ac-9d4f-3e42-ab08-d373ebd29594" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "4b47f326-a0f6-30b0-84fb-c44ac38ed29d" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "fff95d09-06cb-36f4-8ed5-e219cd76376c" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "92125845-dfeb-3c1a-a0c2-4d2c4fd50831" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "4c10ad40-114b-35f6-b68d-91f5a12ff5a7" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "55c04593-4365-3362-be17-f79051741832" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "c6ef6e2b-caa0-3811-b31b-f0705b7b9dc1" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "5455e3e8-e867-39c7-b227-67a6344f595a" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "1eef582b-4b0d-30ab-a4d8-a18e8348b5ce" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "b1cbd101-78ec-3390-91ba-88d6c832c836" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "f3afa0fe-9f0b-3167-8519-e3e52855562d" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "74eaefd9-1d2f-351b-921e-ea78fb6ce222" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "f3a3a861-b625-3520-a1f1-38f9b58e319e" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "9e80b466-6d54-3d65-87d2-1f4bf9e7c9ea" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "4b8a39d2-d374-3483-ada4-7589bfd85606" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "ad051543-9a1c-3ba4-8676-796429f2b7b2" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "4d3a248a-b556-35fa-be6b-3183be37a86d" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "28fe1f6c-c4d8-39ff-8a46-4a36fabd1c9a" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "7f8ca8cc-b428-3244-94b1-d45fdef7bcf9" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "4fbfa05f-6629-3e6e-b860-bce60eed8b52" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "8a7ed144-cdb4-3299-9d1e-b157aaa5ac43" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "adce8e07-900a-37cd-a57e-1d40ee04e608" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "31167f10-b94a-3561-a5a2-065e4d12ff67" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "199f7142-8e52-3330-821c-5a47af5aa58f" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "eda9100b-dae3-31fe-b5f4-92211ce18638" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "34e95e2a-6686-3faf-b4ff-026125ed0521" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "04521731-72da-392f-abac-f9d61fa1acb9" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "43298379-13eb-3f39-b63c-2c7774c3b97a" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "cf24375d-e7ae-3452-a024-ce29bb1bcc87" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "5336b144-ed85-3354-9dad-1dacdbc45bf1" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "094e2b7a-4c96-3376-b594-3a18202205e7" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "5a62bed8-8f5b-3f7e-89ca-29a4db537c0a" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "4da0bb99-bb43-3fc1-a710-e32e5c807998" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "13c4591e-af7a-3419-9435-b9c9091f9fee" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "b5a49051-70a4-35f4-bc41-5ff0f7b01526" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "6b7ce25c-197b-3705-833b-ef7d739a7898" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "5a8989f1-124d-3015-9258-7dc09d40ed97" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "69d1d963-34fe-397d-b377-825ec4e32849" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "45b4046e-af93-397f-9b40-a4be3f515a2a" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "0284d059-2a26-3b9b-98df-d9a244805ae3" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "fb63e6a9-c64d-39cd-bab6-bbd5a2e93ee7" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "af0bf17a-db36-3962-870b-c2fdd0303059" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "588de5b0-8da9-39fb-b614-f1114e022357" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "dd1f8845-a29e-35dd-adc6-4c20d10408d7" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "cdacc3f1-d1c5-3f23-8b74-992357a67697" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "83981d2c-c897-306d-a26b-a1932cac73dd" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "1febf0ec-aec4-38ab-8531-ad196afa9260" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "fde81bd2-0a52-3447-8486-6d3b6fb6c4d3" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "c9febe06-29e4-3914-91a1-ae170ff64bcf" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "da02ce2f-a3fb-3903-a536-36e0089eba79" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "2889b52f-b087-3406-969c-e4abb7e9b17d" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "97ca2f54-c11c-34cd-bc02-86c95cda5ac6" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "eb59cd61-f718-30ee-b9ab-b12ee68cf39f" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "6c8bf10e-e22d-325c-bb35-dc6730a712a9" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "67f7be3c-8541-3ccb-afdc-8bc0e5e4c1c6" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "5ec90961-3573-3eb9-bcbe-ead81a071061" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "d46d27b0-c64f-3aa6-b187-af3ec5c7b99e" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "58eedca5-1597-357b-807f-774c44190c8a" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "da390528-a681-39f8-87a3-63a164099e9f" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "4c6996d9-47c1-3ded-84b7-f7c2db70643d" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "d8204a98-a079-3463-a69a-8cf5c4abb71d" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "ba2a6b8f-9b97-3192-93ee-33d385391d66" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "aa8a1000-b259-3b50-b378-9eefb0c07de9" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "dd99cd60-ea5a-318a-86fc-848dadcde39f" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "bb41c1ef-0cab-35b2-9e13-ed1352af06f0" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "ded710f4-1321-3d50-aef7-8bd6be58e033" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "d666f180-1b97-3ad3-bf32-51fc8aa33895" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "26988cfa-7082-3763-9192-d226a169615a" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "9bcce1ae-2cfd-3644-88db-a3c34c80537b" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "7ae814d3-f137-3bc5-82b7-e87c1327a76a" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "bc299903-bf34-36cf-b920-b6e9bde5177a" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "56dd4c75-a795-3ef6-9409-d64c142b5e33" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "fcd76858-30ab-3878-919e-2197313c44f5" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "798c6f84-8d15-3780-b56c-02bb26d0c61c" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "c7c6f2ad-66ae-3c13-b0fe-305b38dd43a7" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "9288d5cc-38da-3ef9-9c4c-91943ead90ee" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "40d14653-7078-3ae9-b3da-962070b1d4e2" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "52c1bd44-959b-33bb-a8ac-adc29f97670f" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "6c666566-5105-373b-b074-86f34dbc6e79" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "7b2ff50f-63e4-317d-bb71-7b75e5e5eb28" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "24799eeb-8649-39ea-a72e-a42fc66f926f" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "d75301be-ef2f-340e-8942-2f1092c9ae6f" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "8f0a008d-4140-398e-9263-68329547f4a5" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "284a9b8d-4191-35d5-ba71-b5557bece943" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "56f4474c-2640-3361-bcdb-a6f25f8ec656" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "659a0488-20c6-31f3-b092-6cbaccef407a" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "e723f078-3587-30df-93ee-b16f6cec6491" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "20125414-2055-332e-aa3f-56e8518499ca" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "e13f04bd-7917-301f-894d-1048b6bb8bfb" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "fac83ef1-55ee-3b60-94ae-a7996fae4dca" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "716e303e-f8ad-330a-8681-3de371ffb6cd" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "6e6d5755-6527-3649-b153-8f0300ea7a70" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "6feba9e7-dbea-3259-8d45-f2eab2501d41" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "6bf48345-2277-3c47-b770-149ffb4a51f0" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "8868e73f-6aa0-3eaf-aa09-700254c00edf" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "5f56254a-fe28-360d-94e5-5deae7167f0a" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "8e52a8b2-009f-3aa3-8534-13589698c65a" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "5d0532c9-fdb4-325b-9635-15384b07f61f" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "5e0c34b0-a00e-38f6-b4ee-60b2d53f141e" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "314a9d49-1b1a-387c-8a13-d93cd1c8357d" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "72e78959-7e17-3731-9b3b-e2a18dff2c75" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "d9fb1968-d140-3b7a-b559-b320f01de05a" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "2b583dab-71a3-3b1b-8ca4-8c22ec2495df" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "6326ccec-93a3-3d31-9a8e-1d394e724f6f" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "af019160-1990-3920-820a-cc347bcf99ab" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "326f3a48-acc6-3b1d-b389-d7f4fc672827" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "63dbcefe-abe1-3229-8c2f-6b75dab4271f" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "42f91f62-feee-3814-9688-e50625caed88" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "7293bf6c-b14e-3292-b20c-fce3b242b1a4" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "19f67a42-6ad1-3ecb-9154-c32546626ee4" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "4c62557f-ec18-33de-9b3e-f0d54dcd7847" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "a7b2b597-b3e5-3874-99d3-b77754cf105d" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "cb4b6d92-c397-3243-89df-a679361a6010" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "2fd1c199-7e17-30fc-869d-7785e5de1775" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "129bed3b-fa22-3e0b-8cc9-ec86b98a45dd" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "b30e2862-3c67-3a5e-bece-f21f6a7f614b" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "a6a40af9-81cf-3336-9fd6-d6d0e90e5b2c" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "42dd4b8b-8396-3956-b871-a2bef85607f1" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "6b3e741b-702a-35ff-b168-c6165fd16e66" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "e09b1d47-a569-37c3-9c9a-f9de1708645a" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "89c17e67-b642-3d87-baa4-befcccd37a30" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "134ce938-6648-31b4-aa97-504f5de1069e" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "57e44d3c-55ff-335f-bfd1-d147dfb8d041" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "4e656827-45da-3ca8-a3db-535f21ac56cb" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "e50493f2-889f-33dc-8305-f0c6065952d8" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "eb99a059-91dc-3309-97cc-a262830c734a" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "0ff624cc-fa7f-37ff-bcc6-6766321b4d46" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "4187fe22-f847-3ee4-9a47-813af7979c7c" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "9a54c34f-c4df-3972-9102-d346401700fa" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "d1c8d19c-1a2b-3564-88c6-5cf58bda4452" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "35017a34-0597-3521-befc-a14f31b7dad2" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "60eb388f-ccd3-3dce-b1f0-ed3bf3ec3805" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "608989c6-0c27-3c58-b78b-9a5476921cab" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "ef2dd2b0-7bc8-3c6a-84f2-fe0ff228a60f" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "5b226150-b299-32af-9a2e-ffdb3222947a" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "5f641efc-7829-38e8-a9d2-01eabb7107e5" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "baddaceb-720a-384e-aef8-c88ac54c237f" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "3605a0fc-5693-3c50-838f-72e73c0a9838" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "99e105d7-1fa7-39e2-9b36-0c5b19aacced" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "2b43871a-25c3-39e1-b855-595aa1d346ca" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "4fe782b8-7676-32f9-b766-cc4a2e8a65d6" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "9dbff9ed-f801-3deb-ac80-8e266901500b" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "e6558638-9b50-3406-a019-d120ee2099ed" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "ffffb5dc-1c2b-3b7f-a1ab-453b92784dce" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "aa5fc61b-f8b2-3e07-9bc1-3d4f624f06b4" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "a6934686-040a-3568-ab9c-3eb69a7d8e3e" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "1c8fa366-d647-31f7-ba82-cac12e4bba89" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "158776d4-6add-358c-a874-3afe01b5d6ed" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "0fbad253-10ff-3c35-990e-facb5b77164c" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "4445a3c4-9114-3f48-8312-ddd5b03d6882" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "570ffa19-834c-37f2-a1d2-5bfa3a9b9a5b" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "029cd1d6-bfd1-32dc-89a8-212b8b540f1f" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "d4731573-cbf3-3514-9688-fc09dff2c4ae" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "6da7496c-13bf-3c9c-86ba-2ada9b1e2d3f" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "8a6b0b7f-69ab-30e5-b04f-3b20aadadf4f" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "07f67897-9601-31ce-b58b-5876a83537ff" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "bf4716af-eb44-302b-9e6f-09fcffb77a10" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "db15eb26-52e8-3683-bf56-6b89dffb31d1" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "0ae1617a-2193-3612-92f0-7bc5ee399305" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "e7cee2d6-7f49-35a5-a2b3-abfba3a546a7" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "dba13068-1037-39b7-869b-47b8165ce2b6" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "ef2decba-36b1-3708-b5cc-1a5ff9378540" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "fff08d5c-975b-3404-b989-68781a7ae344" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "c130c760-28ac-307d-9bb4-a3f08d92fc12" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "f8907179-9ae3-31d4-89eb-1c2dee74dca5" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "43c59b13-9d26-3089-bf89-cbf1be944439" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "eee89008-61c6-3324-bb9c-b481ecada173" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          },
+          "ad521939-fcd9-34f2-8e68-2b1f650a8f8a" : {
+            "list" : "9815e400-c5fd-11e9-9fff-40d60c11b0a1",
+            "editorsPick" : false
+          }
+        },
+        "remainingCount" : 189,
+        "uuids" : "af0bf17a-db36-3962-870b-c2fdd0303059:STORY,bb41c1ef-0cab-35b2-9e13-ed1352af06f0:STORY,d9fb1968-d140-3b7a-b559-b320f01de05a:STORY,d4731573-cbf3-3514-9688-fc09dff2c4ae:STORY,4e53d78f-72f0-337b-a6f9-25408038874f:STORY,57e44d3c-55ff-335f-bfd1-d147dfb8d041:STORY,6bf48345-2277-3c47-b770-149ffb4a51f0:STORY,89c17e67-b642-3d87-baa4-befcccd37a30:STORY,4c10ad40-114b-35f6-b68d-91f5a12ff5a7:STORY,3a852782-98f9-3cb2-8a91-073f5c66e64d:STORY,a6a40af9-81cf-3336-9fd6-d6d0e90e5b2c:STORY,56f4474c-2640-3361-bcdb-a6f25f8ec656:STORY,52c1bd44-959b-33bb-a8ac-adc29f97670f:STORY,dd1f8845-a29e-35dd-adc6-4c20d10408d7:STORY,db15eb26-52e8-3683-bf56-6b89dffb31d1:STORY,99e105d7-1fa7-39e2-9b36-0c5b19aacced:STORY,ded710f4-1321-3d50-aef7-8bd6be58e033:STORY,4445a3c4-9114-3f48-8312-ddd5b03d6882:STORY,4c6996d9-47c1-3ded-84b7-f7c2db70643d:STORY,af019160-1990-3920-820a-cc347bcf99ab:STORY,55c04593-4365-3362-be17-f79051741832:STORY,eda9100b-dae3-31fe-b5f4-92211ce18638:STORY,f3a3a861-b625-3520-a1f1-38f9b58e319e:STORY,608989c6-0c27-3c58-b78b-9a5476921cab:STORY,adce8e07-900a-37cd-a57e-1d40ee04e608:STORY,fcd76858-30ab-3878-919e-2197313c44f5:STORY,6c666566-5105-373b-b074-86f34dbc6e79:STORY,c9dbdcd8-15de-3421-9af3-379ab5d41e7b:STORY,b5a49051-70a4-35f4-bc41-5ff0f7b01526:STORY,baddaceb-720a-384e-aef8-c88ac54c237f:STORY,1c8fa366-d647-31f7-ba82-cac12e4bba89:STORY,1febf0ec-aec4-38ab-8531-ad196afa9260:VIDEO,69d1d963-34fe-397d-b377-825ec4e32849:STORY,ca72d20e-c136-37ea-b63a-feb193dd8608:STORY,13c4591e-af7a-3419-9435-b9c9091f9fee:STORY,029cd1d6-bfd1-32dc-89a8-212b8b540f1f:STORY,04521731-72da-392f-abac-f9d61fa1acb9:STORY,aa5fc61b-f8b2-3e07-9bc1-3d4f624f06b4:STORY,094e2b7a-4c96-3376-b594-3a18202205e7:STORY,7ae814d3-f137-3bc5-82b7-e87c1327a76a:STORY,2b583dab-71a3-3b1b-8ca4-8c22ec2495df:STORY,2889b52f-b087-3406-969c-e4abb7e9b17d:STORY,bc299903-bf34-36cf-b920-b6e9bde5177a:STORY,e6558638-9b50-3406-a019-d120ee2099ed:STORY,0284d059-2a26-3b9b-98df-d9a244805ae3:STORY,129bed3b-fa22-3e0b-8cc9-ec86b98a45dd:STORY,5336b144-ed85-3354-9dad-1dacdbc45bf1:STORY,26988cfa-7082-3763-9192-d226a169615a:STORY,4187fe22-f847-3ee4-9a47-813af7979c7c:STORY,eb59cd61-f718-30ee-b9ab-b12ee68cf39f:STORY,570ffa19-834c-37f2-a1d2-5bfa3a9b9a5b:STORY,cdacc3f1-d1c5-3f23-8b74-992357a67697:STORY,9bcce1ae-2cfd-3644-88db-a3c34c80537b:STORY,4e656827-45da-3ca8-a3db-535f21ac56cb:STORY,97ca2f54-c11c-34cd-bc02-86c95cda5ac6:STORY,6c8bf10e-e22d-325c-bb35-dc6730a712a9:STORY,bbf7cc93-6b8f-3979-85f4-9554d7c20ae5:STORY,5455e3e8-e867-39c7-b227-67a6344f595a:STORY,4b47f326-a0f6-30b0-84fb-c44ac38ed29d:STORY,f4f5d00e-30c4-30fb-bf11-d51fcee2f6dd:STORY,4d3a248a-b556-35fa-be6b-3183be37a86d:STORY,9dbff9ed-f801-3deb-ac80-8e266901500b:STORY,dba13068-1037-39b7-869b-47b8165ce2b6:STORY,d1c8d19c-1a2b-3564-88c6-5cf58bda4452:STORY,28fe1f6c-c4d8-39ff-8a46-4a36fabd1c9a:STORY,6b3e741b-702a-35ff-b168-c6165fd16e66:STORY,7f8ca8cc-b428-3244-94b1-d45fdef7bcf9:STORY,4fbfa05f-6629-3e6e-b860-bce60eed8b52:STORY,158776d4-6add-358c-a874-3afe01b5d6ed:STORY,d8204a98-a079-3463-a69a-8cf5c4abb71d:STORY,5a62bed8-8f5b-3f7e-89ca-29a4db537c0a:STORY,0ff624cc-fa7f-37ff-bcc6-6766321b4d46:STORY,134ce938-6648-31b4-aa97-504f5de1069e:STORY,42f91f62-feee-3814-9688-e50625caed88:STORY,fde81bd2-0a52-3447-8486-6d3b6fb6c4d3:STORY,a7b2b597-b3e5-3874-99d3-b77754cf105d:STORY,cb4b6d92-c397-3243-89df-a679361a6010:STORY,8e52a8b2-009f-3aa3-8534-13589698c65a:STORY,67a39509-619b-3097-94ed-b1b9106b45b4:STORY,c6ef6e2b-caa0-3811-b31b-f0705b7b9dc1:STORY,31167f10-b94a-3561-a5a2-065e4d12ff67:STORY,9e80b466-6d54-3d65-87d2-1f4bf9e7c9ea:STORY,2fd1c199-7e17-30fc-869d-7785e5de1775:STORY,92125845-dfeb-3c1a-a0c2-4d2c4fd50831:STORY,7b2ff50f-63e4-317d-bb71-7b75e5e5eb28:STORY,f3afa0fe-9f0b-3167-8519-e3e52855562d:STORY,19f67a42-6ad1-3ecb-9154-c32546626ee4:STORY,4b8a39d2-d374-3483-ada4-7589bfd85606:STORY,d46d27b0-c64f-3aa6-b187-af3ec5c7b99e:STORY,5ec90961-3573-3eb9-bcbe-ead81a071061:STORY,9288d5cc-38da-3ef9-9c4c-91943ead90ee:STORY,da390528-a681-39f8-87a3-63a164099e9f:STORY,58eedca5-1597-357b-807f-774c44190c8a:STORY,8bb602e8-4e6c-390d-97e7-18f0b2e2353a:STORY,e09b1d47-a569-37c3-9c9a-f9de1708645a:STORY,40d14653-7078-3ae9-b3da-962070b1d4e2:STORY,716e303e-f8ad-330a-8681-3de371ffb6cd:STORY,42dd4b8b-8396-3956-b871-a2bef85607f1:STORY,56dd4c75-a795-3ef6-9409-d64c142b5e33:STORY,16a2c875-26f2-3b57-ab4d-455e89221c40:STORY,6e6d5755-6527-3649-b153-8f0300ea7a70:STORY,34e95e2a-6686-3faf-b4ff-026125ed0521:STORY,798c6f84-8d15-3780-b56c-02bb26d0c61c:STORY,c9febe06-29e4-3914-91a1-ae170ff64bcf:STORY,d75301be-ef2f-340e-8942-2f1092c9ae6f:STORY,ffffb5dc-1c2b-3b7f-a1ab-453b92784dce:STORY,35017a34-0597-3521-befc-a14f31b7dad2:STORY,5f56254a-fe28-360d-94e5-5deae7167f0a:STORY,43c59b13-9d26-3089-bf89-cbf1be944439:STORY,dd99cd60-ea5a-318a-86fc-848dadcde39f:STORY,c130c760-28ac-307d-9bb4-a3f08d92fc12:STORY,97c595f2-638f-39a7-b4eb-442d10470973:STORY,da02ce2f-a3fb-3903-a536-36e0089eba79:STORY,6b7ce25c-197b-3705-833b-ef7d739a7898:STORY,43298379-13eb-3f39-b63c-2c7774c3b97a:VIDEO,2b43871a-25c3-39e1-b855-595aa1d346ca:STORY,0ae1617a-2193-3612-92f0-7bc5ee399305:STORY,f4223f8e-15d5-33df-8a22-7d88fd2900e0:STORY,20125414-2055-332e-aa3f-56e8518499ca:STORY,6feba9e7-dbea-3259-8d45-f2eab2501d41:STORY,7293bf6c-b14e-3292-b20c-fce3b242b1a4:STORY,2553896e-c473-3cbd-965e-bb0e95de2f0b:STORY,74eaefd9-1d2f-351b-921e-ea78fb6ce222:STORY,f8907179-9ae3-31d4-89eb-1c2dee74dca5:STORY,eee89008-61c6-3324-bb9c-b481ecada173:STORY,60eb388f-ccd3-3dce-b1f0-ed3bf3ec3805:STORY,dfa6d612-a7c3-3831-a11b-6118b81408da:STORY,326f3a48-acc6-3b1d-b389-d7f4fc672827:STORY,e723f078-3587-30df-93ee-b16f6cec6491:STORY,b1cbd101-78ec-3390-91ba-88d6c832c836:STORY,72e78959-7e17-3731-9b3b-e2a18dff2c75:STORY,fff95d09-06cb-36f4-8ed5-e219cd76376c:STORY,284a9b8d-4191-35d5-ba71-b5557bece943:STORY,864f26ac-9d4f-3e42-ab08-d373ebd29594:STORY,ad051543-9a1c-3ba4-8676-796429f2b7b2:STORY,ef2decba-36b1-3708-b5cc-1a5ff9378540:STORY,a6934686-040a-3568-ab9c-3eb69a7d8e3e:STORY,8f0a008d-4140-398e-9263-68329547f4a5:STORY,cf24375d-e7ae-3452-a024-ce29bb1bcc87:STORY,3605a0fc-5693-3c50-838f-72e73c0a9838:STORY,67f7be3c-8541-3ccb-afdc-8bc0e5e4c1c6:STORY,0fbad253-10ff-3c35-990e-facb5b77164c:STORY,4da0bb99-bb43-3fc1-a710-e32e5c807998:STORY,e13f04bd-7917-301f-894d-1048b6bb8bfb:STORY,83981d2c-c897-306d-a26b-a1932cac73dd:STORY,e50493f2-889f-33dc-8305-f0c6065952d8:STORY,6da7496c-13bf-3c9c-86ba-2ada9b1e2d3f:STORY,5b226150-b299-32af-9a2e-ffdb3222947a:STORY,63dbcefe-abe1-3229-8c2f-6b75dab4271f:STORY,24799eeb-8649-39ea-a72e-a42fc66f926f:STORY,fb63e6a9-c64d-39cd-bab6-bbd5a2e93ee7:STORY,bf4716af-eb44-302b-9e6f-09fcffb77a10:STORY,fac83ef1-55ee-3b60-94ae-a7996fae4dca:STORY,5e0c34b0-a00e-38f6-b4ee-60b2d53f141e:STORY,45b4046e-af93-397f-9b40-a4be3f515a2a:STORY,5f641efc-7829-38e8-a9d2-01eabb7107e5:STORY,8a6b0b7f-69ab-30e5-b04f-3b20aadadf4f:STORY,1eef582b-4b0d-30ab-a4d8-a18e8348b5ce:STORY,6326ccec-93a3-3d31-9a8e-1d394e724f6f:STORY,314a9d49-1b1a-387c-8a13-d93cd1c8357d:STORY,5a8989f1-124d-3015-9258-7dc09d40ed97:STORY,07f67897-9601-31ce-b58b-5876a83537ff:STORY,693af5b9-f2ce-349c-a818-a04709ea4f5c:STORY,4cc9b7a9-b3e0-3a50-a433-85efc6026258:STORY,8a7ed144-cdb4-3299-9d1e-b157aaa5ac43:STORY,c3117918-6e66-33fd-97a6-76dafbe5782d:STORY,fff08d5c-975b-3404-b989-68781a7ae344:STORY,ef2dd2b0-7bc8-3c6a-84f2-fe0ff228a60f:STORY,eb99a059-91dc-3309-97cc-a262830c734a:STORY,c7c6f2ad-66ae-3c13-b0fe-305b38dd43a7:STORY,e7cee2d6-7f49-35a5-a2b3-abfba3a546a7:STORY,d666f180-1b97-3ad3-bf32-51fc8aa33895:STORY,199f7142-8e52-3330-821c-5a47af5aa58f:STORY,4516b382-978d-3d7b-aabd-18fb277381e2:STORY,9a54c34f-c4df-3972-9102-d346401700fa:STORY,4fe782b8-7676-32f9-b766-cc4a2e8a65d6:STORY,e22c3a9b-88de-347a-9a6f-13bd43fc0ca3:STORY,b30e2862-3c67-3a5e-bece-f21f6a7f614b:STORY,8c9fd610-9e47-3230-bed1-5bfc1f9202bd:STORY,65ef13df-6bbf-3db9-bafc-dc3849166740:STORY,588de5b0-8da9-39fb-b614-f1114e022357:STORY,4c62557f-ec18-33de-9b3e-f0d54dcd7847:STORY,8868e73f-6aa0-3eaf-aa09-700254c00edf:STORY,659a0488-20c6-31f3-b092-6cbaccef407a:STORY,adc01cf8-2ef7-38de-b43b-669835e66e84:STORY,ba2a6b8f-9b97-3192-93ee-33d385391d66:STORY,aa8a1000-b259-3b50-b378-9eefb0c07de9:STORY,ad521939-fcd9-34f2-8e68-2b1f650a8f8a:STORY,5d0532c9-fdb4-325b-9635-15384b07f61f:STORY"
+      },
+      "nextPage" : true,
+      "stream" : [ {
+        "id" : "a2422cb5-ceb3-3f7f-82c3-85e7dcb7c720",
+        "content" : {
+          "id" : "a2422cb5-ceb3-3f7f-82c3-85e7dcb7c720",
+          "contentType" : "STORY",
+          "title" : "Sector Update: Energy Stocks Advance Pre-Bell Wednesday",
+          "description" : "",
+          "summary" : "Energy stocks were advancing pre-bell Wednesday, with the State Street Energy Select Sector SPDR ETF",
+          "pubDate" : "2026-09-30T13:29:04Z",
+          "displayTime" : "2026-09-30T13:29:04Z",
+          "isHosted" : true,
+          "bypassModal" : false,
+          "previewUrl" : null,
+          "thumbnail" : null,
+          "provider" : {
+            "displayName" : "MT Newswires",
+            "url" : "https://www.mtnewswires.com/",
+            "sourceId" : "mt_newswires_premium_news_706"
+          },
+          "canonicalUrl" : {
+            "url" : "https://finance.yahoo.com/energy/articles/sector-energy-stocks-advance-pre-132904056.html",
+            "site" : "finance",
+            "region" : "US",
+            "lang" : "en-US"
+          },
+          "clickThroughUrl" : {
+            "url" : "https://finance.yahoo.com/energy/articles/sector-energy-stocks-advance-pre-132904056.html",
+            "site" : "finance",
+            "region" : "US",
+            "lang" : "en-US"
+          },
+          "metadata" : {
+            "editorsPick" : false
+          },
+          "finance" : {
+            "premiumFinance" : {
+              "isPremiumNews" : true,
+              "isPremiumFreeNews" : false
+            }
+          },
+          "storyline" : null
+        }
+      }, {
+        "id" : "340c0f4d-c3b0-3e1d-a97d-fb861e92bc43",
+        "content" : {
+          "id" : "340c0f4d-c3b0-3e1d-a97d-fb861e92bc43",
+          "contentType" : "STORY",
+          "title" : "Market Chatter: Shell, TotalEnergies, ExxonMobil Face $5.2 Billion Kazakhstan Fine",
+          "description" : "",
+          "summary" : "Shell (SHEL), TotalEnergies (TTE), ExxonMobil (XOM) and China National Petroleum face a $5.2 billion",
+          "pubDate" : "2026-09-30T09:09:56Z",
+          "displayTime" : "2026-09-30T09:09:56Z",
+          "isHosted" : true,
+          "bypassModal" : false,
+          "previewUrl" : null,
+          "thumbnail" : null,
+          "provider" : {
+            "displayName" : "MT Newswires",
+            "url" : "https://www.mtnewswires.com/",
+            "sourceId" : "mt_newswires_premium_news_706"
+          },
+          "canonicalUrl" : {
+            "url" : "https://finance.yahoo.com/energy/articles/market-chatter-shell-totalenergies-exxonmobil-090956683.html",
+            "site" : "finance",
+            "region" : "US",
+            "lang" : "en-US"
+          },
+          "clickThroughUrl" : {
+            "url" : "https://finance.yahoo.com/energy/articles/market-chatter-shell-totalenergies-exxonmobil-090956683.html",
+            "site" : "finance",
+            "region" : "US",
+            "lang" : "en-US"
+          },
+          "metadata" : {
+            "editorsPick" : false
+          },
+          "finance" : {
+            "premiumFinance" : {
+              "isPremiumNews" : true,
+              "isPremiumFreeNews" : false
+            }
+          },
+          "storyline" : null
+        }
+      }, {
+        "id" : "1ff26afe-9ad1-31de-b84c-3da4c8bf1cc7",
+        "content" : {
+          "id" : "1ff26afe-9ad1-31de-b84c-3da4c8bf1cc7",
+          "contentType" : "STORY",
+          "title" : "TotalEnergies (ENXTPA:TTE) Backs Absheron And Ima Gas Projects In New Africa Push",
+          "description" : "",
+          "summary" : "TotalEnergies (ENXTPA:TTE) has approved Final Investment Decisions for the Absheron gas field in Azerbaijan and the Ima gas field in Nigeria. Both Absheron and Ima are planned with low emission designs and are expected to support regional energy security and local development. The company has also entered a new infrastructure partnership in Africa with Global Infrastructure Partners to support long term gas-related assets. The Absheron and Ima gas FIDs mark a major step, although...",
+          "pubDate" : "2026-09-30T01:08:18Z",
+          "displayTime" : "2026-09-30T01:08:18Z",
+          "isHosted" : true,
+          "bypassModal" : false,
+          "previewUrl" : null,
+          "thumbnail" : {
+            "originalUrl" : "https://media.zenfs.com/en/simply_wall_st__316/cdadae800d691074bea5587f34f15a32.jpg",
+            "originalWidth" : 1600,
+            "originalHeight" : 900,
+            "caption" : "",
+            "resolutions" : [ {
+              "url" : "https://s.yimg.com/uu/api/res/1.2/jvc2cEc3_BkkRwv2rdweJQ--~B/aD05MDA7dz0xNjAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/simply_wall_st__316/cdadae800d691074bea5587f34f15a32.jpg",
+              "width" : 1600,
+              "height" : 900,
+              "tag" : "original"
+            }, {
+              "url" : "https://s.yimg.com/uu/api/res/1.2/amx7eOx9Ll_WKh9PdhWm_g--~B/Zmk9c3RyaW07aD0xMjg7dz0xNzA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/simply_wall_st__316/cdadae800d691074bea5587f34f15a32.jpg",
+              "width" : 170,
+              "height" : 128,
+              "tag" : "170x128"
+            } ]
+          },
+          "provider" : {
+            "displayName" : "Simply Wall St.",
+            "url" : "https://simplywall.st/",
+            "sourceId" : "simply_wall_st__316"
+          },
+          "canonicalUrl" : {
+            "url" : "https://finance.yahoo.com/energy/articles/totalenergies-enxtpa-tte-backs-absheron-010818295.html",
+            "site" : "finance",
+            "region" : "US",
+            "lang" : "en-US"
+          },
+          "clickThroughUrl" : {
+            "url" : "https://finance.yahoo.com/energy/articles/totalenergies-enxtpa-tte-backs-absheron-010818295.html",
+            "site" : "finance",
+            "region" : "US",
+            "lang" : "en-US"
+          },
+          "metadata" : {
+            "editorsPick" : false
+          },
+          "finance" : {
+            "premiumFinance" : {
+              "isPremiumNews" : false,
+              "isPremiumFreeNews" : false
+            }
+          },
+          "storyline" : null
+        }
+      }, {
+        "id" : "ffa1367c-11e0-3783-8246-9a4bc01dd2a8",
+        "content" : {
+          "id" : "ffa1367c-11e0-3783-8246-9a4bc01dd2a8",
+          "contentType" : "STORY",
+          "title" : "TotalEnergies' Business Update Reflected Continued Cash Flow Growth, RBC Says",
+          "description" : "",
+          "summary" : "TotalEnergies' (TTE) update delivered what many had expected, continued cash flow growth driven by a",
+          "pubDate" : "2026-09-29T15:55:28Z",
+          "displayTime" : "2026-09-29T15:55:28Z",
+          "isHosted" : true,
+          "bypassModal" : false,
+          "previewUrl" : null,
+          "thumbnail" : null,
+          "provider" : {
+            "displayName" : "MT Newswires",
+            "url" : "https://www.mtnewswires.com/",
+            "sourceId" : "mt_newswires_premium_news_706"
+          },
+          "canonicalUrl" : {
+            "url" : "https://finance.yahoo.com/energy/articles/totalenergies-apos-business-reflected-continued-155528464.html",
+            "site" : "finance",
+            "region" : "US",
+            "lang" : "en-US"
+          },
+          "clickThroughUrl" : {
+            "url" : "https://finance.yahoo.com/energy/articles/totalenergies-apos-business-reflected-continued-155528464.html",
+            "site" : "finance",
+            "region" : "US",
+            "lang" : "en-US"
+          },
+          "metadata" : {
+            "editorsPick" : false
+          },
+          "finance" : {
+            "premiumFinance" : {
+              "isPremiumNews" : true,
+              "isPremiumFreeNews" : false
+            }
+          },
+          "storyline" : null
+        }
+      }, {
+        "id" : "2503f1b6-1c3b-31d1-bbca-5713e6a86ade",
+        "content" : {
+          "id" : "2503f1b6-1c3b-31d1-bbca-5713e6a86ade",
+          "contentType" : "STORY",
+          "title" : "Are Oils-Energy Stocks Lagging  Cenovus Energy (CVE) This Year?",
+          "description" : "",
+          "summary" : "Here is how Cenovus Energy (CVE) and TotalEnergies SE Sponsored ADR (TTE) have performed compared to their sector so far this year.",
+          "pubDate" : "2026-09-29T12:40:04Z",
+          "displayTime" : "2026-09-29T12:40:04Z",
+          "isHosted" : true,
+          "bypassModal" : false,
+          "previewUrl" : null,
+          "thumbnail" : {
+            "originalUrl" : "https://media.zenfs.com/en/zacks.com/ace7df31c7fcb10255abe7c990ea373a.jpg",
+            "originalWidth" : 900,
+            "originalHeight" : 476,
+            "caption" : "",
+            "resolutions" : [ {
+              "url" : "https://s.yimg.com/uu/api/res/1.2/DkTKfCqApvZpsoBxiE2qTw--~B/aD00NzY7dz05MDA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/zacks.com/ace7df31c7fcb10255abe7c990ea373a.jpg",
+              "width" : 900,
+              "height" : 476,
+              "tag" : "original"
+            }, {
+              "url" : "https://s.yimg.com/uu/api/res/1.2/dHjy5Qaq81cnXT8UQAkIkw--~B/Zmk9c3RyaW07aD0xMjg7dz0xNzA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/zacks.com/ace7df31c7fcb10255abe7c990ea373a.jpg",
+              "width" : 170,
+              "height" : 128,
+              "tag" : "170x128"
+            } ]
+          },
+          "provider" : {
+            "displayName" : "Zacks",
+            "url" : "http://www.zacks.com/",
+            "sourceId" : "zacks.com"
+          },
+          "canonicalUrl" : {
+            "url" : "https://finance.yahoo.com/markets/stocks/articles/oils-energy-stocks-lagging-cenovus-124004174.html",
+            "site" : "finance",
+            "region" : "US",
+            "lang" : "en-US"
+          },
+          "clickThroughUrl" : {
+            "url" : "https://finance.yahoo.com/markets/stocks/articles/oils-energy-stocks-lagging-cenovus-124004174.html",
+            "site" : "finance",
+            "region" : "US",
+            "lang" : "en-US"
+          },
+          "metadata" : {
+            "editorsPick" : false
+          },
+          "finance" : {
+            "premiumFinance" : {
+              "isPremiumNews" : false,
+              "isPremiumFreeNews" : false
+            }
+          },
+          "storyline" : null
+        }
+      }, {
+        "id" : "755e7321-06ad-3bae-a762-66905207202e",
+        "content" : {
+          "id" : "755e7321-06ad-3bae-a762-66905207202e",
+          "contentType" : "STORY",
+          "title" : "TotalEnergies (ENXTPA:TTE) Backs Dividend Growth, Is The 5% Upside Already Priced In?",
+          "description" : "",
+          "summary" : "TotalEnergies (ENXTPA:TTE) has put dividends at the center of its story. The board has approved a policy to raise the payout by more than 5% a year from 2026 to 2030. That dividend story is landing in a market that has already rewarded TotalEnergies in a big way, with the share price at €80.0 after a 30-day share price return of 7.14% and a year-to-date gain of 42.60%. The 1-year total shareholder return of 59.28% and 5-year total shareholder return of 149.47% point to momentum that has been...",
+          "pubDate" : "2026-09-29T08:09:19Z",
+          "displayTime" : "2026-09-29T08:09:19Z",
+          "isHosted" : true,
+          "bypassModal" : false,
+          "previewUrl" : null,
+          "thumbnail" : {
+            "originalUrl" : "https://media.zenfs.com/en/simply_wall_st__316/cdadae800d691074bea5587f34f15a32.jpg",
+            "originalWidth" : 1600,
+            "originalHeight" : 900,
+            "caption" : "",
+            "resolutions" : [ {
+              "url" : "https://s.yimg.com/uu/api/res/1.2/jvc2cEc3_BkkRwv2rdweJQ--~B/aD05MDA7dz0xNjAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/simply_wall_st__316/cdadae800d691074bea5587f34f15a32.jpg",
+              "width" : 1600,
+              "height" : 900,
+              "tag" : "original"
+            }, {
+              "url" : "https://s.yimg.com/uu/api/res/1.2/amx7eOx9Ll_WKh9PdhWm_g--~B/Zmk9c3RyaW07aD0xMjg7dz0xNzA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/simply_wall_st__316/cdadae800d691074bea5587f34f15a32.jpg",
+              "width" : 170,
+              "height" : 128,
+              "tag" : "170x128"
+            } ]
+          },
+          "provider" : {
+            "displayName" : "Simply Wall St.",
+            "url" : "https://simplywall.st/",
+            "sourceId" : "simply_wall_st__316"
+          },
+          "canonicalUrl" : {
+            "url" : "https://finance.yahoo.com/markets/stocks/articles/totalenergies-enxtpa-tte-backs-dividend-080919454.html",
+            "site" : "finance",
+            "region" : "US",
+            "lang" : "en-US"
+          },
+          "clickThroughUrl" : {
+            "url" : "https://finance.yahoo.com/markets/stocks/articles/totalenergies-enxtpa-tte-backs-dividend-080919454.html",
+            "site" : "finance",
+            "region" : "US",
+            "lang" : "en-US"
+          },
+          "metadata" : {
+            "editorsPick" : false
+          },
+          "finance" : {
+            "premiumFinance" : {
+              "isPremiumNews" : false,
+              "isPremiumFreeNews" : false
+            }
+          },
+          "storyline" : null
+        }
+      }, {
+        "id" : "226c753e-beb3-3096-a70b-4c36561c2991",
+        "content" : {
+          "id" : "226c753e-beb3-3096-a70b-4c36561c2991",
+          "contentType" : "STORY",
+          "title" : "Oil Just Jumped on Trump's Iran Rejection -- and TotalEnergies Is Already Cashing In",
+          "description" : "",
+          "summary" : "It's significantly boosting its quarterly share repurchase program.",
+          "pubDate" : "2026-09-29T07:41:05Z",
+          "displayTime" : "2026-09-29T07:41:05Z",
+          "isHosted" : true,
+          "bypassModal" : false,
+          "previewUrl" : null,
+          "thumbnail" : {
+            "originalUrl" : "https://media.zenfs.com/en/motleyfool.com/f9ee6da37e73a009640992cb86739f5b.jpg",
+            "originalWidth" : 1400,
+            "originalHeight" : 933,
+            "caption" : "A group of people conversing in a facility full of barrels.",
+            "resolutions" : [ {
+              "url" : "https://s.yimg.com/uu/api/res/1.2/esnyxHvaCKF.PvsFC14KtQ--~B/aD05MzM7dz0xNDAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/motleyfool.com/f9ee6da37e73a009640992cb86739f5b.jpg",
+              "width" : 1400,
+              "height" : 933,
+              "tag" : "original"
+            }, {
+              "url" : "https://s.yimg.com/uu/api/res/1.2/GuRKPN.5BPiiMfVAfk07OA--~B/Zmk9c3RyaW07aD0xMjg7dz0xNzA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/motleyfool.com/f9ee6da37e73a009640992cb86739f5b.jpg",
+              "width" : 170,
+              "height" : 128,
+              "tag" : "170x128"
+            } ]
+          },
+          "provider" : {
+            "displayName" : "Motley Fool",
+            "url" : "http://www.fool.com/",
+            "sourceId" : "motleyfool.com"
+          },
+          "canonicalUrl" : {
+            "url" : "https://www.fool.com/investing/2026/09/29/oil-just-jumped-on-trumps-iran-rejection-and-totalenergies-is-already-cashing-in/",
+            "site" : "finance",
+            "region" : "US",
+            "lang" : "en-US"
+          },
+          "clickThroughUrl" : {
+            "url" : "https://finance.yahoo.com/energy/articles/oil-just-jumped-trumps-iran-074105321.html",
+            "site" : "finance",
+            "region" : "US",
+            "lang" : "en-US"
+          },
+          "metadata" : {
+            "editorsPick" : false
+          },
+          "finance" : {
+            "premiumFinance" : {
+              "isPremiumNews" : false,
+              "isPremiumFreeNews" : false
+            }
+          },
+          "storyline" : null
+        }
+      }, {
+        "id" : "eb0c7788-a66f-36b9-86c0-50dd76d92907",
+        "content" : {
+          "id" : "eb0c7788-a66f-36b9-86c0-50dd76d92907",
+          "contentType" : "STORY",
+          "title" : "TotalEnergies (TTE) Raises Buybacks as It Makes a Bigger Post-2030 Growth Bet",
+          "description" : "",
+          "summary" : "TotalEnergies SE (NYSE:TTE) is increasing shareholder returns while making a larger bet on production growth beyond 2030, putting its capital allocation strategy at the center of the investment debate. On September 28, the French energy major raised its fourth-quarter share buyback program to $2.5 billion from $1.5 billion and said it plans to repurchase $2 […]",
+          "pubDate" : "2026-09-29T03:07:32Z",
+          "displayTime" : "2026-09-29T03:07:32Z",
+          "isHosted" : true,
+          "bypassModal" : false,
+          "previewUrl" : null,
+          "thumbnail" : {
+            "originalUrl" : "https://media.zenfs.com/en/insidermonkey.com/52857d07fcdd9a429138df7b0d7ecc39.jpg",
+            "originalWidth" : 1456,
+            "originalHeight" : 816,
+            "caption" : "TotalEnergies Raises Buybacks as It Makes a Bigger Post-2030 Growth Bet",
+            "resolutions" : [ {
+              "url" : "https://s.yimg.com/uu/api/res/1.2/IKXwY2w1L0bLCgwAeecNUA--~B/aD04MTY7dz0xNDU2O2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/insidermonkey.com/52857d07fcdd9a429138df7b0d7ecc39.jpg",
+              "width" : 1456,
+              "height" : 816,
+              "tag" : "original"
+            }, {
+              "url" : "https://s.yimg.com/uu/api/res/1.2/cXPKOpbviF5VtWk_OG1NoQ--~B/Zmk9c3RyaW07aD0xMjg7dz0xNzA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/insidermonkey.com/52857d07fcdd9a429138df7b0d7ecc39.jpg",
+              "width" : 170,
+              "height" : 128,
+              "tag" : "170x128"
+            } ]
+          },
+          "provider" : {
+            "displayName" : "Insider Monkey",
+            "url" : "http://www.insidermonkey.com",
+            "sourceId" : "insidermonkey.com"
+          },
+          "canonicalUrl" : {
+            "url" : "https://finance.yahoo.com/energy/articles/totalenergies-tte-raises-buybacks-makes-030732663.html",
+            "site" : "finance",
+            "region" : "US",
+            "lang" : "en-US"
+          },
+          "clickThroughUrl" : {
+            "url" : "https://finance.yahoo.com/energy/articles/totalenergies-tte-raises-buybacks-makes-030732663.html",
+            "site" : "finance",
+            "region" : "US",
+            "lang" : "en-US"
+          },
+          "metadata" : {
+            "editorsPick" : false
+          },
+          "finance" : {
+            "premiumFinance" : {
+              "isPremiumNews" : false,
+              "isPremiumFreeNews" : false
+            }
+          },
+          "storyline" : null
+        }
+      }, {
+        "id" : "79e36ee3-12cd-31ba-a349-3c128737f650",
+        "content" : {
+          "id" : "79e36ee3-12cd-31ba-a349-3c128737f650",
+          "contentType" : "STORY",
+          "title" : "TD Cowen highlights top oil stocks ahead of earnings season",
+          "description" : "",
+          "summary" : "Investing.com -- TD Cowen analyst Jason Gabelman identified leading integrated oil companies positioned for strong third-quarter results, with TotalEnergies topping the list as excess cash generation builds across the sector.",
+          "pubDate" : "2026-09-28T18:19:01Z",
+          "displayTime" : "2026-09-28T18:19:01Z",
+          "isHosted" : true,
+          "bypassModal" : false,
+          "previewUrl" : null,
+          "thumbnail" : null,
+          "provider" : {
+            "displayName" : "Investing.com",
+            "url" : "https://www.investing.com/",
+            "sourceId" : "investing_com_631"
+          },
+          "canonicalUrl" : {
+            "url" : "https://finance.yahoo.com/energy/articles/td-cowen-highlights-top-oil-181901328.html",
+            "site" : "finance",
+            "region" : "US",
+            "lang" : "en-US"
+          },
+          "clickThroughUrl" : {
+            "url" : "https://finance.yahoo.com/energy/articles/td-cowen-highlights-top-oil-181901328.html",
+            "site" : "finance",
+            "region" : "US",
+            "lang" : "en-US"
+          },
+          "metadata" : {
+            "editorsPick" : false
+          },
+          "finance" : {
+            "premiumFinance" : {
+              "isPremiumNews" : false,
+              "isPremiumFreeNews" : false
+            }
+          },
+          "storyline" : null
+        }
+      }, {
+        "id" : "cb4075a5-ad6e-31c1-af09-4f004853750d",
+        "content" : {
+          "id" : "cb4075a5-ad6e-31c1-af09-4f004853750d",
+          "contentType" : "STORY",
+          "title" : "TotalEnergies Targets $10B Cash Flow Boost, 5% Dividend Growth by 2030",
+          "description" : "",
+          "summary" : "TotalEnergies (NYSE:TTE) outlined plans to expand oil, gas, liquefied natural gas and power operations through 2030 while increasing shareholder distributions, as management said geopolitical disruptions have reinforced the value of an integrated and diversified energy portfolio. Chairman and CEO P",
+          "pubDate" : "2026-09-28T18:02:20Z",
+          "displayTime" : "2026-09-28T18:02:20Z",
+          "isHosted" : true,
+          "bypassModal" : false,
+          "previewUrl" : null,
+          "thumbnail" : {
+            "originalUrl" : "https://media.zenfs.com/en/marketbeat_955/0dfe57f113fad62bf58c60f1e1d668e2.png",
+            "originalWidth" : 1200,
+            "originalHeight" : 675,
+            "caption" : "TotalEnergies logo",
+            "resolutions" : [ {
+              "url" : "https://s.yimg.com/uu/api/res/1.2/uyk2aHwiew.H6wT72EEvZg--~B/aD02NzU7dz0xMjAwO2FwcGlkPXl0YWNoeW9u/https://media.zenfs.com/en/marketbeat_955/0dfe57f113fad62bf58c60f1e1d668e2.png",
+              "width" : 1200,
+              "height" : 675,
+              "tag" : "original"
+            }, {
+              "url" : "https://s.yimg.com/uu/api/res/1.2/JSh9jXEbHABcWkxbJsM.0Q--~B/Zmk9c3RyaW07aD0xMjg7dz0xNzA7YXBwaWQ9eXRhY2h5b24-/https://media.zenfs.com/en/marketbeat_955/0dfe57f113fad62bf58c60f1e1d668e2.png",
+              "width" : 170,
+              "height" : 128,
+              "tag" : "170x128"
+            } ]
+          },
+          "provider" : {
+            "displayName" : "MarketBeat",
+            "url" : "https://www.marketbeat.com/",
+            "sourceId" : "marketbeat_955"
+          },
+          "canonicalUrl" : {
+            "url" : "https://www.marketbeat.com/instant-alerts/event-totalenergies-targets-10b-cash-flow-boost-5-dividend-growth-by-2030-2026-09-28/?utm_source=yahoofinance&utm_medium=yahoofinance",
+            "site" : "finance",
+            "region" : "US",
+            "lang" : "en-US"
+          },
+          "clickThroughUrl" : {
+            "url" : "https://finance.yahoo.com/energy/articles/totalenergies-targets-10b-cash-flow-180220437.html",
+            "site" : "finance",
+            "region" : "US",
+            "lang" : "en-US"
+          },
+          "metadata" : {
+            "editorsPick" : false
+          },
+          "finance" : {
+            "premiumFinance" : {
+              "isPremiumNews" : false,
+              "isPremiumFreeNews" : false
+            }
+          },
+          "storyline" : null
+        }
+      } ]
+    }
+  },
+  "status" : "OK"
+}
