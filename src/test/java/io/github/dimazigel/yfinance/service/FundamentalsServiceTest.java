@@ -437,4 +437,26 @@ class FundamentalsServiceTest {
 
         assertThat(points).hasSize(63);
     }
+
+    @Test
+    void sharesOutstandingLengthMismatchMapsTheOverlappingPrefixAndLogsOnceAtDebug() {
+        // 3 timestamps, 2 shares_out values: a shape Yahoo should never send, but the mapper must
+        // not silently drop the surplus without a trace.
+        server.enqueue(new MockResponse().setResponseCode(200).setBody(
+                "{\"timeseries\":{\"result\":[{\"meta\":{\"symbol\":[\"AAPL\"],\"type\":[\"shares_out\"]},"
+                        + "\"timestamp\":[1700000000,1700086400,1700172800],"
+                        + "\"shares_out\":[1000000000,2000000000]}],\"error\":null}}"));
+
+        try (var log = io.github.dimazigel.yfinance.testsupport.LogCapture.of(
+                io.github.dimazigel.yfinance.mapper.SharesMapper.class)) {
+            List<SharesOutstanding> points = service.getSharesOutstanding(
+                    Symbol.of("AAPL"), Instant.EPOCH, Instant.ofEpochSecond(2_000_000_000L));
+
+            assertThat(points).containsExactly(
+                    new SharesOutstanding(LocalDate.parse("2023-11-14"), 1000000000L),
+                    new SharesOutstanding(LocalDate.parse("2023-11-15"), 2000000000L));
+            assertThat(log.messages(ch.qos.logback.classic.Level.DEBUG))
+                    .anySatisfy(m -> assertThat(m).contains("3").contains("2").contains("mismatch"));
+        }
+    }
 }

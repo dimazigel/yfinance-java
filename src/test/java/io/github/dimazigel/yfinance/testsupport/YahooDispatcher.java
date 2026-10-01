@@ -21,7 +21,17 @@ import okhttp3.mockwebserver.RecordedRequest;
  *       {@link #UNKNOWN}, which gets Yahoo's "Not Found" envelope
  *   <li>{@code /v7/finance/options/{symbol}}: the captured chain for that symbol (and expiration,
  *       when {@code date} is given), or the no-listed-options capture for anything else
- *   <li>search, lookup and fundamentals timeseries: the single fixture each
+ *   <li>search and lookup: the single fixture each
+ *   <li>{@code /ws/fundamentals-timeseries/}: {@code type=shares_out} (batch E/1, item 4) gets the
+ *       shares-outstanding capture; a chunk whose keys are purely annual-income ones
+ *       (a chunk never spills past {@code FundamentalsService.MAX_KEYS_PER_REQUEST} keys without
+ *       picking up a key from another frequency or statement) gets the single-statement annual
+ *       income capture; everything else (a quarterly or trailing key present, or a balance-sheet or
+ *       cash-flow key, however the chunking split it) gets the combined capture (annual, quarterly
+ *       and trailing series of all three statements). Two more timeseries fixtures
+ *       ({@code timeseries_multi_chunk1.json}/{@code _chunk2.json}) exist for
+ *       {@code FundamentalsServiceTest}'s two-chunk-merge test; that test enqueues them directly and
+ *       never goes through this dispatcher.
  *   <li>{@code /v1/test/getcrumb}: a fixed crumb, so a {@code YFinance.create(config)} pointed at
  *       the mock server completes its handshake (the cookie URL falls through to the 404 below,
  *       which the handshake tolerates)
@@ -64,14 +74,7 @@ public class YahooDispatcher extends Dispatcher {
         return new MockResponse().setResponseCode(404).setBody("{}");
     }
 
-    /**
-     * {@code type=shares_out} (batch E/1, item 4) routes to the shares-outstanding capture; the
-     * annual income capture serves a single-statement, annual-only, income-only request (a chunk
-     * never spills past {@code FundamentalsService.MAX_KEYS_PER_REQUEST} keys without picking up a
-     * key from another frequency or statement — see the class javadoc); everything else (a quarterly
-     * or trailing key present, or a balance-sheet/cash-flow key, however the chunking split it) gets
-     * the combined capture (annual, quarterly and trailing series of all three statements).
-     */
+    /** See the class javadoc's {@code /ws/fundamentals-timeseries/} entry for the routing rules. */
     private static MockResponse timeseries(String type) {
         if (type == null) {
             return Fixtures.jsonResponse("timeseries_income_annual.json");

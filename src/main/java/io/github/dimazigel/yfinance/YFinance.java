@@ -275,9 +275,11 @@ public final class YFinance implements AutoCloseable {
     }
 
     /**
-     * One financial statement for one equity in one timeseries request. Statements are
-     * equities-only (Yahoo's timeseries endpoint returns empty series for every other class), and
-     * the {@link Equity} in hand is the proof; see {@link Ticker#statements(Equity, StatementType, Frequency)}.
+     * One financial statement for one equity in one timeseries request — a single statement's keys
+     * always fit within the ≤ 150-key chunk limit (see {@link #statements(Equity, Set, Set)} for the
+     * multi-statement form, which may need several). Statements are equities-only (Yahoo's
+     * timeseries endpoint returns empty series for every other class), and the {@link Equity} in
+     * hand is the proof; see {@link Ticker#statements(Equity, StatementType, Frequency)}.
      *
      * @param equity the equity whose statement to fetch
      * @param type income statement, balance sheet or cash flow
@@ -291,10 +293,11 @@ public final class YFinance implements AutoCloseable {
     }
 
     /**
-     * Several statements for one equity in <em>one</em> timeseries request: every requested type at
-     * every requested frequency (the trailing balance sheet, which Yahoo does not publish, is
-     * skipped rather than an error when other pairs remain). Four statements this way cost one
-     * request instead of four.
+     * Several statements for one equity in as few timeseries requests as the key count allows
+     * (≤ 150 keys each; a single statement is one request, the full 3×3 form is seven): every
+     * requested type at every requested frequency (the trailing balance sheet, which Yahoo does not
+     * publish, is skipped rather than an error when other pairs remain). Several statements this way
+     * cost ⌈keys/150⌉ requests instead of one per pair.
      *
      * @param equity the equity whose statements to fetch
      * @param types the statements wanted; not empty
@@ -309,9 +312,10 @@ public final class YFinance implements AutoCloseable {
     }
 
     /**
-     * {@link #statements(Equity, Set, Set)} for each equity: one timeseries request per equity,
-     * fanned out with the configured concurrency, in input order (duplicates preserved; see
-     * {@link #statements(Collection, StatementType, Frequency)} for the proof handling).
+     * {@link #statements(Equity, Set, Set)} for each equity: as few timeseries requests per equity
+     * as the key count allows (≤ 150 keys each; a single statement is one request, the full 3×3 form
+     * is seven), fanned out with the configured concurrency, in input order (duplicates preserved;
+     * see {@link #statements(Collection, StatementType, Frequency)} for the proof handling).
      *
      * @param equities the equities
      * @param types the statements wanted; not empty

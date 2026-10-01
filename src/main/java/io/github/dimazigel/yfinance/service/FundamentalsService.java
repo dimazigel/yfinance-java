@@ -82,9 +82,10 @@ public final class FundamentalsService {
     }
 
     /**
-     * Several statements for {@code equity} in <em>one</em> timeseries request: every requested
-     * {@link StatementType} at every requested {@link Frequency}, split client-side by frequency
-     * prefix and statement key set. {@link Frequency#TRAILING} × {@link StatementType#BALANCE_SHEET}
+     * Several statements for {@code equity} in as few timeseries requests as the key count allows
+     * (≤ 150 keys each; a single statement is one request, the full 3×3 form is seven): every
+     * requested {@link StatementType} at every requested {@link Frequency}, split client-side by
+     * frequency prefix and statement key set. {@link Frequency#TRAILING} × {@link StatementType#BALANCE_SHEET}
      * (which Yahoo does not publish) is skipped, not an error, when other pairs remain.
      *
      * @param equity the equity, the compile-time proof (see {@link #getStatement(Equity, StatementType, Frequency)})

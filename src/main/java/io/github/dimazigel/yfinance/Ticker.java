@@ -167,9 +167,11 @@ public final class Ticker {
     }
 
     /**
-     * Several statements for this ticker's symbol in one request — every requested statement type
-     * at every requested frequency; see {@link YFinance#statements(Equity, Set, Set)}. {@code proof} is the
-     * {@link Equity} evidence, as for {@link #statements(Equity, StatementType, Frequency)}.
+     * Several statements for this ticker's symbol in as few timeseries requests as the key count
+     * allows (≤ 150 keys each; a single statement is one request, the full 3×3 form is seven) —
+     * every requested statement type at every requested frequency; see
+     * {@link YFinance#statements(Equity, Set, Set)}. {@code proof} is the {@link Equity} evidence, as
+     * for {@link #statements(Equity, StatementType, Frequency)}.
      *
      * @param proof this ticker's equity
      * @param types the statements wanted; not empty

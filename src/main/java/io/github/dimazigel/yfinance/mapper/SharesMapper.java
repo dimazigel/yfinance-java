@@ -22,7 +22,9 @@ public final class SharesMapper {
     /**
      * Pairs {@code timestamp[i]} with {@code shares_out[i]}, dropping a point whose timestamp or
      * value is null (DEBUG). A missing {@code result}/{@code shares_out} is an empty list — Yahoo
-     * answers that for non-equities and symbols with no reported history, not an error.
+     * answers that for non-equities and symbols with no reported history, not an error. If the two
+     * arrays differ in length, the mismatch is logged once at DEBUG (both lengths) and only the
+     * overlapping prefix is mapped.
      */
     public static List<SharesOutstanding> toList(SharesResponse response) {
         var ts = response.timeseries();
@@ -41,6 +43,12 @@ public final class SharesMapper {
         List<@Nullable Long> sharesOut = result.sharesOut();
         if (timestamps == null || sharesOut == null) {
             return List.of();
+        }
+
+        if (timestamps.size() != sharesOut.size()) {
+            LOG.atDebug().addKeyValue("timestampCount", timestamps.size()).addKeyValue("sharesOutCount", sharesOut.size())
+                    .log("shares-outstanding timestamp/shares_out length mismatch ({} vs {}); mapping the overlapping prefix only",
+                            timestamps.size(), sharesOut.size());
         }
 
         var points = new ArrayList<SharesOutstanding>();

@@ -14,8 +14,8 @@ import org.slf4j.MDC;
  *
  * <ul>
  *   <li>{@value #OP} — the operation: {@code instruments}, {@code details}, {@code history},
- *       {@code statements}, {@code options}, {@code search}, {@code lookup}, and {@code fetch}
- *       for a {@code Tickers} fan-out (each worker then nests the operation it fetches)
+ *       {@code statements}, {@code shares}, {@code options}, {@code search}, {@code lookup}, and
+ *       {@code fetch} for a {@code Tickers} fan-out (each worker then nests the operation it fetches)
  *   <li>{@value #SYMBOL} — the ticker symbol (for a batch: the first five comma-joined, then
  *       {@code ,…+N})
  *   <li>{@value #ENDPOINT} — the request path, e.g. {@code /v8/finance/chart/AAPL}, present while an
