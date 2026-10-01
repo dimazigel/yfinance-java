@@ -35,10 +35,12 @@ public final class RawQuoteClient {
     /**
      * One v7 request for up to {@link #CHUNK} distinct symbols: one row per known symbol, keyed by
      * the requested {@link Symbol}; unknown symbols are simply absent. Rows are matched by the
-     * symbol Yahoo echoes, upper-cased, so a request for {@code aapl} finds the {@code AAPL} row; a
-     * symbol Yahoo would answer under a different spelling (an alias) is not matched and comes back
-     * as unknown. Chunking a longer list — and isolating a failed chunk — is the caller's job (see
-     * {@code InstrumentService}).
+     * symbol Yahoo echoes, upper-cased, so a request for {@code aapl} finds the {@code AAPL} row.
+     * That is enough: Yahoo has no aliases on this endpoint. Probed live on 2026-10-01 over 32
+     * spellings, it either echoed the request as spelled ({@code BRK.B} and {@code BRK-B} are both
+     * answered, each under its own spelling) or returned no row ({@code BF.B}, {@code BTCUSD=X},
+     * {@code AAPL.US}), never a row under another symbol. Chunking a longer list — and isolating a
+     * failed chunk — is the caller's job (see {@code InstrumentService}).
      *
      * @throws IllegalArgumentException for more than {@link #CHUNK} distinct symbols
      */

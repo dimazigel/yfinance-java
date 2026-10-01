@@ -31,8 +31,12 @@ import org.slf4j.MDC;
  * MDC (a service's {@code traceId} reaches the lines logged per symbol) and clears it when done.
  * Anything that still escapes {@code perSymbol} becomes an {@link Outcome.Failed}: a
  * {@link YFinanceException} as itself, any other exception wrapped in a {@link YFDataException} —
- * except an {@link Error}, which is rethrown as is rather than reported as a failed symbol. An
- * interrupt while joining restores the flag and fails that symbol.
+ * except an {@link Error}, which is rethrown as is rather than reported as a failed symbol.
+ *
+ * <p>An interrupt of the calling thread ends the batch at once: symbols that already finished keep
+ * their outcome, every other symbol is {@link Outcome.Failed} ("Interrupted fetching …", not
+ * retryable), closing the executor interrupts the workers still running, and the caller's interrupt
+ * flag stays set.
  */
 public final class FanOut {
 
