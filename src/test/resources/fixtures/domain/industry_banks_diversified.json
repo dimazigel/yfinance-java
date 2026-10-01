@@ -1,0 +1,655 @@
+{
+  "data" : {
+    "name" : "Banks - Diversified",
+    "symbol" : "^YH10320010",
+    "key" : "banks-diversified",
+    "sectorName" : "Financial Services",
+    "sectorKey" : "financial-services",
+    "overview" : {
+      "companiesCount" : 15,
+      "marketCap" : {
+        "raw" : 2767968796672,
+        "fmt" : "2.768T",
+        "longFmt" : "2,767,968,796,672"
+      },
+      "messageBoardId" : "INDEXYH10320010",
+      "description" : "Global, diverse financial institutions serving the corporate and consumer needs of retail banking, investment banking, trust management, credit cards and mortgage banking.",
+      "employeeCount" : {
+        "raw" : 1817440,
+        "fmt" : "1.817M",
+        "longFmt" : "1,817,440"
+      },
+      "marketWeight" : {
+        "raw" : 0.24397595,
+        "fmt" : "24.40%"
+      }
+    },
+    "performance" : {
+      "ytdChangePercent" : {
+        "raw" : 0.034333978,
+        "fmt" : "3.43%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -0.009142181,
+        "fmt" : "-0.91%"
+      },
+      "threeYearChangePercent" : {
+        "raw" : 1.0127925,
+        "fmt" : "101.28%"
+      },
+      "oneYearChangePercent" : {
+        "raw" : 0.120616294,
+        "fmt" : "12.06%"
+      },
+      "fiveYearChangePercent" : {
+        "raw" : 0.60722,
+        "fmt" : "60.72%"
+      }
+    },
+    "performanceOverviewBenchmark" : {
+      "ytdChangePercent" : {
+        "raw" : 0.109523416,
+        "fmt" : "10.95%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -0.0025159963,
+        "fmt" : "-0.25%"
+      },
+      "name" : "S&P 500",
+      "threeYearChangePercent" : {
+        "raw" : 0.78438693,
+        "fmt" : "78.44%"
+      },
+      "oneYearChangePercent" : {
+        "raw" : 0.1486712,
+        "fmt" : "14.87%"
+      },
+      "fiveYearChangePercent" : {
+        "raw" : 0.7561326,
+        "fmt" : "75.61%"
+      }
+    },
+    "topCompanies" : [ {
+      "marketCap" : {
+        "raw" : 879407703198,
+        "fmt" : "879.408B",
+        "longFmt" : "879,407,703,198"
+      },
+      "symbol" : "JPM",
+      "targetPrice" : {
+        "raw" : 375.81,
+        "fmt" : "375.81"
+      },
+      "fulldayChangePercent" : {
+        "raw" : -0.0035511532,
+        "fmt" : "-0.36%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -0.012388900000000001,
+        "fmt" : "-1.24%"
+      },
+      "name" : "JPMorgan Chase & Co.",
+      "rating" : "Buy",
+      "ytdReturn" : {
+        "raw" : 0.0267,
+        "fmt" : "2.67%"
+      },
+      "fulldayChange" : {
+        "raw" : -1.1749878,
+        "fmt" : "-1.17"
+      },
+      "marketWeight" : {
+        "raw" : 0.38479927,
+        "fmt" : "38.48%"
+      },
+      "fulldayPrice" : {
+        "raw" : 329.7,
+        "fmt" : "329.70"
+      },
+      "lastPrice" : {
+        "raw" : 330.83,
+        "fmt" : "330.83"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 380615295640,
+        "fmt" : "380.615B",
+        "longFmt" : "380,615,295,640"
+      },
+      "symbol" : "BAC",
+      "targetPrice" : {
+        "raw" : 68.619,
+        "fmt" : "68.62"
+      },
+      "fulldayChangePercent" : {
+        "raw" : -0.0067603279999999995,
+        "fmt" : "-0.68%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -0.00964336,
+        "fmt" : "-0.96%"
+      },
+      "name" : "Bank of America Corporation",
+      "rating" : "Strong Buy",
+      "ytdReturn" : {
+        "raw" : -0.0104,
+        "fmt" : "-1.04%"
+      },
+      "fulldayChange" : {
+        "raw" : -0.36789703,
+        "fmt" : "-0.37"
+      },
+      "marketWeight" : {
+        "raw" : 0.16654447,
+        "fmt" : "16.65%"
+      },
+      "fulldayPrice" : {
+        "raw" : 54.0521,
+        "fmt" : "54.05"
+      },
+      "lastPrice" : {
+        "raw" : 54.43,
+        "fmt" : "54.43"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 272165049115,
+        "fmt" : "272.165B",
+        "longFmt" : "272,165,049,115"
+      },
+      "symbol" : "RY",
+      "targetPrice" : {
+        "raw" : 295.6,
+        "fmt" : "295.60"
+      },
+      "fulldayChangePercent" : {
+        "raw" : -0.017517517,
+        "fmt" : "-1.75%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -0.0160661,
+        "fmt" : "-1.61%"
+      },
+      "name" : "Royal Bank of Canada",
+      "rating" : "Buy",
+      "ytdReturn" : {
+        "raw" : 0.1531,
+        "fmt" : "15.31%"
+      },
+      "fulldayChange" : {
+        "raw" : -3.5,
+        "fmt" : "-3.50"
+      },
+      "marketWeight" : {
+        "raw" : 0.11909028,
+        "fmt" : "11.91%"
+      },
+      "fulldayPrice" : {
+        "raw" : 196.3,
+        "fmt" : "196.30"
+      },
+      "lastPrice" : {
+        "raw" : 196.59,
+        "fmt" : "196.59"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 242071156075,
+        "fmt" : "242.071B",
+        "longFmt" : "242,071,156,075"
+      },
+      "symbol" : "WFC",
+      "targetPrice" : {
+        "raw" : 100.543,
+        "fmt" : "100.54"
+      },
+      "fulldayChangePercent" : {
+        "raw" : -0.0064911280000000005,
+        "fmt" : "-0.65%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -0.00534295,
+        "fmt" : "-0.53%"
+      },
+      "name" : "Wells Fargo & Company",
+      "rating" : "Buy",
+      "ytdReturn" : {
+        "raw" : -0.1411,
+        "fmt" : "-14.11%"
+      },
+      "fulldayChange" : {
+        "raw" : -0.5200043,
+        "fmt" : "-0.52"
+      },
+      "marketWeight" : {
+        "raw" : 0.10592221,
+        "fmt" : "10.59%"
+      },
+      "fulldayPrice" : {
+        "raw" : 79.59,
+        "fmt" : "79.59"
+      },
+      "lastPrice" : {
+        "raw" : 80.05,
+        "fmt" : "80.05"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 217194507496,
+        "fmt" : "217.195B",
+        "longFmt" : "217,194,507,496"
+      },
+      "symbol" : "C",
+      "targetPrice" : {
+        "raw" : 154.9,
+        "fmt" : "154.90"
+      },
+      "fulldayChangePercent" : {
+        "raw" : -0.0077220076000000006,
+        "fmt" : "-0.77%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -0.0100918,
+        "fmt" : "-1.01%"
+      },
+      "name" : "Citigroup Inc.",
+      "rating" : "Buy",
+      "ytdReturn" : {
+        "raw" : 0.1096,
+        "fmt" : "10.96%"
+      },
+      "fulldayChange" : {
+        "raw" : -1.0,
+        "fmt" : "-1.00"
+      },
+      "marketWeight" : {
+        "raw" : 0.09503702,
+        "fmt" : "9.50%"
+      },
+      "fulldayPrice" : {
+        "raw" : 128.5,
+        "fmt" : "128.50"
+      },
+      "lastPrice" : {
+        "raw" : 129.48,
+        "fmt" : "129.48"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 192560797410,
+        "fmt" : "192.561B",
+        "longFmt" : "192,560,797,410"
+      },
+      "symbol" : "TD",
+      "targetPrice" : {
+        "raw" : 170.245,
+        "fmt" : "170.25"
+      },
+      "fulldayChangePercent" : {
+        "raw" : -0.012352951999999999,
+        "fmt" : "-1.24%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -0.012353000000000001,
+        "fmt" : "-1.24%"
+      },
+      "name" : "The Toronto-Dominion Bank",
+      "rating" : "Buy",
+      "ytdReturn" : {
+        "raw" : 0.2477,
+        "fmt" : "24.77%"
+      },
+      "fulldayChange" : {
+        "raw" : -1.4700012,
+        "fmt" : "-1.47"
+      },
+      "marketWeight" : {
+        "raw" : 0.08425813,
+        "fmt" : "8.43%"
+      },
+      "fulldayPrice" : {
+        "raw" : 117.53,
+        "fmt" : "117.53"
+      },
+      "lastPrice" : {
+        "raw" : 117.53,
+        "fmt" : "117.53"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 98132057370,
+        "fmt" : "98.132B",
+        "longFmt" : "98,132,057,370"
+      },
+      "symbol" : "BNY",
+      "targetPrice" : {
+        "raw" : 167.357,
+        "fmt" : "167.36"
+      },
+      "fulldayChangePercent" : {
+        "raw" : -0.0044247746,
+        "fmt" : "-0.44%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -0.015988500000000003,
+        "fmt" : "-1.60%"
+      },
+      "name" : "The Bank of New York Mellon Corporation",
+      "rating" : "Buy",
+      "ytdReturn" : {
+        "raw" : 0.2458,
+        "fmt" : "24.58%"
+      },
+      "fulldayChange" : {
+        "raw" : -0.6399994,
+        "fmt" : "-0.64"
+      },
+      "marketWeight" : {
+        "raw" : 0.04293929,
+        "fmt" : "4.29%"
+      },
+      "fulldayPrice" : {
+        "raw" : 144.0,
+        "fmt" : "144.00"
+      },
+      "lastPrice" : {
+        "raw" : 144.63,
+        "fmt" : "144.63"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 2275442133,
+        "fmt" : "2.275B",
+        "longFmt" : "2,275,442,133"
+      },
+      "symbol" : "NTB",
+      "targetPrice" : {
+        "raw" : 65.3333,
+        "fmt" : "65.33"
+      },
+      "fulldayChangePercent" : {
+        "raw" : -0.00975526,
+        "fmt" : "-0.98%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -0.00975526,
+        "fmt" : "-0.98%"
+      },
+      "name" : "The Bank of N.T. Butterfield & Son Limited",
+      "rating" : "Buy",
+      "ytdReturn" : {
+        "raw" : 0.1614,
+        "fmt" : "16.14%"
+      },
+      "fulldayChange" : {
+        "raw" : -0.57,
+        "fmt" : "-0.57"
+      },
+      "marketWeight" : {
+        "raw" : 9.95657E-4,
+        "fmt" : "0.10%"
+      },
+      "fulldayPrice" : {
+        "raw" : 57.86,
+        "fmt" : "57.86"
+      },
+      "lastPrice" : {
+        "raw" : 57.86,
+        "fmt" : "57.86"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 864517426,
+        "fmt" : "864.517M",
+        "longFmt" : "864,517,426"
+      },
+      "symbol" : "FRBT",
+      "fulldayChangePercent" : {
+        "raw" : 0.009982388,
+        "fmt" : "1.00%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -0.00234323,
+        "fmt" : "-0.23%"
+      },
+      "name" : "Forbright, Inc.",
+      "fulldayChange" : {
+        "raw" : 0.17000008,
+        "fmt" : "0.17"
+      },
+      "marketWeight" : {
+        "raw" : 3.782838E-4,
+        "fmt" : "0.04%"
+      },
+      "fulldayPrice" : {
+        "raw" : 17.03,
+        "fmt" : "17.03"
+      },
+      "lastPrice" : {
+        "raw" : 17.03,
+        "fmt" : "17.03"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 80923080,
+        "fmt" : "80.923M",
+        "longFmt" : "80,923,080"
+      },
+      "symbol" : "BCSO",
+      "regMarketChangePercent" : {
+        "raw" : 0.0,
+        "fmt" : "0.00%"
+      },
+      "name" : "Bancorp. of Southern Indiana",
+      "ytdReturn" : {
+        "raw" : 0.0169,
+        "fmt" : "1.69%"
+      },
+      "marketWeight" : {
+        "raw" : 3.540922E-5,
+        "fmt" : "0.00%"
+      },
+      "fulldayPrice" : {
+        "raw" : 60.0,
+        "fmt" : "60.00"
+      },
+      "lastPrice" : {
+        "raw" : 60.0,
+        "fmt" : "60.00"
+      }
+    } ],
+    "topPerformingCompanies" : [ {
+      "symbol" : "TD",
+      "targetPrice" : {
+        "raw" : 170.245,
+        "fmt" : "170.25"
+      },
+      "name" : "The Toronto-Dominion Bank",
+      "ytdReturn" : {
+        "raw" : 0.2477,
+        "fmt" : "24.77%"
+      },
+      "lastPrice" : {
+        "raw" : 117.53,
+        "fmt" : "117.53"
+      }
+    }, {
+      "symbol" : "BNY",
+      "targetPrice" : {
+        "raw" : 167.357,
+        "fmt" : "167.36"
+      },
+      "name" : "The Bank of New York Mellon Corporation",
+      "ytdReturn" : {
+        "raw" : 0.2458,
+        "fmt" : "24.58%"
+      },
+      "lastPrice" : {
+        "raw" : 144.63,
+        "fmt" : "144.63"
+      }
+    }, {
+      "symbol" : "NTB",
+      "targetPrice" : {
+        "raw" : 65.3333,
+        "fmt" : "65.33"
+      },
+      "name" : "The Bank of N.T. Butterfield & Son Limited",
+      "ytdReturn" : {
+        "raw" : 0.1614,
+        "fmt" : "16.14%"
+      },
+      "lastPrice" : {
+        "raw" : 57.86,
+        "fmt" : "57.86"
+      }
+    }, {
+      "symbol" : "RY",
+      "targetPrice" : {
+        "raw" : 295.6,
+        "fmt" : "295.60"
+      },
+      "name" : "Royal Bank of Canada",
+      "ytdReturn" : {
+        "raw" : 0.1531,
+        "fmt" : "15.31%"
+      },
+      "lastPrice" : {
+        "raw" : 196.59,
+        "fmt" : "196.59"
+      }
+    }, {
+      "symbol" : "C",
+      "targetPrice" : {
+        "raw" : 154.9,
+        "fmt" : "154.90"
+      },
+      "name" : "Citigroup Inc.",
+      "ytdReturn" : {
+        "raw" : 0.1096,
+        "fmt" : "10.96%"
+      },
+      "lastPrice" : {
+        "raw" : 129.48,
+        "fmt" : "129.48"
+      }
+    } ],
+    "topGrowthCompanies" : [ {
+      "symbol" : "JPM",
+      "growthEstimate" : {
+        "raw" : 0.2547462431146051,
+        "fmt" : "25.47%"
+      },
+      "name" : "JPMorgan Chase & Co.",
+      "ytdReturn" : {
+        "raw" : 0.0267,
+        "fmt" : "2.67%"
+      },
+      "lastPrice" : {
+        "raw" : 330.83,
+        "fmt" : "330.83"
+      }
+    }, {
+      "symbol" : "BAC",
+      "growthEstimate" : {
+        "raw" : 0.05519480519480517,
+        "fmt" : "5.52%"
+      },
+      "name" : "Bank of America Corporation",
+      "ytdReturn" : {
+        "raw" : -0.0104,
+        "fmt" : "-1.04%"
+      },
+      "lastPrice" : {
+        "raw" : 54.43,
+        "fmt" : "54.43"
+      }
+    }, {
+      "symbol" : "C",
+      "growthEstimate" : {
+        "raw" : 0.05416067437302807,
+        "fmt" : "5.42%"
+      },
+      "name" : "Citigroup Inc.",
+      "ytdReturn" : {
+        "raw" : 0.1096,
+        "fmt" : "10.96%"
+      },
+      "lastPrice" : {
+        "raw" : 129.48,
+        "fmt" : "129.48"
+      }
+    }, {
+      "symbol" : "RY",
+      "growthEstimate" : {
+        "raw" : 0.03376570046579136,
+        "fmt" : "3.38%"
+      },
+      "name" : "Royal Bank of Canada",
+      "ytdReturn" : {
+        "raw" : 0.1531,
+        "fmt" : "15.31%"
+      },
+      "lastPrice" : {
+        "raw" : 196.59,
+        "fmt" : "196.59"
+      }
+    }, {
+      "symbol" : "WFC",
+      "growthEstimate" : {
+        "raw" : 0.003802281368821381,
+        "fmt" : "0.38%"
+      },
+      "name" : "Wells Fargo & Company",
+      "ytdReturn" : {
+        "raw" : -0.1411,
+        "fmt" : "-14.11%"
+      },
+      "lastPrice" : {
+        "raw" : 80.05,
+        "fmt" : "80.05"
+      }
+    } ],
+    "researchReports" : [ {
+      "id" : "ARGUS_3842_QuantitativeReport_1790726400000",
+      "headHtml" : "TD: Lowering target price to $131.00",
+      "provider" : "Argus Research",
+      "targetPrice" : 131.0,
+      "targetPriceStatus" : "Decreased",
+      "investmentRating" : "Bullish",
+      "reportDate" : "2026-09-30T00:00:00Z",
+      "reportTitle" : "Toronto-Dominion Bank/The has an Investment Rating of BUY; a target price of $131.000000; an Industry Subrating of High; a Management Subrating of High; a Safety Subrating of High; a Financial Strength Subrating of High; a Growth Subrating of High; and a Value Subrating of High.",
+      "reportType" : "Quantitative Report"
+    }, {
+      "id" : "ARGUS_3782_QuantitativeReport_1790726400000",
+      "headHtml" : "CM: Lowering target price to $123.00",
+      "provider" : "Argus Research",
+      "targetPrice" : 123.0,
+      "targetPriceStatus" : "Decreased",
+      "investmentRating" : "Bullish",
+      "reportDate" : "2026-09-30T00:00:00Z",
+      "reportTitle" : "Canadian Imperial Bank of Commerce has an Investment Rating of BUY; a target price of $123.000000; an Industry Subrating of High; a Management Subrating of High; a Safety Subrating of High; a Financial Strength Subrating of High; a Growth Subrating of High; and a Value Subrating of High.",
+      "reportType" : "Quantitative Report"
+    }, {
+      "id" : "ARGUS_3774_QuantitativeReport_1790726400000",
+      "headHtml" : "BNS: Lowering target price to $102.00",
+      "provider" : "Argus Research",
+      "targetPrice" : 102.0,
+      "targetPriceStatus" : "Decreased",
+      "investmentRating" : "Bullish",
+      "reportDate" : "2026-09-30T00:00:00Z",
+      "reportTitle" : "Bank of Nova Scotia/The has an Investment Rating of BUY; a target price of $102.000000; an Industry Subrating of High; a Management Subrating of Medium; a Safety Subrating of High; a Financial Strength Subrating of High; a Growth Subrating of Low; and a Value Subrating of High.",
+      "reportType" : "Quantitative Report"
+    }, {
+      "id" : "ARGUS_3773_QuantitativeReport_1790726400000",
+      "headHtml" : "BMO: Lowering target price to $187.00",
+      "provider" : "Argus Research",
+      "targetPrice" : 187.0,
+      "targetPriceStatus" : "Decreased",
+      "investmentRating" : "Bullish",
+      "reportDate" : "2026-09-30T00:00:00Z",
+      "reportTitle" : "BANK OF MONTREAL has an Investment Rating of BUY; a target price of $187.000000; an Industry Subrating of High; a Management Subrating of High; a Safety Subrating of High; a Financial Strength Subrating of High; a Growth Subrating of Medium; and a Value Subrating of High.",
+      "reportType" : "Quantitative Report"
+    } ]
+  }
+}

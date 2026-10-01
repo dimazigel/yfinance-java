@@ -1,0 +1,2929 @@
+{
+  "data" : {
+    "name" : "Financial Services",
+    "symbol" : "^YH103",
+    "key" : "financial-services",
+    "overview" : {
+      "companiesCount" : 1520,
+      "marketCap" : {
+        "raw" : 11345252581376,
+        "fmt" : "11.345T",
+        "longFmt" : "11,345,252,581,376"
+      },
+      "messageBoardId" : "INDEXYH103",
+      "description" : "Companies that provide financial services include banks, savings and loans, asset management companies, credit services, investment brokerage firms, and insurance companies. Companies in this sector include Allianz, JPMorgan Chase, and Legg Mason.",
+      "industriesCount" : 15,
+      "marketWeight" : {
+        "raw" : 0.12903288,
+        "fmt" : "12.90%"
+      },
+      "employeeCount" : {
+        "raw" : 5361651,
+        "fmt" : "5.362M",
+        "longFmt" : "5,361,651"
+      }
+    },
+    "performance" : {
+      "ytdChangePercent" : {
+        "raw" : -0.024309335,
+        "fmt" : "-2.43%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -0.008116131,
+        "fmt" : "-0.81%"
+      },
+      "threeYearChangePercent" : {
+        "raw" : 0.6111642,
+        "fmt" : "61.12%"
+      },
+      "oneYearChangePercent" : {
+        "raw" : 3.715709E-4,
+        "fmt" : "0.04%"
+      },
+      "fiveYearChangePercent" : {
+        "raw" : 0.39516354,
+        "fmt" : "39.52%"
+      }
+    },
+    "performanceOverviewBenchmark" : {
+      "ytdChangePercent" : {
+        "raw" : 0.109523416,
+        "fmt" : "10.95%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -0.0025159963,
+        "fmt" : "-0.25%"
+      },
+      "threeYearChangePercent" : {
+        "raw" : 0.78438693,
+        "fmt" : "78.44%"
+      },
+      "name" : "S&P 500",
+      "oneYearChangePercent" : {
+        "raw" : 0.1486712,
+        "fmt" : "14.87%"
+      },
+      "fiveYearChangePercent" : {
+        "raw" : 0.7561326,
+        "fmt" : "75.61%"
+      }
+    },
+    "topCompanies" : [ {
+      "marketCap" : {
+        "raw" : 1065966468054,
+        "fmt" : "1.066T",
+        "longFmt" : "1,065,966,468,054"
+      },
+      "symbol" : "BRK-B",
+      "targetPrice" : {
+        "raw" : 547.667,
+        "fmt" : "547.67"
+      },
+      "fulldayChangePercent" : {
+        "raw" : -0.0030296537,
+        "fmt" : "-0.30%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -0.00875882,
+        "fmt" : "-0.88%"
+      },
+      "rating" : "Buy",
+      "name" : "Berkshire Hathaway Inc.",
+      "fulldayChange" : {
+        "raw" : -1.5100098,
+        "fmt" : "-1.51"
+      },
+      "ytdReturn" : {
+        "raw" : -0.0094,
+        "fmt" : "-0.94%"
+      },
+      "marketWeight" : {
+        "raw" : 0.10319426,
+        "fmt" : "10.32%"
+      },
+      "fulldayPrice" : {
+        "raw" : 496.9,
+        "fmt" : "496.90"
+      },
+      "lastPrice" : {
+        "raw" : 497.95,
+        "fmt" : "497.95"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 879407703198,
+        "fmt" : "879.408B",
+        "longFmt" : "879,407,703,198"
+      },
+      "symbol" : "JPM",
+      "targetPrice" : {
+        "raw" : 375.81,
+        "fmt" : "375.81"
+      },
+      "fulldayChangePercent" : {
+        "raw" : -0.0035511532,
+        "fmt" : "-0.36%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -0.012388900000000001,
+        "fmt" : "-1.24%"
+      },
+      "rating" : "Buy",
+      "name" : "JPMorgan Chase & Co.",
+      "fulldayChange" : {
+        "raw" : -1.1749878,
+        "fmt" : "-1.17"
+      },
+      "ytdReturn" : {
+        "raw" : 0.0267,
+        "fmt" : "2.67%"
+      },
+      "marketWeight" : {
+        "raw" : 0.08513385,
+        "fmt" : "8.51%"
+      },
+      "fulldayPrice" : {
+        "raw" : 329.7,
+        "fmt" : "329.70"
+      },
+      "lastPrice" : {
+        "raw" : 330.83,
+        "fmt" : "330.83"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 674590040007,
+        "fmt" : "674.59B",
+        "longFmt" : "674,590,040,007"
+      },
+      "symbol" : "V",
+      "targetPrice" : {
+        "raw" : 419.362,
+        "fmt" : "419.36"
+      },
+      "fulldayChangePercent" : {
+        "raw" : -0.0014186641999999999,
+        "fmt" : "-0.14%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -0.0179021,
+        "fmt" : "-1.79%"
+      },
+      "rating" : "Strong Buy",
+      "name" : "Visa Inc.",
+      "fulldayChange" : {
+        "raw" : -0.51000977,
+        "fmt" : "-0.51"
+      },
+      "ytdReturn" : {
+        "raw" : 0.0246,
+        "fmt" : "2.46%"
+      },
+      "marketWeight" : {
+        "raw" : 0.06530582,
+        "fmt" : "6.53%"
+      },
+      "fulldayPrice" : {
+        "raw" : 358.99,
+        "fmt" : "358.99"
+      },
+      "lastPrice" : {
+        "raw" : 359.33,
+        "fmt" : "359.33"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 483093175947,
+        "fmt" : "483.093B",
+        "longFmt" : "483,093,175,947"
+      },
+      "symbol" : "MA",
+      "targetPrice" : {
+        "raw" : 666.714,
+        "fmt" : "666.71"
+      },
+      "fulldayChangePercent" : {
+        "raw" : -1.6321334999999998E-4,
+        "fmt" : "-0.02%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -0.0214877,
+        "fmt" : "-2.15%"
+      },
+      "rating" : "Strong Buy",
+      "name" : "Mastercard Incorporated",
+      "fulldayChange" : {
+        "raw" : -0.090026855,
+        "fmt" : "-0.09"
+      },
+      "ytdReturn" : {
+        "raw" : -0.034,
+        "fmt" : "-3.40%"
+      },
+      "marketWeight" : {
+        "raw" : 0.046767365,
+        "fmt" : "4.68%"
+      },
+      "fulldayPrice" : {
+        "raw" : 551.5,
+        "fmt" : "551.50"
+      },
+      "lastPrice" : {
+        "raw" : 551.47,
+        "fmt" : "551.47"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 380615295640,
+        "fmt" : "380.615B",
+        "longFmt" : "380,615,295,640"
+      },
+      "symbol" : "BAC",
+      "targetPrice" : {
+        "raw" : 68.619,
+        "fmt" : "68.62"
+      },
+      "fulldayChangePercent" : {
+        "raw" : -0.0067603279999999995,
+        "fmt" : "-0.68%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -0.00964336,
+        "fmt" : "-0.96%"
+      },
+      "rating" : "Strong Buy",
+      "name" : "Bank of America Corporation",
+      "fulldayChange" : {
+        "raw" : -0.36789703,
+        "fmt" : "-0.37"
+      },
+      "ytdReturn" : {
+        "raw" : -0.0104,
+        "fmt" : "-1.04%"
+      },
+      "marketWeight" : {
+        "raw" : 0.036846668,
+        "fmt" : "3.68%"
+      },
+      "fulldayPrice" : {
+        "raw" : 54.0521,
+        "fmt" : "54.05"
+      },
+      "lastPrice" : {
+        "raw" : 54.43,
+        "fmt" : "54.43"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 295392111075,
+        "fmt" : "295.392B",
+        "longFmt" : "295,392,111,075"
+      },
+      "symbol" : "MS",
+      "targetPrice" : {
+        "raw" : 234.619,
+        "fmt" : "234.62"
+      },
+      "fulldayChangePercent" : {
+        "raw" : -0.0059536206999999996,
+        "fmt" : "-0.60%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -0.024278900000000003,
+        "fmt" : "-2.43%"
+      },
+      "rating" : "Buy",
+      "name" : "Morgan Stanley",
+      "fulldayChange" : {
+        "raw" : -1.1199951,
+        "fmt" : "-1.12"
+      },
+      "ytdReturn" : {
+        "raw" : 0.0594,
+        "fmt" : "5.94%"
+      },
+      "marketWeight" : {
+        "raw" : 0.02859637,
+        "fmt" : "2.86%"
+      },
+      "fulldayPrice" : {
+        "raw" : 187.0,
+        "fmt" : "187.00"
+      },
+      "lastPrice" : {
+        "raw" : 188.08,
+        "fmt" : "188.08"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 272165049115,
+        "fmt" : "272.165B",
+        "longFmt" : "272,165,049,115"
+      },
+      "symbol" : "RY",
+      "targetPrice" : {
+        "raw" : 295.6,
+        "fmt" : "295.60"
+      },
+      "fulldayChangePercent" : {
+        "raw" : -0.017517517,
+        "fmt" : "-1.75%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -0.0160661,
+        "fmt" : "-1.61%"
+      },
+      "rating" : "Buy",
+      "name" : "Royal Bank of Canada",
+      "fulldayChange" : {
+        "raw" : -3.5,
+        "fmt" : "-3.50"
+      },
+      "ytdReturn" : {
+        "raw" : 0.1531,
+        "fmt" : "15.31%"
+      },
+      "marketWeight" : {
+        "raw" : 0.0263478,
+        "fmt" : "2.63%"
+      },
+      "fulldayPrice" : {
+        "raw" : 196.3,
+        "fmt" : "196.30"
+      },
+      "lastPrice" : {
+        "raw" : 196.59,
+        "fmt" : "196.59"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 262159084641,
+        "fmt" : "262.159B",
+        "longFmt" : "262,159,084,641"
+      },
+      "symbol" : "GS",
+      "targetPrice" : {
+        "raw" : 1127.25,
+        "fmt" : "1,127.25"
+      },
+      "fulldayChangePercent" : {
+        "raw" : -0.002928014,
+        "fmt" : "-0.29%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -0.017331700000000002,
+        "fmt" : "-1.73%"
+      },
+      "rating" : "Hold",
+      "name" : "The Goldman Sachs Group, Inc.",
+      "fulldayChange" : {
+        "raw" : -2.6400146,
+        "fmt" : "-2.64"
+      },
+      "ytdReturn" : {
+        "raw" : 0.0243,
+        "fmt" : "2.43%"
+      },
+      "marketWeight" : {
+        "raw" : 0.02537914,
+        "fmt" : "2.54%"
+      },
+      "fulldayPrice" : {
+        "raw" : 900.36,
+        "fmt" : "900.36"
+      },
+      "lastPrice" : {
+        "raw" : 900.36,
+        "fmt" : "900.36"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 242071156075,
+        "fmt" : "242.071B",
+        "longFmt" : "242,071,156,075"
+      },
+      "symbol" : "WFC",
+      "targetPrice" : {
+        "raw" : 100.543,
+        "fmt" : "100.54"
+      },
+      "fulldayChangePercent" : {
+        "raw" : -0.0064911280000000005,
+        "fmt" : "-0.65%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -0.00534295,
+        "fmt" : "-0.53%"
+      },
+      "rating" : "Buy",
+      "name" : "Wells Fargo & Company",
+      "fulldayChange" : {
+        "raw" : -0.5200043,
+        "fmt" : "-0.52"
+      },
+      "ytdReturn" : {
+        "raw" : -0.1411,
+        "fmt" : "-14.11%"
+      },
+      "marketWeight" : {
+        "raw" : 0.023434466,
+        "fmt" : "2.34%"
+      },
+      "fulldayPrice" : {
+        "raw" : 79.59,
+        "fmt" : "79.59"
+      },
+      "lastPrice" : {
+        "raw" : 80.05,
+        "fmt" : "80.05"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 217194507496,
+        "fmt" : "217.195B",
+        "longFmt" : "217,194,507,496"
+      },
+      "symbol" : "C",
+      "targetPrice" : {
+        "raw" : 154.9,
+        "fmt" : "154.90"
+      },
+      "fulldayChangePercent" : {
+        "raw" : -0.0077220076000000006,
+        "fmt" : "-0.77%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -0.0100918,
+        "fmt" : "-1.01%"
+      },
+      "rating" : "Buy",
+      "name" : "Citigroup Inc.",
+      "fulldayChange" : {
+        "raw" : -1.0,
+        "fmt" : "-1.00"
+      },
+      "ytdReturn" : {
+        "raw" : 0.1096,
+        "fmt" : "10.96%"
+      },
+      "marketWeight" : {
+        "raw" : 0.021026202,
+        "fmt" : "2.10%"
+      },
+      "fulldayPrice" : {
+        "raw" : 128.5,
+        "fmt" : "128.50"
+      },
+      "lastPrice" : {
+        "raw" : 129.48,
+        "fmt" : "129.48"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 205361724337,
+        "fmt" : "205.362B",
+        "longFmt" : "205,361,724,337"
+      },
+      "symbol" : "AXP",
+      "targetPrice" : {
+        "raw" : 377.912,
+        "fmt" : "377.91"
+      },
+      "fulldayChangePercent" : {
+        "raw" : -6.902845000000001E-4,
+        "fmt" : "-0.07%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -0.004256670000000001,
+        "fmt" : "-0.43%"
+      },
+      "rating" : "Buy",
+      "name" : "American Express Company",
+      "fulldayChange" : {
+        "raw" : -0.20999146,
+        "fmt" : "-0.21"
+      },
+      "ytdReturn" : {
+        "raw" : -0.178,
+        "fmt" : "-17.80%"
+      },
+      "marketWeight" : {
+        "raw" : 0.019880692,
+        "fmt" : "1.99%"
+      },
+      "fulldayPrice" : {
+        "raw" : 304.1,
+        "fmt" : "304.10"
+      },
+      "lastPrice" : {
+        "raw" : 304.1,
+        "fmt" : "304.10"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 192560797410,
+        "fmt" : "192.561B",
+        "longFmt" : "192,560,797,410"
+      },
+      "symbol" : "TD",
+      "targetPrice" : {
+        "raw" : 170.245,
+        "fmt" : "170.25"
+      },
+      "fulldayChangePercent" : {
+        "raw" : -0.012352951999999999,
+        "fmt" : "-1.24%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -0.012353000000000001,
+        "fmt" : "-1.24%"
+      },
+      "rating" : "Buy",
+      "name" : "The Toronto-Dominion Bank",
+      "fulldayChange" : {
+        "raw" : -1.4700012,
+        "fmt" : "-1.47"
+      },
+      "ytdReturn" : {
+        "raw" : 0.2477,
+        "fmt" : "24.77%"
+      },
+      "marketWeight" : {
+        "raw" : 0.018641457,
+        "fmt" : "1.86%"
+      },
+      "fulldayPrice" : {
+        "raw" : 117.53,
+        "fmt" : "117.53"
+      },
+      "lastPrice" : {
+        "raw" : 117.53,
+        "fmt" : "117.53"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 169025268992,
+        "fmt" : "169.025B",
+        "longFmt" : "169,025,268,992"
+      },
+      "symbol" : "SCHW",
+      "targetPrice" : {
+        "raw" : 125.45,
+        "fmt" : "125.45"
+      },
+      "fulldayChangePercent" : {
+        "raw" : 0.005013357,
+        "fmt" : "0.50%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -0.0137235,
+        "fmt" : "-1.37%"
+      },
+      "rating" : "Buy",
+      "name" : "The Charles Schwab Corporation",
+      "fulldayChange" : {
+        "raw" : 0.4900055,
+        "fmt" : "0.49"
+      },
+      "ytdReturn" : {
+        "raw" : -0.0217,
+        "fmt" : "-2.17%"
+      },
+      "marketWeight" : {
+        "raw" : 0.016363027,
+        "fmt" : "1.64%"
+      },
+      "fulldayPrice" : {
+        "raw" : 98.23,
+        "fmt" : "98.23"
+      },
+      "lastPrice" : {
+        "raw" : 97.74,
+        "fmt" : "97.74"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 163896594156,
+        "fmt" : "163.897B",
+        "longFmt" : "163,896,594,156"
+      },
+      "symbol" : "BLK",
+      "targetPrice" : {
+        "raw" : 1322.75,
+        "fmt" : "1,322.75"
+      },
+      "fulldayChangePercent" : {
+        "raw" : -0.007852196700000001,
+        "fmt" : "-0.79%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -0.009035999999999999,
+        "fmt" : "-0.90%"
+      },
+      "rating" : "Strong Buy",
+      "name" : "BlackRock, Inc.",
+      "fulldayChange" : {
+        "raw" : -8.310059,
+        "fmt" : "-8.31"
+      },
+      "ytdReturn" : {
+        "raw" : -0.0113,
+        "fmt" : "-1.13%"
+      },
+      "marketWeight" : {
+        "raw" : 0.01586653,
+        "fmt" : "1.59%"
+      },
+      "fulldayPrice" : {
+        "raw" : 1050.0,
+        "fmt" : "1,050.00"
+      },
+      "lastPrice" : {
+        "raw" : 1058.29,
+        "fmt" : "1,058.29"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 125481404139,
+        "fmt" : "125.481B",
+        "longFmt" : "125,481,404,139"
+      },
+      "symbol" : "CB",
+      "targetPrice" : {
+        "raw" : 365.913,
+        "fmt" : "365.91"
+      },
+      "fulldayChangePercent" : {
+        "raw" : -1.2299347E-4,
+        "fmt" : "-0.01%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -0.0205673,
+        "fmt" : "-2.06%"
+      },
+      "rating" : "Buy",
+      "name" : "Chubb Limited",
+      "fulldayChange" : {
+        "raw" : -0.040008545,
+        "fmt" : "-0.04"
+      },
+      "ytdReturn" : {
+        "raw" : 0.0421,
+        "fmt" : "4.21%"
+      },
+      "marketWeight" : {
+        "raw" : 0.012147625,
+        "fmt" : "1.21%"
+      },
+      "fulldayPrice" : {
+        "raw" : 325.25,
+        "fmt" : "325.25"
+      },
+      "lastPrice" : {
+        "raw" : 325.25,
+        "fmt" : "325.25"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 120322722583,
+        "fmt" : "120.323B",
+        "longFmt" : "120,322,722,583"
+      },
+      "symbol" : "PGR",
+      "targetPrice" : {
+        "raw" : 231.381,
+        "fmt" : "231.38"
+      },
+      "fulldayChangePercent" : {
+        "raw" : -0.026220806,
+        "fmt" : "-2.62%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -0.015248,
+        "fmt" : "-1.52%"
+      },
+      "rating" : "Hold",
+      "name" : "The Progressive Corporation",
+      "fulldayChange" : {
+        "raw" : -5.5200043,
+        "fmt" : "-5.52"
+      },
+      "ytdReturn" : {
+        "raw" : -0.0896,
+        "fmt" : "-8.96%"
+      },
+      "marketWeight" : {
+        "raw" : 0.011648222,
+        "fmt" : "1.16%"
+      },
+      "fulldayPrice" : {
+        "raw" : 205.0,
+        "fmt" : "205.00"
+      },
+      "lastPrice" : {
+        "raw" : 207.31,
+        "fmt" : "207.31"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 118448449493,
+        "fmt" : "118.448B",
+        "longFmt" : "118,448,449,493"
+      },
+      "symbol" : "COF",
+      "targetPrice" : {
+        "raw" : 258.333,
+        "fmt" : "258.33"
+      },
+      "fulldayChangePercent" : {
+        "raw" : -0.021429331,
+        "fmt" : "-2.14%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -0.0172554,
+        "fmt" : "-1.73%"
+      },
+      "rating" : "Buy",
+      "name" : "Capital One Financial Corporation",
+      "fulldayChange" : {
+        "raw" : -4.2100067,
+        "fmt" : "-4.21"
+      },
+      "ytdReturn" : {
+        "raw" : -0.2034,
+        "fmt" : "-20.34%"
+      },
+      "marketWeight" : {
+        "raw" : 0.011466777,
+        "fmt" : "1.15%"
+      },
+      "fulldayPrice" : {
+        "raw" : 192.25,
+        "fmt" : "192.25"
+      },
+      "lastPrice" : {
+        "raw" : 193.07,
+        "fmt" : "193.07"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 116289756359,
+        "fmt" : "116.29B",
+        "longFmt" : "116,289,756,359"
+      },
+      "symbol" : "SPGI",
+      "targetPrice" : {
+        "raw" : 520.3,
+        "fmt" : "520.30"
+      },
+      "fulldayChangePercent" : {
+        "raw" : 0.016170516,
+        "fmt" : "1.62%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : 0.00514712,
+        "fmt" : "0.51%"
+      },
+      "rating" : "Strong Buy",
+      "name" : "S&P Global Inc.",
+      "fulldayChange" : {
+        "raw" : 6.3833923,
+        "fmt" : "6.38"
+      },
+      "ytdReturn" : {
+        "raw" : -0.2021,
+        "fmt" : "-20.21%"
+      },
+      "marketWeight" : {
+        "raw" : 0.011257798,
+        "fmt" : "1.13%"
+      },
+      "fulldayPrice" : {
+        "raw" : 401.1384,
+        "fmt" : "401.14"
+      },
+      "lastPrice" : {
+        "raw" : 394.47,
+        "fmt" : "394.47"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 101146755712,
+        "fmt" : "101.147B",
+        "longFmt" : "101,146,755,712"
+      },
+      "symbol" : "HOOD",
+      "targetPrice" : {
+        "raw" : 131.079,
+        "fmt" : "131.08"
+      },
+      "fulldayChangePercent" : {
+        "raw" : 0.002666694,
+        "fmt" : "0.27%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -0.032008299999999996,
+        "fmt" : "-3.20%"
+      },
+      "rating" : "Buy",
+      "name" : "Robinhood Markets, Inc.",
+      "fulldayChange" : {
+        "raw" : 0.30000305,
+        "fmt" : "0.30"
+      },
+      "ytdReturn" : {
+        "raw" : -0.0053,
+        "fmt" : "-0.53%"
+      },
+      "marketWeight" : {
+        "raw" : 0.009791832,
+        "fmt" : "0.98%"
+      },
+      "fulldayPrice" : {
+        "raw" : 112.8,
+        "fmt" : "112.80"
+      },
+      "lastPrice" : {
+        "raw" : 112.5,
+        "fmt" : "112.50"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 98132057370,
+        "fmt" : "98.132B",
+        "longFmt" : "98,132,057,370"
+      },
+      "symbol" : "BNY",
+      "targetPrice" : {
+        "raw" : 167.357,
+        "fmt" : "167.36"
+      },
+      "fulldayChangePercent" : {
+        "raw" : -0.0044247746,
+        "fmt" : "-0.44%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -0.015988500000000003,
+        "fmt" : "-1.60%"
+      },
+      "rating" : "Buy",
+      "name" : "The Bank of New York Mellon Corporation",
+      "fulldayChange" : {
+        "raw" : -0.6399994,
+        "fmt" : "-0.64"
+      },
+      "ytdReturn" : {
+        "raw" : 0.2458,
+        "fmt" : "24.58%"
+      },
+      "marketWeight" : {
+        "raw" : 0.009499985,
+        "fmt" : "0.95%"
+      },
+      "fulldayPrice" : {
+        "raw" : 144.0,
+        "fmt" : "144.00"
+      },
+      "lastPrice" : {
+        "raw" : 144.63,
+        "fmt" : "144.63"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 94202579271,
+        "fmt" : "94.203B",
+        "longFmt" : "94,202,579,271"
+      },
+      "symbol" : "CME",
+      "targetPrice" : {
+        "raw" : 283.6,
+        "fmt" : "283.60"
+      },
+      "fulldayChangePercent" : {
+        "raw" : 0.0,
+        "fmt" : "0.00%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -0.00471085,
+        "fmt" : "-0.47%"
+      },
+      "rating" : "Hold",
+      "name" : "CME Group Inc.",
+      "fulldayChange" : {
+        "raw" : 0.0,
+        "fmt" : "0.00"
+      },
+      "ytdReturn" : {
+        "raw" : -0.0406,
+        "fmt" : "-4.06%"
+      },
+      "marketWeight" : {
+        "raw" : 0.009119579,
+        "fmt" : "0.91%"
+      },
+      "fulldayPrice" : {
+        "raw" : 261.98,
+        "fmt" : "261.98"
+      },
+      "lastPrice" : {
+        "raw" : 261.98,
+        "fmt" : "261.98"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 89993048905,
+        "fmt" : "89.993B",
+        "longFmt" : "89,993,048,905"
+      },
+      "symbol" : "USB",
+      "targetPrice" : {
+        "raw" : 70.4286,
+        "fmt" : "70.43"
+      },
+      "fulldayChangePercent" : {
+        "raw" : 8.654879E-4,
+        "fmt" : "0.09%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : 0.00277778,
+        "fmt" : "0.28%"
+      },
+      "rating" : "Buy",
+      "name" : "U.S. Bancorp",
+      "fulldayChange" : {
+        "raw" : 0.049999237,
+        "fmt" : "0.05"
+      },
+      "ytdReturn" : {
+        "raw" : 0.0825,
+        "fmt" : "8.25%"
+      },
+      "marketWeight" : {
+        "raw" : 0.008712062,
+        "fmt" : "0.87%"
+      },
+      "fulldayPrice" : {
+        "raw" : 57.82,
+        "fmt" : "57.82"
+      },
+      "lastPrice" : {
+        "raw" : 57.76,
+        "fmt" : "57.76"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 88669217235,
+        "fmt" : "88.669B",
+        "longFmt" : "88,669,217,235"
+      },
+      "symbol" : "PNC",
+      "targetPrice" : {
+        "raw" : 276.975,
+        "fmt" : "276.98"
+      },
+      "fulldayChangePercent" : {
+        "raw" : 0.0018046884,
+        "fmt" : "0.18%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : 0.00275209,
+        "fmt" : "0.28%"
+      },
+      "rating" : "Buy",
+      "name" : "The PNC Financial Services Group, Inc.",
+      "fulldayChange" : {
+        "raw" : 0.40000916,
+        "fmt" : "0.40"
+      },
+      "ytdReturn" : {
+        "raw" : 0.0648,
+        "fmt" : "6.48%"
+      },
+      "marketWeight" : {
+        "raw" : 0.008583904,
+        "fmt" : "0.86%"
+      },
+      "fulldayPrice" : {
+        "raw" : 222.05,
+        "fmt" : "222.05"
+      },
+      "lastPrice" : {
+        "raw" : 222.26,
+        "fmt" : "222.26"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 85348803173,
+        "fmt" : "85.349B",
+        "longFmt" : "85,348,803,173"
+      },
+      "symbol" : "ICE",
+      "targetPrice" : {
+        "raw" : 187.286,
+        "fmt" : "187.29"
+      },
+      "fulldayChangePercent" : {
+        "raw" : -0.005453721,
+        "fmt" : "-0.55%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -0.00105134,
+        "fmt" : "-0.11%"
+      },
+      "rating" : "Strong Buy",
+      "name" : "Intercontinental Exchange, Inc.",
+      "fulldayChange" : {
+        "raw" : -0.83000183,
+        "fmt" : "-0.83"
+      },
+      "ytdReturn" : {
+        "raw" : -0.0613,
+        "fmt" : "-6.13%"
+      },
+      "marketWeight" : {
+        "raw" : 0.008262461,
+        "fmt" : "0.83%"
+      },
+      "fulldayPrice" : {
+        "raw" : 151.36,
+        "fmt" : "151.36"
+      },
+      "lastPrice" : {
+        "raw" : 152.03,
+        "fmt" : "152.03"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 84137566279,
+        "fmt" : "84.138B",
+        "longFmt" : "84,137,566,279"
+      },
+      "symbol" : "BX",
+      "targetPrice" : {
+        "raw" : 144.381,
+        "fmt" : "144.38"
+      },
+      "fulldayChangePercent" : {
+        "raw" : 0.006064933,
+        "fmt" : "0.61%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -0.0167544,
+        "fmt" : "-1.68%"
+      },
+      "rating" : "Buy",
+      "name" : "Blackstone Inc.",
+      "fulldayChange" : {
+        "raw" : 0.6800003,
+        "fmt" : "0.68"
+      },
+      "ytdReturn" : {
+        "raw" : -0.2728,
+        "fmt" : "-27.28%"
+      },
+      "marketWeight" : {
+        "raw" : 0.008145204,
+        "fmt" : "0.81%"
+      },
+      "fulldayPrice" : {
+        "raw" : 112.8,
+        "fmt" : "112.80"
+      },
+      "lastPrice" : {
+        "raw" : 112.09,
+        "fmt" : "112.09"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 81954133110,
+        "fmt" : "81.954B",
+        "longFmt" : "81,954,133,110"
+      },
+      "symbol" : "KKR",
+      "targetPrice" : {
+        "raw" : 128.67,
+        "fmt" : "128.67"
+      },
+      "fulldayChangePercent" : {
+        "raw" : 0.0021356956999999998,
+        "fmt" : "0.21%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -0.020176,
+        "fmt" : "-2.02%"
+      },
+      "rating" : "Buy",
+      "name" : "KKR & Co. Inc.",
+      "fulldayChange" : {
+        "raw" : 0.1949997,
+        "fmt" : "0.19"
+      },
+      "ytdReturn" : {
+        "raw" : -0.2838,
+        "fmt" : "-28.38%"
+      },
+      "marketWeight" : {
+        "raw" : 0.007933829,
+        "fmt" : "0.79%"
+      },
+      "fulldayPrice" : {
+        "raw" : 91.5,
+        "fmt" : "91.50"
+      },
+      "lastPrice" : {
+        "raw" : 91.3,
+        "fmt" : "91.30"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 81474277746,
+        "fmt" : "81.474B",
+        "longFmt" : "81,474,277,746"
+      },
+      "symbol" : "MRSH",
+      "targetPrice" : {
+        "raw" : 206.857,
+        "fmt" : "206.86"
+      },
+      "fulldayChangePercent" : {
+        "raw" : 0.0018190200000000002,
+        "fmt" : "0.18%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : 0.0018190200000000002,
+        "fmt" : "0.18%"
+      },
+      "rating" : "Hold",
+      "name" : "Marsh & McLennan Companies, Inc.",
+      "fulldayChange" : {
+        "raw" : 0.309998,
+        "fmt" : "0.31"
+      },
+      "ytdReturn" : {
+        "raw" : -0.0797,
+        "fmt" : "-7.97%"
+      },
+      "marketWeight" : {
+        "raw" : 0.007887376,
+        "fmt" : "0.79%"
+      },
+      "fulldayPrice" : {
+        "raw" : 170.73,
+        "fmt" : "170.73"
+      },
+      "lastPrice" : {
+        "raw" : 170.73,
+        "fmt" : "170.73"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 78646681109,
+        "fmt" : "78.647B",
+        "longFmt" : "78,646,681,109"
+      },
+      "symbol" : "MCO",
+      "targetPrice" : {
+        "raw" : 561.905,
+        "fmt" : "561.90"
+      },
+      "fulldayChangePercent" : {
+        "raw" : -0.007145684,
+        "fmt" : "-0.71%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -0.00151709,
+        "fmt" : "-0.15%"
+      },
+      "rating" : "Buy",
+      "name" : "Moody's Corporation",
+      "fulldayChange" : {
+        "raw" : -3.25,
+        "fmt" : "-3.25"
+      },
+      "ytdReturn" : {
+        "raw" : -0.111,
+        "fmt" : "-11.10%"
+      },
+      "marketWeight" : {
+        "raw" : 0.007613641,
+        "fmt" : "0.76%"
+      },
+      "fulldayPrice" : {
+        "raw" : 451.57,
+        "fmt" : "451.57"
+      },
+      "lastPrice" : {
+        "raw" : 454.13,
+        "fmt" : "454.13"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 74359083130,
+        "fmt" : "74.359B",
+        "longFmt" : "74,359,083,130"
+      },
+      "symbol" : "TRV",
+      "targetPrice" : {
+        "raw" : 360.708,
+        "fmt" : "360.71"
+      },
+      "fulldayChangePercent" : {
+        "raw" : -0.0046263674,
+        "fmt" : "-0.46%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -0.0184466,
+        "fmt" : "-1.84%"
+      },
+      "rating" : "Hold",
+      "name" : "The Travelers Companies, Inc.",
+      "fulldayChange" : {
+        "raw" : -1.6499939,
+        "fmt" : "-1.65"
+      },
+      "ytdReturn" : {
+        "raw" : 0.2291,
+        "fmt" : "22.91%"
+      },
+      "marketWeight" : {
+        "raw" : 0.0071985666,
+        "fmt" : "0.72%"
+      },
+      "fulldayPrice" : {
+        "raw" : 356.51,
+        "fmt" : "356.51"
+      },
+      "lastPrice" : {
+        "raw" : 356.51,
+        "fmt" : "356.51"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 68538437591,
+        "fmt" : "68.538B",
+        "longFmt" : "68,538,437,591"
+      },
+      "symbol" : "APO",
+      "targetPrice" : {
+        "raw" : 153.474,
+        "fmt" : "153.47"
+      },
+      "fulldayChangePercent" : {
+        "raw" : -0.030168035,
+        "fmt" : "-3.02%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -0.0247059,
+        "fmt" : "-2.47%"
+      },
+      "rating" : "Buy",
+      "name" : "Apollo Global Management, Inc.",
+      "fulldayChange" : {
+        "raw" : -3.5899963,
+        "fmt" : "-3.59"
+      },
+      "ytdReturn" : {
+        "raw" : -0.1983,
+        "fmt" : "-19.83%"
+      },
+      "marketWeight" : {
+        "raw" : 0.0066350806,
+        "fmt" : "0.66%"
+      },
+      "fulldayPrice" : {
+        "raw" : 115.41,
+        "fmt" : "115.41"
+      },
+      "lastPrice" : {
+        "raw" : 116.06,
+        "fmt" : "116.06"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 61156517685,
+        "fmt" : "61.157B",
+        "longFmt" : "61,156,517,685"
+      },
+      "symbol" : "NU",
+      "targetPrice" : {
+        "raw" : 18.6364,
+        "fmt" : "18.64"
+      },
+      "fulldayChangePercent" : {
+        "raw" : 0.046272936,
+        "fmt" : "4.63%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : 0.0251012,
+        "fmt" : "2.51%"
+      },
+      "rating" : "Buy",
+      "name" : "Nu Holdings Ltd.",
+      "fulldayChange" : {
+        "raw" : 0.58600044,
+        "fmt" : "0.59"
+      },
+      "ytdReturn" : {
+        "raw" : -0.2437,
+        "fmt" : "-24.37%"
+      },
+      "marketWeight" : {
+        "raw" : 0.00592045,
+        "fmt" : "0.59%"
+      },
+      "fulldayPrice" : {
+        "raw" : 13.25,
+        "fmt" : "13.25"
+      },
+      "lastPrice" : {
+        "raw" : 12.66,
+        "fmt" : "12.66"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 59836509773,
+        "fmt" : "59.837B",
+        "longFmt" : "59,836,509,773"
+      },
+      "symbol" : "MET",
+      "targetPrice" : {
+        "raw" : 105.75,
+        "fmt" : "105.75"
+      },
+      "fulldayChangePercent" : {
+        "raw" : 0.0139694,
+        "fmt" : "1.40%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -0.0109243,
+        "fmt" : "-1.09%"
+      },
+      "rating" : "Buy",
+      "name" : "MetLife, Inc.",
+      "fulldayChange" : {
+        "raw" : 1.3154984,
+        "fmt" : "1.32"
+      },
+      "ytdReturn" : {
+        "raw" : 0.1928,
+        "fmt" : "19.28%"
+      },
+      "marketWeight" : {
+        "raw" : 0.005792663,
+        "fmt" : "0.58%"
+      },
+      "fulldayPrice" : {
+        "raw" : 95.4855,
+        "fmt" : "95.49"
+      },
+      "lastPrice" : {
+        "raw" : 94.16,
+        "fmt" : "94.16"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 58709954037,
+        "fmt" : "58.71B",
+        "longFmt" : "58,709,954,037"
+      },
+      "symbol" : "AON",
+      "targetPrice" : {
+        "raw" : 383.632,
+        "fmt" : "383.63"
+      },
+      "fulldayChangePercent" : {
+        "raw" : -7.586945E-4,
+        "fmt" : "-0.08%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : 0.0031533,
+        "fmt" : "0.32%"
+      },
+      "rating" : "Buy",
+      "name" : "Aon plc",
+      "fulldayChange" : {
+        "raw" : -0.20999146,
+        "fmt" : "-0.21"
+      },
+      "ytdReturn" : {
+        "raw" : -0.2157,
+        "fmt" : "-21.57%"
+      },
+      "marketWeight" : {
+        "raw" : 0.005683603,
+        "fmt" : "0.57%"
+      },
+      "fulldayPrice" : {
+        "raw" : 276.57,
+        "fmt" : "276.57"
+      },
+      "lastPrice" : {
+        "raw" : 276.77,
+        "fmt" : "276.77"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 58473945666,
+        "fmt" : "58.474B",
+        "longFmt" : "58,473,945,666"
+      },
+      "symbol" : "AJG",
+      "targetPrice" : {
+        "raw" : 289.389,
+        "fmt" : "289.39"
+      },
+      "fulldayChangePercent" : {
+        "raw" : 0.0015806799999999999,
+        "fmt" : "0.16%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : 0.0015806799999999999,
+        "fmt" : "0.16%"
+      },
+      "rating" : "Buy",
+      "name" : "Arthur J. Gallagher & Co.",
+      "fulldayChange" : {
+        "raw" : 0.360001,
+        "fmt" : "0.36"
+      },
+      "ytdReturn" : {
+        "raw" : -0.1186,
+        "fmt" : "-11.86%"
+      },
+      "marketWeight" : {
+        "raw" : 0.0056607556,
+        "fmt" : "0.57%"
+      },
+      "fulldayPrice" : {
+        "raw" : 228.11,
+        "fmt" : "228.11"
+      },
+      "lastPrice" : {
+        "raw" : 228.11,
+        "fmt" : "228.11"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 56561291572,
+        "fmt" : "56.561B",
+        "longFmt" : "56,561,291,572"
+      },
+      "symbol" : "TFC",
+      "targetPrice" : {
+        "raw" : 54.8972,
+        "fmt" : "54.90"
+      },
+      "fulldayChangePercent" : {
+        "raw" : -0.007668205,
+        "fmt" : "-0.77%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -0.00301463,
+        "fmt" : "-0.30%"
+      },
+      "rating" : "Hold",
+      "name" : "Truist Financial Corporation",
+      "fulldayChange" : {
+        "raw" : -0.35499954,
+        "fmt" : "-0.35"
+      },
+      "ytdReturn" : {
+        "raw" : -0.0591,
+        "fmt" : "-5.91%"
+      },
+      "marketWeight" : {
+        "raw" : 0.005475595,
+        "fmt" : "0.55%"
+      },
+      "fulldayPrice" : {
+        "raw" : 45.94,
+        "fmt" : "45.94"
+      },
+      "lastPrice" : {
+        "raw" : 46.3,
+        "fmt" : "46.30"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 56099064941,
+        "fmt" : "56.099B",
+        "longFmt" : "56,099,064,941"
+      },
+      "symbol" : "ALL",
+      "targetPrice" : {
+        "raw" : 276.091,
+        "fmt" : "276.09"
+      },
+      "fulldayChangePercent" : {
+        "raw" : -0.01743409,
+        "fmt" : "-1.74%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -0.0157927,
+        "fmt" : "-1.58%"
+      },
+      "rating" : "Hold",
+      "name" : "The Allstate Corporation",
+      "fulldayChange" : {
+        "raw" : -3.9299927,
+        "fmt" : "-3.93"
+      },
+      "ytdReturn" : {
+        "raw" : 0.0659,
+        "fmt" : "6.59%"
+      },
+      "marketWeight" : {
+        "raw" : 0.005430848,
+        "fmt" : "0.54%"
+      },
+      "fulldayPrice" : {
+        "raw" : 221.49,
+        "fmt" : "221.49"
+      },
+      "lastPrice" : {
+        "raw" : 221.86,
+        "fmt" : "221.86"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 56040153238,
+        "fmt" : "56.04B",
+        "longFmt" : "56,040,153,238"
+      },
+      "symbol" : "AFL",
+      "targetPrice" : {
+        "raw" : 118.533,
+        "fmt" : "118.53"
+      },
+      "fulldayChangePercent" : {
+        "raw" : -0.016540600000000003,
+        "fmt" : "-1.65%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -0.016540600000000003,
+        "fmt" : "-1.65%"
+      },
+      "rating" : "Hold",
+      "name" : "Aflac Incorporated",
+      "fulldayChange" : {
+        "raw" : -1.88,
+        "fmt" : "-1.88"
+      },
+      "ytdReturn" : {
+        "raw" : 0.0137,
+        "fmt" : "1.37%"
+      },
+      "marketWeight" : {
+        "raw" : 0.0054251445,
+        "fmt" : "0.54%"
+      },
+      "fulldayPrice" : {
+        "raw" : 111.78,
+        "fmt" : "111.78"
+      },
+      "lastPrice" : {
+        "raw" : 111.78,
+        "fmt" : "111.78"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 51431509191,
+        "fmt" : "51.432B",
+        "longFmt" : "51,431,509,191"
+      },
+      "symbol" : "NDAQ",
+      "targetPrice" : {
+        "raw" : 109.667,
+        "fmt" : "109.67"
+      },
+      "fulldayChangePercent" : {
+        "raw" : 0.0015215671,
+        "fmt" : "0.15%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : 0.00174201,
+        "fmt" : "0.17%"
+      },
+      "rating" : "Buy",
+      "name" : "Nasdaq, Inc.",
+      "fulldayChange" : {
+        "raw" : 0.13999939,
+        "fmt" : "0.14"
+      },
+      "ytdReturn" : {
+        "raw" : -0.0527,
+        "fmt" : "-5.27%"
+      },
+      "marketWeight" : {
+        "raw" : 0.00497899,
+        "fmt" : "0.50%"
+      },
+      "fulldayPrice" : {
+        "raw" : 92.01,
+        "fmt" : "92.01"
+      },
+      "lastPrice" : {
+        "raw" : 92.01,
+        "fmt" : "92.01"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 49181841782,
+        "fmt" : "49.182B",
+        "longFmt" : "49,181,841,782"
+      },
+      "symbol" : "COIN",
+      "targetPrice" : {
+        "raw" : 207.347,
+        "fmt" : "207.35"
+      },
+      "fulldayChangePercent" : {
+        "raw" : 0.0010192717,
+        "fmt" : "0.10%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -0.018998,
+        "fmt" : "-1.90%"
+      },
+      "rating" : "Buy",
+      "name" : "Coinbase Global, Inc.",
+      "fulldayChange" : {
+        "raw" : 0.19000244,
+        "fmt" : "0.19"
+      },
+      "ytdReturn" : {
+        "raw" : -0.1757,
+        "fmt" : "-17.57%"
+      },
+      "marketWeight" : {
+        "raw" : 0.004761204,
+        "fmt" : "0.48%"
+      },
+      "fulldayPrice" : {
+        "raw" : 186.6,
+        "fmt" : "186.60"
+      },
+      "lastPrice" : {
+        "raw" : 186.41,
+        "fmt" : "186.41"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 47960180145,
+        "fmt" : "47.96B",
+        "longFmt" : "47,960,180,145"
+      },
+      "symbol" : "STT",
+      "targetPrice" : {
+        "raw" : 199.5,
+        "fmt" : "199.50"
+      },
+      "fulldayChangePercent" : {
+        "raw" : 0.0018909112,
+        "fmt" : "0.19%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -0.017943499999999998,
+        "fmt" : "-1.79%"
+      },
+      "rating" : "Buy",
+      "name" : "State Street Corporation",
+      "fulldayChange" : {
+        "raw" : 0.33000183,
+        "fmt" : "0.33"
+      },
+      "ytdReturn" : {
+        "raw" : 0.3533,
+        "fmt" : "35.33%"
+      },
+      "marketWeight" : {
+        "raw" : 0.0046429373,
+        "fmt" : "0.46%"
+      },
+      "fulldayPrice" : {
+        "raw" : 174.85,
+        "fmt" : "174.85"
+      },
+      "lastPrice" : {
+        "raw" : 174.59,
+        "fmt" : "174.59"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 45854463999,
+        "fmt" : "45.854B",
+        "longFmt" : "45,854,463,999"
+      },
+      "symbol" : "FITB",
+      "targetPrice" : {
+        "raw" : 62.65,
+        "fmt" : "62.65"
+      },
+      "fulldayChangePercent" : {
+        "raw" : -0.0021747847,
+        "fmt" : "-0.22%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : 5.93523E-4,
+        "fmt" : "0.06%"
+      },
+      "rating" : "Buy",
+      "name" : "Fifth Third Bancorp",
+      "fulldayChange" : {
+        "raw" : -0.11000061,
+        "fmt" : "-0.11"
+      },
+      "ytdReturn" : {
+        "raw" : 0.0805,
+        "fmt" : "8.05%"
+      },
+      "marketWeight" : {
+        "raw" : 0.0044390867,
+        "fmt" : "0.44%"
+      },
+      "fulldayPrice" : {
+        "raw" : 50.47,
+        "fmt" : "50.47"
+      },
+      "lastPrice" : {
+        "raw" : 50.58,
+        "fmt" : "50.58"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 45280858947,
+        "fmt" : "45.281B",
+        "longFmt" : "45,280,858,947"
+      },
+      "symbol" : "PYPL",
+      "targetPrice" : {
+        "raw" : 56.9172,
+        "fmt" : "56.92"
+      },
+      "fulldayChangePercent" : {
+        "raw" : 0.01294499,
+        "fmt" : "1.29%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -0.0252366,
+        "fmt" : "-2.52%"
+      },
+      "rating" : "Hold",
+      "name" : "PayPal Holdings, Inc.",
+      "fulldayChange" : {
+        "raw" : 0.6800003,
+        "fmt" : "0.68"
+      },
+      "ytdReturn" : {
+        "raw" : -0.1002,
+        "fmt" : "-10.02%"
+      },
+      "marketWeight" : {
+        "raw" : 0.004383557,
+        "fmt" : "0.44%"
+      },
+      "fulldayPrice" : {
+        "raw" : 53.21,
+        "fmt" : "53.21"
+      },
+      "lastPrice" : {
+        "raw" : 52.53,
+        "fmt" : "52.53"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 43523740539,
+        "fmt" : "43.524B",
+        "longFmt" : "43,523,740,539"
+      },
+      "symbol" : "AMP",
+      "targetPrice" : {
+        "raw" : 579.455,
+        "fmt" : "579.46"
+      },
+      "fulldayChangePercent" : {
+        "raw" : -0.013351594,
+        "fmt" : "-1.34%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -0.00999357,
+        "fmt" : "-1.00%"
+      },
+      "rating" : "Buy",
+      "name" : "Ameriprise Financial, Inc.",
+      "fulldayChange" : {
+        "raw" : -6.6400146,
+        "fmt" : "-6.64"
+      },
+      "ytdReturn" : {
+        "raw" : 0.0041,
+        "fmt" : "0.41%"
+      },
+      "marketWeight" : {
+        "raw" : 0.0042134537,
+        "fmt" : "0.42%"
+      },
+      "fulldayPrice" : {
+        "raw" : 490.68,
+        "fmt" : "490.68"
+      },
+      "lastPrice" : {
+        "raw" : 492.35,
+        "fmt" : "492.35"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 39185100631,
+        "fmt" : "39.185B",
+        "longFmt" : "39,185,100,631"
+      },
+      "symbol" : "PRU",
+      "targetPrice" : {
+        "raw" : 113.4,
+        "fmt" : "113.40"
+      },
+      "fulldayChangePercent" : {
+        "raw" : -4.3995716E-5,
+        "fmt" : "-0.00%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -0.0128628,
+        "fmt" : "-1.29%"
+      },
+      "rating" : "Hold",
+      "name" : "Prudential Financial, Inc.",
+      "fulldayChange" : {
+        "raw" : -0.0049972534,
+        "fmt" : "-0.00"
+      },
+      "ytdReturn" : {
+        "raw" : 0.0062,
+        "fmt" : "0.62%"
+      },
+      "marketWeight" : {
+        "raw" : 0.0037934377,
+        "fmt" : "0.38%"
+      },
+      "fulldayPrice" : {
+        "raw" : 113.58,
+        "fmt" : "113.58"
+      },
+      "lastPrice" : {
+        "raw" : 113.58,
+        "fmt" : "113.58"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 39160580047,
+        "fmt" : "39.161B",
+        "longFmt" : "39,160,580,047"
+      },
+      "symbol" : "MSCI",
+      "targetPrice" : {
+        "raw" : 691.765,
+        "fmt" : "691.76"
+      },
+      "fulldayChangePercent" : {
+        "raw" : -0.0010931280999999999,
+        "fmt" : "-0.11%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -0.0020380100000000003,
+        "fmt" : "-0.20%"
+      },
+      "rating" : "Strong Buy",
+      "name" : "MSCI Inc.",
+      "fulldayChange" : {
+        "raw" : -0.59002686,
+        "fmt" : "-0.59"
+      },
+      "ytdReturn" : {
+        "raw" : -0.0611,
+        "fmt" : "-6.11%"
+      },
+      "marketWeight" : {
+        "raw" : 0.003791064,
+        "fmt" : "0.38%"
+      },
+      "fulldayPrice" : {
+        "raw" : 539.17,
+        "fmt" : "539.17"
+      },
+      "lastPrice" : {
+        "raw" : 538.66,
+        "fmt" : "538.66"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 38913708679,
+        "fmt" : "38.914B",
+        "longFmt" : "38,913,708,679"
+      },
+      "symbol" : "AIG",
+      "targetPrice" : {
+        "raw" : 88.45,
+        "fmt" : "88.45"
+      },
+      "fulldayChangePercent" : {
+        "raw" : -0.0112927,
+        "fmt" : "-1.13%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -0.0112927,
+        "fmt" : "-1.13%"
+      },
+      "rating" : "Buy",
+      "name" : "American International Group, Inc.",
+      "fulldayChange" : {
+        "raw" : -0.849998,
+        "fmt" : "-0.85"
+      },
+      "ytdReturn" : {
+        "raw" : -0.1301,
+        "fmt" : "-13.01%"
+      },
+      "marketWeight" : {
+        "raw" : 0.003767165,
+        "fmt" : "0.38%"
+      },
+      "fulldayPrice" : {
+        "raw" : 74.42,
+        "fmt" : "74.42"
+      },
+      "lastPrice" : {
+        "raw" : 74.42,
+        "fmt" : "74.42"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 38701936537,
+        "fmt" : "38.702B",
+        "longFmt" : "38,701,936,537"
+      },
+      "symbol" : "IBKR",
+      "targetPrice" : {
+        "raw" : 105.815,
+        "fmt" : "105.81"
+      },
+      "fulldayChangePercent" : {
+        "raw" : 0.0029232317000000003,
+        "fmt" : "0.29%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -0.00881878,
+        "fmt" : "-0.88%"
+      },
+      "rating" : "Buy",
+      "name" : "Interactive Brokers Group, Inc.",
+      "fulldayChange" : {
+        "raw" : 0.24970245,
+        "fmt" : "0.25"
+      },
+      "ytdReturn" : {
+        "raw" : 0.3283,
+        "fmt" : "32.83%"
+      },
+      "marketWeight" : {
+        "raw" : 0.0037466635,
+        "fmt" : "0.37%"
+      },
+      "fulldayPrice" : {
+        "raw" : 85.42,
+        "fmt" : "85.42"
+      },
+      "lastPrice" : {
+        "raw" : 85.42,
+        "fmt" : "85.42"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 33143898330,
+        "fmt" : "33.144B",
+        "longFmt" : "33,143,898,330"
+      },
+      "symbol" : "HIG",
+      "targetPrice" : {
+        "raw" : 149.4,
+        "fmt" : "149.40"
+      },
+      "fulldayChangePercent" : {
+        "raw" : -0.019229227,
+        "fmt" : "-1.92%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -0.027731400000000003,
+        "fmt" : "-2.77%"
+      },
+      "rating" : "Buy",
+      "name" : "The Hartford Insurance Group, Inc.",
+      "fulldayChange" : {
+        "raw" : -2.4199982,
+        "fmt" : "-2.42"
+      },
+      "ytdReturn" : {
+        "raw" : -0.112,
+        "fmt" : "-11.20%"
+      },
+      "marketWeight" : {
+        "raw" : 0.0032086,
+        "fmt" : "0.32%"
+      },
+      "fulldayPrice" : {
+        "raw" : 123.43,
+        "fmt" : "123.43"
+      },
+      "lastPrice" : {
+        "raw" : 122.36,
+        "fmt" : "122.36"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 32592204913,
+        "fmt" : "32.592B",
+        "longFmt" : "32,592,204,913"
+      },
+      "symbol" : "RKT",
+      "targetPrice" : {
+        "raw" : 17.7,
+        "fmt" : "17.70"
+      },
+      "fulldayChangePercent" : {
+        "raw" : -0.009118583999999999,
+        "fmt" : "-0.91%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -0.0153977,
+        "fmt" : "-1.54%"
+      },
+      "rating" : "Buy",
+      "name" : "Rocket Companies, Inc.",
+      "fulldayChange" : {
+        "raw" : -0.105000496,
+        "fmt" : "-0.11"
+      },
+      "ytdReturn" : {
+        "raw" : -0.4055,
+        "fmt" : "-40.55%"
+      },
+      "marketWeight" : {
+        "raw" : 0.0031551917,
+        "fmt" : "0.32%"
+      },
+      "fulldayPrice" : {
+        "raw" : 11.41,
+        "fmt" : "11.41"
+      },
+      "lastPrice" : {
+        "raw" : 11.51,
+        "fmt" : "11.51"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 31537421684,
+        "fmt" : "31.537B",
+        "longFmt" : "31,537,421,684"
+      },
+      "symbol" : "MTB",
+      "targetPrice" : {
+        "raw" : 257.694,
+        "fmt" : "257.69"
+      },
+      "fulldayChangePercent" : {
+        "raw" : 4.5979800000000003E-4,
+        "fmt" : "0.05%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : 4.5979800000000003E-4,
+        "fmt" : "0.05%"
+      },
+      "rating" : "Hold",
+      "name" : "M&T Bank Corporation",
+      "fulldayChange" : {
+        "raw" : 0.100006,
+        "fmt" : "0.10"
+      },
+      "ytdReturn" : {
+        "raw" : 0.08,
+        "fmt" : "8.00%"
+      },
+      "marketWeight" : {
+        "raw" : 0.00305308,
+        "fmt" : "0.31%"
+      },
+      "fulldayPrice" : {
+        "raw" : 217.6,
+        "fmt" : "217.60"
+      },
+      "lastPrice" : {
+        "raw" : 217.6,
+        "fmt" : "217.60"
+      }
+    } ],
+    "topETFs" : [ {
+      "symbol" : "XLF",
+      "fulldayChangePercent" : {
+        "raw" : -0.0022854455000000003,
+        "fmt" : "-0.23%"
+      },
+      "netAssets" : {
+        "raw" : 54592369469,
+        "fmt" : "54.592B",
+        "longFmt" : "54,592,369,469"
+      },
+      "expenseRatio" : {
+        "raw" : 8.0E-4,
+        "fmt" : "0.08%"
+      },
+      "name" : "State Street Financial Select S",
+      "fulldayChange" : {
+        "raw" : -0.12200165,
+        "fmt" : "-0.12"
+      },
+      "ytdReturn" : {
+        "raw" : -0.025,
+        "fmt" : "-2.50%"
+      },
+      "fulldayPrice" : {
+        "raw" : 53.26,
+        "fmt" : "53.26"
+      },
+      "lastPrice" : {
+        "raw" : 53.4,
+        "fmt" : "53.40"
+      }
+    }, {
+      "symbol" : "VFH",
+      "fulldayChangePercent" : {
+        "raw" : 0.003919718,
+        "fmt" : "0.39%"
+      },
+      "netAssets" : {
+        "raw" : 14771595764,
+        "fmt" : "14.772B",
+        "longFmt" : "14,771,595,764"
+      },
+      "expenseRatio" : {
+        "raw" : 9.0E-4,
+        "fmt" : "0.09%"
+      },
+      "name" : "Vanguard Financials ETF",
+      "fulldayChange" : {
+        "raw" : 0.5099945,
+        "fmt" : "0.51"
+      },
+      "ytdReturn" : {
+        "raw" : -0.0255,
+        "fmt" : "-2.55%"
+      },
+      "fulldayPrice" : {
+        "raw" : 130.62,
+        "fmt" : "130.62"
+      },
+      "lastPrice" : {
+        "raw" : 130.09,
+        "fmt" : "130.09"
+      }
+    }, {
+      "symbol" : "KBWB",
+      "fulldayChangePercent" : {
+        "raw" : -0.0026367459999999997,
+        "fmt" : "-0.26%"
+      },
+      "netAssets" : {
+        "raw" : 6766699597,
+        "fmt" : "6.767B",
+        "longFmt" : "6,766,699,597"
+      },
+      "expenseRatio" : {
+        "raw" : 0.0034999999999999996,
+        "fmt" : "0.35%"
+      },
+      "name" : "Invesco KBW Bank ETF",
+      "fulldayChange" : {
+        "raw" : -0.23000336,
+        "fmt" : "-0.23"
+      },
+      "ytdReturn" : {
+        "raw" : 0.0349,
+        "fmt" : "3.49%"
+      },
+      "fulldayPrice" : {
+        "raw" : 87.0,
+        "fmt" : "87.00"
+      },
+      "lastPrice" : {
+        "raw" : 87.23,
+        "fmt" : "87.23"
+      }
+    }, {
+      "symbol" : "IYF",
+      "fulldayChangePercent" : {
+        "raw" : -0.010551152,
+        "fmt" : "-1.06%"
+      },
+      "netAssets" : {
+        "raw" : 4285226814,
+        "fmt" : "4.285B",
+        "longFmt" : "4,285,226,814"
+      },
+      "expenseRatio" : {
+        "raw" : 0.0037,
+        "fmt" : "0.37%"
+      },
+      "name" : "iShares U.S. Financial ETF",
+      "fulldayChange" : {
+        "raw" : -1.3399963,
+        "fmt" : "-1.34"
+      },
+      "ytdReturn" : {
+        "raw" : -0.0254,
+        "fmt" : "-2.54%"
+      },
+      "fulldayPrice" : {
+        "raw" : 125.66,
+        "fmt" : "125.66"
+      },
+      "lastPrice" : {
+        "raw" : 125.66,
+        "fmt" : "125.66"
+      }
+    }, {
+      "symbol" : "KRE",
+      "fulldayChangePercent" : {
+        "raw" : -0.0015847948,
+        "fmt" : "-0.16%"
+      },
+      "netAssets" : {
+        "raw" : 4010872925,
+        "fmt" : "4.011B",
+        "longFmt" : "4,010,872,925"
+      },
+      "expenseRatio" : {
+        "raw" : 0.0034999999999999996,
+        "fmt" : "0.35%"
+      },
+      "name" : "State Street SPDR S&P Regional ",
+      "fulldayChange" : {
+        "raw" : -0.11000061,
+        "fmt" : "-0.11"
+      },
+      "ytdReturn" : {
+        "raw" : 0.0714,
+        "fmt" : "7.14%"
+      },
+      "fulldayPrice" : {
+        "raw" : 69.3,
+        "fmt" : "69.30"
+      },
+      "lastPrice" : {
+        "raw" : 69.44,
+        "fmt" : "69.44"
+      }
+    }, {
+      "symbol" : "NVDL",
+      "fulldayChangePercent" : {
+        "raw" : 0.01416509,
+        "fmt" : "1.42%"
+      },
+      "netAssets" : {
+        "raw" : 3940394462,
+        "fmt" : "3.94B",
+        "longFmt" : "3,940,394,462"
+      },
+      "expenseRatio" : {
+        "raw" : 0.0105,
+        "fmt" : "1.05%"
+      },
+      "name" : "GraniteShares 2x Long NVDA Dail",
+      "fulldayChange" : {
+        "raw" : 0.52000046,
+        "fmt" : "0.52"
+      },
+      "ytdReturn" : {
+        "raw" : 0.2513,
+        "fmt" : "25.13%"
+      },
+      "fulldayPrice" : {
+        "raw" : 37.23,
+        "fmt" : "37.23"
+      },
+      "lastPrice" : {
+        "raw" : 36.71,
+        "fmt" : "36.71"
+      }
+    }, {
+      "symbol" : "FNCL",
+      "fulldayChangePercent" : {
+        "raw" : 0.0,
+        "fmt" : "0.00%"
+      },
+      "netAssets" : {
+        "raw" : 2396029596,
+        "fmt" : "2.396B",
+        "longFmt" : "2,396,029,596"
+      },
+      "expenseRatio" : {
+        "raw" : 8.4E-4,
+        "fmt" : "0.08%"
+      },
+      "name" : "Fidelity MSCI Financials Index ",
+      "fulldayChange" : {
+        "raw" : 0.0,
+        "fmt" : "0.00"
+      },
+      "ytdReturn" : {
+        "raw" : -0.026,
+        "fmt" : "-2.60%"
+      },
+      "fulldayPrice" : {
+        "raw" : 75.72,
+        "fmt" : "75.72"
+      },
+      "lastPrice" : {
+        "raw" : 75.72,
+        "fmt" : "75.72"
+      }
+    }, {
+      "symbol" : "IYG",
+      "fulldayChangePercent" : {
+        "raw" : -0.0121938,
+        "fmt" : "-1.22%"
+      },
+      "netAssets" : {
+        "raw" : 2218036868,
+        "fmt" : "2.218B",
+        "longFmt" : "2,218,036,868"
+      },
+      "expenseRatio" : {
+        "raw" : 0.0037,
+        "fmt" : "0.37%"
+      },
+      "name" : "iShares U.S. Financial Services",
+      "fulldayChange" : {
+        "raw" : -1.11,
+        "fmt" : "-1.11"
+      },
+      "ytdReturn" : {
+        "raw" : -0.0253,
+        "fmt" : "-2.53%"
+      },
+      "fulldayPrice" : {
+        "raw" : 89.92,
+        "fmt" : "89.92"
+      },
+      "lastPrice" : {
+        "raw" : 89.92,
+        "fmt" : "89.92"
+      }
+    }, {
+      "symbol" : "BIZD",
+      "fulldayChangePercent" : {
+        "raw" : 0.0065740675,
+        "fmt" : "0.66%"
+      },
+      "netAssets" : {
+        "raw" : 1724331171,
+        "fmt" : "1.724B",
+        "longFmt" : "1,724,331,171"
+      },
+      "expenseRatio" : {
+        "raw" : 0.0969,
+        "fmt" : "9.69%"
+      },
+      "name" : "VanEck BDC Income ETF",
+      "fulldayChange" : {
+        "raw" : 0.08180046,
+        "fmt" : "0.08"
+      },
+      "ytdReturn" : {
+        "raw" : -0.091,
+        "fmt" : "-9.10%"
+      },
+      "fulldayPrice" : {
+        "raw" : 12.5247,
+        "fmt" : "12.52"
+      },
+      "lastPrice" : {
+        "raw" : 12.89,
+        "fmt" : "12.89"
+      }
+    }, {
+      "symbol" : "KBE",
+      "fulldayChangePercent" : {
+        "raw" : -0.00955664,
+        "fmt" : "-0.96%"
+      },
+      "netAssets" : {
+        "raw" : 1621131671,
+        "fmt" : "1.621B",
+        "longFmt" : "1,621,131,671"
+      },
+      "expenseRatio" : {
+        "raw" : 0.0034999999999999996,
+        "fmt" : "0.35%"
+      },
+      "name" : "State Street SPDR S&P Bank ETF",
+      "fulldayChange" : {
+        "raw" : -0.610001,
+        "fmt" : "-0.61"
+      },
+      "ytdReturn" : {
+        "raw" : 0.0417,
+        "fmt" : "4.17%"
+      },
+      "fulldayPrice" : {
+        "raw" : 63.22,
+        "fmt" : "63.22"
+      },
+      "lastPrice" : {
+        "raw" : 63.22,
+        "fmt" : "63.22"
+      }
+    } ],
+    "topMutualFunds" : [ {
+      "symbol" : "VFAIX",
+      "netAssets" : {
+        "raw" : 14771595764,
+        "fmt" : "14.772B",
+        "longFmt" : "14,771,595,764"
+      },
+      "expenseRatio" : {
+        "raw" : 9.0E-4,
+        "fmt" : "0.09%"
+      },
+      "name" : "Vanguard Financial Index Fund A",
+      "ytdReturn" : {
+        "raw" : -0.0256,
+        "fmt" : "-2.56%"
+      },
+      "lastPrice" : {
+        "raw" : 65.17,
+        "fmt" : "65.17"
+      }
+    }, {
+      "symbol" : "BGRFX",
+      "netAssets" : {
+        "raw" : 2204360203,
+        "fmt" : "2.204B",
+        "longFmt" : "2,204,360,203"
+      },
+      "expenseRatio" : {
+        "raw" : 0.016,
+        "fmt" : "1.60%"
+      },
+      "name" : "Baron Growth Fund",
+      "ytdReturn" : {
+        "raw" : -0.126,
+        "fmt" : "-12.60%"
+      },
+      "lastPrice" : {
+        "raw" : 55.43,
+        "fmt" : "55.43"
+      }
+    }, {
+      "symbol" : "BGRUX",
+      "netAssets" : {
+        "raw" : 2204360203,
+        "fmt" : "2.204B",
+        "longFmt" : "2,204,360,203"
+      },
+      "expenseRatio" : {
+        "raw" : 0.016,
+        "fmt" : "1.60%"
+      },
+      "name" : "Baron Growth Fund R6 Shares",
+      "ytdReturn" : {
+        "raw" : -0.1244,
+        "fmt" : "-12.44%"
+      },
+      "lastPrice" : {
+        "raw" : 59.96,
+        "fmt" : "59.96"
+      }
+    }, {
+      "symbol" : "BGRIX",
+      "netAssets" : {
+        "raw" : 2204360203,
+        "fmt" : "2.204B",
+        "longFmt" : "2,204,360,203"
+      },
+      "expenseRatio" : {
+        "raw" : 0.016,
+        "fmt" : "1.60%"
+      },
+      "name" : "Baron Growth Fund Inst Shs",
+      "ytdReturn" : {
+        "raw" : -0.1244,
+        "fmt" : "-12.44%"
+      },
+      "lastPrice" : {
+        "raw" : 59.96,
+        "fmt" : "59.96"
+      }
+    }, {
+      "symbol" : "PRISX",
+      "netAssets" : {
+        "raw" : 2013757882,
+        "fmt" : "2.014B",
+        "longFmt" : "2,013,757,882"
+      },
+      "expenseRatio" : {
+        "raw" : 0.0086,
+        "fmt" : "0.86%"
+      },
+      "name" : "T. Rowe Price Financial Service",
+      "ytdReturn" : {
+        "raw" : 0.0144,
+        "fmt" : "1.44%"
+      },
+      "lastPrice" : {
+        "raw" : 48.05,
+        "fmt" : "48.05"
+      }
+    }, {
+      "symbol" : "TFIFX",
+      "netAssets" : {
+        "raw" : 2013757882,
+        "fmt" : "2.014B",
+        "longFmt" : "2,013,757,882"
+      },
+      "expenseRatio" : {
+        "raw" : 0.0086,
+        "fmt" : "0.86%"
+      },
+      "name" : "T. Rowe Price Financial Service",
+      "ytdReturn" : {
+        "raw" : 0.0157,
+        "fmt" : "1.57%"
+      },
+      "lastPrice" : {
+        "raw" : 47.92,
+        "fmt" : "47.92"
+      }
+    }, {
+      "symbol" : "VARAX",
+      "netAssets" : {
+        "raw" : 1640543040,
+        "fmt" : "1.641B",
+        "longFmt" : "1,640,543,040"
+      },
+      "expenseRatio" : {
+        "raw" : 0.027999999999999997,
+        "fmt" : "2.80%"
+      },
+      "name" : "Vivaldi Merger Arbitrage Fund -",
+      "ytdReturn" : {
+        "raw" : 0.0291,
+        "fmt" : "2.91%"
+      },
+      "lastPrice" : {
+        "raw" : 10.62,
+        "fmt" : "10.62"
+      }
+    }, {
+      "symbol" : "VARBX",
+      "netAssets" : {
+        "raw" : 1640543040,
+        "fmt" : "1.641B",
+        "longFmt" : "1,640,543,040"
+      },
+      "expenseRatio" : {
+        "raw" : 0.027999999999999997,
+        "fmt" : "2.80%"
+      },
+      "name" : "Vivaldi Merger Arbitrage Fund -",
+      "ytdReturn" : {
+        "raw" : 0.0313,
+        "fmt" : "3.13%"
+      },
+      "lastPrice" : {
+        "raw" : 10.88,
+        "fmt" : "10.88"
+      }
+    }, {
+      "symbol" : "VARCX",
+      "netAssets" : {
+        "raw" : 1640543040,
+        "fmt" : "1.641B",
+        "longFmt" : "1,640,543,040"
+      },
+      "expenseRatio" : {
+        "raw" : 0.027999999999999997,
+        "fmt" : "2.80%"
+      },
+      "ytdReturn" : {
+        "raw" : 0.023,
+        "fmt" : "2.30%"
+      },
+      "lastPrice" : {
+        "raw" : 10.69,
+        "fmt" : "10.69"
+      }
+    }, {
+      "symbol" : "FIVJX",
+      "netAssets" : {
+        "raw" : 1564559139,
+        "fmt" : "1.565B",
+        "longFmt" : "1,564,559,139"
+      },
+      "expenseRatio" : {
+        "raw" : 0.0068000000000000005,
+        "fmt" : "0.68%"
+      },
+      "lastPrice" : {
+        "raw" : 16.12,
+        "fmt" : "16.12"
+      }
+    } ],
+    "industries" : [ {
+      "regMarketChangePercent" : {
+        "raw" : -0.008116131,
+        "fmt" : "-0.81%"
+      },
+      "name" : "All Industries",
+      "ytdReturn" : {
+        "raw" : -0.024309335,
+        "fmt" : "-2.43%"
+      },
+      "marketWeight" : {
+        "raw" : 1.0,
+        "fmt" : "100.00%"
+      }
+    }, {
+      "symbol" : "^YH10320010",
+      "regMarketChangePercent" : {
+        "raw" : -0.009142181,
+        "fmt" : "-0.91%"
+      },
+      "name" : "Banks - Diversified",
+      "ytdReturn" : {
+        "raw" : 0.034333978,
+        "fmt" : "3.43%"
+      },
+      "marketWeight" : {
+        "raw" : 0.24397595,
+        "fmt" : "24.40%"
+      },
+      "key" : "banks-diversified"
+    }, {
+      "symbol" : "^YH10360010",
+      "regMarketChangePercent" : {
+        "raw" : -0.014227222,
+        "fmt" : "-1.42%"
+      },
+      "name" : "Credit Services",
+      "ytdReturn" : {
+        "raw" : -0.06602412,
+        "fmt" : "-6.60%"
+      },
+      "marketWeight" : {
+        "raw" : 0.14718366,
+        "fmt" : "14.72%"
+      },
+      "key" : "credit-services"
+    }, {
+      "symbol" : "^YH10310010",
+      "regMarketChangePercent" : {
+        "raw" : -0.001342291,
+        "fmt" : "-0.13%"
+      },
+      "name" : "Asset Management",
+      "ytdReturn" : {
+        "raw" : -0.0888861,
+        "fmt" : "-8.89%"
+      },
+      "marketWeight" : {
+        "raw" : 0.122359686,
+        "fmt" : "12.24%"
+      },
+      "key" : "asset-management"
+    }, {
+      "symbol" : "^YH10330010",
+      "regMarketChangePercent" : {
+        "raw" : -0.014969574,
+        "fmt" : "-1.50%"
+      },
+      "name" : "Capital Markets",
+      "ytdReturn" : {
+        "raw" : 0.044892494,
+        "fmt" : "4.49%"
+      },
+      "marketWeight" : {
+        "raw" : 0.110779494,
+        "fmt" : "11.08%"
+      },
+      "key" : "capital-markets"
+    }, {
+      "symbol" : "^YH10340060",
+      "regMarketChangePercent" : {
+        "raw" : -0.008249766,
+        "fmt" : "-0.82%"
+      },
+      "name" : "Insurance - Diversified",
+      "ytdReturn" : {
+        "raw" : -0.019581133,
+        "fmt" : "-1.96%"
+      },
+      "marketWeight" : {
+        "raw" : 0.10861809,
+        "fmt" : "10.86%"
+      },
+      "key" : "insurance-diversified"
+    }, {
+      "symbol" : "^YH10320020",
+      "regMarketChangePercent" : {
+        "raw" : -1.1216056E-4,
+        "fmt" : "-0.01%"
+      },
+      "name" : "Banks - Regional",
+      "ytdReturn" : {
+        "raw" : 0.017388683,
+        "fmt" : "1.74%"
+      },
+      "marketWeight" : {
+        "raw" : 0.098221585,
+        "fmt" : "9.82%"
+      },
+      "key" : "banks-regional"
+    }, {
+      "symbol" : "^YH10340020",
+      "regMarketChangePercent" : {
+        "raw" : -0.013916962,
+        "fmt" : "-1.39%"
+      },
+      "name" : "Insurance - Property & Casualty",
+      "ytdReturn" : {
+        "raw" : -0.02032914,
+        "fmt" : "-2.03%"
+      },
+      "marketWeight" : {
+        "raw" : 0.051911127,
+        "fmt" : "5.19%"
+      },
+      "key" : "insurance-property-casualty"
+    }, {
+      "symbol" : "^YH10330020",
+      "regMarketChangePercent" : {
+        "raw" : 0.0024688956,
+        "fmt" : "0.25%"
+      },
+      "name" : "Financial Data & Stock Exchanges",
+      "ytdReturn" : {
+        "raw" : -0.13553078,
+        "fmt" : "-13.55%"
+      },
+      "marketWeight" : {
+        "raw" : 0.050512217,
+        "fmt" : "5.05%"
+      },
+      "key" : "financial-data-stock-exchanges"
+    }, {
+      "symbol" : "^YH10340010",
+      "regMarketChangePercent" : {
+        "raw" : -0.012340425,
+        "fmt" : "-1.23%"
+      },
+      "name" : "Insurance - Life",
+      "ytdReturn" : {
+        "raw" : 0.06350375,
+        "fmt" : "6.35%"
+      },
+      "marketWeight" : {
+        "raw" : 0.025818396,
+        "fmt" : "2.58%"
+      },
+      "key" : "insurance-life"
+    }, {
+      "symbol" : "^YH10340050",
+      "regMarketChangePercent" : {
+        "raw" : 0.0015931939,
+        "fmt" : "0.16%"
+      },
+      "name" : "Insurance Brokers",
+      "ytdReturn" : {
+        "raw" : -0.109371774,
+        "fmt" : "-10.94%"
+      },
+      "marketWeight" : {
+        "raw" : 0.025436118,
+        "fmt" : "2.54%"
+      },
+      "key" : "insurance-brokers"
+    }, {
+      "symbol" : "^YH10340040",
+      "regMarketChangePercent" : {
+        "raw" : -0.056276016,
+        "fmt" : "-5.63%"
+      },
+      "name" : "Insurance - Specialty",
+      "ytdReturn" : {
+        "raw" : -0.3275041,
+        "fmt" : "-32.75%"
+      },
+      "marketWeight" : {
+        "raw" : 0.0045939162,
+        "fmt" : "0.46%"
+      },
+      "key" : "insurance-specialty"
+    }, {
+      "symbol" : "^YH10340030",
+      "regMarketChangePercent" : {
+        "raw" : -0.017592238,
+        "fmt" : "-1.76%"
+      },
+      "name" : "Insurance - Reinsurance",
+      "ytdReturn" : {
+        "raw" : 0.076943226,
+        "fmt" : "7.69%"
+      },
+      "marketWeight" : {
+        "raw" : 0.0044033797,
+        "fmt" : "0.44%"
+      },
+      "key" : "insurance-reinsurance"
+    }, {
+      "symbol" : "^YH10320030",
+      "regMarketChangePercent" : {
+        "raw" : -0.011711621,
+        "fmt" : "-1.17%"
+      },
+      "name" : "Mortgage Finance",
+      "ytdReturn" : {
+        "raw" : -0.44175154,
+        "fmt" : "-44.18%"
+      },
+      "marketWeight" : {
+        "raw" : 0.0036013273,
+        "fmt" : "0.36%"
+      },
+      "key" : "mortgage-finance"
+    }, {
+      "symbol" : "^YH10350020",
+      "regMarketChangePercent" : {
+        "raw" : -0.0113357175,
+        "fmt" : "-1.13%"
+      },
+      "name" : "Financial Conglomerates",
+      "ytdReturn" : {
+        "raw" : 0.26656884,
+        "fmt" : "26.66%"
+      },
+      "marketWeight" : {
+        "raw" : 0.0019515313,
+        "fmt" : "0.20%"
+      },
+      "key" : "financial-conglomerates"
+    }, {
+      "symbol" : "^YH10350010",
+      "regMarketChangePercent" : {
+        "raw" : 0.7117724,
+        "fmt" : "71.18%"
+      },
+      "name" : "Shell Companies",
+      "ytdReturn" : {
+        "raw" : -0.0011633948,
+        "fmt" : "-0.12%"
+      },
+      "marketWeight" : {
+        "raw" : 6.3348364E-4,
+        "fmt" : "0.06%"
+      },
+      "key" : "shell-companies"
+    } ],
+    "researchReports" : [ {
+      "id" : "ARGUS_48394_TopBottomInsiderActivity_1790849843000",
+      "headHtml" : "Daily – Vickers Top Buyers & Sellers for 10/01/2026",
+      "provider" : "Argus Research",
+      "reportDate" : "2026-10-01T10:17:23Z",
+      "reportTitle" : "The Vickers Top Buyers & Sellers is a daily report that identifies the five companies the largest insider purchase transactions based on the dollar value of the transactions as well as the five companies the largest insider sales transactions based on the dollar value of the transactions.",
+      "reportType" : "Top/Bottom Insider Activity"
+    }, {
+      "id" : "ARGUS_48393_InsiderActivity_1790849843000",
+      "headHtml" : "Daily – Vickers Top Insider Picks for 10/01/2026",
+      "provider" : "Argus Research",
+      "reportDate" : "2026-10-01T10:17:23Z",
+      "reportTitle" : "The Vickers Top Insider Picks is a daily report that utilizes a proprietary algorithm to identify 25 companies with compelling insider purchase histories based on transactions over the past three months.",
+      "reportType" : "Insider Activity"
+    }, {
+      "id" : "MS_0P00000187_AnalystReport_1790811082000",
+      "headHtml" : "Analyst Report: CME Group Inc.",
+      "provider" : "Morningstar",
+      "targetPrice" : 285.0,
+      "targetPriceStatus" : "Maintained",
+      "investmentRating" : "Bullish",
+      "reportDate" : "2026-09-30T23:31:22Z",
+      "reportTitle" : "Based in Chicago, CME Group operates exchanges giving investors, suppliers, and businesses the ability to trade futures and derivatives based on interest rates, equity indexes, foreign currencies, energy, metals, and commodities. The Chicago Mercantile Exchange was founded in 1898 and in 2002 completed its IPO. Since then, CME Group has consolidated parts of the industry by merging with crosstown rival CBOT Holdings in 2007 before acquiring Nymex Holdings in 2008 and NEX in 2018. In addition, the company has a 27% stake in S&P Dow Jones Indexes, making the Chicago Mercantile Exchange the exclusive venue to trade and clear S&P futures contracts. Through CME’s acquisition of NEX, it also expanded into cash foreign exchange, fixed-income trading, and collateral optimization. ",
+      "reportType" : "Analyst Report"
+    }, {
+      "id" : "MS_0P0000SQOK_AnalystReport_1790809711000",
+      "headHtml" : "Analyst Report: Apollo Global Management, Inc.",
+      "provider" : "Morningstar",
+      "targetPrice" : 143.0,
+      "targetPriceStatus" : "Maintained",
+      "investmentRating" : "Bullish",
+      "reportDate" : "2026-09-30T23:08:31Z",
+      "reportTitle" : "Apollo is one of the world's largest alternative asset managers, with $1.047 trillion in total assets under management, or AUM, including $858.0 billion in fee-earning assets, at the end of June 2026. The company has two core operating segments: asset management and retirement services. Apollo operates with scale in most of its major asset management endeavors—private equity (with an estimated $137.2 billion in total AUM and $76.3 billion in fee-earning AUM), real estate/real assets ($60.8 billion/$27.6 billion), and credit ($849.3 billion/$754.1 billion). Apollo has a distribution profile that is likely not too far off from the industry averages—with 84% of its assets held by institutional investors and 16% by high-net-worth clients. ",
+      "reportType" : "Analyst Report"
+    } ]
+  }
+}

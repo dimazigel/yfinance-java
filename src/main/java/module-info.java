@@ -30,11 +30,13 @@ module io.github.dimazigel.yfinance {
     exports io.github.dimazigel.yfinance.market;
     exports io.github.dimazigel.yfinance.news;
     exports io.github.dimazigel.yfinance.search;
+    exports io.github.dimazigel.yfinance.sector;
     exports io.github.dimazigel.yfinance.valueobject;
 
     // Jackson builds the wire records reflectively.
     opens io.github.dimazigel.yfinance.internal.dto to tools.jackson.databind;
     opens io.github.dimazigel.yfinance.internal.dto.chart to tools.jackson.databind;
+    opens io.github.dimazigel.yfinance.internal.dto.domain to tools.jackson.databind;
     opens io.github.dimazigel.yfinance.internal.dto.lookup to tools.jackson.databind;
     opens io.github.dimazigel.yfinance.internal.dto.news to tools.jackson.databind;
     opens io.github.dimazigel.yfinance.internal.dto.options to tools.jackson.databind;

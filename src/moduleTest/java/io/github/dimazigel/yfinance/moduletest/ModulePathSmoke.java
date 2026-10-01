@@ -6,6 +6,7 @@ import io.github.dimazigel.yfinance.YFinance;
 import io.github.dimazigel.yfinance.enums.Frequency;
 import io.github.dimazigel.yfinance.enums.Interval;
 import io.github.dimazigel.yfinance.enums.Range;
+import io.github.dimazigel.yfinance.enums.SectorKey;
 import io.github.dimazigel.yfinance.enums.StatementType;
 import io.github.dimazigel.yfinance.http.EndpointConfig;
 import io.github.dimazigel.yfinance.instrument.Equity;
@@ -22,8 +23,8 @@ import okhttp3.HttpUrl;
  * or to open to Jackson, or a Feign proxy that cannot be created inside the module.
  *
  * <p>Every endpoint family is exercised once: raw {@code JsonNode} responses (quote, quoteSummary),
- * record DTOs (chart, options, search), the any-setter DTO (timeseries) and the encoded request
- * body (news).
+ * record DTOs (chart, options, search, sector and industry), the any-setter DTO (timeseries) and
+ * the encoded request body (news).
  */
 public final class ModulePathSmoke {
 
@@ -49,6 +50,8 @@ public final class ModulePathSmoke {
                 require(aapl.options().isPresent(), "options");
                 require(!aapl.news().isEmpty(), "news");
                 require(!yf.search("apple").quotes().isEmpty(), "search");
+                require(!yf.sector(SectorKey.TECHNOLOGY).topCompanies().isEmpty(), "sector");
+                require(!yf.industry("semiconductors").topCompanies().isEmpty(), "industry");
             }
         } finally {
             server.stop(0);
@@ -76,6 +79,10 @@ public final class ModulePathSmoke {
             fixture = "options/options_AAPL.json";
         } else if (path.equals("/xhr/ncp")) {
             fixture = "news/ncp_news_AAPL.json";
+        } else if (path.startsWith("/v1/finance/sectors/")) {
+            fixture = "domain/sector_technology.json";
+        } else if (path.startsWith("/v1/finance/industries/")) {
+            fixture = "domain/industry_semiconductors.json";
         } else if (path.equals("/v1/finance/search")) {
             fixture = "search_apple.json";
         } else {

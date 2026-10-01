@@ -87,6 +87,29 @@ class MapperSupportTest {
         assertThat(MapperSupport.localDate("2023-09-30")).isEqualTo(LocalDate.of(2023, 9, 30));
     }
 
+    // ---- instant ----
+
+    @Test
+    void unparseableTimestampIsDroppedWithADebugLineNamingTheValue() {
+        try (var log = LogCapture.of(MapperSupport.class)) {
+            assertThat(MapperSupport.instant("yesterday")).isNull();
+
+            assertThat(log.messages(Level.DEBUG)).hasSize(1)
+                    .anySatisfy(m -> assertThat(m).contains("yesterday"));
+        }
+    }
+
+    @Test
+    void nullOrBlankTimestampIsNullWithNoLogLine() {
+        try (var log = LogCapture.of(MapperSupport.class)) {
+            assertThat(MapperSupport.instant(null)).isNull();
+            assertThat(MapperSupport.instant(" ")).isNull();
+
+            assertThat(log.events()).isEmpty();
+        }
+        assertThat(MapperSupport.instant(" 2026-09-30T13:57:00Z ")).isEqualTo(java.time.Instant.parse("2026-09-30T13:57:00Z"));
+    }
+
     // ---- symbolOr ----
 
     @Test

@@ -2,6 +2,7 @@ package io.github.dimazigel.yfinance.testsupport;
 
 import io.github.dimazigel.yfinance.http.EndpointConfig;
 import io.github.dimazigel.yfinance.internal.api.ChartApi;
+import io.github.dimazigel.yfinance.internal.api.DomainApi;
 import io.github.dimazigel.yfinance.internal.api.FundamentalsApi;
 import io.github.dimazigel.yfinance.internal.api.LookupApi;
 import io.github.dimazigel.yfinance.internal.api.NewsApi;
@@ -39,7 +40,7 @@ public final class Fixtures {
                 .setBody(load(fixtureName));
     }
 
-    /** All eight interfaces against {@code server}, with optional OkHttp interceptors (e.g. to observe MDC). */
+    /** Every interface against {@code server}, with optional OkHttp interceptors (e.g. to observe MDC). */
     public static YahooApis apis(MockWebServer server, okhttp3.Interceptor... interceptors) {
         var client = new okhttp3.OkHttpClient.Builder();
         for (var interceptor : interceptors) {
@@ -60,6 +61,7 @@ public final class Fixtures {
         else if (apiClass == SearchApi.class) api = apis.search();
         else if (apiClass == LookupApi.class) api = apis.lookup();
         else if (apiClass == NewsApi.class) api = apis.news();
+        else if (apiClass == DomainApi.class) api = apis.domain();
         else throw new IllegalArgumentException("Not a Yahoo API interface: " + apiClass);
         return apiClass.cast(api);
     }

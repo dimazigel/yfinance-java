@@ -19,6 +19,8 @@ public final class EquityDetailSpecs {
     private static final List<FieldSpec> PROFILE = List.of(
             required("profile.sector", RAW, "qs:assetProfile.sector", "qs:summaryProfile.sector"),
             required("profile.industry", RAW, "qs:assetProfile.industry", "qs:summaryProfile.industry"),
+            required("profile.sectorKey", RAW, "qs:assetProfile.sectorKey", "qs:summaryProfile.sectorKey"),
+            required("profile.industryKey", RAW, "qs:assetProfile.industryKey", "qs:summaryProfile.industryKey"),
             required("profile.country", RAW, "qs:assetProfile.country", "qs:summaryProfile.country"),
             required("profile.city", RAW, "qs:assetProfile.city"),
             required("profile.address1", RAW, "qs:assetProfile.address1"),

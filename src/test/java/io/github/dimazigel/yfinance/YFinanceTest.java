@@ -11,8 +11,10 @@ import io.github.dimazigel.yfinance.enums.Interval;
 import io.github.dimazigel.yfinance.enums.LineItem;
 import io.github.dimazigel.yfinance.enums.LookupType;
 import io.github.dimazigel.yfinance.enums.Range;
+import io.github.dimazigel.yfinance.enums.SectorKey;
 import io.github.dimazigel.yfinance.enums.StatementType;
 import io.github.dimazigel.yfinance.exception.YFDataException;
+import io.github.dimazigel.yfinance.exception.YFMissingDataException;
 import io.github.dimazigel.yfinance.exception.YFSkippedException;
 import io.github.dimazigel.yfinance.http.EndpointConfig;
 import io.github.dimazigel.yfinance.instrument.AssetClass;
@@ -22,6 +24,8 @@ import io.github.dimazigel.yfinance.instrument.Etf;
 import io.github.dimazigel.yfinance.instrument.Instrument;
 import io.github.dimazigel.yfinance.instrument.MutualFund;
 import io.github.dimazigel.yfinance.market.HistoryQuery;
+import io.github.dimazigel.yfinance.sector.Industry;
+import io.github.dimazigel.yfinance.sector.Sector;
 import io.github.dimazigel.yfinance.testsupport.Fixtures;
 import io.github.dimazigel.yfinance.testsupport.Instruments;
 import io.github.dimazigel.yfinance.testsupport.LogCapture;
@@ -69,6 +73,25 @@ class YFinanceTest {
             assertThat(s.reason()).isEqualTo(SkipReason.UNKNOWN_SYMBOL);
         });
         assertThat(server.getRequestCount()).as("one batched v7 request, no fallback").isEqualTo(1);
+    }
+
+    @Test
+    void sectorAndIndustryPagesAreOneRequestEach() {
+        Sector tech = yf.sector(SectorKey.TECHNOLOGY);
+        Industry semis = yf.industry(tech.industries().getFirst().key());
+
+        assertThat(tech.name()).isEqualTo("Technology");
+        assertThat(tech.topCompanies()).hasSize(50);
+        assertThat(semis.name()).isEqualTo("Semiconductors");
+        assertThat(semis.sector()).contains(SectorKey.TECHNOLOGY);
+        assertThat(server.getRequestCount()).isEqualTo(2);
+    }
+
+    @Test
+    void anUnknownIndustryIsMissingData() {
+        assertThatThrownBy(() -> yf.industry("no-such-industry"))
+                .isInstanceOf(YFMissingDataException.class)
+                .hasMessageContaining("no-such-industry");
     }
 
     @Test

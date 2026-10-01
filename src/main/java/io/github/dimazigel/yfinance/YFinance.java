@@ -10,6 +10,7 @@ import io.github.dimazigel.yfinance.enums.Interval;
 import io.github.dimazigel.yfinance.enums.LookupType;
 import io.github.dimazigel.yfinance.enums.NewsTab;
 import io.github.dimazigel.yfinance.enums.Range;
+import io.github.dimazigel.yfinance.enums.SectorKey;
 import io.github.dimazigel.yfinance.enums.StatementType;
 import io.github.dimazigel.yfinance.fundamentals.FinancialStatement;
 import io.github.dimazigel.yfinance.fundamentals.SharesOutstanding;
@@ -25,6 +26,7 @@ import io.github.dimazigel.yfinance.internal.auth.CrumbStore;
 import io.github.dimazigel.yfinance.internal.http.RawQuoteClient;
 import io.github.dimazigel.yfinance.internal.http.YahooClientFactory;
 import io.github.dimazigel.yfinance.internal.service.DetailService;
+import io.github.dimazigel.yfinance.internal.service.DomainService;
 import io.github.dimazigel.yfinance.internal.service.FundamentalsService;
 import io.github.dimazigel.yfinance.internal.service.HistoryService;
 import io.github.dimazigel.yfinance.internal.service.InstrumentService;
@@ -38,6 +40,8 @@ import io.github.dimazigel.yfinance.market.PriceHistory;
 import io.github.dimazigel.yfinance.news.NewsItem;
 import io.github.dimazigel.yfinance.search.LookupQuote;
 import io.github.dimazigel.yfinance.search.SearchResult;
+import io.github.dimazigel.yfinance.sector.Industry;
+import io.github.dimazigel.yfinance.sector.Sector;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
 import java.time.Clock;
 import java.time.Instant;
@@ -90,6 +94,7 @@ public final class YFinance implements AutoCloseable {
     private final SearchService search;
     private final LookupService lookup;
     private final NewsService news;
+    private final DomainService domain;
     private final Clock clock;
     private final Runnable closer;
     private final int fanOutConcurrency;
@@ -106,6 +111,7 @@ public final class YFinance implements AutoCloseable {
         this.search = new SearchService(apis.search());
         this.lookup = new LookupService(apis.lookup());
         this.news = new NewsService(apis.news());
+        this.domain = new DomainService(apis.domain(), clock);
         this.clock = clock;
         this.closer = closer;
     }
@@ -422,6 +428,29 @@ public final class YFinance implements AutoCloseable {
      */
     public List<NewsItem> news(Symbol symbol, NewsTab tab, int count) {
         return news.getNews(symbol, tab, count);
+    }
+
+    /**
+     * A sector's page in one request (Python yfinance's {@code Sector}): overview, performance
+     * against its benchmark, the largest companies, ETFs and mutual funds, its industries and
+     * recent research reports.
+     */
+    public Sector sector(SectorKey key) {
+        return domain.getSector(key);
+    }
+
+    /**
+     * An industry's page in one request (Python yfinance's {@code Industry}): overview, performance
+     * against its benchmark, the largest, best performing and fastest growing companies, and recent
+     * research reports. The keys come from {@link Sector#industries()} and from
+     * {@code EquityDetail.profile().industryKey()}; the key is trimmed and lower-cased.
+     *
+     * @throws IllegalArgumentException for a blank key
+     * @throws io.github.dimazigel.yfinance.exception.YFMissingDataException when Yahoo has no
+     *     industry with this key
+     */
+    public Industry industry(String key) {
+        return domain.getIndustry(key);
     }
 
     public SearchResult search(String query) {

@@ -41,6 +41,8 @@ public final class EquityDetailBuilder {
         return new CompanyProfile(
                 r.string("profile.sector"),
                 r.string("profile.industry"),
+                r.string("profile.sectorKey"),
+                r.string("profile.industryKey"),
                 r.string("profile.country"),
                 r.string("profile.city"),
                 r.string("profile.address1"),

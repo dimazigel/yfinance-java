@@ -1,0 +1,2877 @@
+{
+  "data" : {
+    "name" : "Technology",
+    "symbol" : "^YH311",
+    "key" : "technology",
+    "overview" : {
+      "companiesCount" : 861,
+      "marketCap" : {
+        "raw" : 29851801092096,
+        "fmt" : "29.852T",
+        "longFmt" : "29,851,801,092,096"
+      },
+      "messageBoardId" : "INDEXYH311",
+      "description" : "Companies engaged in the design, development, and support of computer operating systems and applications. This sector also includes companies that make computer equipment, data storage products, networking products, semiconductors, and components. Companies in this sector include Apple, Microsoft, and IBM.",
+      "industriesCount" : 12,
+      "marketWeight" : {
+        "raw" : 0.33951327,
+        "fmt" : "33.95%"
+      },
+      "employeeCount" : {
+        "raw" : 7955784,
+        "fmt" : "7.956M",
+        "longFmt" : "7,955,784"
+      }
+    },
+    "performance" : {
+      "ytdChangePercent" : {
+        "raw" : 0.28099045,
+        "fmt" : "28.10%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : 0.0064176237,
+        "fmt" : "0.64%"
+      },
+      "threeYearChangePercent" : {
+        "raw" : 1.3921548,
+        "fmt" : "139.22%"
+      },
+      "oneYearChangePercent" : {
+        "raw" : 0.26850027,
+        "fmt" : "26.85%"
+      },
+      "fiveYearChangePercent" : {
+        "raw" : 1.3663447,
+        "fmt" : "136.63%"
+      }
+    },
+    "performanceOverviewBenchmark" : {
+      "ytdChangePercent" : {
+        "raw" : 0.109523416,
+        "fmt" : "10.95%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -0.0025159963,
+        "fmt" : "-0.25%"
+      },
+      "name" : "S&P 500",
+      "threeYearChangePercent" : {
+        "raw" : 0.78438693,
+        "fmt" : "78.44%"
+      },
+      "oneYearChangePercent" : {
+        "raw" : 0.1486712,
+        "fmt" : "14.87%"
+      },
+      "fiveYearChangePercent" : {
+        "raw" : 0.7561326,
+        "fmt" : "75.61%"
+      }
+    },
+    "topCompanies" : [ {
+      "marketCap" : {
+        "raw" : 5514691977905,
+        "fmt" : "5.515T",
+        "longFmt" : "5,514,691,977,905"
+      },
+      "symbol" : "NVDA",
+      "targetPrice" : {
+        "raw" : 327.7,
+        "fmt" : "327.70"
+      },
+      "fulldayChangePercent" : {
+        "raw" : 0.0071779376,
+        "fmt" : "0.72%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : 0.00514941,
+        "fmt" : "0.51%"
+      },
+      "rating" : "Strong Buy",
+      "name" : "NVIDIA Corporation",
+      "ytdReturn" : {
+        "raw" : 0.2246,
+        "fmt" : "22.46%"
+      },
+      "fulldayChange" : {
+        "raw" : 1.6392975,
+        "fmt" : "1.64"
+      },
+      "marketWeight" : {
+        "raw" : 0.17822886,
+        "fmt" : "17.82%"
+      },
+      "fulldayPrice" : {
+        "raw" : 230.0193,
+        "fmt" : "230.02"
+      },
+      "lastPrice" : {
+        "raw" : 228.38,
+        "fmt" : "228.38"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 4860153663263,
+        "fmt" : "4.86T",
+        "longFmt" : "4,860,153,663,263"
+      },
+      "symbol" : "AAPL",
+      "targetPrice" : {
+        "raw" : 328.222,
+        "fmt" : "328.22"
+      },
+      "fulldayChangePercent" : {
+        "raw" : -0.0060056454000000006,
+        "fmt" : "-0.60%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : 0.0109897,
+        "fmt" : "1.10%"
+      },
+      "rating" : "Buy",
+      "name" : "Apple Inc.",
+      "ytdReturn" : {
+        "raw" : 0.225,
+        "fmt" : "22.50%"
+      },
+      "fulldayChange" : {
+        "raw" : -2.0,
+        "fmt" : "-2.00"
+      },
+      "marketWeight" : {
+        "raw" : 0.1570749,
+        "fmt" : "15.71%"
+      },
+      "fulldayPrice" : {
+        "raw" : 331.02,
+        "fmt" : "331.02"
+      },
+      "lastPrice" : {
+        "raw" : 333.02,
+        "fmt" : "333.02"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 3808562463621,
+        "fmt" : "3.809T",
+        "longFmt" : "3,808,562,463,621"
+      },
+      "symbol" : "MSFT",
+      "targetPrice" : {
+        "raw" : 578.415,
+        "fmt" : "578.41"
+      },
+      "fulldayChangePercent" : {
+        "raw" : 0.013842806000000001,
+        "fmt" : "1.38%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : 0.00774134,
+        "fmt" : "0.77%"
+      },
+      "rating" : "Strong Buy",
+      "name" : "Microsoft Corporation",
+      "ytdReturn" : {
+        "raw" : 0.0605,
+        "fmt" : "6.05%"
+      },
+      "fulldayChange" : {
+        "raw" : 7.0999756,
+        "fmt" : "7.10"
+      },
+      "marketWeight" : {
+        "raw" : 0.123088606,
+        "fmt" : "12.31%"
+      },
+      "fulldayPrice" : {
+        "raw" : 520.0,
+        "fmt" : "520.00"
+      },
+      "lastPrice" : {
+        "raw" : 512.9,
+        "fmt" : "512.90"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 1676451083943,
+        "fmt" : "1.676T",
+        "longFmt" : "1,676,451,083,943"
+      },
+      "symbol" : "AVGO",
+      "targetPrice" : {
+        "raw" : 531.847,
+        "fmt" : "531.85"
+      },
+      "fulldayChangePercent" : {
+        "raw" : 0.007972597,
+        "fmt" : "0.80%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -0.011011,
+        "fmt" : "-1.10%"
+      },
+      "rating" : "Strong Buy",
+      "name" : "Broadcom Inc.",
+      "ytdReturn" : {
+        "raw" : 0.0147,
+        "fmt" : "1.47%"
+      },
+      "fulldayChange" : {
+        "raw" : 2.7998962,
+        "fmt" : "2.80"
+      },
+      "marketWeight" : {
+        "raw" : 0.05418108,
+        "fmt" : "5.42%"
+      },
+      "fulldayPrice" : {
+        "raw" : 353.9899,
+        "fmt" : "353.99"
+      },
+      "lastPrice" : {
+        "raw" : 351.19,
+        "fmt" : "351.19"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 1309445489849,
+        "fmt" : "1.309T",
+        "longFmt" : "1,309,445,489,849"
+      },
+      "symbol" : "SKHY",
+      "fulldayChangePercent" : {
+        "raw" : 0.008960137,
+        "fmt" : "0.90%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -0.0135526,
+        "fmt" : "-1.36%"
+      },
+      "name" : "SK hynix Inc.",
+      "fulldayChange" : {
+        "raw" : 1.6500092,
+        "fmt" : "1.65"
+      },
+      "marketWeight" : {
+        "raw" : 0.042319857,
+        "fmt" : "4.23%"
+      },
+      "fulldayPrice" : {
+        "raw" : 185.8,
+        "fmt" : "185.80"
+      },
+      "lastPrice" : {
+        "raw" : 184.15,
+        "fmt" : "184.15"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 1202927922517,
+        "fmt" : "1.203T",
+        "longFmt" : "1,202,927,922,517"
+      },
+      "symbol" : "MU",
+      "targetPrice" : {
+        "raw" : 1520.76,
+        "fmt" : "1,520.76"
+      },
+      "fulldayChangePercent" : {
+        "raw" : -0.010984735,
+        "fmt" : "-1.10%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : 2.8194406000000002E-5,
+        "fmt" : "0.00%"
+      },
+      "rating" : "Strong Buy",
+      "name" : "Micron Technology, Inc.",
+      "ytdReturn" : {
+        "raw" : 2.7319,
+        "fmt" : "273.19%"
+      },
+      "fulldayChange" : {
+        "raw" : -11.699951,
+        "fmt" : "-11.70"
+      },
+      "marketWeight" : {
+        "raw" : 0.038877327,
+        "fmt" : "3.89%"
+      },
+      "fulldayPrice" : {
+        "raw" : 1053.41,
+        "fmt" : "1,053.41"
+      },
+      "lastPrice" : {
+        "raw" : 1065.11,
+        "fmt" : "1,065.11"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 998682947636,
+        "fmt" : "998.683B",
+        "longFmt" : "998,682,947,636"
+      },
+      "symbol" : "AMD",
+      "targetPrice" : {
+        "raw" : 618.508,
+        "fmt" : "618.51"
+      },
+      "fulldayChangePercent" : {
+        "raw" : 0.002758235,
+        "fmt" : "0.28%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : 0.006896330000000001,
+        "fmt" : "0.69%"
+      },
+      "rating" : "Strong Buy",
+      "name" : "Advanced Micro Devices, Inc.",
+      "ytdReturn" : {
+        "raw" : 1.8566,
+        "fmt" : "185.66%"
+      },
+      "fulldayChange" : {
+        "raw" : 1.6873779,
+        "fmt" : "1.69"
+      },
+      "marketWeight" : {
+        "raw" : 0.03227635,
+        "fmt" : "3.23%"
+      },
+      "fulldayPrice" : {
+        "raw" : 613.4474,
+        "fmt" : "613.45"
+      },
+      "lastPrice" : {
+        "raw" : 611.76,
+        "fmt" : "611.76"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 635548453395,
+        "fmt" : "635.548B",
+        "longFmt" : "635,548,453,395"
+      },
+      "symbol" : "INTC",
+      "targetPrice" : {
+        "raw" : 116.372,
+        "fmt" : "116.37"
+      },
+      "fulldayChangePercent" : {
+        "raw" : -0.009398693,
+        "fmt" : "-0.94%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : 0.037091400000000004,
+        "fmt" : "3.71%"
+      },
+      "rating" : "Buy",
+      "name" : "Intel Corporation",
+      "ytdReturn" : {
+        "raw" : 2.2583,
+        "fmt" : "225.83%"
+      },
+      "fulldayChange" : {
+        "raw" : -1.1300049,
+        "fmt" : "-1.13"
+      },
+      "marketWeight" : {
+        "raw" : 0.020540236,
+        "fmt" : "2.05%"
+      },
+      "fulldayPrice" : {
+        "raw" : 119.1,
+        "fmt" : "119.10"
+      },
+      "lastPrice" : {
+        "raw" : 120.23,
+        "fmt" : "120.23"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 449492096017,
+        "fmt" : "449.492B",
+        "longFmt" : "449,492,096,017"
+      },
+      "symbol" : "PLTR",
+      "targetPrice" : {
+        "raw" : 195.565,
+        "fmt" : "195.56"
+      },
+      "fulldayChangePercent" : {
+        "raw" : 0.010425004,
+        "fmt" : "1.04%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : 4.2788600000000004E-4,
+        "fmt" : "0.04%"
+      },
+      "rating" : "Buy",
+      "name" : "Palantir Technologies Inc.",
+      "ytdReturn" : {
+        "raw" : 0.0523,
+        "fmt" : "5.23%"
+      },
+      "fulldayChange" : {
+        "raw" : 1.949997,
+        "fmt" : "1.95"
+      },
+      "marketWeight" : {
+        "raw" : 0.014527096,
+        "fmt" : "1.45%"
+      },
+      "fulldayPrice" : {
+        "raw" : 189.0,
+        "fmt" : "189.00"
+      },
+      "lastPrice" : {
+        "raw" : 187.05,
+        "fmt" : "187.05"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 424340614312,
+        "fmt" : "424.341B",
+        "longFmt" : "424,340,614,312"
+      },
+      "symbol" : "CSCO",
+      "targetPrice" : {
+        "raw" : 136.16,
+        "fmt" : "136.16"
+      },
+      "fulldayChangePercent" : {
+        "raw" : 0.0077116215,
+        "fmt" : "0.77%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : 0.00645217,
+        "fmt" : "0.65%"
+      },
+      "rating" : "Buy",
+      "name" : "Cisco Systems, Inc.",
+      "ytdReturn" : {
+        "raw" : 0.3972,
+        "fmt" : "39.72%"
+      },
+      "fulldayChange" : {
+        "raw" : 0.83000183,
+        "fmt" : "0.83"
+      },
+      "marketWeight" : {
+        "raw" : 0.013714228,
+        "fmt" : "1.37%"
+      },
+      "fulldayPrice" : {
+        "raw" : 108.46,
+        "fmt" : "108.46"
+      },
+      "lastPrice" : {
+        "raw" : 107.63,
+        "fmt" : "107.63"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 416225117009,
+        "fmt" : "416.225B",
+        "longFmt" : "416,225,117,009"
+      },
+      "symbol" : "ORCL",
+      "targetPrice" : {
+        "raw" : 237.974,
+        "fmt" : "237.97"
+      },
+      "fulldayChangePercent" : {
+        "raw" : 0.0099906087,
+        "fmt" : "1.00%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -0.00355607,
+        "fmt" : "-0.36%"
+      },
+      "rating" : "Buy",
+      "name" : "Oracle Corporation",
+      "ytdReturn" : {
+        "raw" : -0.2956,
+        "fmt" : "-29.56%"
+      },
+      "fulldayChange" : {
+        "raw" : 1.3720093,
+        "fmt" : "1.37"
+      },
+      "marketWeight" : {
+        "raw" : 0.013451944,
+        "fmt" : "1.35%"
+      },
+      "fulldayPrice" : {
+        "raw" : 138.7019,
+        "fmt" : "138.70"
+      },
+      "lastPrice" : {
+        "raw" : 137.3,
+        "fmt" : "137.30"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 411105429381,
+        "fmt" : "411.105B",
+        "longFmt" : "411,105,429,381"
+      },
+      "symbol" : "LRCX",
+      "targetPrice" : {
+        "raw" : 373.774,
+        "fmt" : "373.77"
+      },
+      "fulldayChangePercent" : {
+        "raw" : 0.016581547999999998,
+        "fmt" : "1.66%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : 0.0143581,
+        "fmt" : "1.44%"
+      },
+      "rating" : "Strong Buy",
+      "name" : "Lam Research Corporation",
+      "ytdReturn" : {
+        "raw" : 0.9191,
+        "fmt" : "91.91%"
+      },
+      "fulldayChange" : {
+        "raw" : 5.4472046,
+        "fmt" : "5.45"
+      },
+      "marketWeight" : {
+        "raw" : 0.013286482,
+        "fmt" : "1.33%"
+      },
+      "fulldayPrice" : {
+        "raw" : 333.9572,
+        "fmt" : "333.96"
+      },
+      "lastPrice" : {
+        "raw" : 328.51,
+        "fmt" : "328.51"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 405829864276,
+        "fmt" : "405.83B",
+        "longFmt" : "405,829,864,276"
+      },
+      "symbol" : "AMAT",
+      "targetPrice" : {
+        "raw" : 638.944,
+        "fmt" : "638.94"
+      },
+      "fulldayChangePercent" : {
+        "raw" : 0.011380984,
+        "fmt" : "1.14%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -0.0012304500000000001,
+        "fmt" : "-0.12%"
+      },
+      "rating" : "Strong Buy",
+      "name" : "Applied Materials, Inc.",
+      "ytdReturn" : {
+        "raw" : 0.9899,
+        "fmt" : "98.99%"
+      },
+      "fulldayChange" : {
+        "raw" : 5.8200073,
+        "fmt" : "5.82"
+      },
+      "marketWeight" : {
+        "raw" : 0.013115981,
+        "fmt" : "1.31%"
+      },
+      "fulldayPrice" : {
+        "raw" : 517.2,
+        "fmt" : "517.20"
+      },
+      "lastPrice" : {
+        "raw" : 511.38,
+        "fmt" : "511.38"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 342035476623,
+        "fmt" : "342.035B",
+        "longFmt" : "342,035,476,623"
+      },
+      "symbol" : "DELL",
+      "targetPrice" : {
+        "raw" : 579.36,
+        "fmt" : "579.36"
+      },
+      "fulldayChangePercent" : {
+        "raw" : 0.006836069,
+        "fmt" : "0.68%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -0.00303937,
+        "fmt" : "-0.30%"
+      },
+      "rating" : "Buy",
+      "name" : "Dell Technologies Inc.",
+      "ytdReturn" : {
+        "raw" : 3.2735,
+        "fmt" : "327.35%"
+      },
+      "fulldayChange" : {
+        "raw" : 3.6799927,
+        "fmt" : "3.68"
+      },
+      "marketWeight" : {
+        "raw" : 0.011054216,
+        "fmt" : "1.11%"
+      },
+      "fulldayPrice" : {
+        "raw" : 542.0,
+        "fmt" : "542.00"
+      },
+      "lastPrice" : {
+        "raw" : 537.95,
+        "fmt" : "537.95"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 324999578002,
+        "fmt" : "325B",
+        "longFmt" : "324,999,578,002"
+      },
+      "symbol" : "PANW",
+      "targetPrice" : {
+        "raw" : 396.12,
+        "fmt" : "396.12"
+      },
+      "fulldayChangePercent" : {
+        "raw" : 0.0017366852999999999,
+        "fmt" : "0.17%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : 0.022913899999999997,
+        "fmt" : "2.29%"
+      },
+      "rating" : "Buy",
+      "name" : "Palo Alto Networks, Inc.",
+      "ytdReturn" : {
+        "raw" : 1.1569,
+        "fmt" : "115.69%"
+      },
+      "fulldayChange" : {
+        "raw" : 0.69000244,
+        "fmt" : "0.69"
+      },
+      "marketWeight" : {
+        "raw" : 0.010503634,
+        "fmt" : "1.05%"
+      },
+      "fulldayPrice" : {
+        "raw" : 398.0,
+        "fmt" : "398.00"
+      },
+      "lastPrice" : {
+        "raw" : 397.31,
+        "fmt" : "397.31"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 271086749419,
+        "fmt" : "271.087B",
+        "longFmt" : "271,086,749,419"
+      },
+      "symbol" : "CRWD",
+      "targetPrice" : {
+        "raw" : 235.67,
+        "fmt" : "235.67"
+      },
+      "fulldayChangePercent" : {
+        "raw" : -0.014126498000000001,
+        "fmt" : "-1.41%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : 0.00765019,
+        "fmt" : "0.77%"
+      },
+      "rating" : "Buy",
+      "name" : "CrowdStrike Holdings, Inc.",
+      "ytdReturn" : {
+        "raw" : 1.2592,
+        "fmt" : "125.92%"
+      },
+      "fulldayChange" : {
+        "raw" : -3.7399902,
+        "fmt" : "-3.74"
+      },
+      "marketWeight" : {
+        "raw" : 0.00876123,
+        "fmt" : "0.88%"
+      },
+      "fulldayPrice" : {
+        "raw" : 261.01,
+        "fmt" : "261.01"
+      },
+      "lastPrice" : {
+        "raw" : 264.75,
+        "fmt" : "264.75"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 256772721467,
+        "fmt" : "256.773B",
+        "longFmt" : "256,772,721,467"
+      },
+      "symbol" : "ANET",
+      "targetPrice" : {
+        "raw" : 242.207,
+        "fmt" : "242.21"
+      },
+      "fulldayChangePercent" : {
+        "raw" : 0.005500688,
+        "fmt" : "0.55%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : 0.00359852,
+        "fmt" : "0.36%"
+      },
+      "rating" : "Strong Buy",
+      "name" : "Arista Networks, Inc.",
+      "ytdReturn" : {
+        "raw" : 0.5538,
+        "fmt" : "55.38%"
+      },
+      "fulldayChange" : {
+        "raw" : 1.1199951,
+        "fmt" : "1.12"
+      },
+      "marketWeight" : {
+        "raw" : 0.008298616,
+        "fmt" : "0.83%"
+      },
+      "fulldayPrice" : {
+        "raw" : 204.73,
+        "fmt" : "204.73"
+      },
+      "lastPrice" : {
+        "raw" : 203.59,
+        "fmt" : "203.59"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 255791541027,
+        "fmt" : "255.792B",
+        "longFmt" : "255,791,541,027"
+      },
+      "symbol" : "TXN",
+      "targetPrice" : {
+        "raw" : 324.71,
+        "fmt" : "324.71"
+      },
+      "fulldayChangePercent" : {
+        "raw" : 0.0067478836,
+        "fmt" : "0.67%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -0.00568002,
+        "fmt" : "-0.57%"
+      },
+      "rating" : "Buy",
+      "name" : "Texas Instruments Incorporated",
+      "ytdReturn" : {
+        "raw" : 0.6144,
+        "fmt" : "61.44%"
+      },
+      "fulldayChange" : {
+        "raw" : 1.8900146,
+        "fmt" : "1.89"
+      },
+      "marketWeight" : {
+        "raw" : 0.008266905,
+        "fmt" : "0.83%"
+      },
+      "fulldayPrice" : {
+        "raw" : 280.09,
+        "fmt" : "280.09"
+      },
+      "lastPrice" : {
+        "raw" : 280.09,
+        "fmt" : "280.09"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 254752957794,
+        "fmt" : "254.753B",
+        "longFmt" : "254,752,957,794"
+      },
+      "symbol" : "SNDK",
+      "targetPrice" : {
+        "raw" : 2136.54,
+        "fmt" : "2,136.54"
+      },
+      "fulldayChangePercent" : {
+        "raw" : 0.0026495844,
+        "fmt" : "0.26%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : 0.00585631,
+        "fmt" : "0.59%"
+      },
+      "rating" : "Buy",
+      "name" : "Sandisk Corporation",
+      "ytdReturn" : {
+        "raw" : 6.3296,
+        "fmt" : "632.96%"
+      },
+      "fulldayChange" : {
+        "raw" : 4.6099854,
+        "fmt" : "4.61"
+      },
+      "marketWeight" : {
+        "raw" : 0.0082333395,
+        "fmt" : "0.82%"
+      },
+      "fulldayPrice" : {
+        "raw" : 1744.5,
+        "fmt" : "1,744.50"
+      },
+      "lastPrice" : {
+        "raw" : 1739.89,
+        "fmt" : "1,739.89"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 254384905927,
+        "fmt" : "254.385B",
+        "longFmt" : "254,384,905,927"
+      },
+      "symbol" : "KLAC",
+      "targetPrice" : {
+        "raw" : 233.769,
+        "fmt" : "233.77"
+      },
+      "fulldayChangePercent" : {
+        "raw" : 0.014302073,
+        "fmt" : "1.43%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -0.008141279999999999,
+        "fmt" : "-0.81%"
+      },
+      "rating" : "Buy",
+      "name" : "KLA Corporation",
+      "ytdReturn" : {
+        "raw" : 0.6043,
+        "fmt" : "60.43%"
+      },
+      "fulldayChange" : {
+        "raw" : 2.7879028,
+        "fmt" : "2.79"
+      },
+      "marketWeight" : {
+        "raw" : 0.008221444,
+        "fmt" : "0.82%"
+      },
+      "fulldayPrice" : {
+        "raw" : 197.7179,
+        "fmt" : "197.72"
+      },
+      "lastPrice" : {
+        "raw" : 194.93,
+        "fmt" : "194.93"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 237446738121,
+        "fmt" : "237.447B",
+        "longFmt" : "237,446,738,121"
+      },
+      "symbol" : "MRVL",
+      "targetPrice" : {
+        "raw" : 290.97,
+        "fmt" : "290.97"
+      },
+      "fulldayChangePercent" : {
+        "raw" : 0.0041254926,
+        "fmt" : "0.41%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : 0.00357049,
+        "fmt" : "0.36%"
+      },
+      "rating" : "Strong Buy",
+      "name" : "Marvell Technology, Inc.",
+      "ytdReturn" : {
+        "raw" : 2.1091,
+        "fmt" : "210.91%"
+      },
+      "fulldayChange" : {
+        "raw" : 1.0899963,
+        "fmt" : "1.09"
+      },
+      "marketWeight" : {
+        "raw" : 0.0076740207,
+        "fmt" : "0.77%"
+      },
+      "fulldayPrice" : {
+        "raw" : 265.3,
+        "fmt" : "265.30"
+      },
+      "lastPrice" : {
+        "raw" : 264.21,
+        "fmt" : "264.21"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 209733678639,
+        "fmt" : "209.734B",
+        "longFmt" : "209,733,678,639"
+      },
+      "symbol" : "STX",
+      "targetPrice" : {
+        "raw" : 1125.0,
+        "fmt" : "1,125.00"
+      },
+      "fulldayChangePercent" : {
+        "raw" : -0.0014528556,
+        "fmt" : "-0.15%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : 0.009732349999999999,
+        "fmt" : "0.97%"
+      },
+      "rating" : "Strong Buy",
+      "name" : "Seagate Technology Holdings plc",
+      "ytdReturn" : {
+        "raw" : 2.3492,
+        "fmt" : "234.92%"
+      },
+      "fulldayChange" : {
+        "raw" : -1.3400269,
+        "fmt" : "-1.34"
+      },
+      "marketWeight" : {
+        "raw" : 0.006778365,
+        "fmt" : "0.68%"
+      },
+      "fulldayPrice" : {
+        "raw" : 921.0,
+        "fmt" : "921.00"
+      },
+      "lastPrice" : {
+        "raw" : 922.34,
+        "fmt" : "922.34"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 207881018375,
+        "fmt" : "207.881B",
+        "longFmt" : "207,881,018,375"
+      },
+      "symbol" : "APH",
+      "targetPrice" : {
+        "raw" : 99.3889,
+        "fmt" : "99.39"
+      },
+      "fulldayChangePercent" : {
+        "raw" : 0.0063327414,
+        "fmt" : "0.63%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -4.74191E-4,
+        "fmt" : "-0.05%"
+      },
+      "rating" : "Strong Buy",
+      "name" : "Amphenol Corporation",
+      "ytdReturn" : {
+        "raw" : 0.2476,
+        "fmt" : "24.76%"
+      },
+      "fulldayChange" : {
+        "raw" : 0.5341034,
+        "fmt" : "0.53"
+      },
+      "marketWeight" : {
+        "raw" : 0.006718489,
+        "fmt" : "0.67%"
+      },
+      "fulldayPrice" : {
+        "raw" : 84.8741,
+        "fmt" : "84.87"
+      },
+      "lastPrice" : {
+        "raw" : 84.3,
+        "fmt" : "84.30"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 207203609492,
+        "fmt" : "207.204B",
+        "longFmt" : "207,203,609,492"
+      },
+      "symbol" : "IBM",
+      "targetPrice" : {
+        "raw" : 240.59,
+        "fmt" : "240.59"
+      },
+      "fulldayChangePercent" : {
+        "raw" : 0.05002389,
+        "fmt" : "5.00%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -2.72798E-4,
+        "fmt" : "-0.03%"
+      },
+      "rating" : "Buy",
+      "name" : "International Business Machines Corporation",
+      "ytdReturn" : {
+        "raw" : -0.2575,
+        "fmt" : "-25.75%"
+      },
+      "fulldayChange" : {
+        "raw" : 11.005005,
+        "fmt" : "11.01"
+      },
+      "marketWeight" : {
+        "raw" : 0.006696596,
+        "fmt" : "0.67%"
+      },
+      "fulldayPrice" : {
+        "raw" : 231.0,
+        "fmt" : "231.00"
+      },
+      "lastPrice" : {
+        "raw" : 219.93,
+        "fmt" : "219.93"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 196565844856,
+        "fmt" : "196.566B",
+        "longFmt" : "196,565,844,856"
+      },
+      "symbol" : "QCOM",
+      "targetPrice" : {
+        "raw" : 194.133,
+        "fmt" : "194.13"
+      },
+      "fulldayChangePercent" : {
+        "raw" : 0.0034775016,
+        "fmt" : "0.35%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -3.25979E-4,
+        "fmt" : "-0.03%"
+      },
+      "rating" : "Hold",
+      "name" : "QUALCOMM Incorporated",
+      "ytdReturn" : {
+        "raw" : 0.0759,
+        "fmt" : "7.59%"
+      },
+      "fulldayChange" : {
+        "raw" : 0.6399994,
+        "fmt" : "0.64"
+      },
+      "marketWeight" : {
+        "raw" : 0.006352795,
+        "fmt" : "0.64%"
+      },
+      "fulldayPrice" : {
+        "raw" : 184.68,
+        "fmt" : "184.68"
+      },
+      "lastPrice" : {
+        "raw" : 184.04,
+        "fmt" : "184.04"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 192231961479,
+        "fmt" : "192.232B",
+        "longFmt" : "192,231,961,479"
+      },
+      "symbol" : "ADI",
+      "targetPrice" : {
+        "raw" : 470.719,
+        "fmt" : "470.72"
+      },
+      "fulldayChangePercent" : {
+        "raw" : 0.005772500000000001,
+        "fmt" : "0.58%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -0.0037919000000000004,
+        "fmt" : "-0.38%"
+      },
+      "rating" : "Strong Buy",
+      "name" : "Analog Devices, Inc.",
+      "ytdReturn" : {
+        "raw" : 0.4628,
+        "fmt" : "46.28%"
+      },
+      "fulldayChange" : {
+        "raw" : 2.2900085,
+        "fmt" : "2.29"
+      },
+      "marketWeight" : {
+        "raw" : 0.0062127286,
+        "fmt" : "0.62%"
+      },
+      "fulldayPrice" : {
+        "raw" : 396.71,
+        "fmt" : "396.71"
+      },
+      "lastPrice" : {
+        "raw" : 396.71,
+        "fmt" : "396.71"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 190809298893,
+        "fmt" : "190.809B",
+        "longFmt" : "190,809,298,893"
+      },
+      "symbol" : "SHOP",
+      "targetPrice" : {
+        "raw" : 172.771,
+        "fmt" : "172.77"
+      },
+      "fulldayChangePercent" : {
+        "raw" : 0.01355357,
+        "fmt" : "1.36%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : 2.69854E-4,
+        "fmt" : "0.03%"
+      },
+      "rating" : "Buy",
+      "name" : "Shopify Inc.",
+      "ytdReturn" : {
+        "raw" : -0.0787,
+        "fmt" : "-7.87%"
+      },
+      "fulldayChange" : {
+        "raw" : 2.0099945,
+        "fmt" : "2.01"
+      },
+      "marketWeight" : {
+        "raw" : 0.0061667496,
+        "fmt" : "0.62%"
+      },
+      "fulldayPrice" : {
+        "raw" : 150.31,
+        "fmt" : "150.31"
+      },
+      "lastPrice" : {
+        "raw" : 148.3,
+        "fmt" : "148.30"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 188936116027,
+        "fmt" : "188.936B",
+        "longFmt" : "188,936,116,027"
+      },
+      "symbol" : "CRM",
+      "targetPrice" : {
+        "raw" : 281.078,
+        "fmt" : "281.08"
+      },
+      "fulldayChangePercent" : {
+        "raw" : 0.029051716,
+        "fmt" : "2.91%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : 0.018907300000000002,
+        "fmt" : "1.89%"
+      },
+      "rating" : "Buy",
+      "name" : "Salesforce, Inc.",
+      "ytdReturn" : {
+        "raw" : -0.1334,
+        "fmt" : "-13.34%"
+      },
+      "fulldayChange" : {
+        "raw" : 6.669693,
+        "fmt" : "6.67"
+      },
+      "marketWeight" : {
+        "raw" : 0.0061062104,
+        "fmt" : "0.61%"
+      },
+      "fulldayPrice" : {
+        "raw" : 236.2497,
+        "fmt" : "236.25"
+      },
+      "lastPrice" : {
+        "raw" : 229.57,
+        "fmt" : "229.57"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 163851434329,
+        "fmt" : "163.851B",
+        "longFmt" : "163,851,434,329"
+      },
+      "symbol" : "WDC",
+      "targetPrice" : {
+        "raw" : 664.917,
+        "fmt" : "664.92"
+      },
+      "fulldayChangePercent" : {
+        "raw" : 0.0011882422,
+        "fmt" : "0.12%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : 0.00216102,
+        "fmt" : "0.22%"
+      },
+      "rating" : "Buy",
+      "name" : "Western Digital Corporation",
+      "ytdReturn" : {
+        "raw" : 1.6381,
+        "fmt" : "163.81%"
+      },
+      "fulldayChange" : {
+        "raw" : 0.54000854,
+        "fmt" : "0.54"
+      },
+      "marketWeight" : {
+        "raw" : 0.0052955006,
+        "fmt" : "0.53%"
+      },
+      "fulldayPrice" : {
+        "raw" : 455.0,
+        "fmt" : "455.00"
+      },
+      "lastPrice" : {
+        "raw" : 454.46,
+        "fmt" : "454.46"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 139935798253,
+        "fmt" : "139.936B",
+        "longFmt" : "139,935,798,253"
+      },
+      "symbol" : "UBER",
+      "targetPrice" : {
+        "raw" : 100.773,
+        "fmt" : "100.77"
+      },
+      "fulldayChangePercent" : {
+        "raw" : 0.0024813628,
+        "fmt" : "0.25%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -0.012254899999999999,
+        "fmt" : "-1.23%"
+      },
+      "rating" : "Buy",
+      "name" : "Uber Technologies, Inc.",
+      "ytdReturn" : {
+        "raw" : -0.1615,
+        "fmt" : "-16.15%"
+      },
+      "fulldayChange" : {
+        "raw" : 0.16999817,
+        "fmt" : "0.17"
+      },
+      "marketWeight" : {
+        "raw" : 0.004522573,
+        "fmt" : "0.45%"
+      },
+      "fulldayPrice" : {
+        "raw" : 68.68,
+        "fmt" : "68.68"
+      },
+      "lastPrice" : {
+        "raw" : 68.51,
+        "fmt" : "68.51"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 138547840940,
+        "fmt" : "138.548B",
+        "longFmt" : "138,547,840,940"
+      },
+      "symbol" : "NOW",
+      "targetPrice" : {
+        "raw" : 144.993,
+        "fmt" : "144.99"
+      },
+      "fulldayChangePercent" : {
+        "raw" : 0.034325842999999995,
+        "fmt" : "3.43%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : 0.0313221,
+        "fmt" : "3.13%"
+      },
+      "rating" : "Strong Buy",
+      "name" : "ServiceNow, Inc.",
+      "ytdReturn" : {
+        "raw" : -0.1252,
+        "fmt" : "-12.52%"
+      },
+      "fulldayChange" : {
+        "raw" : 4.600006,
+        "fmt" : "4.60"
+      },
+      "marketWeight" : {
+        "raw" : 0.004477716,
+        "fmt" : "0.45%"
+      },
+      "fulldayPrice" : {
+        "raw" : 138.61,
+        "fmt" : "138.61"
+      },
+      "lastPrice" : {
+        "raw" : 134.01,
+        "fmt" : "134.01"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 132177907249,
+        "fmt" : "132.178B",
+        "longFmt" : "132,177,907,249"
+      },
+      "symbol" : "GLW",
+      "targetPrice" : {
+        "raw" : 187.0,
+        "fmt" : "187.00"
+      },
+      "fulldayChangePercent" : {
+        "raw" : 0.005463746,
+        "fmt" : "0.55%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -0.031189,
+        "fmt" : "-3.12%"
+      },
+      "rating" : "Buy",
+      "name" : "Corning Incorporated",
+      "ytdReturn" : {
+        "raw" : 0.7561,
+        "fmt" : "75.61%"
+      },
+      "fulldayChange" : {
+        "raw" : 0.83999634,
+        "fmt" : "0.84"
+      },
+      "marketWeight" : {
+        "raw" : 0.0042718467,
+        "fmt" : "0.43%"
+      },
+      "fulldayPrice" : {
+        "raw" : 154.58,
+        "fmt" : "154.58"
+      },
+      "lastPrice" : {
+        "raw" : 153.76,
+        "fmt" : "153.76"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 131158648579,
+        "fmt" : "131.159B",
+        "longFmt" : "131,158,648,579"
+      },
+      "symbol" : "FTNT",
+      "targetPrice" : {
+        "raw" : 164.319,
+        "fmt" : "164.32"
+      },
+      "fulldayChangePercent" : {
+        "raw" : 0.005817904499999999,
+        "fmt" : "0.58%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : 0.0159126,
+        "fmt" : "1.59%"
+      },
+      "rating" : "Hold",
+      "name" : "Fortinet, Inc.",
+      "ytdReturn" : {
+        "raw" : 1.2511,
+        "fmt" : "125.11%"
+      },
+      "fulldayChange" : {
+        "raw" : 1.0400085,
+        "fmt" : "1.04"
+      },
+      "marketWeight" : {
+        "raw" : 0.0042389054,
+        "fmt" : "0.42%"
+      },
+      "fulldayPrice" : {
+        "raw" : 178.76,
+        "fmt" : "178.76"
+      },
+      "lastPrice" : {
+        "raw" : 178.76,
+        "fmt" : "178.76"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 123659362990,
+        "fmt" : "123.659B",
+        "longFmt" : "123,659,362,990"
+      },
+      "symbol" : "NET",
+      "targetPrice" : {
+        "raw" : 336.806,
+        "fmt" : "336.81"
+      },
+      "fulldayChangePercent" : {
+        "raw" : 0.0122682,
+        "fmt" : "1.23%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -0.014137299999999998,
+        "fmt" : "-1.41%"
+      },
+      "rating" : "Buy",
+      "name" : "Cloudflare, Inc.",
+      "ytdReturn" : {
+        "raw" : 0.7615,
+        "fmt" : "76.15%"
+      },
+      "fulldayChange" : {
+        "raw" : 4.26001,
+        "fmt" : "4.26"
+      },
+      "marketWeight" : {
+        "raw" : 0.0039965366,
+        "fmt" : "0.40%"
+      },
+      "fulldayPrice" : {
+        "raw" : 351.5,
+        "fmt" : "351.50"
+      },
+      "lastPrice" : {
+        "raw" : 347.28,
+        "fmt" : "347.28"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 119796767138,
+        "fmt" : "119.797B",
+        "longFmt" : "119,796,767,138"
+      },
+      "symbol" : "SNOW",
+      "targetPrice" : {
+        "raw" : 425.142,
+        "fmt" : "425.14"
+      },
+      "fulldayChangePercent" : {
+        "raw" : 0.011394402999999999,
+        "fmt" : "1.14%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : 0.028003999999999998,
+        "fmt" : "2.80%"
+      },
+      "rating" : "Strong Buy",
+      "name" : "Snowflake Inc.",
+      "ytdReturn" : {
+        "raw" : 0.548,
+        "fmt" : "54.80%"
+      },
+      "fulldayChange" : {
+        "raw" : 3.869995,
+        "fmt" : "3.87"
+      },
+      "marketWeight" : {
+        "raw" : 0.0038717014,
+        "fmt" : "0.39%"
+      },
+      "fulldayPrice" : {
+        "raw" : 343.51,
+        "fmt" : "343.51"
+      },
+      "lastPrice" : {
+        "raw" : 339.56,
+        "fmt" : "339.56"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 112211821539,
+        "fmt" : "112.212B",
+        "longFmt" : "112,211,821,539"
+      },
+      "symbol" : "ACN",
+      "targetPrice" : {
+        "raw" : 193.03,
+        "fmt" : "193.03"
+      },
+      "fulldayChangePercent" : {
+        "raw" : 0.17158888,
+        "fmt" : "17.16%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : 0.0352868,
+        "fmt" : "3.53%"
+      },
+      "rating" : "Buy",
+      "name" : "Accenture plc",
+      "ytdReturn" : {
+        "raw" : -0.3165,
+        "fmt" : "-31.65%"
+      },
+      "fulldayChange" : {
+        "raw" : 31.48999,
+        "fmt" : "31.49"
+      },
+      "marketWeight" : {
+        "raw" : 0.0036265643,
+        "fmt" : "0.36%"
+      },
+      "fulldayPrice" : {
+        "raw" : 215.01,
+        "fmt" : "215.01"
+      },
+      "lastPrice" : {
+        "raw" : 183.37,
+        "fmt" : "183.37"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 102256673509,
+        "fmt" : "102.257B",
+        "longFmt" : "102,256,673,509"
+      },
+      "symbol" : "ADP",
+      "targetPrice" : {
+        "raw" : 287.6,
+        "fmt" : "287.60"
+      },
+      "fulldayChangePercent" : {
+        "raw" : 0.013136536999999998,
+        "fmt" : "1.31%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -0.014285699999999998,
+        "fmt" : "-1.43%"
+      },
+      "rating" : "Hold",
+      "name" : "Automatic Data Processing, Inc.",
+      "ytdReturn" : {
+        "raw" : 0.0032,
+        "fmt" : "0.32%"
+      },
+      "fulldayChange" : {
+        "raw" : 3.3900146,
+        "fmt" : "3.39"
+      },
+      "marketWeight" : {
+        "raw" : 0.0033048247,
+        "fmt" : "0.33%"
+      },
+      "fulldayPrice" : {
+        "raw" : 258.06,
+        "fmt" : "258.06"
+      },
+      "lastPrice" : {
+        "raw" : 258.06,
+        "fmt" : "258.06"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 98332697514,
+        "fmt" : "98.333B",
+        "longFmt" : "98,332,697,514"
+      },
+      "symbol" : "DDOG",
+      "targetPrice" : {
+        "raw" : 286.257,
+        "fmt" : "286.26"
+      },
+      "fulldayChangePercent" : {
+        "raw" : 0.017016628,
+        "fmt" : "1.70%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : 0.0196977,
+        "fmt" : "1.97%"
+      },
+      "rating" : "Strong Buy",
+      "name" : "Datadog, Inc.",
+      "ytdReturn" : {
+        "raw" : 1.0138,
+        "fmt" : "101.38%"
+      },
+      "fulldayChange" : {
+        "raw" : 4.6600037,
+        "fmt" : "4.66"
+      },
+      "marketWeight" : {
+        "raw" : 0.003178006,
+        "fmt" : "0.32%"
+      },
+      "fulldayPrice" : {
+        "raw" : 278.51,
+        "fmt" : "278.51"
+      },
+      "lastPrice" : {
+        "raw" : 273.85,
+        "fmt" : "273.85"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 95376150970,
+        "fmt" : "95.376B",
+        "longFmt" : "95,376,150,970"
+      },
+      "symbol" : "ADBE",
+      "targetPrice" : {
+        "raw" : 275.064,
+        "fmt" : "275.06"
+      },
+      "fulldayChangePercent" : {
+        "raw" : 0.026506630000000003,
+        "fmt" : "2.65%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : 0.0290346,
+        "fmt" : "2.90%"
+      },
+      "rating" : "Hold",
+      "name" : "Adobe Inc.",
+      "ytdReturn" : {
+        "raw" : -0.3144,
+        "fmt" : "-31.44%"
+      },
+      "fulldayChange" : {
+        "raw" : 6.3600006,
+        "fmt" : "6.36"
+      },
+      "marketWeight" : {
+        "raw" : 0.0030824537,
+        "fmt" : "0.31%"
+      },
+      "fulldayPrice" : {
+        "raw" : 246.3,
+        "fmt" : "246.30"
+      },
+      "lastPrice" : {
+        "raw" : 239.94,
+        "fmt" : "239.94"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 91070305286,
+        "fmt" : "91.07B",
+        "longFmt" : "91,070,305,286"
+      },
+      "symbol" : "CDNS",
+      "targetPrice" : {
+        "raw" : 405.471,
+        "fmt" : "405.47"
+      },
+      "fulldayChangePercent" : {
+        "raw" : 0.017611346,
+        "fmt" : "1.76%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : 0.018555,
+        "fmt" : "1.86%"
+      },
+      "rating" : "Strong Buy",
+      "name" : "Cadence Design Systems, Inc.",
+      "ytdReturn" : {
+        "raw" : 0.0563,
+        "fmt" : "5.63%"
+      },
+      "fulldayChange" : {
+        "raw" : 5.8150024,
+        "fmt" : "5.82"
+      },
+      "marketWeight" : {
+        "raw" : 0.0029432934,
+        "fmt" : "0.29%"
+      },
+      "fulldayPrice" : {
+        "raw" : 330.185,
+        "fmt" : "330.19"
+      },
+      "lastPrice" : {
+        "raw" : 330.185,
+        "fmt" : "330.19"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 87122022875,
+        "fmt" : "87.122B",
+        "longFmt" : "87,122,022,875"
+      },
+      "symbol" : "LITE",
+      "targetPrice" : {
+        "raw" : 1159.4,
+        "fmt" : "1,159.40"
+      },
+      "fulldayChangePercent" : {
+        "raw" : 0.0050037944,
+        "fmt" : "0.50%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -0.00229071,
+        "fmt" : "-0.23%"
+      },
+      "rating" : "Strong Buy",
+      "name" : "Lumentum Holdings Inc.",
+      "ytdReturn" : {
+        "raw" : 1.6351,
+        "fmt" : "163.51%"
+      },
+      "fulldayChange" : {
+        "raw" : 4.8599854,
+        "fmt" : "4.86"
+      },
+      "marketWeight" : {
+        "raw" : 0.0028156892,
+        "fmt" : "0.28%"
+      },
+      "fulldayPrice" : {
+        "raw" : 976.12,
+        "fmt" : "976.12"
+      },
+      "lastPrice" : {
+        "raw" : 971.26,
+        "fmt" : "971.26"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 84811723920,
+        "fmt" : "84.812B",
+        "longFmt" : "84,811,723,920"
+      },
+      "symbol" : "HPE",
+      "targetPrice" : {
+        "raw" : 68.0795,
+        "fmt" : "68.08"
+      },
+      "fulldayChangePercent" : {
+        "raw" : 0.029895190000000002,
+        "fmt" : "2.99%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : 0.0390307,
+        "fmt" : "3.90%"
+      },
+      "rating" : "Buy",
+      "name" : "Hewlett Packard Enterprise Company",
+      "ytdReturn" : {
+        "raw" : 1.6599,
+        "fmt" : "165.99%"
+      },
+      "fulldayChange" : {
+        "raw" : 1.9100037,
+        "fmt" : "1.91"
+      },
+      "marketWeight" : {
+        "raw" : 0.002741023,
+        "fmt" : "0.27%"
+      },
+      "fulldayPrice" : {
+        "raw" : 65.8,
+        "fmt" : "65.80"
+      },
+      "lastPrice" : {
+        "raw" : 63.89,
+        "fmt" : "63.89"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 83350443279,
+        "fmt" : "83.35B",
+        "longFmt" : "83,350,443,279"
+      },
+      "symbol" : "SNPS",
+      "targetPrice" : {
+        "raw" : 553.771,
+        "fmt" : "553.77"
+      },
+      "fulldayChangePercent" : {
+        "raw" : 0.05649057,
+        "fmt" : "5.65%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : 0.047820999999999995,
+        "fmt" : "4.78%"
+      },
+      "rating" : "Strong Buy",
+      "name" : "Synopsys, Inc.",
+      "ytdReturn" : {
+        "raw" : -0.074,
+        "fmt" : "-7.40%"
+      },
+      "fulldayChange" : {
+        "raw" : 24.570007,
+        "fmt" : "24.57"
+      },
+      "marketWeight" : {
+        "raw" : 0.0026937958,
+        "fmt" : "0.27%"
+      },
+      "fulldayPrice" : {
+        "raw" : 459.51,
+        "fmt" : "459.51"
+      },
+      "lastPrice" : {
+        "raw" : 434.94,
+        "fmt" : "434.94"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 73805264836,
+        "fmt" : "73.805B",
+        "longFmt" : "73,805,264,836"
+      },
+      "symbol" : "MSI",
+      "targetPrice" : {
+        "raw" : 526.909,
+        "fmt" : "526.91"
+      },
+      "fulldayChangePercent" : {
+        "raw" : -0.0053763306,
+        "fmt" : "-0.54%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -3.36219E-4,
+        "fmt" : "-0.03%"
+      },
+      "rating" : "Buy",
+      "name" : "Motorola Solutions, Inc.",
+      "ytdReturn" : {
+        "raw" : 0.1634,
+        "fmt" : "16.34%"
+      },
+      "fulldayChange" : {
+        "raw" : -2.399994,
+        "fmt" : "-2.40"
+      },
+      "marketWeight" : {
+        "raw" : 0.0023853062,
+        "fmt" : "0.24%"
+      },
+      "fulldayPrice" : {
+        "raw" : 444.0,
+        "fmt" : "444.00"
+      },
+      "lastPrice" : {
+        "raw" : 445.97,
+        "fmt" : "445.97"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 73679635276,
+        "fmt" : "73.68B",
+        "longFmt" : "73,679,635,276"
+      },
+      "symbol" : "INTU",
+      "targetPrice" : {
+        "raw" : 405.6,
+        "fmt" : "405.60"
+      },
+      "fulldayChangePercent" : {
+        "raw" : 0.030285468,
+        "fmt" : "3.03%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : 0.0286535,
+        "fmt" : "2.87%"
+      },
+      "rating" : "Buy",
+      "name" : "Intuit Inc.",
+      "ytdReturn" : {
+        "raw" : -0.5838,
+        "fmt" : "-58.38%"
+      },
+      "fulldayChange" : {
+        "raw" : 8.350006,
+        "fmt" : "8.35"
+      },
+      "marketWeight" : {
+        "raw" : 0.0023812458,
+        "fmt" : "0.24%"
+      },
+      "fulldayPrice" : {
+        "raw" : 284.06,
+        "fmt" : "284.06"
+      },
+      "lastPrice" : {
+        "raw" : 275.71,
+        "fmt" : "275.71"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 66206431020,
+        "fmt" : "66.206B",
+        "longFmt" : "66,206,431,020"
+      },
+      "symbol" : "MPWR",
+      "targetPrice" : {
+        "raw" : 1839.8,
+        "fmt" : "1,839.80"
+      },
+      "fulldayChangePercent" : {
+        "raw" : 0.0076305497,
+        "fmt" : "0.76%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -0.005000050000000001,
+        "fmt" : "-0.50%"
+      },
+      "rating" : "Strong Buy",
+      "name" : "Monolithic Power Systems, Inc.",
+      "ytdReturn" : {
+        "raw" : 0.4864,
+        "fmt" : "48.64%"
+      },
+      "fulldayChange" : {
+        "raw" : 10.280029,
+        "fmt" : "10.28"
+      },
+      "marketWeight" : {
+        "raw" : 0.00213972,
+        "fmt" : "0.21%"
+      },
+      "fulldayPrice" : {
+        "raw" : 1347.22,
+        "fmt" : "1,347.22"
+      },
+      "lastPrice" : {
+        "raw" : 1347.22,
+        "fmt" : "1,347.22"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 62678570655,
+        "fmt" : "62.679B",
+        "longFmt" : "62,678,570,655"
+      },
+      "symbol" : "TER",
+      "targetPrice" : {
+        "raw" : 446.467,
+        "fmt" : "446.47"
+      },
+      "fulldayChangePercent" : {
+        "raw" : 0.0077074564,
+        "fmt" : "0.77%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -0.00523544,
+        "fmt" : "-0.52%"
+      },
+      "rating" : "Buy",
+      "name" : "Teradyne, Inc.",
+      "ytdReturn" : {
+        "raw" : 1.0712,
+        "fmt" : "107.12%"
+      },
+      "fulldayChange" : {
+        "raw" : 3.0899963,
+        "fmt" : "3.09"
+      },
+      "marketWeight" : {
+        "raw" : 0.0020257034,
+        "fmt" : "0.20%"
+      },
+      "fulldayPrice" : {
+        "raw" : 400.91,
+        "fmt" : "400.91"
+      },
+      "lastPrice" : {
+        "raw" : 400.91,
+        "fmt" : "400.91"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 61975898424,
+        "fmt" : "61.976B",
+        "longFmt" : "61,975,898,424"
+      },
+      "symbol" : "KEYS",
+      "targetPrice" : {
+        "raw" : 415.083,
+        "fmt" : "415.08"
+      },
+      "fulldayChangePercent" : {
+        "raw" : 0.019398795,
+        "fmt" : "1.94%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : 0.00939974,
+        "fmt" : "0.94%"
+      },
+      "rating" : "Buy",
+      "name" : "Keysight Technologies, Inc.",
+      "ytdReturn" : {
+        "raw" : 0.7916,
+        "fmt" : "79.16%"
+      },
+      "fulldayChange" : {
+        "raw" : 7.0599976,
+        "fmt" : "7.06"
+      },
+      "marketWeight" : {
+        "raw" : 0.0020029938,
+        "fmt" : "0.20%"
+      },
+      "fulldayPrice" : {
+        "raw" : 371.0,
+        "fmt" : "371.00"
+      },
+      "lastPrice" : {
+        "raw" : 364.04,
+        "fmt" : "364.04"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 61755492682,
+        "fmt" : "61.755B",
+        "longFmt" : "61,755,492,682"
+      },
+      "symbol" : "ALAB",
+      "targetPrice" : {
+        "raw" : 389.953,
+        "fmt" : "389.95"
+      },
+      "fulldayChangePercent" : {
+        "raw" : 0.016939626,
+        "fmt" : "1.69%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -0.00522579,
+        "fmt" : "-0.52%"
+      },
+      "rating" : "Buy",
+      "name" : "Astera Labs, Inc.",
+      "ytdReturn" : {
+        "raw" : 1.1398,
+        "fmt" : "113.98%"
+      },
+      "fulldayChange" : {
+        "raw" : 6.029999,
+        "fmt" : "6.03"
+      },
+      "marketWeight" : {
+        "raw" : 0.0019958706,
+        "fmt" : "0.20%"
+      },
+      "fulldayPrice" : {
+        "raw" : 362.0,
+        "fmt" : "362.00"
+      },
+      "lastPrice" : {
+        "raw" : 355.97,
+        "fmt" : "355.97"
+      }
+    }, {
+      "marketCap" : {
+        "raw" : 61200677576,
+        "fmt" : "61.201B",
+        "longFmt" : "61,200,677,576"
+      },
+      "symbol" : "TEL",
+      "targetPrice" : {
+        "raw" : 248.579,
+        "fmt" : "248.58"
+      },
+      "fulldayChangePercent" : {
+        "raw" : -2.8416008E-4,
+        "fmt" : "-0.03%"
+      },
+      "regMarketChangePercent" : {
+        "raw" : -0.007102850000000001,
+        "fmt" : "-0.71%"
+      },
+      "rating" : "Buy",
+      "name" : "TE Connectivity plc",
+      "ytdReturn" : {
+        "raw" : -0.0722,
+        "fmt" : "-7.22%"
+      },
+      "fulldayChange" : {
+        "raw" : -0.05999756,
+        "fmt" : "-0.06"
+      },
+      "marketWeight" : {
+        "raw" : 0.0019779394,
+        "fmt" : "0.20%"
+      },
+      "fulldayPrice" : {
+        "raw" : 211.08,
+        "fmt" : "211.08"
+      },
+      "lastPrice" : {
+        "raw" : 211.08,
+        "fmt" : "211.08"
+      }
+    } ],
+    "topETFs" : [ {
+      "symbol" : "QQQ",
+      "fulldayChangePercent" : {
+        "raw" : 0.0045156955999999995,
+        "fmt" : "0.45%"
+      },
+      "netAssets" : {
+        "raw" : 488981000838,
+        "fmt" : "488.981B",
+        "longFmt" : "488,981,000,838"
+      },
+      "expenseRatio" : {
+        "raw" : 0.0018,
+        "fmt" : "0.18%"
+      },
+      "name" : "Invesco QQQ Trust, Series 1",
+      "ytdReturn" : {
+        "raw" : 0.2042,
+        "fmt" : "20.42%"
+      },
+      "fulldayChange" : {
+        "raw" : 3.3405762,
+        "fmt" : "3.34"
+      },
+      "fulldayPrice" : {
+        "raw" : 743.1106,
+        "fmt" : "743.11"
+      },
+      "lastPrice" : {
+        "raw" : 739.77,
+        "fmt" : "739.77"
+      }
+    }, {
+      "symbol" : "VGT",
+      "fulldayChangePercent" : {
+        "raw" : 0.005703972000000001,
+        "fmt" : "0.57%"
+      },
+      "netAssets" : {
+        "raw" : 170651168790,
+        "fmt" : "170.651B",
+        "longFmt" : "170,651,168,790"
+      },
+      "expenseRatio" : {
+        "raw" : 9.0E-4,
+        "fmt" : "0.09%"
+      },
+      "name" : "Vanguard Information Tech ETF",
+      "ytdReturn" : {
+        "raw" : 0.3338,
+        "fmt" : "33.38%"
+      },
+      "fulldayChange" : {
+        "raw" : 0.7169037,
+        "fmt" : "0.72"
+      },
+      "fulldayPrice" : {
+        "raw" : 126.4019,
+        "fmt" : "126.40"
+      },
+      "lastPrice" : {
+        "raw" : 125.67,
+        "fmt" : "125.67"
+      }
+    }, {
+      "symbol" : "XLK",
+      "fulldayChangePercent" : {
+        "raw" : 0.0072525823,
+        "fmt" : "0.73%"
+      },
+      "netAssets" : {
+        "raw" : 121437736470,
+        "fmt" : "121.438B",
+        "longFmt" : "121,437,736,470"
+      },
+      "expenseRatio" : {
+        "raw" : 8.0E-4,
+        "fmt" : "0.08%"
+      },
+      "name" : "State Street Technology Select ",
+      "ytdReturn" : {
+        "raw" : 0.3597,
+        "fmt" : "35.97%"
+      },
+      "fulldayChange" : {
+        "raw" : 1.419693,
+        "fmt" : "1.42"
+      },
+      "fulldayPrice" : {
+        "raw" : 197.1697,
+        "fmt" : "197.17"
+      },
+      "lastPrice" : {
+        "raw" : 195.75,
+        "fmt" : "195.75"
+      }
+    }, {
+      "symbol" : "QQQM",
+      "fulldayChangePercent" : {
+        "raw" : 0.0043986222000000005,
+        "fmt" : "0.44%"
+      },
+      "netAssets" : {
+        "raw" : 104376492443,
+        "fmt" : "104.376B",
+        "longFmt" : "104,376,492,443"
+      },
+      "expenseRatio" : {
+        "raw" : 0.0015,
+        "fmt" : "0.15%"
+      },
+      "name" : "Invesco NASDAQ 100 ETF",
+      "ytdReturn" : {
+        "raw" : 0.2045,
+        "fmt" : "20.45%"
+      },
+      "fulldayChange" : {
+        "raw" : 1.3399963,
+        "fmt" : "1.34"
+      },
+      "fulldayPrice" : {
+        "raw" : 305.98,
+        "fmt" : "305.98"
+      },
+      "lastPrice" : {
+        "raw" : 304.64,
+        "fmt" : "304.64"
+      }
+    }, {
+      "symbol" : "SMH",
+      "fulldayChangePercent" : {
+        "raw" : 0.0040722176,
+        "fmt" : "0.41%"
+      },
+      "netAssets" : {
+        "raw" : 67787031449,
+        "fmt" : "67.787B",
+        "longFmt" : "67,787,031,449"
+      },
+      "expenseRatio" : {
+        "raw" : 0.0034999999999999996,
+        "fmt" : "0.35%"
+      },
+      "name" : "VanEck Semiconductor ETF",
+      "ytdReturn" : {
+        "raw" : 0.6911,
+        "fmt" : "69.11%"
+      },
+      "fulldayChange" : {
+        "raw" : 2.4799805,
+        "fmt" : "2.48"
+      },
+      "fulldayPrice" : {
+        "raw" : 611.48,
+        "fmt" : "611.48"
+      },
+      "lastPrice" : {
+        "raw" : 609.0,
+        "fmt" : "609.00"
+      }
+    }, {
+      "symbol" : "JEPQ",
+      "fulldayChangePercent" : {
+        "raw" : 0.0025846085,
+        "fmt" : "0.26%"
+      },
+      "netAssets" : {
+        "raw" : 42209615438,
+        "fmt" : "42.21B",
+        "longFmt" : "42,209,615,438"
+      },
+      "expenseRatio" : {
+        "raw" : 0.0034999999999999996,
+        "fmt" : "0.35%"
+      },
+      "name" : "JPMorgan Nasdaq Equity Premium ",
+      "ytdReturn" : {
+        "raw" : 0.054,
+        "fmt" : "5.40%"
+      },
+      "fulldayChange" : {
+        "raw" : 0.15686798,
+        "fmt" : "0.16"
+      },
+      "fulldayPrice" : {
+        "raw" : 60.85,
+        "fmt" : "60.85"
+      },
+      "lastPrice" : {
+        "raw" : 61.26,
+        "fmt" : "61.26"
+      }
+    }, {
+      "symbol" : "SOXX",
+      "fulldayChangePercent" : {
+        "raw" : 0.0029191986,
+        "fmt" : "0.29%"
+      },
+      "netAssets" : {
+        "raw" : 41810909103,
+        "fmt" : "41.811B",
+        "longFmt" : "41,810,909,103"
+      },
+      "expenseRatio" : {
+        "raw" : 0.0033,
+        "fmt" : "0.33%"
+      },
+      "name" : "iShares PHLX SOX Semiconductor ",
+      "ytdReturn" : {
+        "raw" : 0.8882,
+        "fmt" : "88.82%"
+      },
+      "fulldayChange" : {
+        "raw" : 1.6599731,
+        "fmt" : "1.66"
+      },
+      "fulldayPrice" : {
+        "raw" : 570.3,
+        "fmt" : "570.30"
+      },
+      "lastPrice" : {
+        "raw" : 568.64,
+        "fmt" : "568.64"
+      }
+    }, {
+      "symbol" : "MGK",
+      "fulldayChangePercent" : {
+        "raw" : 2.159589E-4,
+        "fmt" : "0.02%"
+      },
+      "netAssets" : {
+        "raw" : 33694471143,
+        "fmt" : "33.694B",
+        "longFmt" : "33,694,471,143"
+      },
+      "expenseRatio" : {
+        "raw" : 5.0E-4,
+        "fmt" : "0.05%"
+      },
+      "name" : "Vanguard Morningstar Mega Cap G",
+      "ytdReturn" : {
+        "raw" : 0.1223,
+        "fmt" : "12.23%"
+      },
+      "fulldayChange" : {
+        "raw" : 0.020004272,
+        "fmt" : "0.02"
+      },
+      "fulldayPrice" : {
+        "raw" : 92.65,
+        "fmt" : "92.65"
+      },
+      "lastPrice" : {
+        "raw" : 92.65,
+        "fmt" : "92.65"
+      }
+    }, {
+      "symbol" : "IYW",
+      "fulldayChangePercent" : {
+        "raw" : 0.013898396,
+        "fmt" : "1.39%"
+      },
+      "netAssets" : {
+        "raw" : 25215429284,
+        "fmt" : "25.215B",
+        "longFmt" : "25,215,429,284"
+      },
+      "expenseRatio" : {
+        "raw" : 0.0037,
+        "fmt" : "0.37%"
+      },
+      "name" : "iShares U.S. Technology ETF",
+      "ytdReturn" : {
+        "raw" : 0.3266,
+        "fmt" : "32.66%"
+      },
+      "fulldayChange" : {
+        "raw" : 3.6600037,
+        "fmt" : "3.66"
+      },
+      "fulldayPrice" : {
+        "raw" : 267.0,
+        "fmt" : "267.00"
+      },
+      "lastPrice" : {
+        "raw" : 264.9,
+        "fmt" : "264.90"
+      }
+    }, {
+      "symbol" : "FTEC",
+      "fulldayChangePercent" : {
+        "raw" : 4.3345075E-4,
+        "fmt" : "0.04%"
+      },
+      "netAssets" : {
+        "raw" : 21250689541,
+        "fmt" : "21.251B",
+        "longFmt" : "21,250,689,541"
+      },
+      "expenseRatio" : {
+        "raw" : 8.4E-4,
+        "fmt" : "0.08%"
+      },
+      "name" : "Fidelity MSCI Information Techn",
+      "ytdReturn" : {
+        "raw" : 0.3356,
+        "fmt" : "33.56%"
+      },
+      "fulldayChange" : {
+        "raw" : 0.13000488,
+        "fmt" : "0.13"
+      },
+      "fulldayPrice" : {
+        "raw" : 300.06,
+        "fmt" : "300.06"
+      },
+      "lastPrice" : {
+        "raw" : 300.06,
+        "fmt" : "300.06"
+      }
+    } ],
+    "topMutualFunds" : [ {
+      "symbol" : "VITAX",
+      "netAssets" : {
+        "raw" : 170651168790,
+        "fmt" : "170.651B",
+        "longFmt" : "170,651,168,790"
+      },
+      "expenseRatio" : {
+        "raw" : 9.0E-4,
+        "fmt" : "0.09%"
+      },
+      "name" : "Vanguard Information Technology",
+      "ytdReturn" : {
+        "raw" : 0.3338,
+        "fmt" : "33.38%"
+      },
+      "lastPrice" : {
+        "raw" : 514.65,
+        "fmt" : "514.65"
+      }
+    }, {
+      "symbol" : "FOCKX",
+      "netAssets" : {
+        "raw" : 45510790243,
+        "fmt" : "45.511B",
+        "longFmt" : "45,510,790,243"
+      },
+      "expenseRatio" : {
+        "raw" : 0.006500000000000001,
+        "fmt" : "0.65%"
+      },
+      "name" : "Fidelity OTC Portfolio Class K",
+      "ytdReturn" : {
+        "raw" : 0.1469,
+        "fmt" : "14.69%"
+      },
+      "lastPrice" : {
+        "raw" : 28.66,
+        "fmt" : "28.66"
+      }
+    }, {
+      "symbol" : "FOTGX",
+      "netAssets" : {
+        "raw" : 45510790243,
+        "fmt" : "45.511B",
+        "longFmt" : "45,510,790,243"
+      },
+      "expenseRatio" : {
+        "raw" : 0.006500000000000001,
+        "fmt" : "0.65%"
+      },
+      "name" : "Fidelity Advisor OTC Fund - Cla",
+      "ytdReturn" : {
+        "raw" : 0.1276,
+        "fmt" : "12.76%"
+      },
+      "lastPrice" : {
+        "raw" : 27.04,
+        "fmt" : "27.04"
+      }
+    }, {
+      "symbol" : "FOTDX",
+      "netAssets" : {
+        "raw" : 45510790243,
+        "fmt" : "45.511B",
+        "longFmt" : "45,510,790,243"
+      },
+      "expenseRatio" : {
+        "raw" : 0.006500000000000001,
+        "fmt" : "0.65%"
+      },
+      "name" : "Fidelity Advisor OTC Fund - Cla",
+      "ytdReturn" : {
+        "raw" : 0.1338,
+        "fmt" : "13.38%"
+      },
+      "lastPrice" : {
+        "raw" : 27.37,
+        "fmt" : "27.37"
+      }
+    }, {
+      "symbol" : "FOTEX",
+      "netAssets" : {
+        "raw" : 45510790243,
+        "fmt" : "45.511B",
+        "longFmt" : "45,510,790,243"
+      },
+      "expenseRatio" : {
+        "raw" : 0.006500000000000001,
+        "fmt" : "0.65%"
+      },
+      "name" : "Fidelity Advisor OTC Fund - Cla",
+      "ytdReturn" : {
+        "raw" : 0.1337,
+        "fmt" : "13.37%"
+      },
+      "lastPrice" : {
+        "raw" : 27.31,
+        "fmt" : "27.31"
+      }
+    }, {
+      "symbol" : "FOTJX",
+      "netAssets" : {
+        "raw" : 45510790243,
+        "fmt" : "45.511B",
+        "longFmt" : "45,510,790,243"
+      },
+      "expenseRatio" : {
+        "raw" : 0.006500000000000001,
+        "fmt" : "0.65%"
+      },
+      "name" : "Fidelity Advisor OTC Fund - Cla",
+      "ytdReturn" : {
+        "raw" : 0.1378,
+        "fmt" : "13.78%"
+      },
+      "lastPrice" : {
+        "raw" : 27.58,
+        "fmt" : "27.58"
+      }
+    }, {
+      "symbol" : "FOTHX",
+      "netAssets" : {
+        "raw" : 45510790243,
+        "fmt" : "45.511B",
+        "longFmt" : "45,510,790,243"
+      },
+      "expenseRatio" : {
+        "raw" : 0.006500000000000001,
+        "fmt" : "0.65%"
+      },
+      "name" : "Fidelity Advisor OTC Fund - Cla",
+      "ytdReturn" : {
+        "raw" : 0.1354,
+        "fmt" : "13.54%"
+      },
+      "lastPrice" : {
+        "raw" : 27.51,
+        "fmt" : "27.51"
+      }
+    }, {
+      "symbol" : "FOCPX",
+      "netAssets" : {
+        "raw" : 45510790243,
+        "fmt" : "45.511B",
+        "longFmt" : "45,510,790,243"
+      },
+      "expenseRatio" : {
+        "raw" : 0.006500000000000001,
+        "fmt" : "0.65%"
+      },
+      "name" : "Fidelity OTC Pt",
+      "ytdReturn" : {
+        "raw" : 0.1413,
+        "fmt" : "14.13%"
+      },
+      "lastPrice" : {
+        "raw" : 27.71,
+        "fmt" : "27.71"
+      }
+    }, {
+      "symbol" : "FSELX",
+      "netAssets" : {
+        "raw" : 44853417653,
+        "fmt" : "44.853B",
+        "longFmt" : "44,853,417,653"
+      },
+      "expenseRatio" : {
+        "raw" : 0.006,
+        "fmt" : "0.60%"
+      },
+      "name" : "Fidelity Select Semiconductors ",
+      "ytdReturn" : {
+        "raw" : 0.4924,
+        "fmt" : "49.24%"
+      },
+      "lastPrice" : {
+        "raw" : 64.53,
+        "fmt" : "64.53"
+      }
+    }, {
+      "symbol" : "FFOJX",
+      "netAssets" : {
+        "raw" : 36957171137,
+        "fmt" : "36.957B",
+        "longFmt" : "36,957,171,137"
+      },
+      "expenseRatio" : {
+        "raw" : 0.0060999999999999995,
+        "fmt" : "0.61%"
+      },
+      "ytdReturn" : {
+        "raw" : 0.3931,
+        "fmt" : "39.31%"
+      },
+      "lastPrice" : {
+        "raw" : 57.66,
+        "fmt" : "57.66"
+      }
+    } ],
+    "industries" : [ {
+      "regMarketChangePercent" : {
+        "raw" : 0.0064176237,
+        "fmt" : "0.64%"
+      },
+      "name" : "All Industries",
+      "ytdReturn" : {
+        "raw" : 0.28099045,
+        "fmt" : "28.10%"
+      },
+      "marketWeight" : {
+        "raw" : 1.0,
+        "fmt" : "100.00%"
+      }
+    }, {
+      "symbol" : "^YH31130020",
+      "regMarketChangePercent" : {
+        "raw" : 0.0033270274,
+        "fmt" : "0.33%"
+      },
+      "name" : "Semiconductors",
+      "ytdReturn" : {
+        "raw" : 0.45074663,
+        "fmt" : "45.07%"
+      },
+      "marketWeight" : {
+        "raw" : 0.38464093,
+        "fmt" : "38.46%"
+      },
+      "key" : "semiconductors"
+    }, {
+      "symbol" : "^YH31110030",
+      "regMarketChangePercent" : {
+        "raw" : 0.008610549,
+        "fmt" : "0.86%"
+      },
+      "name" : "Software - Infrastructure",
+      "ytdReturn" : {
+        "raw" : 0.11031848,
+        "fmt" : "11.03%"
+      },
+      "marketWeight" : {
+        "raw" : 0.21312082,
+        "fmt" : "21.31%"
+      },
+      "key" : "software-infrastructure"
+    }, {
+      "symbol" : "^YH31120030",
+      "regMarketChangePercent" : {
+        "raw" : 0.0118504865,
+        "fmt" : "1.19%"
+      },
+      "name" : "Consumer Electronics",
+      "ytdReturn" : {
+        "raw" : 0.21078242,
+        "fmt" : "21.08%"
+      },
+      "marketWeight" : {
+        "raw" : 0.16305923,
+        "fmt" : "16.31%"
+      },
+      "key" : "consumer-electronics"
+    }, {
+      "symbol" : "^YH31110020",
+      "regMarketChangePercent" : {
+        "raw" : 0.013320465,
+        "fmt" : "1.33%"
+      },
+      "name" : "Software - Application",
+      "ytdReturn" : {
+        "raw" : -0.13178372,
+        "fmt" : "-13.18%"
+      },
+      "marketWeight" : {
+        "raw" : 0.0675131,
+        "fmt" : "6.75%"
+      },
+      "key" : "software-application"
+    }, {
+      "symbol" : "^YH31120020",
+      "regMarketChangePercent" : {
+        "raw" : 0.0077939075,
+        "fmt" : "0.78%"
+      },
+      "name" : "Computer Hardware",
+      "ytdReturn" : {
+        "raw" : 1.6900433,
+        "fmt" : "169.00%"
+      },
+      "marketWeight" : {
+        "raw" : 0.046580687,
+        "fmt" : "4.66%"
+      },
+      "key" : "computer-hardware"
+    }, {
+      "symbol" : "^YH31130010",
+      "regMarketChangePercent" : {
+        "raw" : 0.004162211,
+        "fmt" : "0.42%"
+      },
+      "name" : "Semiconductor Equipment & Materials",
+      "ytdReturn" : {
+        "raw" : 0.8484216,
+        "fmt" : "84.84%"
+      },
+      "marketWeight" : {
+        "raw" : 0.043158945,
+        "fmt" : "4.32%"
+      },
+      "key" : "semiconductor-equipment-materials"
+    }, {
+      "symbol" : "^YH31120010",
+      "regMarketChangePercent" : {
+        "raw" : 0.007604988,
+        "fmt" : "0.76%"
+      },
+      "name" : "Communication Equipment",
+      "ytdReturn" : {
+        "raw" : 0.49822938,
+        "fmt" : "49.82%"
+      },
+      "marketWeight" : {
+        "raw" : 0.028440926,
+        "fmt" : "2.84%"
+      },
+      "key" : "communication-equipment"
+    }, {
+      "symbol" : "^YH31120040",
+      "regMarketChangePercent" : {
+        "raw" : -0.0153595805,
+        "fmt" : "-1.54%"
+      },
+      "name" : "Electronic Components",
+      "ytdReturn" : {
+        "raw" : 0.34988478,
+        "fmt" : "34.99%"
+      },
+      "marketWeight" : {
+        "raw" : 0.021022288,
+        "fmt" : "2.10%"
+      },
+      "key" : "electronic-components"
+    }, {
+      "symbol" : "^YH31110010",
+      "regMarketChangePercent" : {
+        "raw" : 0.00428495,
+        "fmt" : "0.43%"
+      },
+      "name" : "Information Technology Services",
+      "ytdReturn" : {
+        "raw" : -0.24753004,
+        "fmt" : "-24.75%"
+      },
+      "marketWeight" : {
+        "raw" : 0.019536937,
+        "fmt" : "1.95%"
+      },
+      "key" : "information-technology-services"
+    }, {
+      "symbol" : "^YH31120060",
+      "regMarketChangePercent" : {
+        "raw" : -0.0012737333,
+        "fmt" : "-0.13%"
+      },
+      "name" : "Scientific & Technical Instruments",
+      "ytdReturn" : {
+        "raw" : 0.3891256,
+        "fmt" : "38.91%"
+      },
+      "marketWeight" : {
+        "raw" : 0.009849829,
+        "fmt" : "0.98%"
+      },
+      "key" : "scientific-technical-instruments"
+    }, {
+      "symbol" : "^YH31120050",
+      "regMarketChangePercent" : {
+        "raw" : -0.005179216,
+        "fmt" : "-0.52%"
+      },
+      "name" : "Electronics & Computer Distribution",
+      "ytdReturn" : {
+        "raw" : 0.80000055,
+        "fmt" : "80.00%"
+      },
+      "marketWeight" : {
+        "raw" : 0.0016379402,
+        "fmt" : "0.16%"
+      },
+      "key" : "electronics-computer-distribution"
+    }, {
+      "symbol" : "^YH31130030",
+      "regMarketChangePercent" : {
+        "raw" : -0.0025159358,
+        "fmt" : "-0.25%"
+      },
+      "name" : "Solar",
+      "ytdReturn" : {
+        "raw" : -0.26169503,
+        "fmt" : "-26.17%"
+      },
+      "marketWeight" : {
+        "raw" : 0.0014382558,
+        "fmt" : "0.14%"
+      },
+      "key" : "solar"
+    } ],
+    "researchReports" : [ {
+      "id" : "ARGUS_3100_AnalystReport_1790851953000",
+      "headHtml" : "Analyst Report: Jabil Inc",
+      "provider" : "Argus Research",
+      "targetPrice" : 475.0,
+      "targetPriceStatus" : "Maintained",
+      "investmentRating" : "Bullish",
+      "reportDate" : "2026-10-01T10:52:33Z",
+      "reportTitle" : "St. Petersburg, Florida-based Jabil Inc. is a top-tier global player in the Electronic Manufacturing Services (EMS) industry. By segment, approximately 50% of total revenue is derived from Electronics Manufacturing Services (EMS) and 50% from Diversified Manufacturing Services (DMS). The additions of Green Point and Nypro increased the size of the DMS business and added vertical manufacturing capabilities.",
+      "reportType" : "Analyst Report"
+    }, {
+      "id" : "ARGUS_48395_MarketSummary_1790851053000",
+      "headHtml" : "Market Digest: CCL, JBL, REGN",
+      "provider" : "Argus Research",
+      "reportDate" : "2026-10-01T10:37:33Z",
+      "reportTitle" : "September didn't live up to its historical weakness for the mega-cap indices, but it certainly put a hurting on sectors, industries, and individual stocks. The S&P 500 (SPX) closed the month with a tiny loss, the S&P 100 (OEX) was up 0.6%, the Invesco SPX Top 50 ETF (XLG) rallied 2%, the iShares Top 20 ETF (TOPT) popped 4%, and the Nasdaq 100 (QQQ) rose 3.3%. The S&P Midcap 400 fell 4% while the S&P SmallCap 600 lost 6%. Information Technology ripped 5% in September, but for many of the other large-cap sectors, the month was ugly. Financials and Materials fell 7%; Real Estate, Utilities, and Consumer Discretionary all gave back 6%; and Industrials and Consumer Staples lost 4%. Some of this weakness is clearly a function of higher energy prices, as WTI and gasoline jumped 6% and yields across the Treasury curve ripped higher. Both the 2- and 10-year yields spiked over 50 basis points, sending 30-year mortgage rates to 7.4%-7.6% (the highs from October 2023).  Information Technology strength came from a 9% surge by the VanEck Semiconductors ETF (SMH) as well as a 6% jump in computer hardware and electronic equipment. Meanwhile, weakness was broad across many other industries, leading to a rough breadth condition. In 21 days, the percentage of SPX stocks above their 200-day fell to 43% from 68%; the OEX fell to 55% from 76%; and the QQQ dropped to 53% from 68%.  Currently, there are very bullish seasonal studies and very bearish breadth studies. Yields most likely will decide which study wins. (Mark Arbeter, CMT)",
+      "reportType" : "Market Summary"
+    }, {
+      "id" : "ARGUS_48393_InsiderActivity_1790849843000",
+      "headHtml" : "Daily – Vickers Top Insider Picks for 10/01/2026",
+      "provider" : "Argus Research",
+      "reportDate" : "2026-10-01T10:17:23Z",
+      "reportTitle" : "The Vickers Top Insider Picks is a daily report that utilizes a proprietary algorithm to identify 25 companies with compelling insider purchase histories based on transactions over the past three months.",
+      "reportType" : "Insider Activity"
+    }, {
+      "id" : "MS_0P0001KOSE_AnalystReport_1790841346000",
+      "headHtml" : "Analyst Report: Palantir Technologies Inc.",
+      "provider" : "Morningstar",
+      "targetPrice" : 153.0,
+      "targetPriceStatus" : "Maintained",
+      "investmentRating" : "Neutral",
+      "reportDate" : "2026-10-01T07:55:46Z",
+      "reportTitle" : "Palantir is an artificial intelligence, analytics, and automated decision-making company that leverages data to drive efficiency across its clients' organizations. The firm serves commercial and government clients via its Foundry and Gotham platforms, respectively. Palantir works only with entities in Western-allied nations and reserves the right not to work with anyone that is antithetical to Western values. The company was founded in 2003 and went public in 2020. ",
+      "reportType" : "Analyst Report"
+    } ]
+  }
+}

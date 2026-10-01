@@ -95,6 +95,8 @@ List-row identifiers: every `analysts.*`/`ownership.*` list below is mapped row-
 |---|---|---|---|---|---|---|
 | `profile.sector` | R | `String` | `qs:assetProfile.sector` → `qs:summaryProfile.sector` | | 100% |  |
 | `profile.industry` | R | `String` | `qs:assetProfile.industry` → `qs:summaryProfile.industry` | | 100% |  |
+| `profile.sectorKey` | R | `String` | `qs:assetProfile.sectorKey` → `qs:summaryProfile.sectorKey` | | 100% | Yahoo's key for the sector, e.g. `technology`; the argument of `YFinance.sector(SectorKey)` via `SectorKey.ofKey`; added 2026-10-01 |
+| `profile.industryKey` | R | `String` | `qs:assetProfile.industryKey` → `qs:summaryProfile.industryKey` | | 100% | Yahoo's key for the industry, e.g. `consumer-electronics`; the argument of `YFinance.industry(key)`; added 2026-10-01 |
 | `profile.country` | R | `String` | `qs:assetProfile.country` → `qs:summaryProfile.country` | | 100% |  |
 | `profile.city` | R | `String` | `qs:assetProfile.city` | | 100% |  |
 | `profile.address1` | R | `String` | `qs:assetProfile.address1` | | 100% |  |

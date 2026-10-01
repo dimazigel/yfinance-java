@@ -36,6 +36,8 @@ class EquityDetailBuilderTest {
     void appleDetailIsComplete() {
         EquityDetail d = build("AAPL");
         assertThat(d.profile().sector()).isEqualTo("Technology");
+        assertThat(d.profile().sectorKey()).as("opens yf.sector(...)").isEqualTo("technology");
+        assertThat(d.profile().industryKey()).as("opens yf.industry(...)").isEqualTo("consumer-electronics");
         assertThat(d.profile().officers()).isNotEmpty().allSatisfy(o -> assertThat(o.name()).isNotBlank());
         assertThat(d.profile().governance()).isPresent();
         assertThat(d.statistics().floatShares()).isPositive();
