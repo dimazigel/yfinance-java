@@ -16,7 +16,7 @@ public record NewsResponse(@Nullable Data data) {
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record TickerStream(@Nullable List<Item> stream) {}
 
-    /** One stream entry; {@code ad} is kept raw because only its presence matters and its shape is not captured. */
+    /** One stream entry; {@code ad} is kept raw because only its presence matters and no response has ever carried one (see {@code NewsMapper}). */
     @JsonIgnoreProperties(ignoreUnknown = true)
     public record Item(@Nullable String id, @Nullable JsonNode ad, @Nullable Content content) {}
 

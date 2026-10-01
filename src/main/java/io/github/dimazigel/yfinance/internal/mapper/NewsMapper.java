@@ -53,7 +53,13 @@ public final class NewsMapper {
         return stream == null ? List.of() : stream;
     }
 
-    /** Yahoo marks a sponsored stream entry with a non-empty {@code ad} member. */
+    /**
+     * A sponsored stream entry carries a non-empty {@code ad} member — according to Python yfinance,
+     * which filters on it. This endpoint has never been seen to serve one: 3,469 entries probed
+     * live on 2026-10-01 (five symbols, all three tabs, up to 200 items each) all had exactly
+     * {@code id} and {@code content}. The filter is kept as upstream's precaution; the shape it
+     * tests for is upstream's, not an observed one.
+     */
     private static boolean isAd(@Nullable JsonNode ad) {
         if (ad == null) {
             return false;

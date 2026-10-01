@@ -157,6 +157,7 @@ class NewsServiceTest {
                 .satisfies(i -> assertThat(i.id()).isEqualTo("a1"));
     }
 
+    /** The {@code ad} shape is Python yfinance's assumption: no live response has carried one (see {@code NewsMapper}). */
     @Test
     void filtersOutAdvertisements() {
         String ad = item("ad1", "\"title\":\"Sponsored\",").replaceFirst("\\{", "{\"ad\":[{\"slot\":\"x\"}],");
