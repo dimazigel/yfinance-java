@@ -631,6 +631,18 @@ class LiveYahooIntegrationTest {
             assertThat(income.value("NoSuchLineItem", income.periods().getLast())).isEmpty();
             assertThat(income.value(LineItem.TOTAL_REVENUE, LocalDate.of(1990, 1, 1))).isEmpty();
         }
+
+        @Test
+        void sharesOutstandingHasHistoryWithAscendingDatesAndBillionsOfShares() {   // batch E/1, item 4
+            var points = aapl.sharesOutstanding(aaplEquity);
+
+            assertThat(points).hasSizeGreaterThan(10);
+            assertThat(points).allSatisfy(p -> assertThat(p.shares()).isGreaterThan(1_000_000_000L));
+            for (int i = 1; i < points.size(); i++) {
+                assertThat(points.get(i).date()).as("ascending-or-equal dates")
+                        .isAfterOrEqualTo(points.get(i - 1).date());
+            }
+        }
     }
 
     @Nested

@@ -7,16 +7,22 @@ import io.github.dimazigel.yfinance.api.FundamentalsApi;
 import io.github.dimazigel.yfinance.enums.Frequency;
 import io.github.dimazigel.yfinance.enums.LineItem;
 import io.github.dimazigel.yfinance.enums.StatementType;
+import io.github.dimazigel.yfinance.exception.YFDataException;
 import io.github.dimazigel.yfinance.fundamentals.FinancialStatement;
+import io.github.dimazigel.yfinance.fundamentals.SharesOutstanding;
 import io.github.dimazigel.yfinance.instrument.Equity;
 import io.github.dimazigel.yfinance.testsupport.Fixtures;
 import io.github.dimazigel.yfinance.testsupport.Instruments;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
+import java.time.Clock;
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
 import org.junit.jupiter.api.AfterEach;
@@ -341,5 +347,94 @@ class FundamentalsServiceTest {
 
     private static int ceilDiv(int total, int perRequest) {
         return (total + perRequest - 1) / perRequest;
+    }
+
+    // --- batch E/1, item 4: shares outstanding history (get_shares_full parity) ---
+
+    @Test
+    void sharesOutstandingRequestShapeIncludesBothSymbolSubstitutionsAndThePeriodWindow() throws Exception {
+        server.enqueue(Fixtures.jsonResponse("timeseries_shares_out_aapl.json"));
+        var fixed = Clock.fixed(Instant.ofEpochSecond(1_750_000_000L), ZoneOffset.UTC);
+        Instant start = fixed.instant().minusSeconds(86400 * 30);
+        Instant end = fixed.instant();
+
+        service.getSharesOutstanding(Symbol.of("AAPL"), start, end);
+
+        RecordedRequest req = server.takeRequest();
+        assertThat(req.getRequestUrl().encodedPath()).isEqualTo("/ws/fundamentals-timeseries/v1/finance/timeseries/AAPL");
+        // {symbol} appears twice in the request line (path and query); Feign substitutes both from
+        // the one @Param("symbol") argument.
+        assertThat(req.getRequestUrl().pathSegments()).contains("AAPL");
+        assertThat(req.getRequestUrl().queryParameter("symbol")).isEqualTo("AAPL");
+        assertThat(req.getRequestUrl().queryParameter("type")).isEqualTo("shares_out");
+        assertThat(req.getRequestUrl().queryParameter("period1")).isEqualTo(String.valueOf(start.getEpochSecond()));
+        assertThat(req.getRequestUrl().queryParameter("period2")).isEqualTo(String.valueOf(end.getEpochSecond()));
+    }
+
+    @Test
+    void sharesOutstandingMapsAllSixtyThreePointsIncludingTheDuplicateDate() {
+        server.enqueue(Fixtures.jsonResponse("timeseries_shares_out_aapl.json"));
+
+        List<SharesOutstanding> points = service.getSharesOutstanding(
+                Symbol.of("AAPL"), Instant.EPOCH, Instant.ofEpochSecond(2_000_000_000L));
+
+        assertThat(points).hasSize(63);
+        assertThat(points.get(0)).isEqualTo(new SharesOutstanding(LocalDate.parse("2025-04-09"), 15022100480L));
+        assertThat(points.get(1)).isEqualTo(new SharesOutstanding(LocalDate.parse("2025-04-10"), 15022100480L));
+        // Yahoo reported two different values for 2025-04-10; both are kept, in wire order.
+        assertThat(points.get(2)).isEqualTo(new SharesOutstanding(LocalDate.parse("2025-04-10"), 15687100416L));
+        assertThat(points.getLast()).isEqualTo(new SharesOutstanding(LocalDate.parse("2026-08-05"), 14594180000L));
+    }
+
+    @Test
+    void sharesOutstandingIsEmptyWhenYahooHasNoHistoryForTheSymbol() {
+        server.enqueue(new MockResponse().setResponseCode(200).setBody(
+                "{\"timeseries\":{\"result\":[{\"meta\":{\"symbol\":[\"SPY\"],\"type\":[\"shares_out\"]}}],\"error\":null}}"));
+
+        List<SharesOutstanding> points = service.getSharesOutstanding(
+                Symbol.of("SPY"), Instant.EPOCH, Instant.ofEpochSecond(2_000_000_000L));
+
+        assertThat(points).isEmpty();
+    }
+
+    @Test
+    void sharesOutstandingEmptyResultListIsAlsoEmpty() {
+        server.enqueue(new MockResponse().setResponseCode(200).setBody(
+                "{\"timeseries\":{\"result\":[],\"error\":null}}"));
+
+        assertThat(service.getSharesOutstanding(Symbol.of("NOSUCH"), Instant.EPOCH, Instant.ofEpochSecond(2_000_000_000L)))
+                .isEmpty();
+    }
+
+    @Test
+    void sharesOutstandingErrorBodyThrowsYFDataException() {
+        server.enqueue(new MockResponse().setResponseCode(200).setBody(
+                "{\"timeseries\":{\"result\":null,\"error\":{\"code\":\"Not Found\",\"description\":\"No fundamentals timeseries found\"}}}"));
+
+        assertThatThrownBy(() -> service.getSharesOutstanding(Symbol.of("NOSUCH"), Instant.EPOCH, Instant.ofEpochSecond(2_000_000_000L)))
+                .isInstanceOf(YFDataException.class)
+                .hasMessageContaining("No fundamentals timeseries found");
+        assertThat(server.getRequestCount()).isEqualTo(1);
+    }
+
+    @Test
+    void sharesOutstandingRejectsStartNotBeforeEnd() {
+        Instant now = Instant.now();
+        assertThatThrownBy(() -> service.getSharesOutstanding(Symbol.of("AAPL"), now, now))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("start").hasMessageContaining("end");
+        assertThatThrownBy(() -> service.getSharesOutstanding(Symbol.of("AAPL"), now, now.minusSeconds(1)))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThat(server.getRequestCount()).isZero();
+    }
+
+    @Test
+    void sharesOutstandingAcceptsOnlyEquityProofButTakesExplicitInstants() {
+        server.enqueue(Fixtures.jsonResponse("timeseries_shares_out_aapl.json"));
+        Equity equity = Instruments.equity("AAPL");
+
+        List<SharesOutstanding> points = service.getSharesOutstanding(equity, Instant.EPOCH, Instant.ofEpochSecond(2_000_000_000L));
+
+        assertThat(points).hasSize(63);
     }
 }

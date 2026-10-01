@@ -44,6 +44,7 @@ try (var yf = YFinance.create()) { // cookie+crumb handshake; close() releases t
     Map<StatementType, Map<Frequency, FinancialStatement>> statements = yf.statements(equity,   // one request
             Set.of(StatementType.INCOME, StatementType.BALANCE_SHEET, StatementType.CASH_FLOW), Set.of(Frequency.ANNUAL, Frequency.QUARTERLY));
     Optional<BigDecimal> revenue = income.latest(LineItem.TOTAL_REVENUE);   // most recent period; row(...) for all periods
+    List<SharesOutstanding> shares = yf.sharesOutstanding(equity);   // default window: last 548 days
     List<NewsArticle> news = aapl.news();
 
     SearchResult results = yf.search("apple");
@@ -166,6 +167,7 @@ request. It will be removed in 2.0.
 | `dividends` / `splits` / `actions` / `capital_gains` | `ticker.dividends()` / `ticker.splits()`; `history(...).dividends()` / `.splits()` / `.capitalGains()` on any fetched window |
 | `options` / `option_chain(date)` | `ticker.options()` → `Optional<OptionChain>` (nearest expiration; `expirationDates()` lists the rest), `ticker.options(expiration)` for one of them |
 | `financials` / `balance_sheet` / `cashflow` (+ `quarterly_*`, `ttm_*`) | `yf.statements(equity, StatementType.INCOME \| BALANCE_SHEET \| CASH_FLOW, Frequency.ANNUAL \| QUARTERLY \| TRAILING)`; several at once in one request: `yf.statements(equity, Set.of(...types), Set.of(...frequencies))` |
+| `get_shares_full()` | `yf.sharesOutstanding(equity[, start, end])` / `ticker.sharesOutstanding(equity[, start, end])` — default window `[now - 548 days, now]` |
 | `Tickers("AAPL MSFT")` / `download([...])` | `yf.instruments(symbols)` (one request per 100 symbols) / `yf.histories(symbols, range, interval)`; `yf.tickers(...).fetch(Ticker::...)` fans any call out |
 | `Search("apple")` / `Lookup("apple")` | `yf.search("apple")` (`quotes()` + `news()`) / `yf.lookup("apple", LookupType.EQUITY)` |
 | `Ticker.news` | `ticker.news()` |
@@ -290,6 +292,14 @@ price data for them. Detail records are fetched with the instrument as proof, so
   `type → frequency → FinancialStatement`; the trailing balance sheet (which Yahoo does not
   publish) is skipped when other pairs remain and an `IllegalArgumentException` when it is the
   only one, as it is for the single form.
+- **Shares outstanding history** (`yf.sharesOutstanding(equity[, start, end])` /
+  `ticker.sharesOutstanding(equity[, start, end])`, Python's `get_shares_full()`) is a separate
+  fundamentals-timeseries request (`type=shares_out`, plain-long series, not the
+  `{reportedValue}` shape statements use) returning `List<SharesOutstanding>` — one reported count
+  per date, in wire order; Yahoo occasionally reports two values for the same date (an amendment)
+  and both are kept. The no-args overload defaults to `[now - 548 days, now]` (18 months, mirrors
+  yfinance's own default); a symbol Yahoo has no history for comes back an empty list, not an
+  error.
 - **`HistoryMetadata`** is fully non-null except `dataGranularity` (`Optional<Interval>`, in case
   Yahoo reports an interval this version does not know); an incomplete chart response throws
   rather than returning a half-filled record.

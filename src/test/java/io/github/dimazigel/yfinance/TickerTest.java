@@ -216,6 +216,34 @@ class TickerTest {
     }
 
     @Test
+    void sharesOutstandingUsesTheEquityProofAndRejectsAMismatch() {   // batch E/1, item 4
+        var ticker = yf.ticker("AAPL");
+        var equity = Instruments.equity("AAPL");
+
+        var points = ticker.sharesOutstanding(equity, Instant.EPOCH, Instant.ofEpochSecond(2_000_000_000L));
+
+        assertThat(points).hasSize(63);
+        assertThatThrownBy(() -> ticker.sharesOutstanding(Instruments.equity("MSFT"), Instant.EPOCH, Instant.ofEpochSecond(2_000_000_000L)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("MSFT")
+                .hasMessageContaining("AAPL");
+    }
+
+    @Test
+    void sharesOutstandingDefaultWindowUsesTheEquityProof() {   // batch E/1, item 4
+        var ticker = yf.ticker("AAPL");
+        var equity = Instruments.equity("AAPL");
+
+        var points = ticker.sharesOutstanding(equity);
+
+        assertThat(points).hasSize(63);
+        assertThatThrownBy(() -> ticker.sharesOutstanding(Instruments.equity("MSFT")))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("MSFT")
+                .hasMessageContaining("AAPL");
+    }
+
+    @Test
     void historyOverloadsAndDividendsAndSplits() throws Exception {
         var ticker = yf.ticker("AAPL");
 

@@ -13,6 +13,7 @@ import io.github.dimazigel.yfinance.enums.LookupType;
 import io.github.dimazigel.yfinance.enums.Range;
 import io.github.dimazigel.yfinance.enums.StatementType;
 import io.github.dimazigel.yfinance.fundamentals.FinancialStatement;
+import io.github.dimazigel.yfinance.fundamentals.SharesOutstanding;
 import io.github.dimazigel.yfinance.http.EndpointConfig;
 import io.github.dimazigel.yfinance.http.RawQuoteClient;
 import io.github.dimazigel.yfinance.http.YahooClientFactory;
@@ -35,6 +36,8 @@ import io.github.dimazigel.yfinance.service.OptionsService;
 import io.github.dimazigel.yfinance.service.SearchService;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
 import java.time.Clock;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -72,6 +75,9 @@ public final class YFinance implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(YFinance.class);
 
+    /** {@link #sharesOutstanding(Equity)}'s default window: 18 months, mirrors yfinance's {@code get_shares_full} default. */
+    private static final long SHARES_OUTSTANDING_DEFAULT_WINDOW_DAYS = 548L;
+
     final InstrumentService instruments;
     final DetailService details;
     final HistoryService history;
@@ -79,6 +85,7 @@ public final class YFinance implements AutoCloseable {
     final OptionsService options;
     private final SearchService search;
     private final LookupService lookup;
+    private final Clock clock;
     private final Runnable closer;
     private final int fanOutConcurrency;
     private final AtomicBoolean closed = new AtomicBoolean();
@@ -93,6 +100,7 @@ public final class YFinance implements AutoCloseable {
         this.options = new OptionsService(apis.options());
         this.search = new SearchService(apis.search());
         this.lookup = new LookupService(apis.lookup());
+        this.clock = clock;
         this.closer = closer;
     }
 
@@ -346,6 +354,30 @@ public final class YFinance implements AutoCloseable {
     /** The nearest option chain per symbol; {@code Ok(Optional.empty())} for instruments without listed options. */
     public Batch<Optional<OptionChain>> options(Collection<Symbol> symbols) {
         return tickers(List.copyOf(symbols)).fetch(Ticker::options);
+    }
+
+    /**
+     * Historical shares-outstanding reports for one equity over {@code [start, end]} in one
+     * request (batch E/1, Python yfinance's {@code get_shares_full}).
+     *
+     * @param equity the equity whose share counts to fetch
+     * @param start the window start (inclusive)
+     * @param end the window end (inclusive)
+     * @return the reports in wire order; empty when Yahoo has no history for the symbol
+     * @throws IllegalArgumentException if {@code start} is not before {@code end}
+     */
+    public List<SharesOutstanding> sharesOutstanding(Equity equity, Instant start, Instant end) {
+        return fundamentals.getSharesOutstanding(equity, start, end);
+    }
+
+    /**
+     * {@link #sharesOutstanding(Equity, Instant, Instant)} over the default window
+     * {@code [now - 548 days, now]} (18 months, mirrors yfinance's {@code get_shares_full} default),
+     * "now" taken from {@link EndpointConfig#clock()}.
+     */
+    public List<SharesOutstanding> sharesOutstanding(Equity equity) {
+        Instant end = clock.instant();
+        return sharesOutstanding(equity, end.minus(SHARES_OUTSTANDING_DEFAULT_WINDOW_DAYS, ChronoUnit.DAYS), end);
     }
 
     public SearchResult search(String query) {

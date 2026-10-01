@@ -6,11 +6,14 @@ import io.github.dimazigel.yfinance.enums.Frequency;
 import io.github.dimazigel.yfinance.enums.StatementType;
 import io.github.dimazigel.yfinance.exception.YFDataException;
 import io.github.dimazigel.yfinance.fundamentals.FinancialStatement;
+import io.github.dimazigel.yfinance.fundamentals.SharesOutstanding;
 import io.github.dimazigel.yfinance.instrument.Equity;
 import io.github.dimazigel.yfinance.logging.LogContext;
 import io.github.dimazigel.yfinance.mapper.FundamentalsMapper;
+import io.github.dimazigel.yfinance.mapper.SharesMapper;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
 import java.time.Clock;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
@@ -129,6 +132,33 @@ public final class FundamentalsService {
                 }
             }
             return Collections.unmodifiableMap(byType);
+        }
+    }
+
+    /**
+     * Historical shares-outstanding reports for {@code equity} over {@code [start, end]} (batch
+     * E/1, {@code get_shares_full} parity). Yahoo may report two values for one date; both are kept,
+     * in wire order. Unlike statements, this is tolerant of absence: a symbol Yahoo has no history
+     * for (e.g. a non-equity, were this called through a raw endpoint test) comes back as an empty
+     * list, never a {@link YFDataException}.
+     *
+     * @param equity the equity, the compile-time proof (see {@link #getStatement(Equity, StatementType, Frequency)})
+     * @param start the window start (inclusive, Yahoo's own {@code period1} semantics)
+     * @param end the window end (inclusive, Yahoo's own {@code period2} semantics)
+     * @throws IllegalArgumentException if {@code start} is not before {@code end}
+     */
+    public List<SharesOutstanding> getSharesOutstanding(Equity equity, Instant start, Instant end) {
+        return getSharesOutstanding(equity.symbol(), start, end);
+    }
+
+    /** Package-private: reused by tests and the live drift check, which don't hold an {@link Equity}. */
+    List<SharesOutstanding> getSharesOutstanding(Symbol symbol, Instant start, Instant end) {
+        if (!start.isBefore(end)) {
+            throw new IllegalArgumentException("start (" + start + ") must be before end (" + end + ") for " + symbol);
+        }
+        try (var ignored = LogContext.scope("shares", symbol)) {
+            var response = api.sharesOutstanding(symbol.value(), start.getEpochSecond(), end.getEpochSecond());
+            return SharesMapper.toList(response);
         }
     }
 

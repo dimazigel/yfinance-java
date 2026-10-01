@@ -427,6 +427,43 @@ class YFinanceTest {
         assertThat(last.getRequestUrl().queryParameter("period2")).isEqualTo("1750000000");
     }
 
+    @Test
+    void sharesOutstandingDefaultWindowIsFiveFortyEightDaysFromTheConfiguredClock() throws Exception {   // batch E/1, item 4
+        var fixed = java.time.Clock.fixed(java.time.Instant.ofEpochSecond(1_750_000_000L), java.time.ZoneOffset.UTC);
+        var config = EndpointConfig.production().withHosts(server.url("/")).withClock(fixed);
+
+        try (var created = YFinance.create(config)) {
+            Equity aapl = created.ticker("AAPL").as(Equity.class);
+
+            var points = created.sharesOutstanding(aapl);
+
+            assertThat(points).hasSize(63);
+        }
+
+        RecordedRequest sharesRequest = null;
+        for (int i = 0; i < server.getRequestCount(); i++) {
+            var req = server.takeRequest();
+            if ("shares_out".equals(req.getRequestUrl().queryParameter("type"))) {
+                sharesRequest = req;
+            }
+        }
+        assertThat(sharesRequest).isNotNull();
+        assertThat(sharesRequest.getRequestUrl().queryParameter("period2")).isEqualTo("1750000000");
+        assertThat(sharesRequest.getRequestUrl().queryParameter("period1")).isEqualTo(
+                String.valueOf(1_750_000_000L - 548L * 86400));
+    }
+
+    @Test
+    void sharesOutstandingExplicitWindowDelegatesToFundamentalsService() {   // batch E/1, item 4
+        Equity aapl = yf.ticker("AAPL").as(Equity.class);
+
+        var points = yf.sharesOutstanding(aapl, java.time.Instant.EPOCH, java.time.Instant.ofEpochSecond(2_000_000_000L));
+
+        assertThat(points).hasSize(63);
+        assertThatThrownBy(() -> yf.sharesOutstanding(aapl, java.time.Instant.EPOCH, java.time.Instant.EPOCH))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
     private static List<Symbol> symbols(String... values) {
         return java.util.Arrays.stream(values).map(Symbol::of).toList();
     }
