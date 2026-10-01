@@ -22,17 +22,17 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 
 /**
- * Enforces the boundary AGENTS.md documents for {@code api/}: Feign and Jackson are {@code
- * implementation} dependencies, so no type from either may appear in a public or protected member
- * of a public class in an API package (return/parameter types, generic type arguments, field
- * types, constructor parameters, or a direct supertype/interface). Annotations are not checked —
- * the {@code api/} interfaces carry {@code @RequestLine}/{@code @Param} by design, and {@code api/}
- * is itself excluded below. Also pins the coarser classpath-level check from the Feign/Jackson 3
- * migration: Retrofit and Jackson 2 databind must be gone entirely.
+ * Enforces the API boundary: Feign and Jackson are {@code implementation} dependencies and the
+ * {@code internal} packages are not exported, so no type from any of them may appear in a public or
+ * protected member of a public class in an exported package (return/parameter types, generic type
+ * arguments, field types, constructor parameters, or a direct supertype/interface). A consumer on
+ * the module path could not even name such a type. Also pins the coarser classpath-level check
+ * from the Feign/Jackson 3 migration: Retrofit and Jackson 2 databind must be gone entirely.
  */
 class DependencyHygieneTest {
 
     private static final String BASE = "io.github.dimazigel.yfinance";
+    private static final String INTERNAL = BASE + ".internal";
 
     @Test
     void retrofitAndJackson2DatabindAreNotOnTheClasspath() {
@@ -51,45 +51,16 @@ class DependencyHygieneTest {
         }
     }
 
-    /**
-     * Mirrors {@code tasks.javadoc}'s {@code exclude(...)} list in {@code build.gradle.kts}: those
-     * packages/classes are internal, so a Feign or Jackson type in one of them is not a hygiene
-     * violation. Keep the two lists in sync.
-     */
-    private static boolean isExcluded(Class<?> topLevel) {
-        String pkg = topLevel.getPackageName();
-        String name = topLevel.getSimpleName();
-        if (isOrIsSubPackage(pkg, "assembly") || isOrIsSubPackage(pkg, "dto")
-                || isOrIsSubPackage(pkg, "mapper") || isOrIsSubPackage(pkg, "api")
-                || isOrIsSubPackage(pkg, "auth") || isOrIsSubPackage(pkg, "service")) {
-            return true;
-        }
-        if (pkg.equals(BASE + ".http")) {
-            return name.endsWith("Interceptor")
-                    || name.equals("RawQuoteClient")
-                    || name.startsWith("YahooFeign")
-                    || name.equals("YahooJsonMapper")
-                    || name.equals("RawAwareNumberModule")
-                    || name.equals("YahooClientFactory")
-                    || name.equals("CallBudget")
-                    || name.equals("RateLimitBudgetExceeded");
-        }
-        if (pkg.equals(BASE + ".batch")) {
-            return name.equals("FanOut");
-        }
-        return false;
-    }
-
-    private static boolean isOrIsSubPackage(String pkg, String simpleBase) {
-        String base = BASE + "." + simpleBase;
-        return pkg.equals(base) || pkg.startsWith(base + ".");
+    /** Everything under {@code internal} is unexported (see {@code module-info.java}), so it is not API. */
+    private static boolean isInternal(Class<?> clazz) {
+        return clazz.getPackageName().startsWith(INTERNAL);
     }
 
     @Test
-    void apiPackagesExposeNoFeignOrJacksonTypes() throws Exception {
+    void exportedPackagesExposeNoFeignJacksonOrInternalTypes() throws Exception {
         List<String> violations = new ArrayList<>();
         for (Class<?> clazz : mainClasses()) {
-            if (!Modifier.isPublic(clazz.getModifiers()) || isExcluded(topLevelOf(clazz))) {
+            if (!Modifier.isPublic(clazz.getModifiers()) || isInternal(clazz)) {
                 continue;
             }
             checkSupertypes(clazz, violations);
@@ -97,7 +68,7 @@ class DependencyHygieneTest {
             checkMethods(clazz, violations);
             checkFields(clazz, violations);
         }
-        assertThat(violations).as("public members of API-package classes exposing Feign or Jackson types").isEmpty();
+        assertThat(violations).as("public members of exported classes exposing Feign, Jackson or internal types").isEmpty();
     }
 
     /**
@@ -109,19 +80,11 @@ class DependencyHygieneTest {
     @Test
     void feignSpiImplementationsStayPackagePrivate() throws Exception {
         for (String name : List.of("YahooDecoder", "YahooErrorDecoder", "YahooInvocationHandlerFactory")) {
-            Class<?> clazz = Class.forName(BASE + ".http." + name, false, YFinance.class.getClassLoader());
+            Class<?> clazz = Class.forName(INTERNAL + ".http." + name, false, YFinance.class.getClassLoader());
             assertThat(Modifier.isPublic(clazz.getModifiers()))
                     .as("%s implements a Feign SPI; making it public would leak a Feign type", name)
                     .isFalse();
         }
-    }
-
-    private static Class<?> topLevelOf(Class<?> clazz) {
-        Class<?> top = clazz;
-        while (top.getEnclosingClass() != null) {
-            top = top.getEnclosingClass();
-        }
-        return top;
     }
 
     private static void checkSupertypes(Class<?> clazz, List<String> violations) {
@@ -173,7 +136,7 @@ class DependencyHygieneTest {
     }
 
     private static void reportIfForeign(List<String> violations, Class<?> clazz, String where, String typeName) {
-        if (typeName.contains("tools.jackson.") || typeName.contains("feign.")) {
+        if (typeName.contains("tools.jackson.") || typeName.contains("feign.") || typeName.contains(INTERNAL + ".")) {
             violations.add(clazz.getName() + " " + where + ": " + typeName);
         }
     }

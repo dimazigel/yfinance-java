@@ -1,7 +1,7 @@
 package io.github.dimazigel.yfinance;
 
 import io.github.dimazigel.yfinance.http.EndpointConfig;
-import io.github.dimazigel.yfinance.http.YahooClientFactory;
+import io.github.dimazigel.yfinance.internal.http.YahooClientFactory;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;

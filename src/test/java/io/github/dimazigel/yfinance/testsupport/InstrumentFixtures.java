@@ -1,7 +1,7 @@
 package io.github.dimazigel.yfinance.testsupport;
 
-import io.github.dimazigel.yfinance.assembly.Payload;
-import io.github.dimazigel.yfinance.http.YahooJsonMapper;
+import io.github.dimazigel.yfinance.internal.assembly.Payload;
+import io.github.dimazigel.yfinance.internal.http.YahooJsonMapper;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
 import java.util.LinkedHashMap;
 import java.util.Map;

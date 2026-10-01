@@ -1,10 +1,10 @@
 package io.github.dimazigel.yfinance.testsupport;
 
-import io.github.dimazigel.yfinance.assembly.Resolver;
-import io.github.dimazigel.yfinance.assembly.build.EquityBuilder;
-import io.github.dimazigel.yfinance.assembly.specs.EquitySpecs;
 import io.github.dimazigel.yfinance.instrument.Core;
 import io.github.dimazigel.yfinance.instrument.Equity;
+import io.github.dimazigel.yfinance.internal.assembly.Resolver;
+import io.github.dimazigel.yfinance.internal.assembly.build.EquityBuilder;
+import io.github.dimazigel.yfinance.internal.assembly.specs.EquitySpecs;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
 import java.time.Instant;
 

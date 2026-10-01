@@ -1,15 +1,15 @@
 package io.github.dimazigel.yfinance.testsupport;
 
-import io.github.dimazigel.yfinance.api.ChartApi;
-import io.github.dimazigel.yfinance.api.FundamentalsApi;
-import io.github.dimazigel.yfinance.api.LookupApi;
-import io.github.dimazigel.yfinance.api.NewsApi;
-import io.github.dimazigel.yfinance.api.OptionsApi;
-import io.github.dimazigel.yfinance.api.QuoteApi;
-import io.github.dimazigel.yfinance.api.QuoteSummaryApi;
-import io.github.dimazigel.yfinance.api.SearchApi;
-import io.github.dimazigel.yfinance.api.YahooApis;
 import io.github.dimazigel.yfinance.http.EndpointConfig;
+import io.github.dimazigel.yfinance.internal.api.ChartApi;
+import io.github.dimazigel.yfinance.internal.api.FundamentalsApi;
+import io.github.dimazigel.yfinance.internal.api.LookupApi;
+import io.github.dimazigel.yfinance.internal.api.NewsApi;
+import io.github.dimazigel.yfinance.internal.api.OptionsApi;
+import io.github.dimazigel.yfinance.internal.api.QuoteApi;
+import io.github.dimazigel.yfinance.internal.api.QuoteSummaryApi;
+import io.github.dimazigel.yfinance.internal.api.SearchApi;
+import io.github.dimazigel.yfinance.internal.api.YahooApis;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
