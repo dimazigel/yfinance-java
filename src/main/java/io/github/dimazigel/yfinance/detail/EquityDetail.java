@@ -39,13 +39,13 @@ public record EquityDetail(
             String country,
             String city,
             String address1,
-            String zip,
             URI website,
             String longBusinessSummary,
             List<Officer> officers,
             Optional<Integer> fullTimeEmployees,
             Optional<String> phone,
             Optional<String> state,
+            Optional<String> zip,
             Optional<URI> irWebsite,
             Optional<Governance> governance) {
 
