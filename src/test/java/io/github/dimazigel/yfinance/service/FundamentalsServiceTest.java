@@ -13,6 +13,7 @@ import io.github.dimazigel.yfinance.testsupport.Fixtures;
 import io.github.dimazigel.yfinance.testsupport.Instruments;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -181,30 +182,40 @@ class FundamentalsServiceTest {
     }
 
     // --- batch B, item 3: several statements in one request ---
+    // --- batch E/1: request chunking at FundamentalsService.MAX_KEYS_PER_REQUEST ---
 
     @Test
     void multiStatementRequestJoinsEveryPairAndSkipsTrailingBalanceSheet() throws Exception {
-        server.enqueue(Fixtures.jsonResponse("timeseries_multi.json"));
+        int totalKeys = LineItem.forStatement(StatementType.INCOME).size() * 3
+                + LineItem.forStatement(StatementType.BALANCE_SHEET).size() * 2
+                + LineItem.forStatement(StatementType.CASH_FLOW).size() * 3;
+        int expectedChunks = ceilDiv(totalKeys, FundamentalsService.MAX_KEYS_PER_REQUEST);
+        for (int i = 0; i < expectedChunks; i++) {
+            server.enqueue(Fixtures.jsonResponse("timeseries_multi.json"));
+        }
 
         var result = service.getStatements(Symbol.of("AAPL"),
                 Set.of(StatementType.INCOME, StatementType.BALANCE_SHEET, StatementType.CASH_FLOW),
                 Set.of(Frequency.ANNUAL, Frequency.QUARTERLY, Frequency.TRAILING));
 
-        assertThat(server.getRequestCount()).as("one timeseries request for all pairs").isEqualTo(1);
-        RecordedRequest req = server.takeRequest();
-        assertThat(req.getRequestUrl().encodedPath()).isEqualTo("/ws/fundamentals-timeseries/v1/finance/timeseries/AAPL");
-        List<String> keys = List.of(req.getRequestUrl().queryParameter("type").split(","));
+        assertThat(server.getRequestCount()).as("ceil(totalKeys / MAX_KEYS_PER_REQUEST) requests").isEqualTo(expectedChunks);
+        var keys = new ArrayList<String>();
+        for (int i = 0; i < expectedChunks; i++) {
+            RecordedRequest req = server.takeRequest();
+            assertThat(req.getRequestUrl().encodedPath()).isEqualTo("/ws/fundamentals-timeseries/v1/finance/timeseries/AAPL");
+            assertThat(req.getRequestUrl().queryParameter("type").split(",").length)
+                    .as("chunk %d respects MAX_KEYS_PER_REQUEST", i)
+                    .isLessThanOrEqualTo(FundamentalsService.MAX_KEYS_PER_REQUEST);
+            keys.addAll(List.of(req.getRequestUrl().queryParameter("type").split(",")));
+        }
         assertThat(keys).contains(
                 "annualTotalRevenue", "quarterlyTotalRevenue", "trailingTotalRevenue",
                 "annualTotalAssets", "quarterlyTotalAssets",
                 "annualOperatingCashFlow", "quarterlyOperatingCashFlow", "trailingOperatingCashFlow");
         assertThat(keys).as("Yahoo has no trailing balance sheet").noneMatch(k -> k.startsWith("trailing")
                 && LineItem.forStatement(StatementType.BALANCE_SHEET).stream().anyMatch(li -> k.equals("trailing" + li.key())));
-        assertThat(keys).doesNotHaveDuplicates();
-        int expected = LineItem.forStatement(StatementType.INCOME).size() * 3
-                + LineItem.forStatement(StatementType.BALANCE_SHEET).size() * 2
-                + LineItem.forStatement(StatementType.CASH_FLOW).size() * 3;
-        assertThat(keys).hasSize(expected);
+        assertThat(keys).as("every requested key appears in exactly one request's type param").doesNotHaveDuplicates();
+        assertThat(keys).hasSize(totalKeys);
 
         assertThat(result.keySet()).containsExactlyInAnyOrder(StatementType.INCOME, StatementType.BALANCE_SHEET, StatementType.CASH_FLOW);
         assertThat(result.get(StatementType.INCOME).keySet()).containsExactlyInAnyOrder(Frequency.ANNUAL, Frequency.QUARTERLY, Frequency.TRAILING);
@@ -214,7 +225,12 @@ class FundamentalsServiceTest {
 
     @Test
     void multiStatementResponseIsSplitByFrequencyPrefixAndStatementKeys() {
-        server.enqueue(Fixtures.jsonResponse("timeseries_multi.json"));
+        int totalKeys = LineItem.forStatement(StatementType.INCOME).size() * 3
+                + LineItem.forStatement(StatementType.BALANCE_SHEET).size() * 2
+                + LineItem.forStatement(StatementType.CASH_FLOW).size() * 3;
+        for (int i = 0; i < ceilDiv(totalKeys, FundamentalsService.MAX_KEYS_PER_REQUEST); i++) {
+            server.enqueue(Fixtures.jsonResponse("timeseries_multi.json"));
+        }
 
         var result = service.getStatements(Symbol.of("AAPL"),
                 Set.of(StatementType.INCOME, StatementType.BALANCE_SHEET, StatementType.CASH_FLOW),
@@ -281,5 +297,49 @@ class FundamentalsServiceTest {
         assertThatThrownBy(() -> service.getStatements(equity, Set.of(StatementType.BALANCE_SHEET), Set.of(Frequency.TRAILING)))
                 .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("trailing").hasMessageContaining("balance sheet");
         assertThat(server.getRequestCount()).isZero();
+    }
+
+    @Test
+    void singleStatementStaysInOneRequestDespiteTheFullUpstreamKeyList() throws Exception {
+        // Regression guard for batch E/1: even balance-sheet's 149 upstream keys (the largest of the
+        // three statements) must still fit in one chunk at MAX_KEYS_PER_REQUEST = 150.
+        for (StatementType type : StatementType.values()) {
+            server.enqueue(Fixtures.jsonResponse("timeseries_multi.json"));
+            int before = server.getRequestCount();
+
+            service.getStatement(Symbol.of("AAPL"), type, Frequency.ANNUAL);
+
+            int expectedChunks = ceilDiv(LineItem.forStatement(type).size(), FundamentalsService.MAX_KEYS_PER_REQUEST);
+            assertThat(server.getRequestCount() - before).as("%s: ceil(%d / %d)", type, LineItem.forStatement(type).size(),
+                    FundamentalsService.MAX_KEYS_PER_REQUEST).isEqualTo(expectedChunks).isEqualTo(1);
+            RecordedRequest req = server.takeRequest();
+            assertThat(req.getRequestUrl().queryParameter("type").split(",").length)
+                    .isLessThanOrEqualTo(FundamentalsService.MAX_KEYS_PER_REQUEST);
+        }
+    }
+
+    @Test
+    void statementMergesCorrectlyAcrossTwoChunkResponses() throws Exception {
+        // Forces exactly two chunks (149 + 149 = 298 keys > MAX_KEYS_PER_REQUEST) and serves each
+        // chunk a different slice split out of timeseries_multi.json's series, so the resulting
+        // statement can only be complete if FundamentalsService.fetchSeries actually concatenated
+        // both HTTP responses rather than keeping only the last one.
+        server.enqueue(Fixtures.jsonResponse("timeseries_multi_chunk1.json")); // annualTotalAssets only
+        server.enqueue(Fixtures.jsonResponse("timeseries_multi_chunk2.json")); // quarterlyTotalAssets only
+
+        var result = service.getStatements(Symbol.of("AAPL"),
+                Set.of(StatementType.BALANCE_SHEET), Set.of(Frequency.ANNUAL, Frequency.QUARTERLY));
+
+        assertThat(server.getRequestCount()).isEqualTo(2);
+        FinancialStatement annual = result.get(StatementType.BALANCE_SHEET).get(Frequency.ANNUAL);
+        FinancialStatement quarterly = result.get(StatementType.BALANCE_SHEET).get(Frequency.QUARTERLY);
+        assertThat(annual.value("TotalAssets", LocalDate.parse("2023-09-30")).orElseThrow())
+                .as("came from the first chunk response").isEqualByComparingTo("352583000000");
+        assertThat(quarterly.value("TotalAssets", LocalDate.parse("2024-06-30")).orElseThrow())
+                .as("came from the second chunk response").isEqualByComparingTo("331612000000");
+    }
+
+    private static int ceilDiv(int total, int perRequest) {
+        return (total + perRequest - 1) / perRequest;
     }
 }

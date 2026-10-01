@@ -90,7 +90,8 @@ Batch<EquityDetail> details = yf.equityDetails(equities.values()); // one quoteS
 Batch<PriceHistory> histories = yf.histories(symbols, Range.ONE_YEAR, Interval.ONE_DAY);
 Batch<Optional<OptionChain>> chains = yf.options(symbols);
 Batch<FinancialStatement> statements = yf.statements(equities.values(), StatementType.INCOME, Frequency.ANNUAL);
-// Several statements per equity in ONE timeseries request each (type → frequency → statement):
+// Several statements per equity in as few timeseries requests as the key count allows
+// (≤ 150 keys each; one per statement in practice; type → frequency → statement):
 Batch<Map<StatementType, Map<Frequency, FinancialStatement>>> multi = yf.statements(equities.values(),
         Set.of(StatementType.INCOME, StatementType.CASH_FLOW), Set.of(Frequency.ANNUAL, Frequency.QUARTERLY));
 
@@ -277,12 +278,15 @@ price data for them. Detail records are fetched with the instrument as proof, so
   hundreds). Within a chain, `bid`, `openInterest` and `volume` are `Optional`; a contract missing
   any other field is dropped.
 - **Financial statements** exist for equities only (the timeseries endpoint returns empty series
-  for every other class), hence the `Equity` proof. `FinancialStatement.value(item, period)`,
+  for every other class), hence the `Equity` proof. `LineItem` mirrors every key from Python
+  yfinance's `const.py` `fundamentals_keys` (375 constants total), so consumers bind to typed
+  symbols instead of magic strings. `FinancialStatement.value(item, period)`,
   `latest(item)` (at `latestPeriod()`, the last of the ascending `periods()`) and `row(item)`
   (period → value, ascending, absent values omitted) return `Optional<BigDecimal>` / an immutable
   map; the typed forms throw `IllegalArgumentException` for a `LineItem` of another statement
   (`TOTAL_ASSETS` asked of an income statement); the raw-key `value(String, period)` stays lenient. `statements(equity,
-  Set<StatementType>, Set<Frequency>)` fetches every requested pair in **one** request and returns
+  Set<StatementType>, Set<Frequency>)` fetches every requested pair in as few timeseries requests
+  as the key count allows (≤ 150 keys each; one per statement in practice) and returns
   `type → frequency → FinancialStatement`; the trailing balance sheet (which Yahoo does not
   publish) is skipped when other pairs remain and an `IllegalArgumentException` when it is the
   only one, as it is for the single form.

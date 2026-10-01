@@ -1,8 +1,10 @@
 package io.github.dimazigel.yfinance.service;
 
 import io.github.dimazigel.yfinance.api.FundamentalsApi;
+import io.github.dimazigel.yfinance.dto.timeseries.TimeseriesResponse;
 import io.github.dimazigel.yfinance.enums.Frequency;
 import io.github.dimazigel.yfinance.enums.StatementType;
+import io.github.dimazigel.yfinance.exception.YFDataException;
 import io.github.dimazigel.yfinance.fundamentals.FinancialStatement;
 import io.github.dimazigel.yfinance.instrument.Equity;
 import io.github.dimazigel.yfinance.logging.LogContext;
@@ -11,20 +13,29 @@ import io.github.dimazigel.yfinance.valueobject.Symbol;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /** Retrieves income, balance-sheet and cash-flow statements via the timeseries endpoint. */
 public final class FundamentalsService {
 
     // Yahoo caps at ~4 years / 5 quarters regardless; this lower bound mirrors yfinance.
     private static final long PERIOD_START = LocalDate.of(2016, 12, 31).atStartOfDay(ZoneOffset.UTC).toEpochSecond();
+
+    /**
+     * Maximum distinct timeseries keys per {@code type=} request. A single statement at one
+     * frequency (~100-150 {@link io.github.dimazigel.yfinance.enums.LineItem} keys) fits in one
+     * request; the multi-statement form ({@link #getStatements}) can exceed this and is split into
+     * several requests, merged client-side. Verified live against Yahoo (batch E/1).
+     */
+    static final int MAX_KEYS_PER_REQUEST = 150;
 
     private final FundamentalsApi api;
     private final Clock clock;
@@ -59,12 +70,11 @@ public final class FundamentalsService {
                     "Yahoo has no trailing balance sheet; use ANNUAL or QUARTERLY for " + symbol);
         }
         try (var ignored = LogContext.scope("statements", symbol)) {
-            String typeParam = FundamentalKeys.forStatement(type).stream()
+            List<String> wireKeys = FundamentalKeys.forStatement(type).stream()
                     .map(key -> frequency.wireValue() + key)
-                    .collect(Collectors.joining(","));
-            long now = clock.instant().getEpochSecond();
-            var response = api.timeseries(symbol.value(), typeParam, PERIOD_START, now);
-            return FundamentalsMapper.toStatement(response, type, frequency);
+                    .toList();
+            var merged = merge(fetchSeries(symbol, wireKeys));
+            return FundamentalsMapper.toStatement(merged, type, frequency);
         }
     }
 
@@ -104,15 +114,14 @@ public final class FundamentalsService {
             }
         }
         try (var ignored = LogContext.scope("statements", symbol)) {
-            long now = clock.instant().getEpochSecond();
-            var response = api.timeseries(symbol.value(), String.join(",", wireKeys), PERIOD_START, now);
+            var merged = merge(fetchSeries(symbol, List.copyOf(wireKeys)));
             var byType = new EnumMap<StatementType, Map<Frequency, FinancialStatement>>(StatementType.class);
             for (StatementType type : orderedTypes) {
                 var byFrequency = new EnumMap<Frequency, FinancialStatement>(Frequency.class);
                 for (Frequency frequency : orderedFrequencies) {
                     if (servable(type, frequency)) {
                         byFrequency.put(frequency,
-                                FundamentalsMapper.toStatement(response, type, frequency, FundamentalKeys.forStatement(type)));
+                                FundamentalsMapper.toStatement(merged, type, frequency, FundamentalKeys.forStatement(type)));
                     }
                 }
                 if (!byFrequency.isEmpty()) {
@@ -121,6 +130,38 @@ public final class FundamentalsService {
             }
             return Collections.unmodifiableMap(byType);
         }
+    }
+
+    /**
+     * Fetches {@code wireKeys} in chunks of at most {@link #MAX_KEYS_PER_REQUEST}, issuing one
+     * {@code api.timeseries(...)} call per chunk and concatenating the {@code result} lists
+     * (null-safe). A failed chunk fails the whole call — never a partial statement. The request
+     * order is deterministic: callers build {@code wireKeys} in statement order, then frequency
+     * order, then {@link io.github.dimazigel.yfinance.enums.LineItem} declaration order.
+     */
+    private List<TimeseriesResponse.Result> fetchSeries(Symbol symbol, List<String> wireKeys) {
+        long now = clock.instant().getEpochSecond();
+        var merged = new ArrayList<TimeseriesResponse.Result>();
+        for (int start = 0; start < wireKeys.size(); start += MAX_KEYS_PER_REQUEST) {
+            List<String> chunk = wireKeys.subList(start, Math.min(start + MAX_KEYS_PER_REQUEST, wireKeys.size()));
+            var response = api.timeseries(symbol.value(), String.join(",", chunk), PERIOD_START, now);
+            var ts = response.timeseries();
+            if (ts == null) {
+                throw new YFDataException("Malformed timeseries response");
+            }
+            if (ts.error() != null) {
+                throw new YFDataException("Yahoo timeseries error: " + ts.error().description());
+            }
+            if (ts.result() != null) {
+                merged.addAll(ts.result());
+            }
+        }
+        return merged;
+    }
+
+    /** Wraps already-validated, merged results back into a {@link TimeseriesResponse} for the mapper. */
+    private static TimeseriesResponse merge(List<TimeseriesResponse.Result> results) {
+        return new TimeseriesResponse(new TimeseriesResponse.Timeseries(results, null));
     }
 
     /**

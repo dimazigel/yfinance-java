@@ -1,0 +1,27 @@
+{
+  "timeseries": {
+    "result": [
+      {
+        "meta": { "symbol": ["AAPL"], "type": ["annualTotalAssets"] },
+        "timestamp": [1664496000, 1696032000],
+        "annualTotalAssets": [
+          {
+            "dataId": 23001,
+            "asOfDate": "2022-09-30",
+            "periodType": "12M",
+            "currencyCode": "USD",
+            "reportedValue": { "raw": 352755000000, "fmt": "352.76B" }
+          },
+          {
+            "dataId": 23001,
+            "asOfDate": "2023-09-30",
+            "periodType": "12M",
+            "currencyCode": "USD",
+            "reportedValue": { "raw": 352583000000, "fmt": "352.58B" }
+          }
+        ]
+      }
+    ],
+    "error": null
+  }
+}
