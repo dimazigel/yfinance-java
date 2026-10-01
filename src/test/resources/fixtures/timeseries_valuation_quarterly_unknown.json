@@ -1,0 +1,51 @@
+{
+  "timeseries" : {
+    "result" : [ {
+      "meta" : {
+        "symbol" : [ "ZZZZNOTREAL" ],
+        "type" : [ "quarterlyEnterprisesValueRevenueRatio" ]
+      }
+    }, {
+      "meta" : {
+        "symbol" : [ "ZZZZNOTREAL" ],
+        "type" : [ "quarterlyMarketCap" ]
+      }
+    }, {
+      "meta" : {
+        "symbol" : [ "ZZZZNOTREAL" ],
+        "type" : [ "quarterlyForwardPeRatio" ]
+      }
+    }, {
+      "meta" : {
+        "symbol" : [ "ZZZZNOTREAL" ],
+        "type" : [ "quarterlyPegRatio" ]
+      }
+    }, {
+      "meta" : {
+        "symbol" : [ "ZZZZNOTREAL" ],
+        "type" : [ "quarterlyPsRatio" ]
+      }
+    }, {
+      "meta" : {
+        "symbol" : [ "ZZZZNOTREAL" ],
+        "type" : [ "quarterlyEnterpriseValue" ]
+      }
+    }, {
+      "meta" : {
+        "symbol" : [ "ZZZZNOTREAL" ],
+        "type" : [ "quarterlyEnterprisesValueEBITDARatio" ]
+      }
+    }, {
+      "meta" : {
+        "symbol" : [ "ZZZZNOTREAL" ],
+        "type" : [ "quarterlyPeRatio" ]
+      }
+    }, {
+      "meta" : {
+        "symbol" : [ "ZZZZNOTREAL" ],
+        "type" : [ "quarterlyPbRatio" ]
+      }
+    } ],
+    "error" : null
+  }
+}

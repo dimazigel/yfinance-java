@@ -45,6 +45,7 @@ try (var yf = YFinance.create()) { // cookie+crumb handshake; close() releases t
             Set.of(StatementType.INCOME, StatementType.BALANCE_SHEET, StatementType.CASH_FLOW), Set.of(Frequency.ANNUAL, Frequency.QUARTERLY));
     Optional<BigDecimal> revenue = income.latest(LineItem.TOTAL_REVENUE);   // most recent period; row(...) for all periods
     List<SharesOutstanding> shares = yf.sharesOutstanding(equity);   // default window: last 548 days
+    List<ValuationMeasures> valuation = yf.valuationHistory(equity); // latest five quarter ends; (equity, Frequency.ANNUAL) for fiscal years
     List<NewsItem> news = aapl.news();                     // latest ten; news(NewsTab.PRESS_RELEASES, 20) picks tab and count
 
     SearchResult results = yf.search("apple");
@@ -164,6 +165,7 @@ Batch<PriceHistory> backfill = yf.histories(symbols,
 | `options` / `option_chain(date)` | `ticker.options()` → `Optional<OptionChain>` (nearest expiration; `expirationDates()` lists the rest), `ticker.options(expiration)` for one of them |
 | `financials` / `balance_sheet` / `cashflow` (+ `quarterly_*`, `ttm_*`) | `yf.statements(equity, StatementType.INCOME \| BALANCE_SHEET \| CASH_FLOW, Frequency.ANNUAL \| QUARTERLY \| TRAILING)`; several at once in as few requests as the key count allows (≤ 150 keys each): `yf.statements(equity, Set.of(...types), Set.of(...frequencies))` |
 | `get_shares_full()` | `yf.sharesOutstanding(equity[, start, end])` / `ticker.sharesOutstanding(equity[, start, end])` — default window `[now - 548 days, now]` |
+| `Ticker.valuation` | `yf.valuationHistory(equity[, Frequency])` / `ticker.valuationHistory(equity[, Frequency])` — typed rows per period end, without the "Current" column (current values are on `Equity` / `EquityDetail`) |
 | `Tickers("AAPL MSFT")` / `download([...])` | `yf.instruments(symbols)` (one request per 100 symbols) / `yf.histories(symbols, range, interval)`; `yf.tickers(...).fetch(Ticker::...)` fans any call out |
 | `Search("apple")` / `Lookup("apple")` | `yf.search("apple")` (`quotes()` + `news()`) / `yf.lookup("apple", LookupType.EQUITY)` |
 | `Ticker.news` / `get_news(count, tab)` | `ticker.news()` / `ticker.news(NewsTab.PRESS_RELEASES, 20)` — tabs `ALL`, `NEWS`, `PRESS_RELEASES` |
@@ -296,6 +298,16 @@ price data for them. Detail records are fetched with the instrument as proof, so
   and both are kept. The no-args overload defaults to `[now - 548 days, now]` (18 months, mirrors
   yfinance's own default); a symbol Yahoo has no history for comes back an empty list, not an
   error.
+- **Valuation measures history** (`yf.valuationHistory(equity[, Frequency])` /
+  `ticker.valuationHistory(equity[, Frequency])`, Python's `Ticker.valuation`) is one
+  fundamentals-timeseries request for nine series — market cap, enterprise value, trailing and
+  forward P/E, PEG, price/sales, price/book, EV/revenue, EV/EBITDA — returning
+  `List<ValuationMeasures>`, one row per period end, oldest first. `QUARTERLY` (the default) is
+  the latest five quarter ends, `ANNUAL` the latest four fiscal year ends; Yahoo serves no more
+  per request. Each measure is `Optional` (Yahoo has gaps per measure and period), `currency` is
+  that of the row's market cap or enterprise value, and `TRAILING` is an
+  `IllegalArgumentException`: Yahoo's trailing series is an irregular set of snapshot dates, not
+  a history by period. A symbol Yahoo has no series for comes back an empty list.
 - **`HistoryMetadata`** is fully non-null except `dataGranularity` (`Optional<Interval>`, in case
   Yahoo reports an interval this version does not know); an incomplete chart response throws
   rather than returning a half-filled record.
@@ -338,6 +350,7 @@ Twitter and proof-of-work stats.
 | Detail per class | `/v10/finance/quoteSummary` | `Ticker.detail(...)`, `YFinance.equityDetails(...)`, `etfDetails`, `mutualFundDetails`, `cryptoDetails` |
 | Price history, dividends, splits, capital gains, metadata | `/v8/finance/chart` | `Ticker.history(...)`, `dividends()`, `splits()`, `YFinance.histories(...)` |
 | Income / balance sheet / cash flow (annual, quarterly, trailing) | `/ws/fundamentals-timeseries` | `Ticker.statements(...)`, `YFinance.statements(...)` (single, multi-statement, and batch forms) |
+| Valuation measures per quarter end or fiscal year end | `/ws/fundamentals-timeseries` | `Ticker.valuationHistory(...)`, `YFinance.valuationHistory(...)` |
 | Options chain | `/v7/finance/options` | `Ticker.options(...)`, `YFinance.options(...)` |
 | Search | `/v1/finance/search` | `YFinance.search(...)` (`quotes()` + `news()`) |
 | Per-symbol news stream (news, press releases, all) | `POST finance.yahoo.com/xhr/ncp` | `Ticker.news()`, `Ticker.news(tab, count)`, `YFinance.news(...)` |

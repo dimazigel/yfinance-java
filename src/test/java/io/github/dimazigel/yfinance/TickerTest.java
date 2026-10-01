@@ -244,6 +244,31 @@ class TickerTest {
     }
 
     @Test
+    void valuationHistoryIsQuarterlyByDefaultAndTakesAFrequency() throws Exception {   // batch E/2
+        var ticker = yf.ticker("AAPL");
+        var equity = Instruments.equity("AAPL");
+
+        var quarterly = ticker.valuationHistory(equity);
+        var annual = ticker.valuationHistory(equity, Frequency.ANNUAL);
+
+        assertThat(quarterly).hasSize(5);
+        assertThat(quarterly.getLast().asOf()).isEqualTo(LocalDate.parse("2026-06-30"));
+        assertThat(annual).hasSize(4);
+        assertThat(annual.getLast().asOf()).isEqualTo(LocalDate.parse("2025-09-30"));
+        assertThat(server.takeRequest().getRequestUrl().queryParameter("type")).startsWith("quarterly");
+        assertThat(server.takeRequest().getRequestUrl().queryParameter("type")).startsWith("annual");
+    }
+
+    @Test
+    void valuationHistoryRejectsAProofForAnotherSymbol() {   // batch E/2
+        assertThatThrownBy(() -> yf.ticker("AAPL").valuationHistory(Instruments.equity("MSFT")))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("MSFT")
+                .hasMessageContaining("AAPL");
+        assertThat(server.getRequestCount()).isZero();
+    }
+
+    @Test
     void historyOverloadsAndDividendsAndSplits() throws Exception {
         var ticker = yf.ticker("AAPL");
 

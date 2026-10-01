@@ -1,0 +1,51 @@
+{
+  "timeseries" : {
+    "result" : [ {
+      "meta" : {
+        "symbol" : [ "SPY" ],
+        "type" : [ "quarterlyEnterprisesValueRevenueRatio" ]
+      }
+    }, {
+      "meta" : {
+        "symbol" : [ "SPY" ],
+        "type" : [ "quarterlyMarketCap" ]
+      }
+    }, {
+      "meta" : {
+        "symbol" : [ "SPY" ],
+        "type" : [ "quarterlyForwardPeRatio" ]
+      }
+    }, {
+      "meta" : {
+        "symbol" : [ "SPY" ],
+        "type" : [ "quarterlyPegRatio" ]
+      }
+    }, {
+      "meta" : {
+        "symbol" : [ "SPY" ],
+        "type" : [ "quarterlyPsRatio" ]
+      }
+    }, {
+      "meta" : {
+        "symbol" : [ "SPY" ],
+        "type" : [ "quarterlyEnterpriseValue" ]
+      }
+    }, {
+      "meta" : {
+        "symbol" : [ "SPY" ],
+        "type" : [ "quarterlyEnterprisesValueEBITDARatio" ]
+      }
+    }, {
+      "meta" : {
+        "symbol" : [ "SPY" ],
+        "type" : [ "quarterlyPeRatio" ]
+      }
+    }, {
+      "meta" : {
+        "symbol" : [ "SPY" ],
+        "type" : [ "quarterlyPbRatio" ]
+      }
+    } ],
+    "error" : null
+  }
+}
