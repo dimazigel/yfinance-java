@@ -60,6 +60,16 @@ class CrumbStoreTest {
         server.enqueue(new MockResponse().setResponseCode(200).setBody(crumb));
     }
 
+    /** What the consent entry point answers where no consent is required: some page without the form. */
+    private static final MockResponse NO_CONSENT_WALL =
+            new MockResponse().setResponseCode(200).setBody("<html><body>Yahoo home</body></html>");
+
+    /** Yahoo's consent page, reduced to what the store reads; the two inputs differ in attribute order on purpose. */
+    private static final String CONSENT_PAGE = "<html><body><form method=\"post\" class=\"consent-form\">"
+            + "<input type=\"hidden\" name=\"csrfToken\" value=\"tok-123\">"
+            + "<input value=\"sess-456\" name=\"sessionId\" type=\"hidden\">"
+            + "<button type=\"submit\" name=\"agree\" value=\"agree\">Accept all</button></form></body></html>";
+
     private void advance(Duration by) {
         nowNanos.addAndGet(by.toNanos());
     }
@@ -197,6 +207,7 @@ class CrumbStoreTest {
         var store = timedStore();
         server.enqueue(new MockResponse().setResponseCode(404));
         server.enqueue(new MockResponse().setResponseCode(403).setBody("Forbidden"));
+        server.enqueue(NO_CONSENT_WALL);
 
         try (var log = LogCapture.of(CrumbStore.class)) {
             assertThatThrownBy(store::tryGetCrumb).isInstanceOf(YFAuthException.class).hasMessageContaining("HTTP 403");
@@ -204,14 +215,14 @@ class CrumbStoreTest {
 
             advance(Duration.ofSeconds(29));
             assertThat(store.tryGetCrumb()).as("empty, no network, no throw while cooling down").isEmpty();
-            assertThat(server.getRequestCount()).isEqualTo(2);
+            assertThat(server.getRequestCount()).isEqualTo(3);
             assertThat(log.messages(Level.WARN)).hasSize(1);
         }
 
         advance(Duration.ofSeconds(2));
         enqueueHandshake("fresh");
         assertThat(store.tryGetCrumb()).contains(Crumb.of("fresh"));
-        assertThat(server.getRequestCount()).isEqualTo(4);
+        assertThat(server.getRequestCount()).isEqualTo(5);
     }
 
     @Test
@@ -230,6 +241,7 @@ class CrumbStoreTest {
     void throwsWhenCrumbBlank() {
         server.enqueue(new MockResponse().setResponseCode(404));
         server.enqueue(new MockResponse().setResponseCode(200).setBody("  "));
+        server.enqueue(NO_CONSENT_WALL);
 
         assertThatThrownBy(() -> crumbStore.getCrumb()).isInstanceOf(YFAuthException.class);
     }
@@ -245,7 +257,7 @@ class CrumbStoreTest {
     @Test
     void toleratesCookieSeedFailure() throws Exception {
         HttpUrl base = server.url("/");
-        EndpointConfig config = EndpointConfig.production().withHosts(base, base, base, deadUrl()).withUserAgent("test-agent/1.0");
+        EndpointConfig config = EndpointConfig.production().withHosts(base, base, base, deadUrl(), base).withUserAgent("test-agent/1.0");
         var store = new CrumbStore(YahooClientFactory.baseClient(config), config);
         server.enqueue(new MockResponse().setResponseCode(200).setBody("crumb-without-cookie"));
 
@@ -263,7 +275,7 @@ class CrumbStoreTest {
     @Test
     void tryGetCrumbIsEmptyOnIoFailure() throws Exception {
         HttpUrl base = server.url("/");
-        EndpointConfig config = EndpointConfig.production().withHosts(deadUrl(), base, base, base).withUserAgent("test-agent/1.0");
+        EndpointConfig config = EndpointConfig.production().withHosts(deadUrl(), base, base, base, base).withUserAgent("test-agent/1.0");
         var store = new CrumbStore(YahooClientFactory.baseClient(config), config);
         server.enqueue(new MockResponse().setResponseCode(404));
 
@@ -274,6 +286,7 @@ class CrumbStoreTest {
     void tryGetCrumbStillThrowsOnInvalidCrumb() {
         server.enqueue(new MockResponse().setResponseCode(404));
         server.enqueue(new MockResponse().setResponseCode(200).setBody("  "));
+        server.enqueue(NO_CONSENT_WALL);
 
         assertThatThrownBy(() -> crumbStore.tryGetCrumb()).isInstanceOf(YFAuthException.class);
     }
@@ -286,6 +299,80 @@ class CrumbStoreTest {
         assertThat(crumbStore.tryGetCrumb()).contains(Crumb.of("ok-crumb"));
         assertThat(crumbStore.getCrumb()).isEqualTo(Crumb.of("ok-crumb"));
         assertThat(server.getRequestCount()).isEqualTo(2);
+    }
+
+    // --- EU consent fallback (Python yfinance's "csrf" cookie strategy) ---
+
+    @Test
+    void aConsentWallIsAcceptedAndTheCrumbRequestedAgain() throws Exception {
+        server.enqueue(new MockResponse().setResponseCode(404));                                    // cookie seed
+        server.enqueue(new MockResponse().setResponseCode(200).setBody("<html>consent</html>"));   // crumb: a page, not a crumb
+        server.enqueue(new MockResponse().setResponseCode(302).setHeader("Location", "/v2/collectConsent?sessionId=sess-456"));
+        server.enqueue(new MockResponse().setResponseCode(200).setBody(CONSENT_PAGE));
+        server.enqueue(new MockResponse().setResponseCode(200).setHeader("Set-Cookie", "A3=consented; Path=/"));   // the POST
+        server.enqueue(new MockResponse().setResponseCode(200));                                    // copyConsent
+        server.enqueue(new MockResponse().setResponseCode(200).setBody("crumb-after-consent"));
+
+        assertThat(crumbStore.getCrumb()).isEqualTo(Crumb.of("crumb-after-consent"));
+
+        assertThat(server.getRequestCount()).isEqualTo(7);
+        server.takeRequest();   // cookie seed
+        assertThat(server.takeRequest().getPath()).isEqualTo("/v1/test/getcrumb");
+        assertThat(server.takeRequest().getPath()).isEqualTo("/consent");
+        assertThat(server.takeRequest().getPath()).isEqualTo("/v2/collectConsent?sessionId=sess-456");
+        RecordedRequest post = server.takeRequest();
+        assertThat(post.getMethod()).isEqualTo("POST");
+        assertThat(post.getPath()).as("posted to the page the form was served from").isEqualTo("/v2/collectConsent?sessionId=sess-456");
+        assertThat(post.getHeader("Content-Type")).startsWith("application/x-www-form-urlencoded");
+        assertThat(post.getBody().readUtf8()).isEqualTo("agree=agree&agree=agree&consentUUID=default&sessionId=sess-456"
+                + "&csrfToken=tok-123&originalDoneUrl=https%3A%2F%2Ffinance.yahoo.com%2F&namespace=yahoo");
+        assertThat(server.takeRequest().getPath()).isEqualTo("/copyConsent?sessionId=sess-456");
+        RecordedRequest crumbAgain = server.takeRequest();
+        assertThat(crumbAgain.getPath()).isEqualTo("/v1/test/getcrumb");
+        assertThat(crumbAgain.getHeader("Cookie")).as("the cookie the consent set travels with the crumb request").contains("A3=consented");
+    }
+
+    @Test
+    void aRejectionWithoutAConsentWallIsStillTheOriginalFailure() {
+        server.enqueue(new MockResponse().setResponseCode(404));
+        server.enqueue(new MockResponse().setResponseCode(403).setBody("Forbidden"));
+        server.enqueue(NO_CONSENT_WALL);
+
+        assertThatThrownBy(() -> crumbStore.getCrumb()).isInstanceOf(YFAuthException.class).hasMessageContaining("HTTP 403");
+        assertThat(server.getRequestCount()).as("cookie, crumb, one look at the consent entry point").isEqualTo(3);
+    }
+
+    @Test
+    void aCrumbStillRejectedAfterConsentThrows() {
+        server.enqueue(new MockResponse().setResponseCode(404));
+        server.enqueue(new MockResponse().setResponseCode(200).setBody("<html>consent</html>"));
+        server.enqueue(new MockResponse().setResponseCode(200).setBody(CONSENT_PAGE));
+        server.enqueue(new MockResponse().setResponseCode(200));
+        server.enqueue(new MockResponse().setResponseCode(200));
+        server.enqueue(new MockResponse().setResponseCode(200).setBody("<html>still blocked</html>"));
+
+        assertThatThrownBy(() -> crumbStore.getCrumb()).isInstanceOf(YFAuthException.class)
+                .hasMessageContaining("after accepting Yahoo's consent form");
+        assertThat(server.getRequestCount()).isEqualTo(6);
+    }
+
+    @Test
+    void anUnreachableConsentEntryPointKeepsTheOriginalFailure() throws Exception {
+        HttpUrl base = server.url("/");
+        EndpointConfig unreachable = config.withHosts(base, base, base, base, deadUrl());
+        var store = new CrumbStore(YahooClientFactory.baseClient(unreachable), unreachable);
+        server.enqueue(new MockResponse().setResponseCode(404));
+        server.enqueue(new MockResponse().setResponseCode(200).setBody("  "));
+
+        assertThatThrownBy(store::getCrumb).isInstanceOf(YFAuthException.class).hasMessageContaining("empty or invalid crumb");
+    }
+
+    @Test
+    void aRateLimitedCrumbRequestDoesNotTryTheConsentFlow() {
+        enqueueRateLimitedHandshake(null);
+
+        assertThat(crumbStore.tryGetCrumb()).isEmpty();
+        assertThat(server.getRequestCount()).as("cookie and crumb only").isEqualTo(2);
     }
 
     /** URL of a port with nothing listening, so connecting fails fast with an I/O error. */

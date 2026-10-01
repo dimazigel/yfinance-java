@@ -433,7 +433,13 @@ request's slot — and any failed handshake starts a cooldown of 30 s, doubling 
 up to 5 min, or `Retry-After` when longer, during which no handshake is attempted (one `WARN` on
 entering the cooldown, `DEBUG` after): a 429 or unreachable crumb endpoint means the client continues
 without a crumb; a rejected handshake (403, blank or HTML crumb) throws `YFAuthException` once and
-then stays quiet for the cooldown. Transient server errors (HTTP 500/502/503/504 — Yahoo's lookup
+then stays quiet for the cooldown. **Cookie consent:** where Yahoo requires consent before it serves
+data (the EU), the crumb request is rejected; the library then opens Yahoo's consent entry point
+(`EndpointConfig.consentUrl()`, `https://guce.yahoo.com/consent`) and, if that leads to the consent
+form, **accepts it on your behalf** and requests the crumb again — the same thing Python yfinance
+does. Where no consent is required the entry point leads elsewhere and nothing is submitted. This
+path follows upstream and is tested against a stub server, but has not been run against Yahoo from
+a network that shows the consent wall. Transient server errors (HTTP 500/502/503/504 — Yahoo's lookup
 endpoint is known to hiccup) are retried with exponential backoff, honouring `Retry-After` and the
 same call budget: 3 attempts by default, tunable or disabled via
 `EndpointConfig.withTransientRetry(RetryConfig)`.
@@ -487,7 +493,7 @@ All failures surface as `YFinanceException` subtypes (unchecked):
 | ↳↳ `YFSkippedException` | what `Outcome.Skipped.orElseThrow()` (and so every `Ticker` non-answer) actually throws; adds `reason()` (`SkipReason`) and `symbol()` | no |
 | ↳ `YFClassMismatchException` | `as(Equity.class)` on an instrument of another class; `actual()` and `requested()` | no |
 | `YFRateLimitException` | HTTP 429 after all adaptive retries (`retryAfter()` when Yahoo sent it), or a paced wait that cannot fit the call timeout (`retryAfter()` is that wait) | yes |
-| `YFAuthException` | the cookie/crumb handshake failed, or Yahoo answered an HTML page instead of JSON (EU consent redirect or access blocked; the message names the path) | no |
+| `YFAuthException` | the cookie/crumb handshake failed (after the consent fallback, where one applied), or Yahoo answered an HTML page instead of JSON (consent redirect or access blocked; the message names the path) | no |
 
 `YFinanceException.isRetryable()` says whether repeating the same call later may succeed;
 `Outcome.Failed.isRetryable()` delegates to it. Batch calls never throw per symbol: a failure
@@ -518,8 +524,8 @@ internal/ (encapsulated, may change in any release)
   api/           Feign interfaces (one per endpoint) + YahooApis bundle
   assembly/      FieldSpec tables per class (specs/, mirrored from Appendix A), Resolver, builders (build/)
   dto/ + mapper/ raw records and mappers for chart, options, timeseries, search, lookup, news
-  auth/          CrumbStore — cookie (fc.yahoo.com) then crumb handshake, invalidate-on-401/403
-                 (by identity), cooldown after a transient failure
+  auth/          CrumbStore — cookie (fc.yahoo.com) then crumb handshake, consent-form fallback,
+                 invalidate-on-401/403 (by identity), cooldown after a failure
   batch/         FanOut
 ```
 
