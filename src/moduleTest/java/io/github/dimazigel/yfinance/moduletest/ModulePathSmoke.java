@@ -5,11 +5,14 @@ import com.sun.net.httpserver.HttpServer;
 import io.github.dimazigel.yfinance.YFinance;
 import io.github.dimazigel.yfinance.enums.Frequency;
 import io.github.dimazigel.yfinance.enums.Interval;
+import io.github.dimazigel.yfinance.enums.PredefinedScreen;
 import io.github.dimazigel.yfinance.enums.Range;
 import io.github.dimazigel.yfinance.enums.SectorKey;
 import io.github.dimazigel.yfinance.enums.StatementType;
 import io.github.dimazigel.yfinance.http.EndpointConfig;
 import io.github.dimazigel.yfinance.instrument.Equity;
+import io.github.dimazigel.yfinance.screener.EquityScreenField;
+import io.github.dimazigel.yfinance.screener.ScreenQuery;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.file.Files;
@@ -24,7 +27,7 @@ import okhttp3.HttpUrl;
  *
  * <p>Every endpoint family is exercised once: raw {@code JsonNode} responses (quote, quoteSummary),
  * record DTOs (chart, options, search, sector and industry), the any-setter DTO (timeseries) and
- * the encoded request body (news).
+ * the encoded request bodies (news, and a custom screen's operator tree).
  */
 public final class ModulePathSmoke {
 
@@ -52,6 +55,9 @@ public final class ModulePathSmoke {
                 require(!yf.search("apple").quotes().isEmpty(), "search");
                 require(!yf.sector(SectorKey.TECHNOLOGY).topCompanies().isEmpty(), "sector");
                 require(!yf.industry("semiconductors").topCompanies().isEmpty(), "industry");
+                require(!yf.screen(PredefinedScreen.DAY_GAINERS).instruments().values().isEmpty(), "predefined screen");
+                require(!yf.screenEquities(ScreenQuery.gt(EquityScreenField.INTRADAYMARKETCAP, 1e11))
+                        .instruments().values().isEmpty(), "custom screen");
             }
         } finally {
             server.stop(0);
@@ -79,6 +85,10 @@ public final class ModulePathSmoke {
             fixture = "options/options_AAPL.json";
         } else if (path.equals("/xhr/ncp")) {
             fixture = "news/ncp_news_AAPL.json";
+        } else if (path.equals("/v1/finance/screener/predefined/saved")) {
+            fixture = "screener/predefined_day_gainers.json";
+        } else if (path.equals("/v1/finance/screener")) {
+            fixture = "screener/custom_equity.json";
         } else if (path.startsWith("/v1/finance/sectors/")) {
             fixture = "domain/sector_technology.json";
         } else if (path.startsWith("/v1/finance/industries/")) {

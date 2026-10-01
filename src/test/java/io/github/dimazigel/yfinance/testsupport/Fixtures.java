@@ -9,6 +9,7 @@ import io.github.dimazigel.yfinance.internal.api.NewsApi;
 import io.github.dimazigel.yfinance.internal.api.OptionsApi;
 import io.github.dimazigel.yfinance.internal.api.QuoteApi;
 import io.github.dimazigel.yfinance.internal.api.QuoteSummaryApi;
+import io.github.dimazigel.yfinance.internal.api.ScreenerApi;
 import io.github.dimazigel.yfinance.internal.api.SearchApi;
 import io.github.dimazigel.yfinance.internal.api.YahooApis;
 import java.io.IOException;
@@ -62,6 +63,7 @@ public final class Fixtures {
         else if (apiClass == LookupApi.class) api = apis.lookup();
         else if (apiClass == NewsApi.class) api = apis.news();
         else if (apiClass == DomainApi.class) api = apis.domain();
+        else if (apiClass == ScreenerApi.class) api = apis.screener();
         else throw new IllegalArgumentException("Not a Yahoo API interface: " + apiClass);
         return apiClass.cast(api);
     }

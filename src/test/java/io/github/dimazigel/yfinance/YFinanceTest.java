@@ -10,6 +10,7 @@ import io.github.dimazigel.yfinance.enums.Frequency;
 import io.github.dimazigel.yfinance.enums.Interval;
 import io.github.dimazigel.yfinance.enums.LineItem;
 import io.github.dimazigel.yfinance.enums.LookupType;
+import io.github.dimazigel.yfinance.enums.PredefinedScreen;
 import io.github.dimazigel.yfinance.enums.Range;
 import io.github.dimazigel.yfinance.enums.SectorKey;
 import io.github.dimazigel.yfinance.enums.StatementType;
@@ -24,6 +25,11 @@ import io.github.dimazigel.yfinance.instrument.Etf;
 import io.github.dimazigel.yfinance.instrument.Instrument;
 import io.github.dimazigel.yfinance.instrument.MutualFund;
 import io.github.dimazigel.yfinance.market.HistoryQuery;
+import io.github.dimazigel.yfinance.screener.EquityScreenField;
+import io.github.dimazigel.yfinance.screener.FundScreenField;
+import io.github.dimazigel.yfinance.screener.ScreenOptions;
+import io.github.dimazigel.yfinance.screener.ScreenQuery;
+import io.github.dimazigel.yfinance.screener.ScreenResult;
 import io.github.dimazigel.yfinance.sector.Industry;
 import io.github.dimazigel.yfinance.sector.Sector;
 import io.github.dimazigel.yfinance.testsupport.Fixtures;
@@ -92,6 +98,24 @@ class YFinanceTest {
         assertThatThrownBy(() -> yf.industry("no-such-industry"))
                 .isInstanceOf(YFMissingDataException.class)
                 .hasMessageContaining("no-such-industry");
+    }
+
+    @Test
+    void screensReturnTypedInstrumentsInOneRequest() {
+        ScreenResult gainers = yf.screen(PredefinedScreen.DAY_GAINERS);
+        ScreenResult funds = yf.screen(PredefinedScreen.TOP_MUTUAL_FUNDS, ScreenOptions.defaults().withSize(5));
+        ScreenResult largeTech = yf.screenEquities(ScreenQuery.and(
+                ScreenQuery.eq(EquityScreenField.SECTOR, "Technology"),
+                ScreenQuery.gt(EquityScreenField.INTRADAYMARKETCAP, 100_000_000_000L)));
+        ScreenResult ratedFunds = yf.screenFunds(ScreenQuery.gte(FundScreenField.PERFORMANCERATINGOVERALL, 4));
+
+        assertThat(gainers.screen()).map(ScreenResult.Info::title).contains("Day Gainers");
+        assertThat(gainers.instruments().values()).hasSize(5).allSatisfy(i -> assertThat(i).isInstanceOf(Equity.class));
+        assertThat(funds.instruments().values()).isNotEmpty().allSatisfy(i -> assertThat(i.assetClass()).isEqualTo(AssetClass.MUTUAL_FUND));
+        assertThat(largeTech.total()).isEqualTo(57);
+        assertThat(largeTech.instruments().values().getFirst().symbol()).isEqualTo(Symbol.of("NVDA"));
+        assertThat(ratedFunds.instruments().values()).isNotEmpty();
+        assertThat(server.getRequestCount()).as("one request per screen").isEqualTo(4);
     }
 
     @Test

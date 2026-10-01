@@ -24,6 +24,9 @@ import okhttp3.mockwebserver.RecordedRequest;
  *   <li>search and lookup: the single fixture each
  *   <li>{@code /v1/finance/sectors/{key}} and {@code /v1/finance/industries/{key}}: the capture for
  *       that key, or Yahoo's 404 error page when there is none
+ *   <li>{@code /v1/finance/screener/predefined/saved}: the capture for that {@code scrIds}, or
+ *       Yahoo's "Not Found" envelope; a POST to {@code /v1/finance/screener} gets the custom-equity
+ *       capture, or the fund capture when the body asks for {@code MUTUALFUND}
  *   <li>{@code /xhr/ncp} (the news stream): the AAPL capture of the requested tab for every symbol
  *       except {@link #UNKNOWN}, which gets the empty-stream capture
  *   <li>{@code /ws/fundamentals-timeseries/}: {@code type=shares_out} (batch E/1, item 4) gets the
@@ -65,6 +68,13 @@ public class YahooDispatcher extends Dispatcher {
         }
         if (path.startsWith("/v1/finance/sectors/") || path.startsWith("/v1/finance/industries/")) {
             return domain(path.startsWith("/v1/finance/sectors/") ? "sector" : "industry", url.pathSegments().getLast());
+        }
+        if (path.equals("/v1/finance/screener/predefined/saved")) {
+            return predefinedScreen(url.queryParameter("scrIds"));
+        }
+        if (path.equals("/v1/finance/screener")) {
+            return Fixtures.jsonResponse(request.getBody().snapshot().utf8().contains("MUTUALFUND")
+                    ? "screener/predefined_top_mutual_funds.json" : "screener/custom_equity.json");
         }
         if (path.equals("/v1/test/getcrumb")) {
             return new MockResponse().setResponseCode(200).setBody("mock-crumb");
@@ -159,6 +169,15 @@ public class YahooDispatcher extends Dispatcher {
         } catch (IllegalArgumentException noFixture) {
             return new MockResponse().setResponseCode(404).setHeader("Content-Type", "text/html")
                     .setBody(Fixtures.load("domain/industry_not_found.html"));
+        }
+    }
+
+    private static MockResponse predefinedScreen(String id) {
+        try {
+            return Fixtures.jsonResponse("screener/predefined_" + id + ".json");
+        } catch (IllegalArgumentException noFixture) {
+            return new MockResponse().setResponseCode(404).setHeader("Content-Type", "application/json")
+                    .setBody(Fixtures.load("screener/predefined_unknown.json"));
         }
     }
 

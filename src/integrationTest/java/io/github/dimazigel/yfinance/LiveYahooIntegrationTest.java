@@ -12,6 +12,7 @@ import io.github.dimazigel.yfinance.enums.LineItem;
 import io.github.dimazigel.yfinance.enums.LookupType;
 import io.github.dimazigel.yfinance.enums.NewsTab;
 import io.github.dimazigel.yfinance.enums.OptionType;
+import io.github.dimazigel.yfinance.enums.PredefinedScreen;
 import io.github.dimazigel.yfinance.enums.Range;
 import io.github.dimazigel.yfinance.enums.SectorKey;
 import io.github.dimazigel.yfinance.enums.StatementType;
@@ -31,6 +32,10 @@ import io.github.dimazigel.yfinance.instrument.MutualFund;
 import io.github.dimazigel.yfinance.instrument.Unclassified;
 import io.github.dimazigel.yfinance.market.HistoryQuery;
 import io.github.dimazigel.yfinance.market.PriceBar;
+import io.github.dimazigel.yfinance.screener.EquityScreenField;
+import io.github.dimazigel.yfinance.screener.FundScreenField;
+import io.github.dimazigel.yfinance.screener.ScreenOptions;
+import io.github.dimazigel.yfinance.screener.ScreenQuery;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
 import java.time.Duration;
 import java.time.Instant;
@@ -767,6 +772,58 @@ class LiveYahooIntegrationTest {
         void anUnknownIndustryIsMissingData() {
             assertThatThrownBy(() -> yf.industry("no-such-industry"))
                     .isInstanceOf(io.github.dimazigel.yfinance.exception.YFMissingDataException.class);
+        }
+    }
+
+    @Nested
+    class Screens {
+
+        @ParameterizedTest
+        @EnumSource(PredefinedScreen.class)
+        void everyPredefinedScreenAnswersWithClassifiedRows(PredefinedScreen screen) {
+            var result = yf.screen(screen, ScreenOptions.defaults().withSize(10));
+
+            assertThat(result.screen()).as("a saved screen describes itself").isPresent();
+            assertThat(result.total()).isGreaterThanOrEqualTo(result.instruments().size());
+            assertThat(result.instruments().failed()).isEmpty();
+            // A day screen can be short outside trading hours, so only what came back is judged.
+            var expected = screen.ordinal() < PredefinedScreen.CONSERVATIVE_FOREIGN_FUNDS.ordinal()
+                    ? io.github.dimazigel.yfinance.instrument.AssetClass.EQUITY
+                    : io.github.dimazigel.yfinance.instrument.AssetClass.MUTUAL_FUND;
+            assertThat(result.instruments().values())
+                    .allSatisfy(i -> assertThat(i.assetClass()).isIn(expected, io.github.dimazigel.yfinance.instrument.AssetClass.UNCLASSIFIED));
+        }
+
+        @Test
+        void aCustomEquityQueryFiltersSortsAndPages() {
+            var query = ScreenQuery.and(
+                    ScreenQuery.eq(EquityScreenField.REGION, "us"),
+                    ScreenQuery.eq(EquityScreenField.SECTOR, "Technology"),
+                    ScreenQuery.gt(EquityScreenField.INTRADAYMARKETCAP, 100_000_000_000L));
+            var byCap = ScreenOptions.defaults().withSize(3).sortedBy(EquityScreenField.INTRADAYMARKETCAP, false);
+
+            var first = yf.screenEquities(query, byCap);
+            var second = yf.screenEquities(query, byCap.withOffset(3));
+
+            assertThat(first.total()).isGreaterThan(10);
+            assertThat(first.instruments().values()).hasSize(3).allSatisfy(i -> assertThat(i).isInstanceOf(Equity.class));
+            assertThat(first.instruments().values()).extracting(i -> ((Equity) i).valuation().marketCap())
+                    .isSortedAccordingTo(java.util.Comparator.reverseOrder())
+                    .allSatisfy(cap -> assertThat(cap).isGreaterThan(java.math.BigDecimal.valueOf(100_000_000_000L)));
+            assertThat(second.offset()).isEqualTo(3);
+            assertThat(second.instruments().values()).extracting(i -> i.symbol())
+                    .doesNotContainAnyElementsOf(first.instruments().values().stream().map(i -> i.symbol()).toList());
+        }
+
+        @Test
+        void aCustomFundQueryReturnsMutualFunds() {
+            var result = yf.screenFunds(ScreenQuery.gte(FundScreenField.PERFORMANCERATINGOVERALL, 4),
+                    ScreenOptions.defaults().withSize(5).sortedBy(FundScreenField.FUNDNETASSETS, false));
+
+            assertThat(result.instruments().failed()).isEmpty();
+            assertThat(result.instruments().values()).isNotEmpty()
+                    .allSatisfy(i -> assertThat(i.assetClass()).isIn(io.github.dimazigel.yfinance.instrument.AssetClass.MUTUAL_FUND,
+                            io.github.dimazigel.yfinance.instrument.AssetClass.UNCLASSIFIED));
         }
     }
 

@@ -1,0 +1,9 @@
+{
+  "finance" : {
+    "result" : null,
+    "error" : {
+      "code" : "internal-error",
+      "description" : "Unable to generate query"
+    }
+  }
+}
