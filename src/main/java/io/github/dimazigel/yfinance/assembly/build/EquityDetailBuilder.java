@@ -104,7 +104,8 @@ public final class EquityDetailBuilder {
                 r.optCluster("lastSplit", EquityDetailBuilder::lastSplit),
                 r.optCluster("lastDividend", EquityDetailBuilder::lastDividend),
                 r.optDate("statistics.exDividendDate"),
-                r.optDecimal("statistics.fiveYearAvgDividendYield"));
+                r.optDecimal("statistics.fiveYearAvgDividendYield"),
+                r.optDate("statistics.dividendDate"));
     }
 
     private static FiscalCalendar fiscal(Resolved r) {

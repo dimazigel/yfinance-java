@@ -250,8 +250,8 @@ price data for them. Detail records are fetched with the instrument as proof, so
   `quoteSummary` counterparts of the v7 percents already arrive as fractions, and the unit
   conversion is applied per source, so a value is the same fraction whichever endpoint supplied it.
 - Epoch seconds and milliseconds become `Instant`; date-only epochs (fiscal year end, ex-dividend
-  date, fund inception) become `LocalDate` (UTC). Corporate-action dates in a `PriceHistory` are
-  best read as exchange-local dates: `dividend.localDate(history.zoneId())`.
+  date, dividend payment date, fund inception) become `LocalDate` (UTC). Corporate-action dates in a
+  `PriceHistory` are best read as exchange-local dates: `dividend.localDate(history.zoneId())`.
 - Currencies are `QuoteCurrency(code, Optional<Currency> iso)`. Pence-quoted instruments (`GBp` on
   the LSE, also `ZAc`, `ILA`) keep their code with an empty `iso()` and `isPence()` true; prices are
   in that unit, exactly as Yahoo reports them. Crypto `toCurrency` arrives as an FX ticker

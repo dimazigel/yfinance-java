@@ -12,6 +12,7 @@ import io.github.dimazigel.yfinance.testsupport.LogCapture;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -42,6 +43,7 @@ class EquityDetailBuilderTest {
         assertThat(d.statistics().beta()).isPresent();
         assertThat(d.statistics().fiscal()).isPresent();
         assertThat(d.statistics().shortInterest()).isPresent();
+        assertThat(d.statistics().dividendDate()).contains(LocalDate.parse("2026-08-13"));
         assertThat(d.financials().totalRevenue()).isPositive();
         assertThat(d.financials().margins().gross()).isBetween(BigDecimal.ZERO, BigDecimal.ONE);
         assertThat(d.financials().liquidity()).isPresent();
@@ -65,6 +67,7 @@ class EquityDetailBuilderTest {
         assertThat(plug.statistics().pegRatio().get()).isEqualByComparingTo("0.84"); // present; drifted from the 84% survey figure
         assertThat(plug.statistics().fiveYearAvgDividendYield()).isEmpty();
         assertThat(plug.statistics().exDividendDate()).isEmpty();
+        assertThat(plug.statistics().dividendDate()).isEmpty();
         assertThat(plug.statistics().lastDividend()).isEmpty();
         assertThat(plug.financials().earningsGrowth()).isEmpty();
         assertThat(plug.financials().debtToEquity().get()).isEqualByComparingTo("1.76565"); // wire 176.565, PERCENT -> fraction

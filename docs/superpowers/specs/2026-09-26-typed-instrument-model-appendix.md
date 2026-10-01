@@ -133,6 +133,7 @@ List-row identifiers: every `analysts.*`/`ownership.*` list below is mapped row-
 | `statistics.lastDividend.value` | C:lastDividend | `BigDecimal` | `qs:defaultKeyStatistics.lastDividendValue` | | 62% | perfect cluster 62.4% |
 | `statistics.lastDividend.date` | C:lastDividend | `LocalDate` | `qs:defaultKeyStatistics.lastDividendDate` | `EPOCH_DATE` | 62% |  |
 | `statistics.exDividendDate` | O | `LocalDate` | `qs:summaryDetail.exDividendDate` → `qs:calendarEvents.exDividendDate` | `EPOCH_DATE` | 62% | 61.8% |
+| `statistics.dividendDate` | O | `LocalDate` | `qs:calendarEvents.dividendDate` | `EPOCH_DATE` | 14% | fixtures 2026-09-26; 2/14 (AAPL, BAC-PL) — `summaryDetail.dividendDate` is never present in any capture, so it is not a source |
 | `statistics.fiveYearAvgDividendYield` | O | `BigDecimal` | `qs:summaryDetail.fiveYearAvgDividendYield` | `PERCENT` | 57% | 57%; PERCENT → fraction |
 | `financials.currentPrice` | R | `BigDecimal` | `qs:financialData.currentPrice` | | 100% |  |
 | `financials.totalRevenue` | R | `BigDecimal` | `qs:financialData.totalRevenue` | | 100% |  |
