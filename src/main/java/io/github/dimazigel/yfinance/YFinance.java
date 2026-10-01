@@ -13,6 +13,7 @@ import io.github.dimazigel.yfinance.enums.LookupType;
 import io.github.dimazigel.yfinance.enums.Range;
 import io.github.dimazigel.yfinance.enums.StatementType;
 import io.github.dimazigel.yfinance.fundamentals.FinancialStatement;
+import io.github.dimazigel.yfinance.fundamentals.SharesOutstanding;
 import io.github.dimazigel.yfinance.http.EndpointConfig;
 import io.github.dimazigel.yfinance.http.RawQuoteClient;
 import io.github.dimazigel.yfinance.http.YahooClientFactory;
@@ -35,6 +36,8 @@ import io.github.dimazigel.yfinance.service.OptionsService;
 import io.github.dimazigel.yfinance.service.SearchService;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
 import java.time.Clock;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -72,6 +75,9 @@ public final class YFinance implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(YFinance.class);
 
+    /** {@link #sharesOutstanding(Equity)}'s default window: 18 months, mirrors yfinance's {@code get_shares_full} default. */
+    private static final long SHARES_OUTSTANDING_DEFAULT_WINDOW_DAYS = 548L;
+
     final InstrumentService instruments;
     final DetailService details;
     final HistoryService history;
@@ -79,6 +85,7 @@ public final class YFinance implements AutoCloseable {
     final OptionsService options;
     private final SearchService search;
     private final LookupService lookup;
+    private final Clock clock;
     private final Runnable closer;
     private final int fanOutConcurrency;
     private final AtomicBoolean closed = new AtomicBoolean();
@@ -93,6 +100,7 @@ public final class YFinance implements AutoCloseable {
         this.options = new OptionsService(apis.options());
         this.search = new SearchService(apis.search());
         this.lookup = new LookupService(apis.lookup());
+        this.clock = clock;
         this.closer = closer;
     }
 
@@ -267,9 +275,11 @@ public final class YFinance implements AutoCloseable {
     }
 
     /**
-     * One financial statement for one equity in one timeseries request. Statements are
-     * equities-only (Yahoo's timeseries endpoint returns empty series for every other class), and
-     * the {@link Equity} in hand is the proof; see {@link Ticker#statements(Equity, StatementType, Frequency)}.
+     * One financial statement for one equity in one timeseries request — a single statement's keys
+     * always fit within the ≤ 150-key chunk limit (see {@link #statements(Equity, Set, Set)} for the
+     * multi-statement form, which may need several). Statements are equities-only (Yahoo's
+     * timeseries endpoint returns empty series for every other class), and the {@link Equity} in
+     * hand is the proof; see {@link Ticker#statements(Equity, StatementType, Frequency)}.
      *
      * @param equity the equity whose statement to fetch
      * @param type income statement, balance sheet or cash flow
@@ -283,10 +293,11 @@ public final class YFinance implements AutoCloseable {
     }
 
     /**
-     * Several statements for one equity in <em>one</em> timeseries request: every requested type at
-     * every requested frequency (the trailing balance sheet, which Yahoo does not publish, is
-     * skipped rather than an error when other pairs remain). Four statements this way cost one
-     * request instead of four.
+     * Several statements for one equity in as few timeseries requests as the key count allows
+     * (≤ 150 keys each; a single statement is one request, the full 3×3 form is seven): every
+     * requested type at every requested frequency (the trailing balance sheet, which Yahoo does not
+     * publish, is skipped rather than an error when other pairs remain). Several statements this way
+     * cost ⌈keys/150⌉ requests instead of one per pair.
      *
      * @param equity the equity whose statements to fetch
      * @param types the statements wanted; not empty
@@ -301,9 +312,10 @@ public final class YFinance implements AutoCloseable {
     }
 
     /**
-     * {@link #statements(Equity, Set, Set)} for each equity: one timeseries request per equity,
-     * fanned out with the configured concurrency, in input order (duplicates preserved; see
-     * {@link #statements(Collection, StatementType, Frequency)} for the proof handling).
+     * {@link #statements(Equity, Set, Set)} for each equity: as few timeseries requests per equity
+     * as the key count allows (≤ 150 keys each; a single statement is one request, the full 3×3 form
+     * is seven), fanned out with the configured concurrency, in input order (duplicates preserved;
+     * see {@link #statements(Collection, StatementType, Frequency)} for the proof handling).
      *
      * @param equities the equities
      * @param types the statements wanted; not empty
@@ -346,6 +358,30 @@ public final class YFinance implements AutoCloseable {
     /** The nearest option chain per symbol; {@code Ok(Optional.empty())} for instruments without listed options. */
     public Batch<Optional<OptionChain>> options(Collection<Symbol> symbols) {
         return tickers(List.copyOf(symbols)).fetch(Ticker::options);
+    }
+
+    /**
+     * Historical shares-outstanding reports for one equity over {@code [start, end]} in one
+     * request (batch E/1, Python yfinance's {@code get_shares_full}).
+     *
+     * @param equity the equity whose share counts to fetch
+     * @param start the window start (inclusive)
+     * @param end the window end (inclusive)
+     * @return the reports in wire order; empty when Yahoo has no history for the symbol
+     * @throws IllegalArgumentException if {@code start} is not before {@code end}
+     */
+    public List<SharesOutstanding> sharesOutstanding(Equity equity, Instant start, Instant end) {
+        return fundamentals.getSharesOutstanding(equity, start, end);
+    }
+
+    /**
+     * {@link #sharesOutstanding(Equity, Instant, Instant)} over the default window
+     * {@code [now - 548 days, now]} (18 months, mirrors yfinance's {@code get_shares_full} default),
+     * "now" taken from {@link EndpointConfig#clock()}.
+     */
+    public List<SharesOutstanding> sharesOutstanding(Equity equity) {
+        Instant end = clock.instant();
+        return sharesOutstanding(equity, end.minus(SHARES_OUTSTANDING_DEFAULT_WINDOW_DAYS, ChronoUnit.DAYS), end);
     }
 
     public SearchResult search(String query) {

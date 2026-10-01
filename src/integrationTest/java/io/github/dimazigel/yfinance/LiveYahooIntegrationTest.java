@@ -36,6 +36,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
@@ -518,17 +519,51 @@ class LiveYahooIntegrationTest {
                     .isInstanceOf(IllegalArgumentException.class);
         }
 
+        /**
+         * The batch B baseline of 64 common line items (unchanged names/keys; see batch E/1), broadly
+         * reported by large industrial companies — the set this drift check was originally calibrated
+         * against. Batch E/1 widened {@link LineItem} to all 375 upstream {@code const.py} keys, most
+         * of them insurer/bank/partnership-specific (e.g. {@code NetPolicyholderBenefitsAndClaims},
+         * {@code GeneralPartnershipCapital}); AAPL legitimately reports very few of those, so checking
+         * the full enum for "presence" would measure asset-class mix, not Yahoo renaming a key.
+         */
+        private static final Map<StatementType, List<LineItem>> ORIGINAL_LINE_ITEMS = Map.of(
+                StatementType.INCOME, List.of(
+                        LineItem.TOTAL_REVENUE, LineItem.COST_OF_REVENUE, LineItem.GROSS_PROFIT, LineItem.OPERATING_EXPENSE,
+                        LineItem.OPERATING_INCOME, LineItem.NET_NON_OPERATING_INTEREST, LineItem.PRETAX_INCOME, LineItem.TAX_PROVISION,
+                        LineItem.NET_INCOME, LineItem.NET_INCOME_COMMON_STOCKHOLDERS, LineItem.DILUTED_NI_AVAIL_TO_COM_STOCKHOLDERS,
+                        LineItem.BASIC_EPS, LineItem.DILUTED_EPS, LineItem.BASIC_AVERAGE_SHARES, LineItem.DILUTED_AVERAGE_SHARES,
+                        LineItem.EBIT, LineItem.EBITDA, LineItem.INTEREST_EXPENSE, LineItem.RESEARCH_AND_DEVELOPMENT,
+                        LineItem.SELLING_GENERAL_AND_ADMINISTRATION),
+                StatementType.BALANCE_SHEET, List.of(
+                        LineItem.TOTAL_ASSETS, LineItem.CURRENT_ASSETS, LineItem.CASH_AND_CASH_EQUIVALENTS,
+                        LineItem.CASH_CASH_EQUIVALENTS_AND_SHORT_TERM_INVESTMENTS, LineItem.RECEIVABLES, LineItem.INVENTORY,
+                        LineItem.NET_PPE, LineItem.GOODWILL, LineItem.TOTAL_LIABILITIES_NET_MINORITY_INTEREST,
+                        LineItem.CURRENT_LIABILITIES, LineItem.ACCOUNTS_PAYABLE, LineItem.CURRENT_DEBT, LineItem.LONG_TERM_DEBT,
+                        LineItem.TOTAL_DEBT, LineItem.STOCKHOLDERS_EQUITY, LineItem.RETAINED_EARNINGS, LineItem.COMMON_STOCK,
+                        LineItem.TREASURY_SHARES_NUMBER, LineItem.SHARE_ISSUED, LineItem.WORKING_CAPITAL,
+                        LineItem.FIXED_MATURITY_INVESTMENTS, LineItem.EQUITY_INVESTMENTS, LineItem.NET_LOAN, LineItem.DEFERRED_ASSETS),
+                StatementType.CASH_FLOW, List.of(
+                        LineItem.OPERATING_CASH_FLOW, LineItem.INVESTING_CASH_FLOW, LineItem.FINANCING_CASH_FLOW,
+                        LineItem.FREE_CASH_FLOW, LineItem.CAPITAL_EXPENDITURE, LineItem.END_CASH_POSITION,
+                        LineItem.BEGINNING_CASH_POSITION, LineItem.CHANGES_IN_CASH, LineItem.DEPRECIATION_AND_AMORTIZATION,
+                        LineItem.STOCK_BASED_COMPENSATION, LineItem.NET_INCOME_FROM_CONTINUING_OPERATIONS,
+                        LineItem.REPURCHASE_OF_CAPITAL_STOCK, LineItem.ISSUANCE_OF_DEBT, LineItem.REPAYMENT_OF_DEBT,
+                        LineItem.CASH_DIVIDENDS_PAID, LineItem.CHANGE_IN_WORKING_CAPITAL, LineItem.NET_OTHER_FINANCING_CHARGES,
+                        LineItem.INTEREST_PAID_SUPPLEMENTAL_DATA, LineItem.INCOME_TAX_PAID_SUPPLEMENTAL_DATA,
+                        LineItem.EFFECT_OF_EXCHANGE_RATE_CHANGES));
+
         @Test
         void lineItemKeysHaveNotDrifted() {
-            // Guards against Yahoo renaming keys: most typed line items must resolve for a large
-            // industrial company. (Financial-sector keys like NetLoan legitimately stay absent.)
+            // Guards against Yahoo renaming keys: most of the original 64 line items must resolve for
+            // a large industrial company. (Financial-sector keys like NetLoan legitimately stay absent.)
             for (StatementType type : StatementType.values()) {
                 var statement = aapl.statements(aaplEquity, type, Frequency.ANNUAL);
                 LocalDate latest = statement.periods().getLast();
-                var items = LineItem.forStatement(type);
+                var items = ORIGINAL_LINE_ITEMS.get(type);
                 long present = items.stream().filter(li -> statement.value(li, latest).isPresent()).count();
                 assertThat(present)
-                        .as("%s: %d of %d line items present at %s", type, present, items.size(), latest)
+                        .as("%s: %d of %d original line items present at %s", type, present, items.size(), latest)
                         .isGreaterThanOrEqualTo(items.size() / 2);
             }
         }
@@ -595,6 +630,18 @@ class LiveYahooIntegrationTest {
             FinancialStatement income = aapl.statements(aaplEquity, StatementType.INCOME, Frequency.ANNUAL);
             assertThat(income.value("NoSuchLineItem", income.periods().getLast())).isEmpty();
             assertThat(income.value(LineItem.TOTAL_REVENUE, LocalDate.of(1990, 1, 1))).isEmpty();
+        }
+
+        @Test
+        void sharesOutstandingHasHistoryWithAscendingDatesAndBillionsOfShares() {   // batch E/1, item 4
+            var points = aapl.sharesOutstanding(aaplEquity);
+
+            assertThat(points).hasSizeGreaterThan(10);
+            assertThat(points).allSatisfy(p -> assertThat(p.shares()).isGreaterThan(1_000_000_000L));
+            for (int i = 1; i < points.size(); i++) {
+                assertThat(points.get(i).date()).as("ascending-or-equal dates")
+                        .isAfterOrEqualTo(points.get(i - 1).date());
+            }
         }
     }
 

@@ -1,0 +1,20 @@
+{
+  "timeseries": {
+    "result": [
+      {
+        "meta": { "symbol": ["AAPL"], "type": ["quarterlyTotalAssets"] },
+        "timestamp": [1719705600],
+        "quarterlyTotalAssets": [
+          {
+            "dataId": 23001,
+            "asOfDate": "2024-06-30",
+            "periodType": "3M",
+            "currencyCode": "USD",
+            "reportedValue": { "raw": 331612000000, "fmt": "331.61B" }
+          }
+        ]
+      }
+    ],
+    "error": null
+  }
+}

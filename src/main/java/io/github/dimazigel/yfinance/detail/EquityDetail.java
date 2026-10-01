@@ -61,7 +61,11 @@ public record EquityDetail(
     public record Governance(
             int auditRisk, int boardRisk, int compensationRisk, int shareholderRightsRisk, int overallRisk) {}
 
-    /** Ownership and valuation statistics from {@code defaultKeyStatistics} and related modules. */
+    /**
+     * Ownership and valuation statistics from {@code defaultKeyStatistics} and related modules.
+     *
+     * @param dividendDate the next dividend payment date
+     */
     public record Statistics(
             long floatShares,
             BigDecimal heldPercentInsiders,
@@ -80,7 +84,8 @@ public record EquityDetail(
             Optional<LastSplit> lastSplit,
             Optional<LastDividend> lastDividend,
             Optional<LocalDate> exDividendDate,
-            Optional<BigDecimal> fiveYearAvgDividendYield) {}
+            Optional<BigDecimal> fiveYearAvgDividendYield,
+            Optional<LocalDate> dividendDate) {}
 
     /** The issuer's fiscal calendar. */
     public record FiscalCalendar(LocalDate lastFiscalYearEnd, LocalDate nextFiscalYearEnd, LocalDate mostRecentQuarter) {}

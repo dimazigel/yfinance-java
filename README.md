@@ -41,9 +41,10 @@ try (var yf = YFinance.create()) { // cookie+crumb handshake; close() releases t
     List<Dividend> dividends = aapl.dividends();          // full-history corporate actions
     Optional<OptionChain> chain = aapl.options();          // empty when the instrument has no listed options
     FinancialStatement income = yf.statements(equity, StatementType.INCOME, Frequency.ANNUAL);
-    Map<StatementType, Map<Frequency, FinancialStatement>> statements = yf.statements(equity,   // one request
+    Map<StatementType, Map<Frequency, FinancialStatement>> statements = yf.statements(equity,   // 5 requests: 750 keys / 150
             Set.of(StatementType.INCOME, StatementType.BALANCE_SHEET, StatementType.CASH_FLOW), Set.of(Frequency.ANNUAL, Frequency.QUARTERLY));
     Optional<BigDecimal> revenue = income.latest(LineItem.TOTAL_REVENUE);   // most recent period; row(...) for all periods
+    List<SharesOutstanding> shares = yf.sharesOutstanding(equity);   // default window: last 548 days
     List<NewsArticle> news = aapl.news();
 
     SearchResult results = yf.search("apple");
@@ -90,7 +91,8 @@ Batch<EquityDetail> details = yf.equityDetails(equities.values()); // one quoteS
 Batch<PriceHistory> histories = yf.histories(symbols, Range.ONE_YEAR, Interval.ONE_DAY);
 Batch<Optional<OptionChain>> chains = yf.options(symbols);
 Batch<FinancialStatement> statements = yf.statements(equities.values(), StatementType.INCOME, Frequency.ANNUAL);
-// Several statements per equity in ONE timeseries request each (type → frequency → statement):
+// Several statements per equity in as few timeseries requests as the key count allows
+// (≤ 150 keys each; one per statement in practice; type → frequency → statement):
 Batch<Map<StatementType, Map<Frequency, FinancialStatement>>> multi = yf.statements(equities.values(),
         Set.of(StatementType.INCOME, StatementType.CASH_FLOW), Set.of(Frequency.ANNUAL, Frequency.QUARTERLY));
 
@@ -164,7 +166,8 @@ request. It will be removed in 2.0.
 | `history(auto_adjust=True)` (the Python default) | `ticker.history(...).adjusted()` — bars are raw OHLC + `adjClose` until you ask |
 | `dividends` / `splits` / `actions` / `capital_gains` | `ticker.dividends()` / `ticker.splits()`; `history(...).dividends()` / `.splits()` / `.capitalGains()` on any fetched window |
 | `options` / `option_chain(date)` | `ticker.options()` → `Optional<OptionChain>` (nearest expiration; `expirationDates()` lists the rest), `ticker.options(expiration)` for one of them |
-| `financials` / `balance_sheet` / `cashflow` (+ `quarterly_*`, `ttm_*`) | `yf.statements(equity, StatementType.INCOME \| BALANCE_SHEET \| CASH_FLOW, Frequency.ANNUAL \| QUARTERLY \| TRAILING)`; several at once in one request: `yf.statements(equity, Set.of(...types), Set.of(...frequencies))` |
+| `financials` / `balance_sheet` / `cashflow` (+ `quarterly_*`, `ttm_*`) | `yf.statements(equity, StatementType.INCOME \| BALANCE_SHEET \| CASH_FLOW, Frequency.ANNUAL \| QUARTERLY \| TRAILING)`; several at once in as few requests as the key count allows (≤ 150 keys each): `yf.statements(equity, Set.of(...types), Set.of(...frequencies))` |
+| `get_shares_full()` | `yf.sharesOutstanding(equity[, start, end])` / `ticker.sharesOutstanding(equity[, start, end])` — default window `[now - 548 days, now]` |
 | `Tickers("AAPL MSFT")` / `download([...])` | `yf.instruments(symbols)` (one request per 100 symbols) / `yf.histories(symbols, range, interval)`; `yf.tickers(...).fetch(Ticker::...)` fans any call out |
 | `Search("apple")` / `Lookup("apple")` | `yf.search("apple")` (`quotes()` + `news()`) / `yf.lookup("apple", LookupType.EQUITY)` |
 | `Ticker.news` | `ticker.news()` |
@@ -249,8 +252,8 @@ price data for them. Detail records are fetched with the instrument as proof, so
   `quoteSummary` counterparts of the v7 percents already arrive as fractions, and the unit
   conversion is applied per source, so a value is the same fraction whichever endpoint supplied it.
 - Epoch seconds and milliseconds become `Instant`; date-only epochs (fiscal year end, ex-dividend
-  date, fund inception) become `LocalDate` (UTC). Corporate-action dates in a `PriceHistory` are
-  best read as exchange-local dates: `dividend.localDate(history.zoneId())`.
+  date, dividend payment date, fund inception) become `LocalDate` (UTC). Corporate-action dates in a
+  `PriceHistory` are best read as exchange-local dates: `dividend.localDate(history.zoneId())`.
 - Currencies are `QuoteCurrency(code, Optional<Currency> iso)`. Pence-quoted instruments (`GBp` on
   the LSE, also `ZAc`, `ILA`) keep their code with an empty `iso()` and `isPence()` true; prices are
   in that unit, exactly as Yahoo reports them. Crypto `toCurrency` arrives as an FX ticker
@@ -277,15 +280,26 @@ price data for them. Detail records are fetched with the instrument as proof, so
   hundreds). Within a chain, `bid`, `openInterest` and `volume` are `Optional`; a contract missing
   any other field is dropped.
 - **Financial statements** exist for equities only (the timeseries endpoint returns empty series
-  for every other class), hence the `Equity` proof. `FinancialStatement.value(item, period)`,
+  for every other class), hence the `Equity` proof. `LineItem` mirrors every key from Python
+  yfinance's `const.py` `fundamentals_keys` (375 constants total), so consumers bind to typed
+  symbols instead of magic strings. `FinancialStatement.value(item, period)`,
   `latest(item)` (at `latestPeriod()`, the last of the ascending `periods()`) and `row(item)`
   (period → value, ascending, absent values omitted) return `Optional<BigDecimal>` / an immutable
   map; the typed forms throw `IllegalArgumentException` for a `LineItem` of another statement
   (`TOTAL_ASSETS` asked of an income statement); the raw-key `value(String, period)` stays lenient. `statements(equity,
-  Set<StatementType>, Set<Frequency>)` fetches every requested pair in **one** request and returns
+  Set<StatementType>, Set<Frequency>)` fetches every requested pair in as few timeseries requests
+  as the key count allows (≤ 150 keys each; one per statement in practice) and returns
   `type → frequency → FinancialStatement`; the trailing balance sheet (which Yahoo does not
   publish) is skipped when other pairs remain and an `IllegalArgumentException` when it is the
   only one, as it is for the single form.
+- **Shares outstanding history** (`yf.sharesOutstanding(equity[, start, end])` /
+  `ticker.sharesOutstanding(equity[, start, end])`, Python's `get_shares_full()`) is a separate
+  fundamentals-timeseries request (`type=shares_out`, plain-long series, not the
+  `{reportedValue}` shape statements use) returning `List<SharesOutstanding>` — one reported count
+  per date, in wire order; Yahoo occasionally reports two values for the same date (an amendment)
+  and both are kept. The no-args overload defaults to `[now - 548 days, now]` (18 months, mirrors
+  yfinance's own default); a symbol Yahoo has no history for comes back an empty list, not an
+  error.
 - **`HistoryMetadata`** is fully non-null except `dataGranularity` (`Optional<Interval>`, in case
   Yahoo reports an interval this version does not know); an incomplete chart response throws
   rather than returning a half-filled record.
@@ -327,12 +341,14 @@ Twitter and proof-of-work stats.
 | Snapshot, every asset class | `/v7/finance/quote` + `/v10/finance/quoteSummary` fallback | `Ticker.instrument()`, `as(...)`, `YFinance.instruments(...)` |
 | Detail per class | `/v10/finance/quoteSummary` | `Ticker.detail(...)`, `YFinance.equityDetails(...)`, `etfDetails`, `mutualFundDetails`, `cryptoDetails` |
 | Price history, dividends, splits, capital gains, metadata | `/v8/finance/chart` | `Ticker.history(...)`, `dividends()`, `splits()`, `YFinance.histories(...)` |
-| Income / balance sheet / cash flow (annual, quarterly, trailing) | `/ws/fundamentals-timeseries` | `Ticker.statements(...)`, `YFinance.statements(...)` (single, several-in-one-request, and batch forms) |
+| Income / balance sheet / cash flow (annual, quarterly, trailing) | `/ws/fundamentals-timeseries` | `Ticker.statements(...)`, `YFinance.statements(...)` (single, multi-statement, and batch forms) |
 | Options chain | `/v7/finance/options` | `Ticker.options(...)`, `YFinance.options(...)` |
 | Search & per-symbol news | `/v1/finance/search` | `YFinance.search(...)`, `Ticker.news()` |
 | Lookup | `/v1/finance/lookup` | `YFinance.lookup(...)` |
 
-Not covered: live WebSocket streaming, `EquityQuery`/`Screener`, `Sector`/`Industry`.
+Not covered: live WebSocket streaming, `EquityQuery`/`Screener`, `Sector`/`Industry`, ESG / sustainability
+scores — Yahoo stopped serving the `esgScores` module (verified 2026-10-01: HTTP 200 with the module
+omitted for every symbol tried), so there is nothing to port.
 
 ## Configuration
 

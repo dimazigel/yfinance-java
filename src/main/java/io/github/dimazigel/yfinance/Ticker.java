@@ -10,6 +10,7 @@ import io.github.dimazigel.yfinance.enums.Range;
 import io.github.dimazigel.yfinance.enums.StatementType;
 import io.github.dimazigel.yfinance.exception.YFClassMismatchException;
 import io.github.dimazigel.yfinance.fundamentals.FinancialStatement;
+import io.github.dimazigel.yfinance.fundamentals.SharesOutstanding;
 import io.github.dimazigel.yfinance.instrument.Crypto;
 import io.github.dimazigel.yfinance.instrument.Equity;
 import io.github.dimazigel.yfinance.instrument.Etf;
@@ -166,9 +167,11 @@ public final class Ticker {
     }
 
     /**
-     * Several statements for this ticker's symbol in one request — every requested statement type
-     * at every requested frequency; see {@link YFinance#statements(Equity, Set, Set)}. {@code proof} is the
-     * {@link Equity} evidence, as for {@link #statements(Equity, StatementType, Frequency)}.
+     * Several statements for this ticker's symbol in as few timeseries requests as the key count
+     * allows (≤ 150 keys each; a single statement is one request, the full 3×3 form is seven) —
+     * every requested statement type at every requested frequency; see
+     * {@link YFinance#statements(Equity, Set, Set)}. {@code proof} is the {@link Equity} evidence, as
+     * for {@link #statements(Equity, StatementType, Frequency)}.
      *
      * @param proof this ticker's equity
      * @param types the statements wanted; not empty
@@ -180,6 +183,22 @@ public final class Ticker {
     public Map<StatementType, Map<Frequency, FinancialStatement>> statements(
             Equity proof, Set<StatementType> types, Set<Frequency> frequencies) {
         return yf.statements(proof(proof), types, frequencies);
+    }
+
+    /**
+     * Historical shares-outstanding reports for this ticker's symbol over {@code [start, end]};
+     * {@code proof} is the compile-time {@link Equity} evidence, as for {@link #statements}.
+     *
+     * @throws IllegalArgumentException if {@code proof} is for a different symbol, or if
+     *     {@code start} is not before {@code end}
+     */
+    public List<SharesOutstanding> sharesOutstanding(Equity proof, Instant start, Instant end) {
+        return yf.sharesOutstanding(proof(proof), start, end);
+    }
+
+    /** {@link #sharesOutstanding(Equity, Instant, Instant)} over the default 18-month window. */
+    public List<SharesOutstanding> sharesOutstanding(Equity proof) {
+        return yf.sharesOutstanding(proof(proof));
     }
 
     /** Recent news articles related to this symbol. */

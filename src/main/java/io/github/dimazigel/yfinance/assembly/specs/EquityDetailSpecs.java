@@ -63,6 +63,7 @@ public final class EquityDetailSpecs {
             clustered("lastDividend", "statistics.lastDividend.value", RAW, "qs:defaultKeyStatistics.lastDividendValue"),
             clustered("lastDividend", "statistics.lastDividend.date", EPOCH_DATE, "qs:defaultKeyStatistics.lastDividendDate"),
             optional("statistics.exDividendDate", EPOCH_DATE, "qs:summaryDetail.exDividendDate", "qs:calendarEvents.exDividendDate"),
+            optional("statistics.dividendDate", EPOCH_DATE, "qs:calendarEvents.dividendDate"),
             optional("statistics.fiveYearAvgDividendYield", PERCENT, "qs:summaryDetail.fiveYearAvgDividendYield"));
 
     private static final List<FieldSpec> FINANCIALS = List.of(

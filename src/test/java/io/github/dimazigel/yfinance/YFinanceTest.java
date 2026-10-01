@@ -8,6 +8,7 @@ import io.github.dimazigel.yfinance.batch.Outcome;
 import io.github.dimazigel.yfinance.batch.SkipReason;
 import io.github.dimazigel.yfinance.enums.Frequency;
 import io.github.dimazigel.yfinance.enums.Interval;
+import io.github.dimazigel.yfinance.enums.LineItem;
 import io.github.dimazigel.yfinance.enums.LookupType;
 import io.github.dimazigel.yfinance.enums.Range;
 import io.github.dimazigel.yfinance.enums.StatementType;
@@ -202,17 +203,22 @@ class YFinanceTest {
     }
 
     @Test
-    void multiStatementsBatchIsOneRequestPerEquity() {   // batch B, item 3
+    void multiStatementsBatchIsOneRequestPerEquity() {   // batch B, item 3; chunk count updated for batch E/1
         Equity aapl = yf.ticker("AAPL").as(Equity.class);
         Equity msft = Instruments.withSymbol(aapl, "MSFT");
         int before = server.getRequestCount();
         var types = java.util.Set.of(StatementType.INCOME, StatementType.CASH_FLOW);
         var frequencies = java.util.Set.of(Frequency.ANNUAL, Frequency.QUARTERLY);
+        // FundamentalsService.MAX_KEYS_PER_REQUEST = 150: with the full upstream LineItem list this
+        // pair no longer fits in one request per equity.
+        int keysPerEquity = LineItem.forStatement(StatementType.INCOME).size() * 2
+                + LineItem.forStatement(StatementType.CASH_FLOW).size() * 2;
+        int chunksPerEquity = (keysPerEquity + 149) / 150;
 
         var batch = yf.statements(List.of(aapl, msft), types, frequencies);
 
         assertThat(batch.outcomes()).extracting(Outcome::symbol).containsExactly(Symbol.of("AAPL"), Symbol.of("MSFT"));
-        assertThat(server.getRequestCount()).isEqualTo(before + 2);
+        assertThat(server.getRequestCount()).isEqualTo(before + 2 * chunksPerEquity);
         assertThat(batch.values()).hasSize(2).allSatisfy(byType -> {
             assertThat(byType.keySet()).containsExactlyInAnyOrder(StatementType.INCOME, StatementType.CASH_FLOW);
             assertThat(byType.get(StatementType.INCOME).keySet()).containsExactlyInAnyOrder(Frequency.ANNUAL, Frequency.QUARTERLY);
@@ -223,7 +229,8 @@ class YFinanceTest {
         });
 
         var single = yf.statements(aapl, types, frequencies);
-        assertThat(server.getRequestCount()).as("the single form is one request too").isEqualTo(before + 3);
+        assertThat(server.getRequestCount()).as("the single form chunks the same way")
+                .isEqualTo(before + 2 * chunksPerEquity + chunksPerEquity);
         assertThat(single.get(StatementType.CASH_FLOW).get(Frequency.ANNUAL).type()).isEqualTo(StatementType.CASH_FLOW);
     }
 
@@ -418,6 +425,43 @@ class YFinanceTest {
         }
         assertThat(last).isNotNull();
         assertThat(last.getRequestUrl().queryParameter("period2")).isEqualTo("1750000000");
+    }
+
+    @Test
+    void sharesOutstandingDefaultWindowIsFiveFortyEightDaysFromTheConfiguredClock() throws Exception {   // batch E/1, item 4
+        var fixed = java.time.Clock.fixed(java.time.Instant.ofEpochSecond(1_750_000_000L), java.time.ZoneOffset.UTC);
+        var config = EndpointConfig.production().withHosts(server.url("/")).withClock(fixed);
+
+        try (var created = YFinance.create(config)) {
+            Equity aapl = created.ticker("AAPL").as(Equity.class);
+
+            var points = created.sharesOutstanding(aapl);
+
+            assertThat(points).hasSize(63);
+        }
+
+        RecordedRequest sharesRequest = null;
+        for (int i = 0; i < server.getRequestCount(); i++) {
+            var req = server.takeRequest();
+            if ("shares_out".equals(req.getRequestUrl().queryParameter("type"))) {
+                sharesRequest = req;
+            }
+        }
+        assertThat(sharesRequest).isNotNull();
+        assertThat(sharesRequest.getRequestUrl().queryParameter("period2")).isEqualTo("1750000000");
+        assertThat(sharesRequest.getRequestUrl().queryParameter("period1")).isEqualTo(
+                String.valueOf(1_750_000_000L - 548L * 86400));
+    }
+
+    @Test
+    void sharesOutstandingExplicitWindowDelegatesToFundamentalsService() {   // batch E/1, item 4
+        Equity aapl = yf.ticker("AAPL").as(Equity.class);
+
+        var points = yf.sharesOutstanding(aapl, java.time.Instant.EPOCH, java.time.Instant.ofEpochSecond(2_000_000_000L));
+
+        assertThat(points).hasSize(63);
+        assertThatThrownBy(() -> yf.sharesOutstanding(aapl, java.time.Instant.EPOCH, java.time.Instant.EPOCH))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     private static List<Symbol> symbols(String... values) {

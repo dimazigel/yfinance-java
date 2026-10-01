@@ -1,30 +1,44 @@
 package io.github.dimazigel.yfinance.service;
 
 import io.github.dimazigel.yfinance.api.FundamentalsApi;
+import io.github.dimazigel.yfinance.dto.timeseries.TimeseriesResponse;
 import io.github.dimazigel.yfinance.enums.Frequency;
 import io.github.dimazigel.yfinance.enums.StatementType;
+import io.github.dimazigel.yfinance.exception.YFDataException;
 import io.github.dimazigel.yfinance.fundamentals.FinancialStatement;
+import io.github.dimazigel.yfinance.fundamentals.SharesOutstanding;
 import io.github.dimazigel.yfinance.instrument.Equity;
 import io.github.dimazigel.yfinance.logging.LogContext;
 import io.github.dimazigel.yfinance.mapper.FundamentalsMapper;
+import io.github.dimazigel.yfinance.mapper.SharesMapper;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
 import java.time.Clock;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /** Retrieves income, balance-sheet and cash-flow statements via the timeseries endpoint. */
 public final class FundamentalsService {
 
     // Yahoo caps at ~4 years / 5 quarters regardless; this lower bound mirrors yfinance.
     private static final long PERIOD_START = LocalDate.of(2016, 12, 31).atStartOfDay(ZoneOffset.UTC).toEpochSecond();
+
+    /**
+     * Maximum distinct timeseries keys per {@code type=} request. A single statement at one
+     * frequency (~100-150 {@link io.github.dimazigel.yfinance.enums.LineItem} keys) fits in one
+     * request; the multi-statement form ({@link #getStatements}) can exceed this and is split into
+     * several requests, merged client-side. Verified live against Yahoo (batch E/1).
+     */
+    static final int MAX_KEYS_PER_REQUEST = 150;
 
     private final FundamentalsApi api;
     private final Clock clock;
@@ -59,19 +73,19 @@ public final class FundamentalsService {
                     "Yahoo has no trailing balance sheet; use ANNUAL or QUARTERLY for " + symbol);
         }
         try (var ignored = LogContext.scope("statements", symbol)) {
-            String typeParam = FundamentalKeys.forStatement(type).stream()
+            List<String> wireKeys = FundamentalKeys.forStatement(type).stream()
                     .map(key -> frequency.wireValue() + key)
-                    .collect(Collectors.joining(","));
-            long now = clock.instant().getEpochSecond();
-            var response = api.timeseries(symbol.value(), typeParam, PERIOD_START, now);
-            return FundamentalsMapper.toStatement(response, type, frequency);
+                    .toList();
+            var merged = merge(fetchSeries(symbol, wireKeys));
+            return FundamentalsMapper.toStatement(merged, type, frequency);
         }
     }
 
     /**
-     * Several statements for {@code equity} in <em>one</em> timeseries request: every requested
-     * {@link StatementType} at every requested {@link Frequency}, split client-side by frequency
-     * prefix and statement key set. {@link Frequency#TRAILING} × {@link StatementType#BALANCE_SHEET}
+     * Several statements for {@code equity} in as few timeseries requests as the key count allows
+     * (≤ 150 keys each; a single statement is one request, the full 3×3 form is seven): every
+     * requested {@link StatementType} at every requested {@link Frequency}, split client-side by
+     * frequency prefix and statement key set. {@link Frequency#TRAILING} × {@link StatementType#BALANCE_SHEET}
      * (which Yahoo does not publish) is skipped, not an error, when other pairs remain.
      *
      * @param equity the equity, the compile-time proof (see {@link #getStatement(Equity, StatementType, Frequency)})
@@ -104,15 +118,14 @@ public final class FundamentalsService {
             }
         }
         try (var ignored = LogContext.scope("statements", symbol)) {
-            long now = clock.instant().getEpochSecond();
-            var response = api.timeseries(symbol.value(), String.join(",", wireKeys), PERIOD_START, now);
+            var merged = merge(fetchSeries(symbol, List.copyOf(wireKeys)));
             var byType = new EnumMap<StatementType, Map<Frequency, FinancialStatement>>(StatementType.class);
             for (StatementType type : orderedTypes) {
                 var byFrequency = new EnumMap<Frequency, FinancialStatement>(Frequency.class);
                 for (Frequency frequency : orderedFrequencies) {
                     if (servable(type, frequency)) {
                         byFrequency.put(frequency,
-                                FundamentalsMapper.toStatement(response, type, frequency, FundamentalKeys.forStatement(type)));
+                                FundamentalsMapper.toStatement(merged, type, frequency, FundamentalKeys.forStatement(type)));
                     }
                 }
                 if (!byFrequency.isEmpty()) {
@@ -121,6 +134,65 @@ public final class FundamentalsService {
             }
             return Collections.unmodifiableMap(byType);
         }
+    }
+
+    /**
+     * Historical shares-outstanding reports for {@code equity} over {@code [start, end]} (batch
+     * E/1, {@code get_shares_full} parity). Yahoo may report two values for one date; both are kept,
+     * in wire order. Unlike statements, this is tolerant of absence: a symbol Yahoo has no history
+     * for (e.g. a non-equity, were this called through a raw endpoint test) comes back as an empty
+     * list, never a {@link YFDataException}.
+     *
+     * @param equity the equity, the compile-time proof (see {@link #getStatement(Equity, StatementType, Frequency)})
+     * @param start the window start (inclusive, Yahoo's own {@code period1} semantics)
+     * @param end the window end (inclusive, Yahoo's own {@code period2} semantics)
+     * @throws IllegalArgumentException if {@code start} is not before {@code end}
+     */
+    public List<SharesOutstanding> getSharesOutstanding(Equity equity, Instant start, Instant end) {
+        return getSharesOutstanding(equity.symbol(), start, end);
+    }
+
+    /** Package-private: reused by tests and the live drift check, which don't hold an {@link Equity}. */
+    List<SharesOutstanding> getSharesOutstanding(Symbol symbol, Instant start, Instant end) {
+        if (!start.isBefore(end)) {
+            throw new IllegalArgumentException("start (" + start + ") must be before end (" + end + ") for " + symbol);
+        }
+        try (var ignored = LogContext.scope("shares", symbol)) {
+            var response = api.sharesOutstanding(symbol.value(), start.getEpochSecond(), end.getEpochSecond());
+            return SharesMapper.toList(response);
+        }
+    }
+
+    /**
+     * Fetches {@code wireKeys} in chunks of at most {@link #MAX_KEYS_PER_REQUEST}, issuing one
+     * {@code api.timeseries(...)} call per chunk and concatenating the {@code result} lists
+     * (null-safe). A failed chunk fails the whole call — never a partial statement. The request
+     * order is deterministic: callers build {@code wireKeys} in statement order, then frequency
+     * order, then {@link io.github.dimazigel.yfinance.enums.LineItem} declaration order.
+     */
+    private List<TimeseriesResponse.Result> fetchSeries(Symbol symbol, List<String> wireKeys) {
+        long now = clock.instant().getEpochSecond();
+        var merged = new ArrayList<TimeseriesResponse.Result>();
+        for (int start = 0; start < wireKeys.size(); start += MAX_KEYS_PER_REQUEST) {
+            List<String> chunk = wireKeys.subList(start, Math.min(start + MAX_KEYS_PER_REQUEST, wireKeys.size()));
+            var response = api.timeseries(symbol.value(), String.join(",", chunk), PERIOD_START, now);
+            var ts = response.timeseries();
+            if (ts == null) {
+                throw new YFDataException("Malformed timeseries response");
+            }
+            if (ts.error() != null) {
+                throw new YFDataException("Yahoo timeseries error: " + ts.error().description());
+            }
+            if (ts.result() != null) {
+                merged.addAll(ts.result());
+            }
+        }
+        return merged;
+    }
+
+    /** Wraps already-validated, merged results back into a {@link TimeseriesResponse} for the mapper. */
+    private static TimeseriesResponse merge(List<TimeseriesResponse.Result> results) {
+        return new TimeseriesResponse(new TimeseriesResponse.Timeseries(results, null));
     }
 
     /**
