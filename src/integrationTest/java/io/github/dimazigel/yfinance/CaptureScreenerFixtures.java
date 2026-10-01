@@ -5,6 +5,7 @@ import io.github.dimazigel.yfinance.internal.http.YahooClientFactory;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Objects;
 import okhttp3.HttpUrl;
 import okhttp3.MediaType;
@@ -37,28 +38,43 @@ class CaptureScreenerFixtures {
     private static final String CUSTOM_INVALID = "{\"offset\":0,\"size\":5,\"sortField\":\"intradaymarketcap\",\"sortType\":\"DESC\","
             + "\"quoteType\":\"EQUITY\",\"userId\":\"\",\"userIdType\":\"guid\",\"query\":{\"operator\":\"GT\",\"operands\":[\"no_such_field\",1]}}";
 
+    /** Every listing of Apple, most traded first: what {@code YFinance.listings(Isin)} sends. */
+    private static final String CUSTOM_ISIN = "{\"offset\":0,\"size\":250,\"sortField\":\"dayvolume\",\"sortType\":\"DESC\","
+            + "\"quoteType\":\"EQUITY\",\"userId\":\"\",\"userIdType\":\"guid\",\"query\":{\"operator\":\"EQ\",\"operands\":[\"isin\",\"US0378331005\"]}}";
+
+    /**
+     * {@code CAPTURE_ONLY=custom_isin_apple,fields_equity} captures just those files; refreshing all
+     * of them rewrites the values the tests assert on (the day's gainers change daily).
+     */
     @Test
     void capture() throws Exception {
         var client = YahooClientFactory.apiClient(EndpointConfig.production());
-        var mapper = JsonMapper.builder().build();
+
+        capture("predefined_day_gainers", () -> get(client, predefined("day_gainers", 5)));
+        capture("predefined_top_mutual_funds", () -> get(client, predefined("top_mutual_funds", 5)));
+        capture("predefined_unknown", () -> get(client, predefined("no_such_screen", 5)));
+        capture("custom_equity", () -> post(client, CUSTOM_EQUITY));
+        capture("custom_invalid_field", () -> post(client, CUSTOM_INVALID));
+        capture("custom_isin_apple", () -> post(client, CUSTOM_ISIN));
+        capture("fields_equity", () -> get(client, HttpUrl.get(BASE + "/instrument/equity/fields").newBuilder()
+                .addQueryParameter("lang", "en-US").addQueryParameter("region", "US").build()));
+        capture("fields_mutualfund", () -> get(client, HttpUrl.get(BASE + "/instrument/mutualfund/fields").newBuilder()
+                .addQueryParameter("lang", "en-US").addQueryParameter("region", "US").build()));
+    }
+
+    private interface Fetch {
+        String get() throws IOException;
+    }
+
+    private static void capture(String name, Fetch fetch) throws Exception {
+        String only = System.getenv("CAPTURE_ONLY");
+        if (only != null && !only.isBlank() && !List.of(only.split(",")).contains(name)) {
+            return;
+        }
         var out = Path.of("src/test/resources/fixtures/screener");
         Files.createDirectories(out);
-
-        write(mapper, out.resolve("predefined_day_gainers.json"), get(client, predefined("day_gainers", 5)));
+        write(JsonMapper.builder().build(), out.resolve(name + ".json"), fetch.get());
         Thread.sleep(500);
-        write(mapper, out.resolve("predefined_top_mutual_funds.json"), get(client, predefined("top_mutual_funds", 5)));
-        Thread.sleep(500);
-        write(mapper, out.resolve("predefined_unknown.json"), get(client, predefined("no_such_screen", 5)));
-        Thread.sleep(500);
-        write(mapper, out.resolve("custom_equity.json"), post(client, CUSTOM_EQUITY));
-        Thread.sleep(500);
-        write(mapper, out.resolve("custom_invalid_field.json"), post(client, CUSTOM_INVALID));
-        Thread.sleep(500);
-        write(mapper, out.resolve("fields_equity.json"), get(client, HttpUrl.get(BASE + "/instrument/equity/fields").newBuilder()
-                .addQueryParameter("lang", "en-US").addQueryParameter("region", "US").build()));
-        Thread.sleep(500);
-        write(mapper, out.resolve("fields_mutualfund.json"), get(client, HttpUrl.get(BASE + "/instrument/mutualfund/fields").newBuilder()
-                .addQueryParameter("lang", "en-US").addQueryParameter("region", "US").build()));
     }
 
     private static HttpUrl predefined(String id, int count) {

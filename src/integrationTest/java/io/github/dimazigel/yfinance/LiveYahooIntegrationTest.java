@@ -816,6 +816,21 @@ class LiveYahooIntegrationTest {
         }
 
         @Test
+        void listingsOfAnIsinLeadWithThePrimaryListing() {
+            var listings = yf.listings(io.github.dimazigel.yfinance.valueobject.Isin.of("US0378331005"));
+
+            assertThat(listings.failed()).isEmpty();
+            assertThat(listings.size()).isGreaterThan(5);
+            assertThat(listings.outcomes().getFirst().symbol()).isEqualTo(Symbol.of("AAPL"));
+            assertThat(listings.values().getFirst()).isInstanceOf(Equity.class);
+        }
+
+        @Test
+        void anEtfIsinHasNoEquityListings() {
+            assertThat(yf.listings(io.github.dimazigel.yfinance.valueobject.Isin.of("US78462F1030")).size()).isZero();
+        }
+
+        @Test
         void aCustomFundQueryReturnsMutualFunds() {
             var result = yf.screenFunds(ScreenQuery.gte(FundScreenField.PERFORMANCERATINGOVERALL, 4),
                     ScreenOptions.defaults().withSize(5).sortedBy(FundScreenField.FUNDNETASSETS, false));

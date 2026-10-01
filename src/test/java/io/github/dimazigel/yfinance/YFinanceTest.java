@@ -36,6 +36,7 @@ import io.github.dimazigel.yfinance.testsupport.Fixtures;
 import io.github.dimazigel.yfinance.testsupport.Instruments;
 import io.github.dimazigel.yfinance.testsupport.LogCapture;
 import io.github.dimazigel.yfinance.testsupport.YahooDispatcher;
+import io.github.dimazigel.yfinance.valueobject.Isin;
 import io.github.dimazigel.yfinance.valueobject.Symbol;
 import java.time.Duration;
 import java.time.Instant;
@@ -116,6 +117,16 @@ class YFinanceTest {
         assertThat(largeTech.instruments().values().getFirst().symbol()).isEqualTo(Symbol.of("NVDA"));
         assertThat(ratedFunds.instruments().values()).isNotEmpty();
         assertThat(server.getRequestCount()).as("one request per screen").isEqualTo(4);
+    }
+
+    @Test
+    void listingsFindEverySymbolOfAnIsinInOneRequest() {
+        var listings = yf.listings(Isin.of("US0378331005"));
+
+        assertThat(listings.size()).isEqualTo(15);
+        assertThat(listings.outcomes().getFirst().symbol()).isEqualTo(Symbol.of("AAPL"));
+        assertThat(listings.values().getFirst()).isInstanceOf(Equity.class);
+        assertThat(server.getRequestCount()).isEqualTo(1);
     }
 
     @Test
