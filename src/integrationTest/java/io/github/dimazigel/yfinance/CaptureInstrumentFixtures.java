@@ -25,7 +25,7 @@ class CaptureInstrumentFixtures {
     static final String MODULES = "assetProfile,summaryProfile,summaryDetail,quoteType,price,financialData,defaultKeyStatistics,"
             + "calendarEvents,secFilings,recommendationTrend,upgradeDowngradeHistory,earningsTrend,earningsHistory,"
             + "majorHoldersBreakdown,institutionOwnership,fundOwnership,insiderHolders,insiderTransactions,"
-            + "netSharePurchaseActivity,fundProfile,topHoldings,fundPerformance,esgScores";
+            + "netSharePurchaseActivity,fundProfile,topHoldings,fundPerformance";
 
     @Test
     void capture() throws Exception {

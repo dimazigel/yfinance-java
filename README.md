@@ -336,7 +336,9 @@ Twitter and proof-of-work stats.
 | Search & per-symbol news | `/v1/finance/search` | `YFinance.search(...)`, `Ticker.news()` |
 | Lookup | `/v1/finance/lookup` | `YFinance.lookup(...)` |
 
-Not covered: live WebSocket streaming, `EquityQuery`/`Screener`, `Sector`/`Industry`.
+Not covered: live WebSocket streaming, `EquityQuery`/`Screener`, `Sector`/`Industry`, ESG / sustainability
+scores — Yahoo stopped serving the `esgScores` module (verified 2026-10-01: HTTP 200 with the module
+omitted for every symbol tried), so there is nothing to port.
 
 ## Configuration
 
