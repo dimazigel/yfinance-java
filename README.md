@@ -602,9 +602,7 @@ against a local stub server, so a missing `exports` or `opens` fails the build.
 ### Consuming
 
 Coordinates: **`io.github.dimazigel:yfinance-java:<version>`** — pick the version from the
-[releases page](https://github.com/dimazigel/yfinance-java/releases). (Releases up to 0.0.2 were
-published under the old `io.ziggy` group and package root; from the next release on, both are
-`io.github.dimazigel`.)
+[releases page](https://github.com/dimazigel/yfinance-java/releases).
 
 Releases are published to **GitHub Packages**, which requires authentication even for public
 packages: a GitHub username plus a [personal access token](https://github.com/settings/tokens)

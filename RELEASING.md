@@ -21,8 +21,8 @@ deliberately not set up; consumers authenticate to GitHub Packages as described 
 
 ## Notes
 
-- Releases `0.0.1` and `0.0.2` were published under the previous coordinates `io.ziggy:yfinance-java`
-  with package root `io.ziggy.yfinance`. They remain available on GitHub Packages but will not be
-  updated; everything from the next release on is `io.github.dimazigel`.
+- `1.0.0` is the first release. The versions published while the library was taking shape
+  (`0.0.1`–`2.0.0`, the first two under the old `io.ziggy` coordinates) were withdrawn on 2026-10-02
+  — releases, tags and packages — and numbering restarted.
 - `publish.yml` publishes to GitHub Packages for releases created by hand in the GitHub UI;
   releases made by the Release workflow are already published and are skipped.
