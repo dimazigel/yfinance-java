@@ -38,9 +38,11 @@ jobs:
           languages: java-kotlin
           build-mode: manual
 
-      # Compile only; tests and Spotless/coverage gates run in build.yml.
+      # Compile only; tests and Spotless/coverage gates run in build.yml. Without the build cache:
+      # CodeQL watches javac run, and a change that touches no Java source restores every compile
+      # task FROM-CACHE, which leaves it nothing to analyse ("could not process any code").
       - name: Compile
-        run: ./gradlew compileJava compileTestJava compileIntegrationTestJava
+        run: ./gradlew compileJava compileTestJava compileIntegrationTestJava --no-build-cache
 
       - name: Perform CodeQL analysis
         uses: github/codeql-action/analyze@v4
