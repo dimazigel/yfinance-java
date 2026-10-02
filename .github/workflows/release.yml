@@ -1,7 +1,9 @@
 name: Release
 
 # Manually launched: builds and tests, publishes the Maven package to GitHub Packages, then tags the
-# commit and creates the GitHub release. Publishing happens before tagging so a failed publish leaves
+# commit `v<version>` and creates the GitHub release. The package version has no prefix; the tag has
+# one because the repository's releases are immutable, and the bare numbers 0.0.1-2.0.0 were used by
+# releases that have since been withdrawn: GitHub never lets those tag names be created again. Publishing happens before tagging so a failed publish leaves
 # no tag behind and the run can simply be retried.
 #
 # The release is created with GITHUB_TOKEN, and events raised by GITHUB_TOKEN don't trigger other
@@ -56,7 +58,8 @@ jobs:
           if [ -n "$INPUT_VERSION" ]; then
             version="${INPUT_VERSION#v}"
           else
-            latest=$(git tag --list '[0-9]*.[0-9]*.[0-9]*' --sort=-v:refname | head -n1)
+            latest=$(git tag --list 'v[0-9]*.[0-9]*.[0-9]*' --sort=-v:refname | head -n1)
+            latest="${latest#v}"
             IFS=. read -r major minor patch <<< "${latest:-0.0.0}"
             case "$BUMP" in
               major) version="$((major + 1)).0.0" ;;
@@ -68,8 +71,8 @@ jobs:
             echo "::error::'$version' is not a valid release version (expected MAJOR.MINOR.PATCH[-qualifier], no SNAPSHOT)."
             exit 1
           fi
-          if git rev-parse -q --verify "refs/tags/$version" >/dev/null; then
-            echo "::error::Tag $version already exists."
+          if git rev-parse -q --verify "refs/tags/v$version" >/dev/null; then
+            echo "::error::Tag v$version already exists."
             exit 1
           fi
           echo "Releasing $version"
@@ -114,7 +117,7 @@ jobs:
         run: |
           flags=()
           if [ "$PRERELEASE" = "true" ]; then flags+=(--prerelease); fi
-          gh release create "$VERSION" build/libs/*.jar \
+          gh release create "v$VERSION" build/libs/*.jar \
             --target "$GITHUB_SHA" \
             --title "$VERSION" \
             --generate-notes \
