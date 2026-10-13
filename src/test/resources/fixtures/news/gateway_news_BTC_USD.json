@@ -1,0 +1,244 @@
+{
+  "data" : {
+    "lightyearList" : {
+      "main" : {
+        "edges" : [ {
+          "node" : {
+            "asset" : {
+              "__typename" : "Video",
+              "id" : "3779678a-2b1d-4c2e-872e-9180967ac7b4",
+              "title" : "Bitcoin ETFs lose $679 million over the week",
+              "contentAttributes" : {
+                "summary" : "Scott Melker discusses how bitcoin ETFs lost $679 million over the past week, reversing the course of massive inflows.\n\n\"The Daily Wolf with Scott Melker\" airs every day at 12:00 p.m. Tune in for your daily dose of all things crypto.\n\nMake sure to also check out Yahoo Finance's new crypto hub to find the latest crypto-related news.",
+                "pubDate" : "2026-10-12T17:00:00Z",
+                "canonicalUrl" : "https://finance.yahoo.com/video/bitcoin-etfs-lose-679-million-170000916.html",
+                "clickthroughUrl" : "https://finance.yahoo.com/video/bitcoin-etfs-lose-679-million-170000916.html",
+                "provider" : {
+                  "displayName" : "Yahoo Finance Video",
+                  "url" : "https://finance.yahoo.com/"
+                },
+                "thumbnail" : {
+                  "originalUrl" : "https://d29szjachogqwa.cloudfront.net/images/user-uploaded/video-frame-1791820141220_8477.jpg_00c3cc603b941051a4d0e51a62ac26a9efc61fa25d9ea15b4facc915886097b0.jpg",
+                  "originalHeight" : 792,
+                  "originalWidth" : 1409
+                }
+              }
+            }
+          }
+        }, {
+          "node" : {
+            "asset" : {
+              "__typename" : "Video",
+              "id" : "88eb5cdd-013c-4a15-b2eb-65699389c73d",
+              "title" : "Michael Saylor's Strategy purchases 250 bitcoin",
+              "contentAttributes" : {
+                "summary" : "Scott Melker discusses how Strategy (MSTR) purchased 250 bitcoin (BTC-USD) while also purchasing $192 million worth of its preferred stock (STRC).\n\n\"The Daily Wolf with Scott Melker\" airs every day at 12:00 p.m. Tune in for your daily dose of all things crypto.\n\nMake sure to also check out Yahoo Finance's new crypto hub to find the latest crypto-related news.",
+                "pubDate" : "2026-10-12T16:00:00Z",
+                "canonicalUrl" : "https://finance.yahoo.com/video/michael-saylors-strategy-purchases-250-160000093.html",
+                "clickthroughUrl" : "https://finance.yahoo.com/video/michael-saylors-strategy-purchases-250-160000093.html",
+                "provider" : {
+                  "displayName" : "Yahoo Finance Video",
+                  "url" : "https://finance.yahoo.com/"
+                },
+                "thumbnail" : {
+                  "originalUrl" : "https://d29szjachogqwa.cloudfront.net/images/user-uploaded/8d315dc0-e0b1-11ee-9fed-5c8b8cbc3a8e_b2db2a0d0fd65b5173595ff80cdbf637dbe7c32175bc2c6655caa55c9bf50407.jpg",
+                  "originalHeight" : 2363,
+                  "originalWidth" : 4201
+                }
+              }
+            }
+          }
+        }, {
+          "node" : {
+            "asset" : {
+              "__typename" : "Story",
+              "id" : "01af1559-f4b1-3a82-92c6-6168e472dde3",
+              "title" : "Their Entire $600K Net Worth Is Riding On Bitcoin. She Wants To Sell To Pay Off The Mortgage. He Thinks It's Going Much Higher. Is He Greedy?",
+              "isPremiumNews" : false,
+              "contentAttributes" : {
+                "summary" : "Imagine having enough money to pay off your mortgage, clear your car loan and finally enjoy some financial security, but your spouse refuses to touch it. That’s the situation one California mother finds herself in, with roughly $600,000 in cryptocurrency...",
+                "pubDate" : "2026-10-12T23:00:14Z",
+                "canonicalUrl" : "https://finance.yahoo.com/markets/crypto/articles/entire-600k-net-worth-riding-230014635.html",
+                "clickthroughUrl" : "https://finance.yahoo.com/markets/crypto/articles/entire-600k-net-worth-riding-230014635.html",
+                "provider" : {
+                  "displayName" : "Benzinga",
+                  "url" : "https://www.benzinga.com/"
+                },
+                "thumbnail" : {
+                  "originalUrl" : "https://media.zenfs.com/en/benzinga_79/77cf07a533876e70c799debec496a8a1.jpg",
+                  "originalHeight" : 1080,
+                  "originalWidth" : 1920
+                }
+              }
+            }
+          }
+        }, {
+          "node" : {
+            "asset" : {
+              "__typename" : "Story",
+              "id" : "20a5f220-c646-36b8-8bd6-8715475f929e",
+              "title" : "A year after crypto’s $19 billion crash, one warning sign still hasn’t gone away",
+              "isPremiumNews" : false,
+              "contentAttributes" : {
+                "summary" : "Bitcoin is still more than 30% below its record, and market insiders say the problem that made last October’s crash so brutal is still there.",
+                "pubDate" : "2026-10-12T23:00:00Z",
+                "canonicalUrl" : "https://www.thestreet.com/crypto/markets/a-year-after-cryptos-19-billion-crash-one-warning-sign-still-hasnt-gone-away",
+                "clickthroughUrl" : "https://finance.yahoo.com/markets/crypto/articles/crypto-19-billion-crash-one-230000486.html",
+                "provider" : {
+                  "displayName" : "TheStreet",
+                  "url" : "https://www.thestreet.com/"
+                },
+                "thumbnail" : {
+                  "originalUrl" : "https://media.zenfs.com/en/thestreet_881/e1515229301f74d1f2665c6ed26f582f",
+                  "originalHeight" : 1024,
+                  "originalWidth" : 1792
+                }
+              }
+            }
+          }
+        }, {
+          "node" : {
+            "asset" : {
+              "__typename" : "Story",
+              "id" : "8ed2c385-99ff-30eb-9c7e-d9c0b251ec00",
+              "title" : "FTX’s old Bitcoin mining assets have a new mission, and it’s not crypto",
+              "isPremiumNews" : false,
+              "contentAttributes" : {
+                "summary" : "A Bitcoin miner once tangled in the FTX collapse is being rebuilt as an AI data-center business.",
+                "pubDate" : "2026-10-12T21:00:00Z",
+                "canonicalUrl" : "https://www.thestreet.com/crypto/markets/ftxs-old-bitcoin-mining-assets-have-a-new-mission-and-its-not-crypto",
+                "clickthroughUrl" : "https://finance.yahoo.com/technology/ai/articles/ftx-old-bitcoin-mining-assets-210000552.html",
+                "provider" : {
+                  "displayName" : "TheStreet",
+                  "url" : "https://www.thestreet.com/"
+                },
+                "thumbnail" : {
+                  "originalUrl" : "https://media.zenfs.com/en/thestreet_881/8cabadf6d293bea6b27d5f1b63120ab2.jpg",
+                  "originalHeight" : 2260,
+                  "originalWidth" : 3389
+                }
+              }
+            }
+          }
+        }, {
+          "node" : {
+            "asset" : {
+              "__typename" : "Story",
+              "id" : "dd5ae564-aba0-3af3-884a-c86dca8b425f",
+              "title" : "Sector Update: Financial Stocks Advance Late Afternoon",
+              "isPremiumNews" : true,
+              "contentAttributes" : {
+                "summary" : "Financial stocks rose in late Monday afternoon trading, with the NYSE Financial Index adding 0.5% an",
+                "pubDate" : "2026-10-12T20:00:11Z",
+                "canonicalUrl" : "https://finance.yahoo.com/markets/stocks/articles/sector-financial-stocks-advance-afternoon-200011423.html",
+                "clickthroughUrl" : "https://finance.yahoo.com/markets/stocks/articles/sector-financial-stocks-advance-afternoon-200011423.html",
+                "provider" : {
+                  "displayName" : "MT Newswires",
+                  "url" : "https://www.mtnewswires.com/"
+                },
+                "thumbnail" : null
+              }
+            }
+          }
+        }, {
+          "node" : {
+            "asset" : {
+              "__typename" : "Story",
+              "id" : "495a15fe-6bbf-3875-96a5-9aa15438903a",
+              "title" : "Stock Market Today, Oct. 12: Iren Surges on Reports of Anthropic Cloud Services Deal",
+              "isPremiumNews" : false,
+              "contentAttributes" : {
+                "summary" : "On Oct. 12, 2026, the AI infrastructure operator reportedly signed a multiyear agreement with Anthropic, reinforcing its pivot away from legacy mining operations.",
+                "pubDate" : "2026-10-12T21:21:15Z",
+                "canonicalUrl" : "https://www.fool.com/coverage/stock-market-today/2026/10/12/stock-market-today-oct-12-iren-surges-on-reports-of-anthropic-cloud-services-deal/",
+                "clickthroughUrl" : "https://finance.yahoo.com/markets/stocks/articles/stock-market-today-oct-12-212115906.html",
+                "provider" : {
+                  "displayName" : "Motley Fool",
+                  "url" : "http://www.fool.com/"
+                },
+                "thumbnail" : {
+                  "originalUrl" : "https://media.zenfs.com/en/motleyfool.com/af63f18e6bbbb0112e79ed834c9d3c1a.png",
+                  "originalHeight" : 800,
+                  "originalWidth" : 1200
+                }
+              }
+            }
+          }
+        }, {
+          "node" : {
+            "asset" : {
+              "__typename" : "Story",
+              "id" : "1e89a044-59ca-38f4-addd-ede09591b72d",
+              "title" : "Can Cardano Reach $1 Before Bitcoin Reaches $100,000?",
+              "isPremiumNews" : false,
+              "contentAttributes" : {
+                "summary" : "Cardano needs a fourfold surge while Bitcoin chases a relatively modest gain, but the race to these milestone prices is far less straightforward than the numbers suggest. One coin carries a hidden weight that could derail its climb before it even gets started.",
+                "pubDate" : "2026-10-12T20:30:24Z",
+                "canonicalUrl" : "https://247wallst.com/investing/cryptocurrency/2026/10/12/can-cardano-reach-1-before-bitcoin-reaches-100000/",
+                "clickthroughUrl" : "https://finance.yahoo.com/markets/crypto/articles/cardano-reach-1-bitcoin-reaches-203024573.html",
+                "provider" : {
+                  "displayName" : "24/7 Wall St.",
+                  "url" : "https://247wallst.com/"
+                },
+                "thumbnail" : {
+                  "originalUrl" : "https://media.zenfs.com/en/24_7_wall_st__718/862706fa806a63d032fe8330ce15d145.jpg",
+                  "originalHeight" : 1000,
+                  "originalWidth" : 1500
+                }
+              }
+            }
+          }
+        }, {
+          "node" : {
+            "asset" : {
+              "__typename" : "Story",
+              "id" : "04ab5ce8-c2c2-3b1c-952c-5ea1b7a9d653",
+              "title" : "IREN Reportedly Joins Anthropic's Cloud Providers; Shares Jump",
+              "isPremiumNews" : false,
+              "contentAttributes" : {
+                "summary" : "Anthropic reportedly signed a cloud services deal with IREN as it accelerates its data center buildouts. IREN stock surges.",
+                "pubDate" : "2026-10-12T20:22:57Z",
+                "canonicalUrl" : "https://www.investors.com/news/iren-stock-anthropic-ai-cloud-services-deal-data-center-buildout-reports/?src=A00220&yptr=yahoo",
+                "clickthroughUrl" : null,
+                "provider" : {
+                  "displayName" : "Investor's Business Daily",
+                  "url" : "http://www.investors.com/"
+                },
+                "thumbnail" : {
+                  "originalUrl" : "https://media.zenfs.com/en/ibd.com/90f28a060e406fbc0ff8a5521819a427.jpg",
+                  "originalHeight" : 511,
+                  "originalWidth" : 1000
+                }
+              }
+            }
+          }
+        }, {
+          "node" : {
+            "asset" : {
+              "__typename" : "Story",
+              "id" : "2436e395-199c-3f82-a2fd-517c05f3f961",
+              "title" : "Trump Bought Coinbase Stock in July and Sold Some of It on August 10. The Same Day, He Bought More Strategy. Here Is What Both Have Done Since.",
+              "isPremiumNews" : false,
+              "contentAttributes" : {
+                "summary" : "Trump's ethics filings reveal he swapped Coinbase shares for more Strategy stock on a single August day, but the story behind the timing and which bet paid off raises some pointed questions about his trading instincts.",
+                "pubDate" : "2026-10-12T20:00:54Z",
+                "canonicalUrl" : "https://247wallst.com/investing/cryptocurrency/2026/10/12/trump-bought-coinbase-stock-in-july-and-sold-some-of-it-on-august-10-the-same-day-he-bought-more-strategy-here-is-what-both-have-done-since/",
+                "clickthroughUrl" : "https://finance.yahoo.com/markets/crypto/articles/trump-bought-coinbase-stock-july-200054729.html",
+                "provider" : {
+                  "displayName" : "24/7 Wall St.",
+                  "url" : "https://247wallst.com/"
+                },
+                "thumbnail" : {
+                  "originalUrl" : "https://media.zenfs.com/en/24_7_wall_st__718/908c53535a755c713773a1d200f1fbe6.jpg",
+                  "originalHeight" : 768,
+                  "originalWidth" : 1152
+                }
+              }
+            }
+          }
+        } ],
+        "totalCount" : 10
+      }
+    }
+  }
+}

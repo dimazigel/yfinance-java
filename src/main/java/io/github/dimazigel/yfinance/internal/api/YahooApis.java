@@ -32,7 +32,7 @@ public record YahooApis(
                 feign.target(OptionsApi.class, config.query1Base()),
                 feign.target(SearchApi.class, config.query1Base()),
                 feign.target(LookupApi.class, config.query1Base()),
-                feign.target(NewsApi.class, config.financeBase()),
+                feign.target(NewsApi.class, config.newsGatewayBase()),
                 feign.target(DomainApi.class, config.query1Base()),
                 feign.target(ScreenerApi.class, config.query1Base()));
     }

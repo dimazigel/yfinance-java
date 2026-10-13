@@ -18,8 +18,8 @@ import okhttp3.OkHttpClient;
  * @param query1Base  primary API host ({@code https://query1.finance.yahoo.com/})
  * @param query2Base  secondary API host ({@code https://query2.finance.yahoo.com/}), used for
  *     fundamentals timeseries
- * @param financeBase the finance.yahoo.com site ({@code https://finance.yahoo.com/}), which serves
- *     the news stream
+ * @param newsGatewayBase Yahoo's news gateway ({@code https://nexus-gateway-prod.media.yahoo.com/}),
+ *     the GraphQL endpoint the finance.yahoo.com quote page reads its news stream from
  * @param cookieUrl   URL hit purely to seed session cookies ({@code https://fc.yahoo.com/})
  * @param consentUrl  entry point of Yahoo's cookie-consent flow ({@code https://guce.yahoo.com/consent}),
  *     asked only when the crumb request is rejected: where Yahoo requires consent (the EU) the
@@ -55,7 +55,7 @@ import okhttp3.OkHttpClient;
 public record EndpointConfig(
         HttpUrl query1Base,
         HttpUrl query2Base,
-        HttpUrl financeBase,
+        HttpUrl newsGatewayBase,
         HttpUrl cookieUrl,
         HttpUrl consentUrl,
         String userAgent,
@@ -78,7 +78,7 @@ public record EndpointConfig(
     public EndpointConfig {
         Objects.requireNonNull(query1Base, "query1Base");
         Objects.requireNonNull(query2Base, "query2Base");
-        Objects.requireNonNull(financeBase, "financeBase");
+        Objects.requireNonNull(newsGatewayBase, "newsGatewayBase");
         Objects.requireNonNull(cookieUrl, "cookieUrl");
         Objects.requireNonNull(consentUrl, "consentUrl");
         Objects.requireNonNull(userAgent, "userAgent");
@@ -98,7 +98,7 @@ public record EndpointConfig(
         return new EndpointConfig(
                 HttpUrl.get("https://query1.finance.yahoo.com/"),
                 HttpUrl.get("https://query2.finance.yahoo.com/"),
-                HttpUrl.get("https://finance.yahoo.com/"),
+                HttpUrl.get("https://nexus-gateway-prod.media.yahoo.com/"),
                 HttpUrl.get("https://fc.yahoo.com/"),
                 HttpUrl.get("https://guce.yahoo.com/consent"),
                 DEFAULT_USER_AGENT,
@@ -122,16 +122,16 @@ public record EndpointConfig(
 
     /** Returns a copy with different hosts. */
     public EndpointConfig withHosts(
-            HttpUrl query1Base, HttpUrl query2Base, HttpUrl financeBase, HttpUrl cookieUrl, HttpUrl consentUrl) {
+            HttpUrl query1Base, HttpUrl query2Base, HttpUrl newsGatewayBase, HttpUrl cookieUrl, HttpUrl consentUrl) {
         return new EndpointConfig(
-                query1Base, query2Base, financeBase, cookieUrl, consentUrl, userAgent, callTimeout, adaptiveRateLimit, transientRetry,
+                query1Base, query2Base, newsGatewayBase, cookieUrl, consentUrl, userAgent, callTimeout, adaptiveRateLimit, transientRetry,
                 clientCustomizer, fanOutConcurrency, cookieJar, clock);
     }
 
     /** Returns a copy with a different {@code User-Agent}. */
     public EndpointConfig withUserAgent(String userAgent) {
         return new EndpointConfig(
-                query1Base, query2Base, financeBase, cookieUrl, consentUrl, userAgent, callTimeout, adaptiveRateLimit, transientRetry,
+                query1Base, query2Base, newsGatewayBase, cookieUrl, consentUrl, userAgent, callTimeout, adaptiveRateLimit, transientRetry,
                 clientCustomizer, fanOutConcurrency, cookieJar, clock);
     }
 
@@ -142,21 +142,21 @@ public record EndpointConfig(
      */
     public EndpointConfig withCallTimeout(Duration timeout) {
         return new EndpointConfig(
-                query1Base, query2Base, financeBase, cookieUrl, consentUrl, userAgent, timeout, adaptiveRateLimit, transientRetry,
+                query1Base, query2Base, newsGatewayBase, cookieUrl, consentUrl, userAgent, timeout, adaptiveRateLimit, transientRetry,
                 clientCustomizer, fanOutConcurrency, cookieJar, clock);
     }
 
     /** Returns a copy with a different adaptive rate-limit config. */
     public EndpointConfig withAdaptiveRateLimit(AdaptiveRateLimitConfig config) {
         return new EndpointConfig(
-                query1Base, query2Base, financeBase, cookieUrl, consentUrl, userAgent, callTimeout, config, transientRetry, clientCustomizer,
+                query1Base, query2Base, newsGatewayBase, cookieUrl, consentUrl, userAgent, callTimeout, config, transientRetry, clientCustomizer,
                 fanOutConcurrency, cookieJar, clock);
     }
 
     /** Returns a copy with a different transient-server-error retry policy. */
     public EndpointConfig withTransientRetry(RetryConfig config) {
         return new EndpointConfig(
-                query1Base, query2Base, financeBase, cookieUrl, consentUrl, userAgent, callTimeout, adaptiveRateLimit, config, clientCustomizer,
+                query1Base, query2Base, newsGatewayBase, cookieUrl, consentUrl, userAgent, callTimeout, adaptiveRateLimit, config, clientCustomizer,
                 fanOutConcurrency, cookieJar, clock);
     }
 
@@ -166,7 +166,7 @@ public record EndpointConfig(
      */
     public EndpointConfig withClientCustomizer(Consumer<OkHttpClient.Builder> customizer) {
         return new EndpointConfig(
-                query1Base, query2Base, financeBase, cookieUrl, consentUrl, userAgent, callTimeout, adaptiveRateLimit, transientRetry,
+                query1Base, query2Base, newsGatewayBase, cookieUrl, consentUrl, userAgent, callTimeout, adaptiveRateLimit, transientRetry,
                 customizer, fanOutConcurrency, cookieJar, clock);
     }
 
@@ -178,7 +178,7 @@ public record EndpointConfig(
      */
     public EndpointConfig withFanOutConcurrency(int concurrency) {
         return new EndpointConfig(
-                query1Base, query2Base, financeBase, cookieUrl, consentUrl, userAgent, callTimeout, adaptiveRateLimit, transientRetry,
+                query1Base, query2Base, newsGatewayBase, cookieUrl, consentUrl, userAgent, callTimeout, adaptiveRateLimit, transientRetry,
                 clientCustomizer, concurrency, cookieJar, clock);
     }
 
@@ -190,7 +190,7 @@ public record EndpointConfig(
      */
     public EndpointConfig withCookieJar(CookieJar cookieJar) {
         return new EndpointConfig(
-                query1Base, query2Base, financeBase, cookieUrl, consentUrl, userAgent, callTimeout, adaptiveRateLimit, transientRetry,
+                query1Base, query2Base, newsGatewayBase, cookieUrl, consentUrl, userAgent, callTimeout, adaptiveRateLimit, transientRetry,
                 clientCustomizer, fanOutConcurrency, cookieJar, clock);
     }
 
@@ -201,7 +201,7 @@ public record EndpointConfig(
      */
     public EndpointConfig withClock(Clock clock) {
         return new EndpointConfig(
-                query1Base, query2Base, financeBase, cookieUrl, consentUrl, userAgent, callTimeout, adaptiveRateLimit, transientRetry,
+                query1Base, query2Base, newsGatewayBase, cookieUrl, consentUrl, userAgent, callTimeout, adaptiveRateLimit, transientRetry,
                 clientCustomizer, fanOutConcurrency, cookieJar, clock);
     }
 

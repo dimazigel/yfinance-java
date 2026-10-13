@@ -701,8 +701,9 @@ class LiveYahooIntegrationTest {
         void everyTabServesCompleteItems(NewsTab tab) {
             var items = aapl.news(tab, 10);
 
-            // Not hasSize(10): an item missing a required field is dropped, and one or two may be.
-            assertThat(items).hasSizeBetween(8, 10).allSatisfy(item -> {
+            // Not hasSize(10): an item missing a required field is dropped, and one or two may be;
+            // and Apple's press-release list is short (two entries on 2026-10-13).
+            assertThat(items).hasSizeBetween(tab == NewsTab.PRESS_RELEASES ? 1 : 8, 10).allSatisfy(item -> {
                 assertThat(item.title()).isNotBlank();
                 assertThat(item.url()).isNotNull();
                 assertThat(item.provider().name()).isNotBlank();

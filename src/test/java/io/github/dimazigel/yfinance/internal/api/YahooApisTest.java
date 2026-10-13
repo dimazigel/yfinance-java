@@ -2,10 +2,10 @@ package io.github.dimazigel.yfinance.internal.api;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import io.github.dimazigel.yfinance.enums.NewsTab;
 import io.github.dimazigel.yfinance.http.EndpointConfig;
 import io.github.dimazigel.yfinance.internal.dto.news.NewsRequest;
 import io.github.dimazigel.yfinance.testsupport.Fixtures;
-import java.util.List;
 import java.util.Objects;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
@@ -137,20 +137,21 @@ class YahooApisTest {
     }
 
     @Test
-    void newsGoesToTheFinanceHost() throws Exception {
-        var site = new MockWebServer();
-        site.start();
+    void newsGoesToTheGatewayHostWithTheClientNameHeader() throws Exception {
+        var gateway = new MockWebServer();
+        gateway.start();
         try {
-            var config = EndpointConfig.production().withHosts(server.url("/"), server.url("/"), site.url("/"), server.url("/"), server.url("/consent"));
+            var config = EndpointConfig.production().withHosts(server.url("/"), server.url("/"), gateway.url("/"), server.url("/"), server.url("/consent"));
             var split = YahooApis.create(config, new OkHttpClient());
-            site.enqueue(Fixtures.jsonResponse("news/ncp_news_unknown.json"));
-            split.news().news("latestNews", new NewsRequest(new NewsRequest.ServiceConfig(10, List.of("AAPL"))));
-            var request = site.takeRequest();
+            gateway.enqueue(Fixtures.jsonResponse("news/gateway_news_unknown.json"));
+            split.news().news(NewsRequest.tickerNews(NewsTab.NEWS, "AAPL", 10));
+            var request = gateway.takeRequest();
             assertThat(request.getMethod()).isEqualTo("POST");
-            assertThat(request.getPath()).isEqualTo("/xhr/ncp?queryRef=latestNews&serviceKey=ncp_fin");
+            assertThat(request.getPath()).isEqualTo("/");
+            assertThat(request.getHeader(NewsApi.CLIENT_NAME_HEADER)).isEqualTo("finance");
             assertThat(server.getRequestCount()).isZero();
         } finally {
-            site.shutdown();
+            gateway.shutdown();
         }
     }
 }

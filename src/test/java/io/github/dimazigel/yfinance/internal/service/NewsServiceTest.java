@@ -5,7 +5,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import ch.qos.logback.classic.Level;
 import io.github.dimazigel.yfinance.enums.NewsTab;
+import io.github.dimazigel.yfinance.exception.YFDataException;
 import io.github.dimazigel.yfinance.internal.api.NewsApi;
+import io.github.dimazigel.yfinance.internal.dto.news.NewsRequest;
 import io.github.dimazigel.yfinance.news.NewsItem;
 import io.github.dimazigel.yfinance.testsupport.Fixtures;
 import io.github.dimazigel.yfinance.testsupport.LogCapture;
@@ -23,11 +25,13 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.slf4j.MDC;
+import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
 
 class NewsServiceTest {
 
     private static final Symbol AAPL = Symbol.of("AAPL");
+    private static final JsonMapper JSON = JsonMapper.builder().build();
 
     private MockWebServer server;
     private NewsService service;
@@ -46,97 +50,121 @@ class NewsServiceTest {
 
     @Test
     void parsesNewsFromTheRealFixture() {
-        server.enqueue(Fixtures.jsonResponse("news/ncp_news_AAPL.json"));
+        server.enqueue(Fixtures.jsonResponse("news/gateway_news_AAPL.json"));
 
         var items = service.getNews(AAPL, NewsTab.NEWS, 10);
 
         assertThat(items).hasSize(10);
         NewsItem first = items.getFirst();
-        // Keys the survey found in 100% of 60 live items: non-null.
-        assertThat(first.id()).isEqualTo("8f4828bf-8d97-4abf-b0bd-37602ea1a93c");
-        assertThat(first.title()).isEqualTo("Apple's new CEO John Ternus plans on making some changes");
-        assertThat(first.published()).isEqualTo(Instant.parse("2026-09-30T13:57:00Z"));
-        assertThat(first.url()).isEqualTo(URI.create("https://finance.yahoo.com/video/apples-ceo-john-ternus-plans-135700100.html"));
+        assertThat(first.id()).isEqualTo("1ef88f61-ac08-42a8-8b69-24acf4cdec95");
+        assertThat(first.title()).isEqualTo("Which AI stocks' valuations are outrunning reality?");
+        assertThat(first.published()).isEqualTo(Instant.parse("2026-10-12T17:46:39Z"));
+        assertThat(first.url()).isEqualTo(URI.create("https://finance.yahoo.com/video/which-ai-stocks-valuations-are-outrunning-reality-174639413.html"));
         assertThat(first.provider().name()).isEqualTo("Yahoo Finance Video");
         assertThat(first.provider().url()).contains(URI.create("https://finance.yahoo.com/"));
-        // Optional, but present on this item.
         assertThat(first.contentType()).contains("VIDEO");
-        assertThat(first.summary()).hasValueSatisfying(s -> assertThat(s).startsWith("The 8:30 Hosts Julie Hyman"));
-        assertThat(first.clickThroughUrl()).contains(first.url());
+        assertThat(first.summary()).hasValueSatisfying(s -> assertThat(s).startsWith("Market Hang's panel discusses "));
+        assertThat(first.clickThroughUrl()).contains(URI.create("https://finance.yahoo.com/video/which-ai-stocks-valuations-are-outrunning-reality-174639413.html"));
         assertThat(first.thumbnail()).hasValueSatisfying(t -> {
-            assertThat(t.url().toString()).startsWith("https://s.yimg.com/uu/api/res/1.2/NjTv3WAdaK4EBp7a6oXwdg--");
-            assertThat(t.width()).isEqualTo(7902);
-            assertThat(t.height()).isEqualTo(5346);
+            assertThat(t.url().toString()).startsWith("https://d29szjachogqwa.cloudfront.net/images/user-uploaded/video-frame");
+            assertThat(t.width()).isEqualTo(1920);
+            assertThat(t.height()).isEqualTo(1080);
         });
-        assertThat(first.premium()).contains(false);
+        assertThat(first.premium()).as("a video has no premium flag").isEmpty();
+        assertThat(items.get(1).contentType()).contains("STORY");
+        assertThat(items.get(1).premium()).contains(false);
     }
 
     @Test
     void keepsYahoosOrderAndLeavesAbsentOptionalsEmpty() {
-        server.enqueue(Fixtures.jsonResponse("news/ncp_news_AAPL.json"));
+        server.enqueue(Fixtures.jsonResponse("news/gateway_news_AAPL.json"));
 
         var items = service.getNews(AAPL, NewsTab.NEWS, 10);
 
-        // Yahoo's stream is not strictly newest-first (item 2 is newer than item 0); it is kept as served.
-        assertThat(items.get(2).published()).isAfter(items.get(0).published());
-        assertThat(items.get(2).contentType()).contains("STORY");
-        assertThat(items.get(3).clickThroughUrl()).as("clickThroughUrl is null on the wire").isEmpty();
-        assertThat(items.get(6).thumbnail()).as("thumbnail is null on the wire").isEmpty();
+        assertThat(items).extracting(NewsItem::id).containsExactlyElementsOf(fixtureIds("news/gateway_news_AAPL.json"));
+        assertThat(items).extracting(NewsItem::contentType).containsOnly(java.util.Optional.of("STORY"), java.util.Optional.of("VIDEO"));
+        assertThat(items).filteredOn(i -> i.contentType().orElseThrow().equals("VIDEO"))
+                .as("a video carries no premium flag on the wire").isNotEmpty()
+                .allSatisfy(i -> assertThat(i.premium()).isEmpty());
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"ncp_news_AAPL", "ncp_all_AAPL", "ncp_press_AAPL", "ncp_news_SPY", "ncp_news_BTC_USD", "ncp_news_TTE_PA"})
+    @ValueSource(strings = {"gateway_news_AAPL", "gateway_all_AAPL", "gateway_press_AAPL", "gateway_news_SPY", "gateway_news_BTC_USD", "gateway_news_TTE_PA"})
     void everyCapturedItemCarriesTheRequiredFields(String fixture) {
         server.enqueue(Fixtures.jsonResponse("news/" + fixture + ".json"));
 
-        assertThat(service.getNews(AAPL, NewsTab.NEWS, 10)).as("none of the 10 captured items is dropped").hasSize(10);
+        assertThat(service.getNews(AAPL, NewsTab.NEWS, 10)).as("none of the captured items is dropped")
+                .hasSameSizeAs(fixtureIds("news/" + fixture + ".json"));
     }
 
     @Test
-    void postsTheSymbolAndCountToTheNcpEndpoint() throws Exception {
-        server.enqueue(Fixtures.jsonResponse("news/ncp_news_AAPL.json"));
+    void postsTheTickerNewsQueryToTheGatewayRoot() throws Exception {
+        server.enqueue(Fixtures.jsonResponse("news/gateway_news_AAPL.json"));
 
         service.getNews(AAPL, NewsTab.NEWS, 5);
 
         RecordedRequest req = server.takeRequest();
         assertThat(req.getMethod()).isEqualTo("POST");
-        assertThat(req.getRequestUrl().encodedPath()).isEqualTo("/xhr/ncp");
-        assertThat(req.getRequestUrl().queryParameter("queryRef")).isEqualTo("latestNews");
-        assertThat(req.getRequestUrl().queryParameter("serviceKey")).isEqualTo("ncp_fin");
+        assertThat(req.getRequestUrl().encodedPath()).isEqualTo("/");
+        assertThat(req.getRequestUrl().query()).isNull();
         assertThat(req.getHeader("Content-Type")).startsWith("application/json");
-        var json = JsonMapper.builder().build();
-        assertThat(json.readTree(req.getBody().readUtf8()))
-                .isEqualTo(json.readTree("{\"serviceConfig\":{\"snippetCount\":5,\"s\":[\"AAPL\"]}}"));
+        assertThat(req.getHeader(NewsApi.CLIENT_NAME_HEADER)).isEqualTo("finance");
+        JsonNode body = JSON.readTree(req.getBody().readUtf8());
+        assertThat(body.get("operationName").asString()).isEqualTo("TickerNews");
+        assertThat(body.get("query").asString()).isEqualTo(NewsRequest.QUERY);
+        JsonNode vars = body.get("variables");
+        assertThat(vars.get("first").asInt()).isEqualTo(5);
+        assertThat(vars.get("listInput").get("slug").asString()).isEqualTo("list=finance-US-en-US-ticker-news");
+        assertThat(vars.get("listInput").get("queryVariables").get("tickerSymbol"))
+                .isEqualTo(JSON.readTree("[\"AAPL\"]"));
+        assertThat(vars.get("listInput").get("getFullList").asBoolean()).isTrue();
+        assertThat(vars.get("mlRecsInput").get("rankInput").get("financeQuoteNewsV2").get("tickerSymbol"))
+                .isEqualTo(JSON.readTree("[\"AAPL\"]"));
+        assertThat(vars.get("clientContext"))
+                .isEqualTo(JSON.readTree("{\"device\":\"desktop\",\"lang\":\"en-US\",\"region\":\"US\",\"site\":\"finance\"}"));
     }
 
     @ParameterizedTest
-    @CsvSource({"ALL, newsAll", "NEWS, latestNews", "PRESS_RELEASES, pressRelease"})
-    void eachTabSendsItsQueryRef(NewsTab tab, String queryRef) throws Exception {
-        server.enqueue(Fixtures.jsonResponse("news/ncp_news_unknown.json"));
+    @CsvSource({
+        "ALL, list=finance-US-en-US-ticker-all",
+        "NEWS, list=finance-US-en-US-ticker-news",
+        "PRESS_RELEASES, list=finance-US-en-US-ticker-pressrelease"})
+    void eachTabSendsItsListSlug(NewsTab tab, String slug) throws Exception {
+        server.enqueue(Fixtures.jsonResponse("news/gateway_news_unknown.json"));
 
         service.getNews(AAPL, tab, 10);
 
-        assertThat(server.takeRequest().getRequestUrl().queryParameter("queryRef")).isEqualTo(queryRef);
+        JsonNode body = JSON.readTree(server.takeRequest().getBody().readUtf8());
+        assertThat(body.get("variables").get("listInput").get("slug").asString()).isEqualTo(slug);
     }
 
     @Test
     void aSymbolYahooHasNoNewsForIsAnEmptyList() {
-        server.enqueue(Fixtures.jsonResponse("news/ncp_news_unknown.json"));
+        server.enqueue(Fixtures.jsonResponse("news/gateway_news_unknown.json"));
 
         assertThat(service.getNews(Symbol.of("ZZZZNOTREAL"), NewsTab.NEWS, 10)).isEmpty();
     }
 
     @Test
     void aResponseWithoutAStreamIsAnEmptyList() {
-        server.enqueue(json("{\"status\":\"OK\"}"));
+        server.enqueue(json("{\"data\":{\"lightyearList\":null}}"));
 
         assertThat(service.getNews(AAPL, NewsTab.NEWS, 10)).isEmpty();
     }
 
     @Test
+    void graphqlErrorsWithoutAStreamAreADataException() {
+        server.enqueue(json("{\"data\":{\"lightyearList\":null},\"errors\":[{\"message\":\"Error from networkapi_subgraph\","
+                + "\"extensions\":{\"code\":\"BAD_USER_INPUT\"}}]}"));
+
+        assertThatThrownBy(() -> service.getNews(AAPL, NewsTab.NEWS, 10))
+                .isInstanceOf(YFDataException.class)
+                .hasMessageContaining("Error from networkapi_subgraph");
+    }
+
+    @Test
     void dropsAnItemMissingARequiredFieldAndLogsIt() {
-        server.enqueue(json("{\"data\":{\"tickerStream\":{\"stream\":["
-                + item("a1", "\"title\":\"Kept\",") + "," + item("a2", "") + "]}}}"));
+        server.enqueue(stream(item("a1", "\"title\":\"Kept\",") + "," + item("a2", "")));
 
         try (var log = LogCapture.ofLibrary()) {
             var items = service.getNews(AAPL, NewsTab.NEWS, 10);
@@ -150,26 +178,25 @@ class NewsServiceTest {
     @Test
     void dropsAnItemWhosePublicationTimeCannotBeParsed() {
         String broken = item("a2", "\"title\":\"Broken\",").replace("2026-09-30T13:57:00Z", "yesterday");
-        server.enqueue(json("{\"data\":{\"tickerStream\":{\"stream\":["
-                + item("a1", "\"title\":\"Kept\",") + "," + broken + "]}}}"));
+        server.enqueue(stream(item("a1", "\"title\":\"Kept\",") + "," + broken));
 
         assertThat(service.getNews(AAPL, NewsTab.NEWS, 10)).singleElement()
                 .satisfies(i -> assertThat(i.id()).isEqualTo("a1"));
     }
 
-    /** The {@code ad} shape is Python yfinance's assumption: no live response has carried one (see {@code NewsMapper}). */
+    /** Past the entries it can hydrate (about fifty), Yahoo pads the stream with {@code AssetError} nodes. */
     @Test
-    void filtersOutAdvertisements() {
-        String ad = item("ad1", "\"title\":\"Sponsored\",").replaceFirst("\\{", "{\"ad\":[{\"slot\":\"x\"}],");
-        String notAnAd = item("a1", "\"title\":\"Kept\",").replaceFirst("\\{", "{\"ad\":[],");
-        server.enqueue(json("{\"data\":{\"tickerStream\":{\"stream\":[" + ad + "," + notAnAd + "]}}}"));
+    void dropsEntriesYahooCouldNotHydrateAndLogsThemSeparately() {
+        server.enqueue(stream(item("a1", "\"title\":\"Kept\",") + ",{\"node\":{\"asset\":{\"__typename\":\"AssetError\"}}}"
+                + ",{\"node\":{\"asset\":null}}"));
 
         try (var log = LogCapture.ofLibrary()) {
             var items = service.getNews(AAPL, NewsTab.NEWS, 10);
 
             assertThat(items).singleElement().satisfies(i -> assertThat(i.id()).isEqualTo("a1"));
-            assertThat(log.messages(Level.DEBUG)).as("an ad is not a dropped datum")
-                    .noneSatisfy(m -> assertThat(m).startsWith("Dropped"));
+            assertThat(log.messages(Level.DEBUG))
+                    .anySatisfy(m -> assertThat(m).isEqualTo("Dropped 2 of 3 news entries Yahoo could not hydrate"))
+                    .noneSatisfy(m -> assertThat(m).contains("without a complete required field"));
         }
     }
 
@@ -188,7 +215,7 @@ class NewsServiceTest {
             seen.putAll(MDC.getCopyOfContextMap());
             return chain.proceed(chain.request());
         }).news();
-        server.enqueue(Fixtures.jsonResponse("news/ncp_news_unknown.json"));
+        server.enqueue(Fixtures.jsonResponse("news/gateway_news_unknown.json"));
 
         new NewsService(api).getNews(AAPL, NewsTab.NEWS, 10);
 
@@ -196,12 +223,26 @@ class NewsServiceTest {
         assertThat(MDC.get("yf.op")).isNull(); // cleared once the call returns
     }
 
+    /** The ids of a fixture's entries, in Yahoo's order. */
+    private static java.util.List<String> fixtureIds(String fixture) {
+        JsonNode edges = JSON.readTree(Fixtures.load(fixture)).path("data").path("lightyearList").path("main").path("edges");
+        var ids = new java.util.ArrayList<String>();
+        for (JsonNode edge : edges) {
+            ids.add(edge.path("node").path("asset").path("id").asString());
+        }
+        return ids;
+    }
+
     /** A minimal stream entry in the wire shape; {@code titleField} is {@code "title":"…",} or empty to omit it. */
     private static String item(String id, String titleField) {
-        return "{\"id\":\"" + id + "\",\"content\":{\"id\":\"" + id + "\"," + titleField
-                + "\"pubDate\":\"2026-09-30T13:57:00Z\","
+        return "{\"node\":{\"asset\":{\"__typename\":\"Story\",\"id\":\"" + id + "\"," + titleField
+                + "\"contentAttributes\":{\"pubDate\":\"2026-09-30T13:57:00Z\","
                 + "\"provider\":{\"displayName\":\"Reuters\"},"
-                + "\"canonicalUrl\":{\"url\":\"https://example.com/" + id + "\"}}}";
+                + "\"canonicalUrl\":\"https://example.com/" + id + "\"}}}}";
+    }
+
+    private static MockResponse stream(String edges) {
+        return json("{\"data\":{\"lightyearList\":{\"main\":{\"edges\":[" + edges + "],\"totalCount\":9}}}}");
     }
 
     private static MockResponse json(String body) {
