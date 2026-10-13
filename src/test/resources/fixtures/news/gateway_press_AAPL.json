@@ -1,0 +1,54 @@
+{
+  "data" : {
+    "lightyearList" : {
+      "main" : {
+        "edges" : [ {
+          "node" : {
+            "asset" : {
+              "__typename" : "Story",
+              "id" : "b6a24f13-5521-3020-985f-d2d43ec0a5f3",
+              "title" : "OneKey Launches OneKey Pro 2: First Hardware Wallet With Portfolio View",
+              "isPremiumNews" : false,
+              "contentAttributes" : {
+                "summary" : "A 6.2 mm flagship with four EAL6+ secure elements, and industry-first Apple Find My supportHong Kong, Oct. 08, 2026 (GLOBE NEWSWIRE) -- OneKey today launched OneKey Pro 2, a flagship hardware wallet and the first to show a full portfolio on the device itself. OneKey Pro 2 in Horizon Orange, showing the new on-device portfolio view. At 6.2 millimeters and 53 grams, Pro 2 pairs a 3.54-inch AMOLED display with four EAL6+ secure elements, and is the industry’s first to support Apple Find My. “Pro 2",
+                "pubDate" : "2026-10-08T08:00:00Z",
+                "canonicalUrl" : "https://finance.yahoo.com/markets/crypto/articles/onekey-launches-onekey-pro-2-080000811.html",
+                "clickthroughUrl" : "https://finance.yahoo.com/markets/crypto/articles/onekey-launches-onekey-pro-2-080000811.html",
+                "provider" : {
+                  "displayName" : "GlobeNewswire",
+                  "url" : "https://www.globenewswire.com/"
+                },
+                "thumbnail" : {
+                  "originalUrl" : "https://media.zenfs.com/en/globenewswire.com/4d6e05bf6dedd06b0a71760e73ce5710.png",
+                  "originalHeight" : 353,
+                  "originalWidth" : 1311
+                }
+              }
+            }
+          }
+        }, {
+          "node" : {
+            "asset" : {
+              "__typename" : "Story",
+              "id" : "a926044c-38c9-353e-89d5-73c3996ee3ad",
+              "title" : "Aqara Makes Canadian Retail Debut with Canadian Tire, Expanding Access to Smart Home Technology Nationwide",
+              "isPremiumNews" : false,
+              "contentAttributes" : {
+                "summary" : "TORONTO, October 09, 2026--Aqara, a global leader in IoT today announced its Canadian retail debut through a new partnership with Canadian Tire. Starting October 9, a selection of Aqara smart home products will be available in upwards of 500 Canadian Tire locations nationwide, marking a significant milestone in Aqara’s expansion across North America.",
+                "pubDate" : "2026-10-09T13:00:00Z",
+                "canonicalUrl" : "https://finance.yahoo.com/technology/articles/aqara-makes-canadian-retail-debut-130000397.html",
+                "clickthroughUrl" : "https://finance.yahoo.com/technology/articles/aqara-makes-canadian-retail-debut-130000397.html",
+                "provider" : {
+                  "displayName" : "Business Wire",
+                  "url" : "http://www.businesswire.com/"
+                },
+                "thumbnail" : null
+              }
+            }
+          }
+        } ],
+        "totalCount" : 2
+      }
+    }
+  }
+}

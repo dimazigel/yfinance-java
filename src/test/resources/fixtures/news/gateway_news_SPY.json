@@ -1,0 +1,250 @@
+{
+  "data" : {
+    "lightyearList" : {
+      "main" : {
+        "edges" : [ {
+          "node" : {
+            "asset" : {
+              "__typename" : "Story",
+              "id" : "34505ada-2b83-3538-9283-87880dd00fed",
+              "title" : "Stock Market: Will S&P 500 Open Up or Down Today?",
+              "isPremiumNews" : false,
+              "contentAttributes" : {
+                "summary" : "U.S. stock futures were mixed early Tuesday, with Nasdaq 100 and S&P 500 futures lower while Dow futures gained as Wall Street prepares for the official start of third-quarter bank earnings while navigating political controversies over proposed dividend payments and...",
+                "pubDate" : "2026-10-13T05:48:41Z",
+                "canonicalUrl" : "https://www.benzinga.com/markets/prediction-markets/26/10/62313960/stock-market-will-sp-500-open-up-or-down-today-56?utm_source=yahooFinance&utm_campaign=partner_feed&utm_medium=referral",
+                "clickthroughUrl" : "https://finance.yahoo.com/markets/stocks/articles/stock-market-p-500-open-054841149.html",
+                "provider" : {
+                  "displayName" : "Benzinga Prediction Markets",
+                  "url" : "https://www.benzinga.com/"
+                },
+                "thumbnail" : {
+                  "originalUrl" : "https://media.zenfs.com/en/benzinga_prediction_markets_613/30264ab40b56d84ad989678f862044c5.jpg",
+                  "originalHeight" : 1080,
+                  "originalWidth" : 1920
+                }
+              }
+            }
+          }
+        }, {
+          "node" : {
+            "asset" : {
+              "__typename" : "Story",
+              "id" : "c035a078-ea1e-3cdc-9b51-b7f18c18eca0",
+              "title" : "Michael Burry Flags ‘Bull Trap’ Risk, Holds Back On New Shorts — Why Trump’s Fannie-Freddie Call Matters To His Portfolio",
+              "isPremiumNews" : false,
+              "contentAttributes" : {
+                "summary" : "Puts make up about 10% of Burry's portfolio and long positions and LEAPS account for most of the rest, with minimal cash.",
+                "pubDate" : "2026-10-13T04:49:14Z",
+                "canonicalUrl" : "https://stocktwits.com/news-articles/markets/equity/michael-burry-bull-trap-risk-holds-back-new-shorts-trump-fannie-freddie-call/cZxBdKIRBob",
+                "clickthroughUrl" : "https://finance.yahoo.com/markets/stocks/articles/michael-burry-flags-bull-trap-044914464.html",
+                "provider" : {
+                  "displayName" : "Stocktwits",
+                  "url" : "https://stocktwits.com/"
+                },
+                "thumbnail" : {
+                  "originalUrl" : "https://media.zenfs.com/en/stocktwits_383/52803883b60ca490d3cfbc4d37210823",
+                  "originalHeight" : 960,
+                  "originalWidth" : 1280
+                }
+              }
+            }
+          }
+        }, {
+          "node" : {
+            "asset" : {
+              "__typename" : "Story",
+              "id" : "537a5f38-d4df-3924-b5ff-92b065b0dfdb",
+              "title" : "Illumina’s (ILMN) Sequencing Business Is Recovering, But Is the Stock Getting Ahead of Itself?",
+              "isPremiumNews" : false,
+              "contentAttributes" : {
+                "summary" : "Illumina, Inc. (NASDAQ:ILMN) has returned 118% over the past six months, compared to a 21.25% return for the Insider Monkey Billionaire Index and 14% for State Street SPDR S&P 500 ETF Trust. Illumina has given investors a reason to look at it differently in 2026. After years of dealing with growth challenges and strategic distractions, […]",
+                "pubDate" : "2026-10-13T03:52:46Z",
+                "canonicalUrl" : "https://finance.yahoo.com/markets/stocks/articles/illumina-ilmn-sequencing-business-recovering-035246371.html",
+                "clickthroughUrl" : "https://finance.yahoo.com/markets/stocks/articles/illumina-ilmn-sequencing-business-recovering-035246371.html",
+                "provider" : {
+                  "displayName" : "Insider Monkey",
+                  "url" : "http://www.insidermonkey.com"
+                },
+                "thumbnail" : {
+                  "originalUrl" : "https://media.zenfs.com/en/insidermonkey.com/9ad206ec9a2451d4e5113e0eba029f6b.jpg",
+                  "originalHeight" : 816,
+                  "originalWidth" : 1456
+                }
+              }
+            }
+          }
+        }, {
+          "node" : {
+            "asset" : {
+              "__typename" : "Story",
+              "id" : "ec064268-b9df-3248-af53-9d0aff02494c",
+              "title" : "TransDigm (TDG) Has Negative Book Value of almost $168 a Share. Is That a Problem?",
+              "isPremiumNews" : false,
+              "contentAttributes" : {
+                "summary" : "TransDigm Group Incorporated (NYSE:TDG) closed at $1,107.99 on October 9. The stock has returned -10.15% during the last six months, compared to a 24.3% return for the Insider Monkey Billionaire Index and 15.1% for State Street SPDR S&P 500 ETF Trust. The accounts say the company is worth less than nothing and the shares trade […]",
+                "pubDate" : "2026-10-13T02:48:12Z",
+                "canonicalUrl" : "https://finance.yahoo.com/markets/stocks/articles/transdigm-tdg-negative-book-value-024812228.html",
+                "clickthroughUrl" : "https://finance.yahoo.com/markets/stocks/articles/transdigm-tdg-negative-book-value-024812228.html",
+                "provider" : {
+                  "displayName" : "Insider Monkey",
+                  "url" : "http://www.insidermonkey.com"
+                },
+                "thumbnail" : {
+                  "originalUrl" : "https://media.zenfs.com/en/insidermonkey.com/b51d4083c48c068654f8ae5eac5e8ac2.jpg",
+                  "originalHeight" : 565,
+                  "originalWidth" : 847
+                }
+              }
+            }
+          }
+        }, {
+          "node" : {
+            "asset" : {
+              "__typename" : "Story",
+              "id" : "4abf0700-c686-3755-9403-a7bd63232367",
+              "title" : "Ventas (VTR) Pays Out Over 370% of Its Earnings as Dividends, So What Actually Funds It?",
+              "isPremiumNews" : false,
+              "contentAttributes" : {
+                "summary" : "Ventas, Inc. (NYSE:VTR) closed at $82.04 on October 9. The stock has returned -2.8% during the last six months, compared to a 24.3% return for the Insider Monkey Billionaire Index and 15.1% for State Street SPDR S&P 500 ETF Trust. Ventas is paid to house people who are living longer, which is the one demographic […]",
+                "pubDate" : "2026-10-13T02:06:03Z",
+                "canonicalUrl" : "https://finance.yahoo.com/markets/stocks/articles/ventas-vtr-pays-over-370-020603623.html",
+                "clickthroughUrl" : "https://finance.yahoo.com/markets/stocks/articles/ventas-vtr-pays-over-370-020603623.html",
+                "provider" : {
+                  "displayName" : "Insider Monkey",
+                  "url" : "http://www.insidermonkey.com"
+                },
+                "thumbnail" : {
+                  "originalUrl" : "https://media.zenfs.com/en/insidermonkey.com/8b8f5e32505a00037633560e3fdd9939.jpg",
+                  "originalHeight" : 816,
+                  "originalWidth" : 1456
+                }
+              }
+            }
+          }
+        }, {
+          "node" : {
+            "asset" : {
+              "__typename" : "Story",
+              "id" : "d54aa931-d641-3b33-a8f8-3973104f607a",
+              "title" : "Charter Communications (CHTR) Trades at 2.69 Times Earnings With 41.52% of Its Float Sold Short. Which Side Is Reading It Right?",
+              "isPremiumNews" : false,
+              "contentAttributes" : {
+                "summary" : "Charter Communications, Inc. (NASDAQ:CHTR) closed at $103.38 on October 9. The stock has returned -54.3% during the last six months, compared to a 24.3% return for the Insider Monkey Billionaire Index and 15.1% for the State Street SPDR S&P 500 ETF Trust. Two groups are reading the same accounts here and reaching opposite conclusions. One […]",
+                "pubDate" : "2026-10-13T01:56:56Z",
+                "canonicalUrl" : "https://finance.yahoo.com/markets/stocks/articles/charter-communications-chtr-trades-2-015656570.html",
+                "clickthroughUrl" : "https://finance.yahoo.com/markets/stocks/articles/charter-communications-chtr-trades-2-015656570.html",
+                "provider" : {
+                  "displayName" : "Insider Monkey",
+                  "url" : "http://www.insidermonkey.com"
+                },
+                "thumbnail" : {
+                  "originalUrl" : "https://media.zenfs.com/en/insidermonkey.com/119ca111016f54aae713bde7ee7869d0.jpg",
+                  "originalHeight" : 816,
+                  "originalWidth" : 1456
+                }
+              }
+            }
+          }
+        }, {
+          "node" : {
+            "asset" : {
+              "__typename" : "Story",
+              "id" : "1eb539d2-6df8-37d9-9ebf-8bd13dfd29f9",
+              "title" : "ServiceNow (NOW) Grew Revenue 24% While Earnings Fell 22.60%. Where Did the Profit Go?",
+              "isPremiumNews" : false,
+              "contentAttributes" : {
+                "summary" : "ServiceNow, Inc. (NYSE:NOW) closed at $140.86 on October 9. The stock has returned 58.1% during the last six months, compared to a 24.3% return for the Insider Monkey Billionaire Index and 15.1% for State Street SPDR S&P 500 ETF Trust. A company can add a quarter to its revenue and still report less profit, and […]",
+                "pubDate" : "2026-10-13T01:44:21Z",
+                "canonicalUrl" : "https://finance.yahoo.com/markets/stocks/articles/servicenow-now-grew-revenue-24-014421273.html",
+                "clickthroughUrl" : "https://finance.yahoo.com/markets/stocks/articles/servicenow-now-grew-revenue-24-014421273.html",
+                "provider" : {
+                  "displayName" : "Insider Monkey",
+                  "url" : "http://www.insidermonkey.com"
+                },
+                "thumbnail" : {
+                  "originalUrl" : "https://media.zenfs.com/en/insidermonkey.com/51263d3d0f4c550afb6e0dbf3b80d1d9.jpg",
+                  "originalHeight" : 1280,
+                  "originalWidth" : 1920
+                }
+              }
+            }
+          }
+        }, {
+          "node" : {
+            "asset" : {
+              "__typename" : "Story",
+              "id" : "6777f0a3-0d07-3b7d-b756-732835daac9e",
+              "title" : "Is Western Digital (WDC) a Good or Bad Investment at Today’s Price?",
+              "isPremiumNews" : false,
+              "contentAttributes" : {
+                "summary" : "Western Digital Corporation (NASDAQ:WDC) closed at $397.28 on October 9. The stock has returned 13.4% during the last six months, compared to a 24.3% return for the Insider Monkey Billionaire Index and 15.1% for State Street SPDR S&P 500 ETF Trust. Western Digital reports a net margin no hardware manufacturer has ever sustained. Storage has […]",
+                "pubDate" : "2026-10-13T00:57:20Z",
+                "canonicalUrl" : "https://finance.yahoo.com/markets/stocks/articles/western-digital-wdc-good-bad-005720654.html",
+                "clickthroughUrl" : "https://finance.yahoo.com/markets/stocks/articles/western-digital-wdc-good-bad-005720654.html",
+                "provider" : {
+                  "displayName" : "Insider Monkey",
+                  "url" : "http://www.insidermonkey.com"
+                },
+                "thumbnail" : {
+                  "originalUrl" : "https://media.zenfs.com/en/insidermonkey.com/fefce92f70448fe910712774f5e61d3d.png",
+                  "originalHeight" : 1112,
+                  "originalWidth" : 1824
+                }
+              }
+            }
+          }
+        }, {
+          "node" : {
+            "asset" : {
+              "__typename" : "Story",
+              "id" : "ae300b35-50be-3e03-ac40-ee89cfe686a4",
+              "title" : "State Street (STT) vs BNY (BNY) and Northern Trust (NTRS): Which Custodian Bank is a Better Buy?",
+              "isPremiumNews" : false,
+              "contentAttributes" : {
+                "summary" : "State Street Corporation (NYSE:STT) closed at $174.96 on October 9. The stock has returned 25.5% during the last 6 months, compared to a 24.3% return for the Insider Monkey Billionaire Index and 15.1% for State Street SPDR S&P 500 ETF Trust. The Bank of New York Mellon Corporation (NYSE:BNY) closed at $142.71 and has returned […]",
+                "pubDate" : "2026-10-13T00:46:44Z",
+                "canonicalUrl" : "https://finance.yahoo.com/markets/stocks/articles/state-street-stt-vs-bny-004644412.html",
+                "clickthroughUrl" : "https://finance.yahoo.com/markets/stocks/articles/state-street-stt-vs-bny-004644412.html",
+                "provider" : {
+                  "displayName" : "Insider Monkey",
+                  "url" : "http://www.insidermonkey.com"
+                },
+                "thumbnail" : {
+                  "originalUrl" : "https://media.zenfs.com/en/insidermonkey.com/256e409cd69f650963052e28dd0671fe.jpg",
+                  "originalHeight" : 816,
+                  "originalWidth" : 1456
+                }
+              }
+            }
+          }
+        }, {
+          "node" : {
+            "asset" : {
+              "__typename" : "Story",
+              "id" : "83fe3c83-4ded-3138-b570-c361b53ffc12",
+              "title" : "Biogen (BIIB) vs Amgen (AMGN) and Gilead (GILD): Which Big Pharma Stock is a Better Buy?",
+              "isPremiumNews" : false,
+              "contentAttributes" : {
+                "summary" : "Biogen Inc. (NASDAQ:BIIB) closed at $225.71 on October 9. The stock has returned 30.5% during the last six months, compared to a 24.3% return for the Insider Monkey Billionaire Index and 15.1% for the State Street SPDR S&P 500 ETF Trust. Amgen Inc. (NASDAQ:AMGN) closed at $414.87 and has returned 18.6% over the same six […]",
+                "pubDate" : "2026-10-13T00:31:10Z",
+                "canonicalUrl" : "https://finance.yahoo.com/markets/stocks/articles/biogen-biib-vs-amgen-amgn-003328754.html",
+                "clickthroughUrl" : "https://finance.yahoo.com/markets/stocks/articles/biogen-biib-vs-amgen-amgn-003328754.html",
+                "provider" : {
+                  "displayName" : "Insider Monkey",
+                  "url" : "http://www.insidermonkey.com"
+                },
+                "thumbnail" : {
+                  "originalUrl" : "https://media.zenfs.com/en/insidermonkey.com/51e557354b24b248245adac46ac0da45.jpg",
+                  "originalHeight" : 816,
+                  "originalWidth" : 1456
+                }
+              }
+            }
+          }
+        } ],
+        "totalCount" : 10
+      }
+    }
+  }
+}

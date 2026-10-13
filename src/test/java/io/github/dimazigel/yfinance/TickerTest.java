@@ -309,21 +309,22 @@ class TickerTest {
         var news = yf.ticker("AAPL").news();
 
         assertThat(news).hasSize(10);
-        assertThat(news.getFirst().title()).isEqualTo("Apple's new CEO John Ternus plans on making some changes");
+        assertThat(news.getFirst().title()).isEqualTo("Which AI stocks' valuations are outrunning reality?");
         RecordedRequest request = server.takeRequest();
-        assertThat(request.getRequestUrl().encodedPath()).isEqualTo("/xhr/ncp");
-        assertThat(request.getRequestUrl().queryParameter("queryRef")).as("the news tab by default").isEqualTo("latestNews");
-        assertThat(request.getBody().readUtf8()).as("ten items by default").contains("\"snippetCount\":10").contains("\"AAPL\"");
+        assertThat(request.getMethod()).isEqualTo("POST");
+        assertThat(request.getRequestUrl().encodedPath()).as("the news gateway sits at the host root").isEqualTo("/");
+        String body = request.getBody().readUtf8();
+        assertThat(body).as("the news tab by default").contains("\"slug\":\"list=finance-US-en-US-ticker-news\"");
+        assertThat(body).as("ten items by default").contains("\"first\":10").contains("\"tickerSymbol\":[\"AAPL\"]");
     }
 
     @Test
     void newsTakesATabAndACount() throws Exception {
         var releases = yf.ticker("AAPL").news(NewsTab.PRESS_RELEASES, 3);
 
-        assertThat(releases.getFirst().provider().name()).isEqualTo("ACCESS Newswire");
-        RecordedRequest request = server.takeRequest();
-        assertThat(request.getRequestUrl().queryParameter("queryRef")).isEqualTo("pressRelease");
-        assertThat(request.getBody().readUtf8()).contains("\"snippetCount\":3");
+        assertThat(releases.getFirst().provider().name()).isEqualTo("GlobeNewswire");
+        String body = server.takeRequest().getBody().readUtf8();
+        assertThat(body).contains("\"slug\":\"list=finance-US-en-US-ticker-pressrelease\"").contains("\"first\":3");
     }
 
     @Test

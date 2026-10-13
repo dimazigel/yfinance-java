@@ -30,8 +30,7 @@ public final class NewsService {
             throw new IllegalArgumentException("count must be >= 1, was " + count);
         }
         try (var ignored = LogContext.scope("news", symbol)) {
-            var body = new NewsRequest(new NewsRequest.ServiceConfig(count, List.of(symbol.value())));
-            return NewsMapper.toItems(api.news(tab.wireValue(), body));
+            return NewsMapper.toItems(api.news(NewsRequest.tickerNews(tab, symbol.value(), count)));
         }
     }
 }

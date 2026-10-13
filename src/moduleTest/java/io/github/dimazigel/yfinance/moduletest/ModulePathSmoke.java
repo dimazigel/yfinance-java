@@ -83,8 +83,8 @@ public final class ModulePathSmoke {
             fixture = query.contains("PeRatio") ? "timeseries_valuation_quarterly_aapl.json" : "timeseries_income_annual.json";
         } else if (path.startsWith("/v7/finance/options/")) {
             fixture = "options/options_AAPL.json";
-        } else if (path.equals("/xhr/ncp")) {
-            fixture = "news/ncp_news_AAPL.json";
+        } else if (path.equals("/") && exchange.getRequestMethod().equals("POST")) {
+            fixture = "news/gateway_news_AAPL.json";   // the news gateway: a GraphQL POST at the host root
         } else if (path.equals("/v1/finance/screener/predefined/saved")) {
             fixture = "screener/predefined_day_gainers.json";
         } else if (path.equals("/v1/finance/screener")) {

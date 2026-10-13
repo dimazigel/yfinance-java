@@ -1,0 +1,238 @@
+{
+  "data" : {
+    "lightyearList" : {
+      "main" : {
+        "edges" : [ {
+          "node" : {
+            "asset" : {
+              "__typename" : "Story",
+              "id" : "6de73edf-9d41-3235-957b-f21b2d84be46",
+              "title" : "Sector Update: Financial Stocks Rise Monday Afternoon",
+              "isPremiumNews" : true,
+              "contentAttributes" : {
+                "summary" : "Financial stocks rose in Monday afternoon trading with the NYSE Financial Index and the State Street",
+                "pubDate" : "2026-10-12T17:54:15Z",
+                "canonicalUrl" : "https://finance.yahoo.com/markets/stocks/articles/sector-financial-stocks-rise-monday-175415678.html",
+                "clickthroughUrl" : "https://finance.yahoo.com/markets/stocks/articles/sector-financial-stocks-rise-monday-175415678.html",
+                "provider" : {
+                  "displayName" : "MT Newswires",
+                  "url" : "https://www.mtnewswires.com/"
+                },
+                "thumbnail" : null
+              }
+            }
+          }
+        }, {
+          "node" : {
+            "asset" : {
+              "__typename" : "Story",
+              "id" : "b6557c96-d674-380f-a449-939a7c3b6ee6",
+              "title" : "Sector Update: Energy Stocks Gain Monday Afternoon",
+              "isPremiumNews" : true,
+              "contentAttributes" : {
+                "summary" : "Energy stocks were higher Monday afternoon, with the NYSE Energy Sector Index rising 1.5% and the St",
+                "pubDate" : "2026-10-12T17:51:05Z",
+                "canonicalUrl" : "https://finance.yahoo.com/energy/articles/sector-energy-stocks-gain-monday-175105838.html",
+                "clickthroughUrl" : "https://finance.yahoo.com/energy/articles/sector-energy-stocks-gain-monday-175105838.html",
+                "provider" : {
+                  "displayName" : "MT Newswires",
+                  "url" : "https://www.mtnewswires.com/"
+                },
+                "thumbnail" : null
+              }
+            }
+          }
+        }, {
+          "node" : {
+            "asset" : {
+              "__typename" : "Story",
+              "id" : "1d07ef6c-0d94-3f64-aeb4-b12380ac98e6",
+              "title" : "Sector Update: Energy",
+              "isPremiumNews" : true,
+              "contentAttributes" : {
+                "summary" : "Energy stocks were higher Monday afternoon, with the NYSE Energy Sector Index rising 1.5% and the St",
+                "pubDate" : "2026-10-12T17:18:19Z",
+                "canonicalUrl" : "https://finance.yahoo.com/energy/articles/sector-energy-171819350.html",
+                "clickthroughUrl" : "https://finance.yahoo.com/energy/articles/sector-energy-171819350.html",
+                "provider" : {
+                  "displayName" : "MT Newswires",
+                  "url" : "https://www.mtnewswires.com/"
+                },
+                "thumbnail" : null
+              }
+            }
+          }
+        }, {
+          "node" : {
+            "asset" : {
+              "__typename" : "Story",
+              "id" : "e068b9b2-d479-3988-9d75-5e6e72235e3b",
+              "title" : "TotalEnergies (ENXTPA:TTE) Lands $1.2 Billion Solar Deal For 700 MW ԱՄՆ Growth",
+              "isPremiumNews" : false,
+              "contentAttributes" : {
+                "summary" : "TotalEnergies (ENXTPA:TTE) and KKR agreed a US$1.2b deal to add 700 MW of U.S. solar assets to their joint venture. The expanded portfolio increases the partners' shared U.S. renewable capacity, focusing on utility scale solar generation projects. The transaction deepens TotalEnergies' presence in the American clean energy market through an enlarged co owned operating platform with KKR. The 700 MW U.S. solar expansion with KKR sits against wider shifts in how global capital is moving into...",
+                "pubDate" : "2026-10-12T17:07:56Z",
+                "canonicalUrl" : "https://finance.yahoo.com/energy/articles/totalenergies-enxtpa-tte-lands-1-170756107.html",
+                "clickthroughUrl" : "https://finance.yahoo.com/energy/articles/totalenergies-enxtpa-tte-lands-1-170756107.html",
+                "provider" : {
+                  "displayName" : "Simply Wall St.",
+                  "url" : "https://simplywall.st/"
+                },
+                "thumbnail" : {
+                  "originalUrl" : "https://media.zenfs.com/en/simply_wall_st__316/cdadae800d691074bea5587f34f15a32.jpg",
+                  "originalHeight" : 900,
+                  "originalWidth" : 1600
+                }
+              }
+            }
+          }
+        }, {
+          "node" : {
+            "asset" : {
+              "__typename" : "Story",
+              "id" : "ac536304-10e1-3adb-a534-88b367d60d47",
+              "title" : "SLB Secures 15-Year Digital Drilling Agreement With TotalEnergies",
+              "isPremiumNews" : false,
+              "contentAttributes" : {
+                "summary" : "SLB's 15-year TotalEnergies contract expands DrillPlan adoption, strengthens digital business visibility and supports long-term upstream technology growth.",
+                "pubDate" : "2026-10-12T15:12:00Z",
+                "canonicalUrl" : "https://finance.yahoo.com/energy/articles/slb-secures-15-digital-drilling-151200159.html",
+                "clickthroughUrl" : "https://finance.yahoo.com/energy/articles/slb-secures-15-digital-drilling-151200159.html",
+                "provider" : {
+                  "displayName" : "Zacks",
+                  "url" : "http://www.zacks.com/"
+                },
+                "thumbnail" : {
+                  "originalUrl" : "https://media.zenfs.com/en/zacks.com/a20aef535460d4b3e1ee8b1b6e2b7f4b.jpg",
+                  "originalHeight" : 400,
+                  "originalWidth" : 635
+                }
+              }
+            }
+          }
+        }, {
+          "node" : {
+            "asset" : {
+              "__typename" : "Story",
+              "id" : "3078e259-f305-3775-a073-36797d7f64b0",
+              "title" : "TotalEnergies adds 700MW to KKR US renewables venture",
+              "isPremiumNews" : false,
+              "contentAttributes" : {
+                "summary" : "The newly added assets consist of three utility-scale solar projects in Texas and Ohio.",
+                "pubDate" : "2026-10-12T14:10:38Z",
+                "canonicalUrl" : "https://www.power-technology.com/news/totalenergies-700mw-kkr-us-renewables/",
+                "clickthroughUrl" : "https://finance.yahoo.com/news/totalenergies-adds-700mw-kkr-us-141038296.html",
+                "provider" : {
+                  "displayName" : "Power Technology",
+                  "url" : "https://www.globaldata.com/"
+                },
+                "thumbnail" : {
+                  "originalUrl" : "https://media.zenfs.com/en/power_technology_866/080517b2c4bf18f218a51fe24c36d758.jpg",
+                  "originalHeight" : 810,
+                  "originalWidth" : 1440
+                }
+              }
+            }
+          }
+        }, {
+          "node" : {
+            "asset" : {
+              "__typename" : "Story",
+              "id" : "11b69674-add3-3333-8728-3093d946b3f9",
+              "title" : "TotalEnergies and KKR Plan to Add 700 MW of US Solar Capacity to Joint Venture",
+              "isPremiumNews" : false,
+              "contentAttributes" : {
+                "summary" : "TotalEnergies (EU:TTE) and KKR (NYSE:KKR) have announced plans to expand their US solar energy joint venture through the addition of a 700-megawatt portfolio comprising three utility-scale projects in Texas and Ohio. The proposed transaction values the portfolio at an enterprise value of $1.",
+                "pubDate" : "2026-10-12T10:38:49Z",
+                "canonicalUrl" : "https://investorshub.advfn.com/market-news/article/37857/totalenergies-and-kkr-plan-to-add-700-mw-of-us-solar-capacity-to-joint-venture",
+                "clickthroughUrl" : "https://finance.yahoo.com/energy/articles/totalenergies-kkr-plan-add-700-103849201.html",
+                "provider" : {
+                  "displayName" : "InvestorsHub",
+                  "url" : "https://investorshub.advfn.com/"
+                },
+                "thumbnail" : {
+                  "originalUrl" : "https://media.zenfs.com/en/investorshub_458/d8f7fd075a8d36625801896960a53ebb.png",
+                  "originalHeight" : 659,
+                  "originalWidth" : 1200
+                }
+              }
+            }
+          }
+        }, {
+          "node" : {
+            "asset" : {
+              "__typename" : "Story",
+              "id" : "456342f5-ac43-35fc-a7b8-520457b80af5",
+              "title" : "TotalEnergies Expands U.S. Solar Venture With KKR in $1.2 Billion Deal",
+              "isPremiumNews" : false,
+              "contentAttributes" : {
+                "summary" : "TotalEnergies and KKR are expanding their U.S. solar partnership with three projects in Texas and Ohio, boosting their joint venture's capacity to 2.1 GW.",
+                "pubDate" : "2026-10-12T10:06:33Z",
+                "canonicalUrl" : "https://finance.yahoo.com/energy/articles/totalenergies-expands-u-solar-venture-100633221.html",
+                "clickthroughUrl" : "https://finance.yahoo.com/energy/articles/totalenergies-expands-u-solar-venture-100633221.html",
+                "provider" : {
+                  "displayName" : "Oilprice.com",
+                  "url" : "http://oilprice.com"
+                },
+                "thumbnail" : {
+                  "originalUrl" : "https://media.zenfs.com/en/oilprice.com/af823267cae3e4adae5a879e0dd929e6.jpg",
+                  "originalHeight" : 563,
+                  "originalWidth" : 1000
+                }
+              }
+            }
+          }
+        }, {
+          "node" : {
+            "asset" : {
+              "__typename" : "Story",
+              "id" : "4f20b9d2-9958-37b1-b746-59cb23e19542",
+              "title" : "ExxonMobil blocked $5B Kashagan environmental fine settlement",
+              "isPremiumNews" : false,
+              "contentAttributes" : {
+                "summary" : "The U.S. oil major persuaded TotalEnergies to oppose the proposal, and has linked a potential $80 billion new investment to resolving the dispute",
+                "pubDate" : "2026-10-09T12:56:32Z",
+                "canonicalUrl" : "https://qz.com/exxonmobil-blocked-kashagan-environmental-fine-settlement-100926",
+                "clickthroughUrl" : "https://finance.yahoo.com/energy/articles/exxonmobil-blocked-5b-kashagan-environmental-125632194.html",
+                "provider" : {
+                  "displayName" : "Quartz",
+                  "url" : "https://qz.com/"
+                },
+                "thumbnail" : {
+                  "originalUrl" : "https://media.zenfs.com/en/quartz_855/2666ee684b1d7dc77f377745845b944a.jpg",
+                  "originalHeight" : 720,
+                  "originalWidth" : 1280
+                }
+              }
+            }
+          }
+        }, {
+          "node" : {
+            "asset" : {
+              "__typename" : "Story",
+              "id" : "c53174fc-0cf0-3a9b-91a4-f75abaf007ca",
+              "title" : "Are renewables worth investing in?",
+              "isPremiumNews" : false,
+              "contentAttributes" : {
+                "summary" : "US policy and rising interest rates are creating a challenging backdrop for renewable energy. Is there still a case to invest in renewables?",
+                "pubDate" : "2026-10-09T12:21:42Z",
+                "canonicalUrl" : "https://moneyweek.com/investments/energy/are-renewables-worth-investing-in",
+                "clickthroughUrl" : "https://finance.yahoo.com/energy/articles/renewables-worth-investing-122142890.html",
+                "provider" : {
+                  "displayName" : "Moneyweek",
+                  "url" : "https://moneyweek.com/"
+                },
+                "thumbnail" : {
+                  "originalUrl" : "https://media.zenfs.com/en/moneyweek_494/c069dc075cb34b3f6d440de632895a29.jpg",
+                  "originalHeight" : 1280,
+                  "originalWidth" : 1920
+                }
+              }
+            }
+          }
+        } ],
+        "totalCount" : 10
+      }
+    }
+  }
+}

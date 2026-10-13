@@ -21,7 +21,7 @@ class EndpointConfigTest {
         assertThat(config.callTimeout()).isEqualTo(Duration.ofSeconds(30));
         assertThat(config.query1Base().host()).isEqualTo("query1.finance.yahoo.com");
         assertThat(config.query2Base().host()).isEqualTo("query2.finance.yahoo.com");
-        assertThat(config.financeBase().host()).isEqualTo("finance.yahoo.com");
+        assertThat(config.newsGatewayBase().host()).isEqualTo("nexus-gateway-prod.media.yahoo.com");
         assertThat(config.cookieUrl().host()).isEqualTo("fc.yahoo.com");
         assertThat(config.consentUrl()).isEqualTo(HttpUrl.get("https://guce.yahoo.com/consent"));
         assertThat(config.userAgent()).startsWith("Mozilla/5.0");
@@ -35,7 +35,7 @@ class EndpointConfigTest {
         var config = EndpointConfig.production().withHosts(URL);
         assertThat(config.query1Base()).isEqualTo(URL);
         assertThat(config.query2Base()).isEqualTo(URL);
-        assertThat(config.financeBase()).isEqualTo(URL);
+        assertThat(config.newsGatewayBase()).isEqualTo(URL);
         assertThat(config.cookieUrl()).isEqualTo(URL);
         assertThat(config.consentUrl()).isEqualTo(URL.resolve("consent"));
         assertThat(config.crumbUrl()).isEqualTo(URL.resolve("v1/test/getcrumb"));
@@ -50,7 +50,7 @@ class EndpointConfigTest {
         var config = EndpointConfig.production().withHosts(URL, other, site, URL, consent);
         assertThat(config.query1Base()).isEqualTo(URL);
         assertThat(config.query2Base()).isEqualTo(other);
-        assertThat(config.financeBase()).isEqualTo(site);
+        assertThat(config.newsGatewayBase()).isEqualTo(site);
         assertThat(config.consentUrl()).isEqualTo(consent);
         assertThat(config.cookieUrl()).isEqualTo(URL);
     }

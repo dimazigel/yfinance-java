@@ -1,13 +1,16 @@
 package io.github.dimazigel.yfinance.enums;
 
-/** Tab of a symbol's news stream on Yahoo Finance; the wire value is the news endpoint's {@code queryRef}. */
+/**
+ * Tab of a symbol's news stream on Yahoo Finance; the wire value is the list slug the news gateway
+ * is asked for (the {@code listInput.slug} variable of the {@code TickerNews} query).
+ */
 public enum NewsTab implements WireEnum {
     /** Everything: news, videos and press releases. */
-    ALL("newsAll"),
+    ALL("list=finance-US-en-US-ticker-all"),
     /** Editorial news and videos. */
-    NEWS("latestNews"),
+    NEWS("list=finance-US-en-US-ticker-news"),
     /** Press releases from the newswires. */
-    PRESS_RELEASES("pressRelease");
+    PRESS_RELEASES("list=finance-US-en-US-ticker-pressrelease");
 
     private final String wireValue;
 

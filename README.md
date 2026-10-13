@@ -400,7 +400,7 @@ Twitter and proof-of-work stats.
 | Valuation measures per quarter end or fiscal year end | `/ws/fundamentals-timeseries` | `Ticker.valuationHistory(...)`, `YFinance.valuationHistory(...)` |
 | Options chain | `/v7/finance/options` | `Ticker.options(...)`, `YFinance.options(...)` |
 | Search | `/v1/finance/search` | `YFinance.search(...)` (`quotes()` + `news()`) |
-| Per-symbol news stream (news, press releases, all) | `POST finance.yahoo.com/xhr/ncp` | `Ticker.news()`, `Ticker.news(tab, count)`, `YFinance.news(...)` |
+| Per-symbol news stream (news, press releases, all) | `POST nexus-gateway-prod.media.yahoo.com/` (GraphQL, the quote page's `TickerNews` query) | `Ticker.news()`, `Ticker.news(tab, count)`, `YFinance.news(...)` |
 | Lookup | `/v1/finance/lookup` | `YFinance.lookup(...)` |
 | Sector and industry pages | `/v1/finance/sectors/{key}`, `/v1/finance/industries/{key}` | `YFinance.sector(SectorKey)`, `YFinance.industry(key)` |
 | Screener: predefined screens and custom equity / fund queries; listings by ISIN | `/v1/finance/screener/predefined/saved`, `POST /v1/finance/screener` | `YFinance.screen(...)`, `screenEquities(...)`, `screenFunds(...)`, `listings(Isin)` |

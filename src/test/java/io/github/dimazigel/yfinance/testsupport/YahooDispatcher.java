@@ -1,6 +1,7 @@
 package io.github.dimazigel.yfinance.testsupport;
 
 import io.github.dimazigel.yfinance.enums.LineItem;
+import io.github.dimazigel.yfinance.enums.NewsTab;
 import io.github.dimazigel.yfinance.enums.StatementType;
 import java.util.Arrays;
 import okhttp3.HttpUrl;
@@ -28,8 +29,9 @@ import okhttp3.mockwebserver.RecordedRequest;
  *       Yahoo's "Not Found" envelope; a POST to {@code /v1/finance/screener} gets the custom-equity
  *       capture, the fund capture when the body asks for {@code MUTUALFUND}, or Apple's listings
  *       when the query is on {@code isin}
- *   <li>{@code /xhr/ncp} (the news stream): the AAPL capture of the requested tab for every symbol
- *       except {@link #UNKNOWN}, which gets the empty-stream capture
+ *   <li>{@code POST /} (the news gateway, a GraphQL endpoint at the host root): the AAPL capture of
+ *       the requested tab for every symbol except {@link #UNKNOWN}, which gets the empty-stream
+ *       capture
  *   <li>{@code /ws/fundamentals-timeseries/}: {@code type=shares_out} (batch E/1, item 4) gets the
  *       shares-outstanding capture; the valuation-measure keys (batch E/2) get the AAPL valuation
  *       capture of their frequency, quarterly or annual; a chunk whose keys are purely annual-income ones
@@ -64,8 +66,8 @@ public class YahooDispatcher extends Dispatcher {
         if (path.equals("/v1/finance/lookup")) {
             return Fixtures.jsonResponse("lookup_apple.json");
         }
-        if (path.equals("/xhr/ncp")) {
-            return news(url.queryParameter("queryRef"), request.getBody().snapshot().utf8());
+        if (path.equals("/") && "POST".equals(request.getMethod())) {
+            return news(request.getBody().snapshot().utf8());
         }
         if (path.startsWith("/v1/finance/sectors/") || path.startsWith("/v1/finance/industries/")) {
             return domain(path.startsWith("/v1/finance/sectors/") ? "sector" : "industry", url.pathSegments().getLast());
@@ -156,16 +158,14 @@ public class YahooDispatcher extends Dispatcher {
         }
     }
 
-    private static MockResponse news(String queryRef, String body) {
+    private static MockResponse news(String body) {
         if (body.contains(UNKNOWN)) {
-            return Fixtures.jsonResponse("news/ncp_news_unknown.json");
+            return Fixtures.jsonResponse("news/gateway_news_unknown.json");
         }
-        String tab = switch (queryRef) {
-            case "newsAll" -> "all";
-            case "pressRelease" -> "press";
-            default -> "news";
-        };
-        return Fixtures.jsonResponse("news/ncp_" + tab + "_AAPL.json");
+        String tab = body.contains(NewsTab.ALL.wireValue()) ? "all"
+                : body.contains(NewsTab.PRESS_RELEASES.wireValue()) ? "press"
+                : "news";
+        return Fixtures.jsonResponse("news/gateway_" + tab + "_AAPL.json");
     }
 
     private static MockResponse domain(String kind, String key) {
